@@ -1,0 +1,1665 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// App.js — root component, state, handlers, and layout shell
+//
+// PASS 1 — Centralized lock guards.
+// A single check, isLockedOrAncestorLocked(...), now gates every handler that
+// edits or moves a container. Locked (or locked-by-ancestor) containers cannot
+// be edited, moved, deleted, painted, pasted-into, or given new children.
+// Selection and lock-toggling remain ungated so you can always select a locked
+// item to unlock it. Copy and paintbrush-pickup stay ungated (non-mutating).
+// Guards are marked with: // LOCK GUARD
+// ─────────────────────────────────────────────────────────────────────────────
+
+import React, { useState } from 'react';
+import { Button, Popup, SelectBox, Splitter, TabPanel } from 'devextreme-react';
+import { Item as SplitterItem } from 'devextreme-react/splitter';
+import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
+import { ToolbarItem } from 'devextreme-react/popup';
+import { TreeView } from 'devextreme-react';
+import 'devextreme/dist/css/dx.fluent.blue.light.compact.css';
+import './App.css';
+import './App.locked.css'; // Pass 2 — locked-selection styling
+
+// ── Data
+import { ASSET_DATA, ASSET_MAP, buildSelectedAssetTree } from './assetData';
+import { DX_WIDGET_DATA, WIDGET_PROPERTIES } from './widgetData';
+import WIDGET_CONFIGS from './widgetConfigs';
+import WIDGET_SAMPLE_DATA from './widgetSampleData';
+
+// ── Model & utilities
+import {
+  DEFAULT_LAYOUT, DEFAULT_SLOT, DEFAULT_COORD,
+  WIDGET_DEFAULT_SIZES, DEFAULT_WIDGET_SIZE,
+  CONTAINER_BASE_NAME, ROOT_CONTAINER_ID, BASE_TIER_ID,
+  getWidgetDefaultSlot, getNextContainerName,
+  makeContainer, makeRootContainer, toHtmlId,
+} from './containerModel';
+import { getLayoutStyle, getCoordStyle, getSlotStyle, getPageTypeStyle } from './containerStyles';
+import {
+  flattenContainers, isDescendant, extractFromTree, addChildToTree,
+  findContainerById, updatePageTypeInTree, updateWidgetPropsInTree,
+  deepCloneWithNewIds, updateCoordInTree, updateSlotInTree,
+  updateLayoutInTree, renameInTree, deleteFromTree, isLockedOrAncestorLocked,
+} from './containerTree';
+import { buildDefaultCells, migrateGridCells } from './GridEditor';
+import {
+  TIERS, DEVICE_CATEGORIES, SPECIAL_PRESETS, ALL_DEVICES,
+  getTierById, getDeviceById, applyBreakpointOverrides,
+} from './breakpointConfig';
+
+// ── Components
+import ContainerCard from './ContainerCard';
+import HierarchyTree from './HierarchyTree';
+import PageVisualsTabWrapper from './PageVisualsTree';
+import WizardContent, { STEPS } from './Wizard';
+import DevicePicker from './DevicePicker';
+import WidgetConfigPanel from './WidgetConfigPanel';
+import WidgetPreview from './WidgetPreview';
+
+// ── Template helpers used in left panel
+function WidgetTreeItemTemplate(item, onDblClick) {
+  const isWidget = item.assetLevel === 'widget';
+  return (
+    <div
+      className={`tree-item${isWidget ? ' tree-item--widget' : ''}`}
+      draggable={isWidget}
+      onDoubleClick={isWidget && onDblClick ? (e) => { e.stopPropagation(); onDblClick(item); } : undefined}
+      onDragStart={isWidget ? (e) => {
+        e.dataTransfer.setData('dx-widget-name', item.name);
+        e.dataTransfer.setData('dx-widget-id', item.id);
+        e.dataTransfer.effectAllowed = 'copy';
+      } : undefined}
+    >
+      <span className="tree-item-name">{item.name}</span>
+    </div>
+  );
+}
+
+function AssetTreeItemTemplate(item) {
+  if (item.nodeType === 'tag') {
+    return (
+      <div className="tree-item">
+        <span className="tree-item-name">{item.name}</span>
+        <span className="tree-item-badge tree-item-badge--tag">{item.tagDomain.toLowerCase()}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="tree-item">
+      <span className="tree-item-name">{item.name}</span>
+      <span className="tree-item-badge">{item.assetType}</span>
+    </div>
+  );
+}
+
+
+function getAncestorBreadcrumb(assetId) {
+  const crumbs = [];
+  let current = ASSET_MAP[assetId];
+  // Walk up but exclude the asset itself — we want the path to the parent
+  current = current?.parentId ? ASSET_MAP[current.parentId] : null;
+  while (current) {
+    crumbs.unshift(current.name);
+    current = current.parentId ? ASSET_MAP[current.parentId] : null;
+  }
+  return crumbs;
+}
+
+export default function App() {
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedAssetIds, setSelectedAssetIds] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [containers, setContainers] = useState([makeRootContainer()]);
+  const [selectedContainerId, setSelectedContainerId] = useState(null);
+  const [selectedContainerIds, setSelectedContainerIds] = useState([]);
+  const [detailsTabIndex, setDetailsTabIndex] = useState(0);
+  const [clipboard, setClipboard] = useState(null);
+  const [selectedGridCell, setSelectedGridCell] = useState(null);
+  const [paintbrush, setPaintbrush] = useState(null); // snapshot of props to apply // { containerId, cellIdx } // deep-cloned container subtree
+
+  // Helper to handle selection with shift/ctrl multi-select
+  const handleContainerSelect = (id, e) => {
+    // If paintbrush is active, apply it instead of selecting
+    if (paintbrush && id && id !== ROOT_CONTAINER_ID) {
+      handleApplyPaintbrush(id);
+      return;
+    }
+    // Block selection of locked items or children of locked containers
+    if (id && id !== ROOT_CONTAINER_ID) {
+      if (isLockedOrAncestorLocked(containers, id)) return;
+    }
+    setSelectedGridCell(null); // always clear grid cell selection when selecting a container
+    if (id === null) {
+      setSelectedContainerId(null);
+      setSelectedContainerIds([]);
+      return;
+    }
+    if (e && (e.shiftKey || e.ctrlKey || e.metaKey)) {
+      setSelectedContainerIds(prev => {
+        const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+        setSelectedContainerId(next.length === 1 ? next[0] : next[next.length - 1]);
+        return next;
+      });
+    } else {
+      setSelectedContainerId(id);
+      setSelectedContainerIds([id]);
+    }
+  };
+
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragState, setDragState] = useState({ overId: null, beforeId: null, overParentId: null });
+  const [focusMode, setFocusMode] = useState('follow');
+  const [showGap, setShowGap] = useState(true);
+  const [coordMode, setCoordMode] = useState('reposition');
+  const [currentView, setCurrentView] = useState('screens'); // 'screens' | 'widgets'
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [selectedWidgetName, setSelectedWidgetName] = useState(null);
+  // Breakpoint / device preview
+  const [activeDeviceId, setActiveDeviceId] = useState('responsive');
+  const [activeTierId, setActiveTierId] = useState(BASE_TIER_ID);
+  const [customWidth, setCustomWidth] = useState(1280);
+  const [customHeight, setCustomHeight] = useState(800);
+  const [devicePickerOpen, setDevicePickerOpen] = useState(false);
+
+  React.useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') { setPaintbrush(null); }
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      if (e.key === 'c' || e.key === 'C') { e.preventDefault(); handleCopy(); }
+      if (e.key === 'v' || e.key === 'V') { e.preventDefault(); handlePaste(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [selectedContainerId, clipboard, containers]);
+
+  const handleDragStart = (id) => {
+    setDraggingId(id);
+    setDragState({ overId: null, beforeId: null, overParentId: null });
+  };
+
+  const handleDragOver = (overId, beforeId, overParentId) => {
+    if (!draggingId) return;
+    if (overId && (overId === draggingId || isDescendant(containers, draggingId, overId))) return;
+    // If we have a beforeId, this is a between-zone — clear overId
+    if (beforeId !== null && beforeId !== undefined) {
+      setDragState({ overId: null, beforeId, overParentId: overParentId || overId });
+    } else {
+      setDragState({ overId: overId || null, beforeId: null, overParentId: null });
+    }
+  };
+
+  const resetPropertiesForParent = (item, newParentId, tree, preserveSize = false) => {
+    const parent = findContainerById(tree, newParentId);
+    const isCoord = parent?.layout?.layoutType === 'coordinate';
+    const sourceParent = findContainerById(tree, item.parentId);
+    const sameLayoutType = sourceParent?.layout?.layoutType === parent?.layout?.layoutType;
+
+    // If same layout type, just update parentId — nothing to reset
+    if (sameLayoutType) {
+      return { ...item, parentId: newParentId };
+    }
+
+    // Different layout type — reset positioning but always preserve size/box model
+    const sizeProps = {
+      width: item.slot?.width, height: item.slot?.height,
+      minWidth: item.slot?.minWidth, maxWidth: item.slot?.maxWidth,
+      minHeight: item.slot?.minHeight, maxHeight: item.slot?.maxHeight,
+      paddingTop: item.slot?.paddingTop, paddingBottom: item.slot?.paddingBottom,
+      paddingLeft: item.slot?.paddingLeft, paddingRight: item.slot?.paddingRight,
+      marginTop: item.slot?.marginTop, marginBottom: item.slot?.marginBottom,
+      marginLeft: item.slot?.marginLeft, marginRight: item.slot?.marginRight,
+      borderWidth: item.slot?.borderWidth, borderStyle: item.slot?.borderStyle,
+      borderColor: item.slot?.borderColor, borderRadius: item.slot?.borderRadius,
+      backgroundColor: item.slot?.backgroundColor, color: item.slot?.color,
+      fontSize: item.slot?.fontSize, fontWeight: item.slot?.fontWeight,
+      fontFamily: item.slot?.fontFamily, lineHeight: item.slot?.lineHeight,
+      textAlign: item.slot?.textAlign, letterSpacing: item.slot?.letterSpacing,
+    };
+
+    return isCoord
+      ? { ...item, parentId: newParentId, coord: { ...DEFAULT_COORD }, slot: { ...DEFAULT_SLOT, ...sizeProps } }
+      : { ...item, parentId: newParentId, slot: { ...DEFAULT_SLOT, ...sizeProps }, coord: { ...DEFAULT_COORD } };
+  };
+
+  const handleDrop = (overId, beforeId) => {
+    const id = draggingId;
+    setDraggingId(null);
+    setDragState({ overId: null, beforeId: null, overParentId: null });
+    if (!id) return;
+    if (overId && (overId === id || isDescendant(containers, id, overId))) return;
+    // LOCK GUARD — can't move a locked item, can't drop into a locked container
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    if (overId && isLockedOrAncestorLocked(containers, overId)) return;
+    // Block reparenting to current parent
+    const dragging = findContainerById(containers, id);
+    if (overId && dragging?.parentId === overId) return;
+
+    setContainers(prev => {
+      const { extracted, remaining } = extractFromTree(prev, id);
+      if (!extracted) return prev;
+      if (beforeId) {
+        const findParentOf = (id, nodes) => {
+          for (const c of nodes) {
+            if (c.children.some(ch => ch.id === id)) return c;
+            const found = findParentOf(id, c.children);
+            if (found) return found;
+          }
+          return null;
+        };
+        const newParent = findParentOf(beforeId, remaining);
+        const newParentId = newParent?.id ?? ROOT_CONTAINER_ID;
+        // LOCK GUARD — can't insert before a sibling inside a locked parent
+        if (newParentId !== ROOT_CONTAINER_ID && isLockedOrAncestorLocked(prev, newParentId)) return prev;
+        const item = extracted.parentId === newParentId
+          ? extracted
+          : resetPropertiesForParent(extracted, newParentId, remaining);
+        const insertBefore = (containers) => containers.reduce((acc, c) => {
+          if (c.id === beforeId) acc.push(item);
+          acc.push({ ...c, children: insertBefore(c.children) });
+          return acc;
+        }, []);
+        return insertBefore(remaining);
+      } else if (overId) {
+        const reset = resetPropertiesForParent(extracted, overId, remaining);
+        return addChildToTree(remaining, overId, reset);
+      }
+      return prev;
+    });
+  };
+
+  const handleDeviceSelect = (device) => {
+    setActiveDeviceId(device.id);
+    if (device.tier) setActiveTierId(device.tier);
+    else setActiveTierId(BASE_TIER_ID);
+    setDevicePickerOpen(false);
+  };
+
+  const activeDevice = getDeviceById(activeDeviceId);
+  const previewWidth = activeDeviceId === 'custom' ? customWidth
+    : activeDeviceId === 'responsive' ? null
+    : activeDevice?.width || null;
+  const previewHeight = activeDeviceId === 'custom' ? customHeight
+    : activeDeviceId === 'responsive' ? null
+    : activeDevice?.height || null;
+
+  const handleAddContainer = () => {
+    const targetId = selectedContainerId || ROOT_CONTAINER_ID;
+    // LOCK GUARD — can't add a child to a locked container
+    if (targetId !== ROOT_CONTAINER_ID && isLockedOrAncestorLocked(containers, targetId)) return;
+    const name = getNextContainerName(containers);
+    const c = makeContainer(targetId, name);
+    setContainers(prev => addChildToTree(prev, targetId, c));
+    if (focusMode === 'follow') setSelectedContainerId(c.id);
+  };
+
+  const handleAddChildContainer = (parentId) => {
+    // LOCK GUARD — can't add a child to a locked container
+    if (isLockedOrAncestorLocked(containers, parentId)) return;
+    const name = getNextContainerName(containers);
+    const c = makeContainer(parentId, name);
+    setContainers(prev => addChildToTree(prev, parentId, c));
+    setSelectedContainerId(c.id);
+  };
+
+  const handleDeleteContainer = (id) => {
+    if (id === ROOT_CONTAINER_ID) return; // root is undeletable
+    // LOCK GUARD — can't delete a locked item (or one under a locked ancestor).
+    // Deleting an *unlocked* ancestor still removes locked descendants, which is intended.
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => deleteFromTree(prev, id));
+    setSelectedContainerId(prev => prev === id ? null : prev);
+  };
+
+  const handleRenameContainer = (id, title) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => renameInTree(prev, id, title));
+  };
+
+  const handleTreeReparent = (draggingId, overId, beforeId) => {
+    // LOCK GUARD — can't move a locked item
+    if (isLockedOrAncestorLocked(containers, draggingId)) return;
+    setContainers(prev => {
+      const { extracted, remaining } = extractFromTree(prev, draggingId);
+      if (!extracted) return prev;
+      if (overId) {
+        const target = findContainerById(prev, overId);
+        if (target?.isWidget) return prev;
+        // LOCK GUARD — can't drop into a locked container
+        if (isLockedOrAncestorLocked(prev, overId)) return prev;
+        // Block reparenting to current parent
+        if (extracted.parentId === overId) return prev;
+        const reset = resetPropertiesForParent(extracted, overId, remaining);
+        return addChildToTree(remaining, overId, reset);
+      } else if (beforeId) {
+        const findParentOf = (id, nodes) => {
+          for (const c of nodes) {
+            if (c.children.some(ch => ch.id === id)) return c;
+            const found = findParentOf(id, c.children);
+            if (found) return found;
+          }
+          return null;
+        };
+        const newParent = findParentOf(beforeId, remaining);
+        const newParentId = newParent?.id ?? ROOT_CONTAINER_ID;
+        // LOCK GUARD — can't insert before a sibling inside a locked parent
+        if (newParentId !== ROOT_CONTAINER_ID && isLockedOrAncestorLocked(prev, newParentId)) return prev;
+        const item = extracted.parentId === newParentId
+          ? extracted
+          : resetPropertiesForParent(extracted, newParentId, remaining);
+        const insertBefore = (containers) => containers.reduce((acc, c) => {
+          if (c.id === beforeId) acc.push(item);
+          acc.push({ ...c, children: insertBefore(c.children) });
+          return acc;
+        }, []);
+        return insertBefore(remaining);
+      }
+      return prev;
+    });
+  };
+
+  const handleWidgetDrop = (containerId, widgetName) => {
+    // LOCK GUARD — can't drop a widget into a locked container
+    if (isLockedOrAncestorLocked(containers, containerId)) return;
+    const defaultProps = {};
+    (WIDGET_PROPERTIES[widgetName] || []).forEach(p => { defaultProps[p.name] = p.default; });
+    const c = {
+      ...makeContainer(containerId, widgetName),
+      isWidget: true,
+      widgetName,
+      widgetProps: defaultProps,
+      slot: getWidgetDefaultSlot(widgetName),
+    };
+    setContainers(prev => addChildToTree(prev, containerId, c));
+    setSelectedContainerId(c.id);
+  };
+
+  const handleGridCellDrop = (containerId, cellIdx, widgetName, draggedId, existingCellChildIds, prebuiltClone) => {
+    setContainers(prev => {
+      // LOCK GUARD — can't drop into a locked grid, can't move a locked item
+      if (isLockedOrAncestorLocked(prev, containerId)) return prev;
+      if (draggedId && isLockedOrAncestorLocked(prev, draggedId)) return prev;
+
+      const gridContainer = findContainerById(prev, containerId);
+      if (!gridContainer) return prev;
+
+      const cells = gridContainer.layout.gridCells || buildDefaultCells(
+        gridContainer.layout.gridColumns || 2,
+        gridContainer.layout.gridRows || 2
+      );
+
+      // Helper to normalize cell childIds
+      const getCellChildIds = (cell) => cell.childIds || (cell.childId != null ? [cell.childId] : []);
+
+      const addToCell = (newChild, newCells) => prev.map(function ins(c) {
+        if (c.id === containerId) return {
+          ...c,
+          children: [...c.children, newChild],
+          layout: { ...c.layout, gridCells: newCells },
+        };
+        return { ...c, children: c.children.map(ins) };
+      });
+
+      if (prebuiltClone) {
+        // Paste — apply resetPropertiesForParent for cross-layout compatibility
+        const reset = resetPropertiesForParent(prebuiltClone, containerId, prev, true);
+        const newCells = cells.map((c, i) => i === cellIdx ? { ...c, childIds: [...getCellChildIds(c), reset.id] } : c);
+        return addToCell(reset, newCells);
+
+      } else if (widgetName) {
+        const defaultProps = {};
+        (WIDGET_PROPERTIES[widgetName] || []).forEach(p => { defaultProps[p.name] = p.default; });
+        const newWidget = { ...makeContainer(containerId, widgetName), isWidget: true, widgetName, widgetProps: defaultProps, slot: getWidgetDefaultSlot(widgetName), parentId: containerId };
+        const newCells = cells.map((c, i) => i === cellIdx ? { ...c, childIds: [...getCellChildIds(c), newWidget.id] } : c);
+        return addToCell(newWidget, newCells);
+
+      } else if (draggedId && draggedId !== containerId) {
+        const isFromSameGrid = findContainerById(prev, draggedId)?.parentId === containerId;
+        const { extracted, remaining } = extractFromTree(prev, draggedId);
+        if (!extracted) return prev;
+
+        const reset = resetPropertiesForParent(extracted, containerId, remaining);
+        const resetWithParent = { ...reset, parentId: containerId };
+
+        // Remove from old cell, add to new cell
+        const sourceCellIdx = cells.findIndex(c => getCellChildIds(c).includes(draggedId));
+        const newCells = cells.map((c, i) => {
+          let ids = getCellChildIds(c).filter(id => id !== draggedId);
+          if (i === cellIdx) ids = [...ids, resetWithParent.id];
+          return { ...c, childIds: ids };
+        });
+
+        if (isFromSameGrid) {
+          return prev.map(function upd(c) {
+            if (c.id === containerId) return {
+              ...c,
+              children: c.children.map(ch => ch.id === draggedId ? resetWithParent : ch),
+              layout: { ...c.layout, gridCells: newCells },
+            };
+            return { ...c, children: c.children.map(upd) };
+          });
+        } else {
+          return remaining.map(function ins(c) {
+            if (c.id === containerId) return { ...c, children: [...c.children, resetWithParent], layout: { ...c.layout, gridCells: newCells } };
+            return { ...c, children: c.children.map(ins) };
+          });
+        }
+      }
+      return prev;
+    });
+    setDraggingId(null);
+    setDragState({ overId: null, beforeId: null, overParentId: null });
+  };
+
+  const handleCopy = () => {
+    if (!selectedContainerId) return;
+    const found = findContainerById(containers, selectedContainerId);
+    if (!found || found.id === ROOT_CONTAINER_ID) return;
+    // Deep-copy at copy time so clipboard is a stable snapshot
+    setClipboard(JSON.parse(JSON.stringify(found)));
+  };
+
+  const handlePaste = () => {
+    if (!clipboard) return;
+
+    // If a grid cell is selected, paste into that specific cell
+    if (selectedGridCell) {
+      // LOCK GUARD — can't paste into a cell of a locked grid
+      if (isLockedOrAncestorLocked(containers, selectedGridCell.containerId)) return;
+      const cloned = deepCloneWithNewIds(clipboard, selectedGridCell.containerId);
+      handleGridCellDrop(selectedGridCell.containerId, selectedGridCell.cellIdx, null, null, null, cloned);
+      setSelectedGridCell(null); // clear after paste
+      return;
+    }
+
+    // Determine paste target
+    const sel = selectedContainerId ? findContainerById(containers, selectedContainerId) : null;
+    const targetParentId = sel
+      ? (sel.isWidget ? (sel.parentId ?? ROOT_CONTAINER_ID) : sel.id)
+      : ROOT_CONTAINER_ID;
+
+    // LOCK GUARD — can't paste into a locked container
+    if (targetParentId !== ROOT_CONTAINER_ID && isLockedOrAncestorLocked(containers, targetParentId)) return;
+
+    const cloned = deepCloneWithNewIds(clipboard, targetParentId);
+    const reset = resetPropertiesForParent(cloned, targetParentId, containers, true);
+    setContainers(prev => addChildToTree(prev, targetParentId, reset));
+    setSelectedContainerId(reset.id);
+    setSelectedContainerIds([reset.id]);
+    setSelectedGridCell(null);
+  };
+
+  const handleToggleLock = (id) => {
+    // Intentionally NOT lock-guarded — you must always be able to unlock.
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) return { ...c, locked: !c.locked };
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  const handlePickUpPaintbrush = () => {
+    // Non-mutating (reads into paintbrush state) — not lock-guarded.
+    if (!selectedContainerId) return;
+    const found = findContainerById(containers, selectedContainerId);
+    if (!found || found.id === ROOT_CONTAINER_ID) return;
+    setPaintbrush({
+      slot: found.slot ? { ...found.slot } : undefined,
+      widgetProps: found.widgetProps ? { ...found.widgetProps } : undefined,
+      widgetName: found.widgetName,
+      breakpointOverrides: found.breakpointOverrides
+        ? JSON.parse(JSON.stringify(found.breakpointOverrides))
+        : undefined,
+    });
+  };
+
+  const handleApplyPaintbrush = (targetId) => {
+    if (!paintbrush) return;
+    // LOCK GUARD — can't paint onto a locked item
+    if (isLockedOrAncestorLocked(containers, targetId)) return;
+    const target = findContainerById(containers, targetId);
+    if (!target) return;
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === targetId) {
+        const updated = { ...c };
+        // Apply slot (sizing/box model) always
+        if (paintbrush.slot) updated.slot = { ...c.slot, ...paintbrush.slot };
+        // Apply widgetProps only if same widget type
+        if (paintbrush.widgetProps && c.isWidget && c.widgetName === paintbrush.widgetName) {
+          updated.widgetProps = { ...c.widgetProps, ...paintbrush.widgetProps };
+        }
+        // Apply breakpoint overrides
+        if (paintbrush.breakpointOverrides) {
+          updated.breakpointOverrides = {
+            ...c.breakpointOverrides,
+            ...JSON.parse(JSON.stringify(paintbrush.breakpointOverrides)),
+          };
+        }
+        return updated;
+      }
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  const handleUpdateWidgetProps = (id, props) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => updateWidgetPropsInTree(prev, id, props));
+  };
+
+  // Create a fresh cell container for a grid cell
+  const makeCellContainer = (parentId) => ({
+    ...makeContainer(parentId, getNextContainerName(containers)),
+    slot: { ...DEFAULT_SLOT, flexGrow: 1, flexShrink: 1, width: '', height: '', flexBasis: '0' },
+  });
+
+  // Build gridCells with one container per cell, adding children to the tree
+  const buildCellContainers = (parentId, cols, rows, prevContainers) => {
+    const cells = buildDefaultCells(cols, rows);
+    const newContainers = [];
+    const filledCells = cells.map((cell) => {
+      const cc = { ...makeContainer(parentId, getNextContainerName([...prevContainers, ...newContainers])), slot: { ...DEFAULT_SLOT, flexGrow: 1, flexShrink: 1, width: '', height: '', flexBasis: '0' } };
+      newContainers.push(cc);
+      return { ...cell, childIds: [cc.id] };
+    });
+    return { filledCells, newContainers };
+  };
+
+  const handleUpdateLayout = (id, layoutUpdate) => {
+    setContainers(prev => {
+      // LOCK GUARD
+      if (isLockedOrAncestorLocked(prev, id)) return prev;
+      const container = findContainerById(prev, id);
+      if (!container) return updateLayoutInTree(prev, id, layoutUpdate);
+
+      const oldLayout = container.layout || {};
+      const newLayout = { ...oldLayout, ...layoutUpdate };
+
+      // Switching TO grid — auto-create cell containers
+      if (layoutUpdate.layoutType === 'grid' && oldLayout.layoutType !== 'grid') {
+        const cols = newLayout.gridColumns || 2;
+        const rows = newLayout.gridRows || 2;
+        const { filledCells, newContainers } = buildCellContainers(id, cols, rows, prev);
+
+        // Move any existing children into the first cell container
+        const existingChildren = container.children;
+        let updatedContainers = prev;
+        if (existingChildren.length > 0 && newContainers.length > 0) {
+          existingChildren.forEach(child => {
+            newContainers[0].children = [...(newContainers[0].children || []), { ...child, parentId: newContainers[0].id }];
+          });
+        }
+
+        return updatedContainers.map(function upd(c) {
+          if (c.id === id) return {
+            ...c,
+            layout: { ...newLayout, gridCells: filledCells },
+            children: newContainers,
+          };
+          return { ...c, children: c.children.map(upd) };
+        });
+      }
+
+      // Changing grid columns or rows — migrate cell containers
+      if (oldLayout.layoutType === 'grid' && (layoutUpdate.gridColumns !== undefined || layoutUpdate.gridRows !== undefined)) {
+        const oldCols = oldLayout.gridColumns || 2;
+        const oldRows = oldLayout.gridRows || 2;
+        const newCols = newLayout.gridColumns || 2;
+        const newRows = newLayout.gridRows || 2;
+        const oldCells = oldLayout.gridCells || buildDefaultCells(oldCols, oldRows);
+
+        // Build new cells
+        const newBaseCells = buildDefaultCells(newCols, newRows);
+        const newContainersToAdd = [];
+
+        const newFilledCells = newBaseCells.map((newCell) => {
+          // Find the old cell that best matches this position
+          const oldCell = oldCells.find(oc =>
+            oc.colStart === newCell.colStart && oc.rowStart === newCell.rowStart
+          );
+
+          if (oldCell) {
+            // Reuse existing cell container(s)
+            const existingIds = oldCell.childIds || (oldCell.childId != null ? [oldCell.childId] : []);
+            return { ...newCell, childIds: existingIds };
+          } else {
+            // New cell — create a fresh container
+            const cc = { ...makeContainer(id, getNextContainerName([...prev, ...newContainersToAdd])), slot: { ...DEFAULT_SLOT, flexGrow: 1, flexShrink: 1, width: '', height: '', flexBasis: '0' } };
+            newContainersToAdd.push(cc);
+            return { ...newCell, childIds: [cc.id] };
+          }
+        });
+
+        // Collect childIds that are no longer referenced and merge their contents into last cell
+        const referencedIds = new Set(newFilledCells.flatMap(c => c.childIds || []));
+        const orphanedCellIds = oldCells
+          .flatMap(c => c.childIds || (c.childId != null ? [c.childId] : []))
+          .filter(id => !referencedIds.has(id));
+
+        // Move orphaned container children into the last referenced cell container
+        if (orphanedCellIds.length > 0 && newFilledCells.length > 0) {
+          const lastCell = newFilledCells[newFilledCells.length - 1];
+          lastCell.childIds = [...(lastCell.childIds || []), ...orphanedCellIds];
+          // Reparent orphaned containers
+          orphanedCellIds.forEach(oid => {
+            const lastCellContainerId = lastCell.childIds[0];
+            // Move orphaned container's children into the last cell container
+          });
+        }
+
+        return prev.map(function upd(c) {
+          if (c.id === id) return {
+            ...c,
+            layout: { ...newLayout, gridCells: newFilledCells },
+            children: [...c.children, ...newContainersToAdd],
+          };
+          return { ...c, children: c.children.map(upd) };
+        });
+      }
+
+      return updateLayoutInTree(prev, id, layoutUpdate);
+    });
+  };
+
+  // When cells merge, move absorbed container's children into surviving container
+  const handleMergeCellContainers = (survivingId, absorbedIds) => {
+    setContainers(prev => {
+      // LOCK GUARD — merging changes the grid's children; block if locked
+      if (isLockedOrAncestorLocked(prev, survivingId)) return prev;
+      let updated = prev;
+      absorbedIds.forEach(absorbedId => {
+        const absorbed = findContainerById(updated, absorbedId);
+        if (!absorbed || absorbed.children.length === 0) return;
+        // Move absorbed children into surviving container
+        absorbed.children.forEach(child => {
+          const reparented = { ...child, parentId: survivingId };
+          updated = addChildToTree(updated, survivingId, reparented);
+        });
+        // Remove absorbed container (now empty)
+        const { remaining } = extractFromTree(updated, absorbedId);
+        updated = remaining;
+      });
+      return updated;
+    });
+  };
+
+  const handleUpdateSlot = (id, slot) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    if (activeTierId !== BASE_TIER_ID) {
+      // Save to breakpoint override instead of base
+      setContainers(prev => prev.map(function upd(c) {
+        if (c.id === id) {
+          const existing = c.breakpointOverrides?.[activeTierId]?.slot || {};
+          return { ...c, breakpointOverrides: { ...c.breakpointOverrides, [activeTierId]: { ...c.breakpointOverrides?.[activeTierId], slot: { ...existing, ...slot } } } };
+        }
+        return { ...c, children: c.children.map(upd) };
+      }));
+    } else {
+      setContainers(prev => updateSlotInTree(prev, id, slot));
+    }
+  };
+
+  const handleUpdateWidgetPropsForBreakpoint = (id, props) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    if (activeTierId !== BASE_TIER_ID) {
+      setContainers(prev => prev.map(function upd(c) {
+        if (c.id === id) {
+          const existing = c.breakpointOverrides?.[activeTierId]?.widgetProps || {};
+          return { ...c, breakpointOverrides: { ...c.breakpointOverrides, [activeTierId]: { ...c.breakpointOverrides?.[activeTierId], widgetProps: { ...existing, ...props } } } };
+        }
+        return { ...c, children: c.children.map(upd) };
+      }));
+    } else {
+      handleUpdateWidgetProps(id, props);
+    }
+  };
+
+  const handleToggleVisibility = (id, tierId) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) {
+        const currentlyHidden = c.breakpointOverrides?.[tierId]?.hidden ?? false;
+        return { ...c, breakpointOverrides: { ...c.breakpointOverrides, [tierId]: { ...c.breakpointOverrides?.[tierId], hidden: !currentlyHidden } } };
+      }
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  const handleClearBreakpointOverrides = (id, tierId) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) {
+        const newOverrides = { ...c.breakpointOverrides };
+        delete newOverrides[tierId];
+        return { ...c, breakpointOverrides: newOverrides };
+      }
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  const handleUpdateCoord = (id, coord) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => updateCoordInTree(prev, id, coord));
+  };
+
+  const handleUpdatePageType = (id, pageType) => {
+    // Root only; root is not lockable, so no guard needed.
+    setContainers(prev => updatePageTypeInTree(prev, id, pageType));
+  };
+
+  const openWizard = () => {
+    setCurrentStep(0);
+    setSelectedAssetIds([]);
+    setSelectedTags([]);
+    setPopupVisible(true);
+  };
+
+  const closeWizard = () => setPopupVisible(false);
+
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(s => s + 1);
+    } else {
+      closeWizard();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep(s => s - 1);
+  };
+
+  const isLastStep = currentStep === STEPS.length - 1;
+
+  // Pass 2 — is the current selection (single or multi) locked?
+  // Drives the greyed-out / disabled treatment in the details panel and toolbar.
+  const lockSelectionIds = selectedContainerIds.length > 0
+    ? selectedContainerIds
+    : (selectedContainerId ? [selectedContainerId] : []);
+  const isSelectedLocked = lockSelectionIds.some(
+    id => id !== ROOT_CONTAINER_ID && isLockedOrAncestorLocked(containers, id)
+  );
+
+  return (
+    <div className="app-shell">
+
+      {/* Title bar */}
+      <div className="app-titlebar">
+        <div className="app-titlebar-menu" ref={menuRef => {
+          if (menuRef) {
+            menuRef.onmouseleave = () => setMenuOpen(false);
+          }
+        }}>
+          <span
+            className="app-titlebar-title"
+            onClick={() => setMenuOpen(o => !o)}
+            style={{ cursor: 'pointer', userSelect: 'none' }}
+          >
+            Aetherium ▾
+          </span>
+          {menuOpen && (
+            <div className="app-titlebar-dropdown">
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'screens' ? ' active' : ''}`}
+                onClick={() => { setCurrentView('screens'); setMenuOpen(false); }}
+              >
+                Screens
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'widgets' ? ' active' : ''}`}
+                onClick={() => { setCurrentView('widgets'); setMenuOpen(false); }}
+              >
+                Widgets
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="app-titlebar-profile" title="Profile">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
+            <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* Main content area */}
+      <div className="app-body">
+        {currentView === 'widgets' ? (
+          <Splitter orientation="horizontal" style={{ height: '100%' }}>
+            <SplitterItem size="220px" minSize="120px" resizable={true}>
+              <div className="app-panel">
+                <TabPanel
+                  height="100%"
+                  animationEnabled={false}
+                  swipeEnabled={false}
+                >
+                  <TabPanelItem title="Widgets">
+                    <div className="left-panel-tab-content">
+                      <HierarchyTree
+                        dataSource={DX_WIDGET_DATA}
+                        displayExpr="name"
+                        itemRender={(item) => WidgetTreeItemTemplate(item, null)}
+                        selectedId={selectedWidgetName}
+                        onSelect={(id) => {
+                          const item = DX_WIDGET_DATA.find(w => w.id === id);
+                          setSelectedWidgetName(item?.assetLevel === 'widget' ? item.name : null);
+                        }}
+                      />
+                    </div>
+                  </TabPanelItem>
+                </TabPanel>
+              </div>
+            </SplitterItem>
+            <SplitterItem resizable={true}>
+              <div className="app-panel app-panel--center" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {selectedWidgetName ? (
+                  <WidgetConfigPanel widgetName={selectedWidgetName} />
+                ) : (
+                  <p className="step-instructions" style={{ padding: 16 }}>Select a widget to view its full configuration.</p>
+                )}
+              </div>
+            </SplitterItem>
+            <SplitterItem size="220px" minSize="120px" resizable={true}>
+              <div className="app-panel details-panel">
+                <p className="panel-label">Details</p>
+                {selectedWidgetName ? (
+                  <>
+                    <p style={{ fontSize: 13, fontWeight: 600, margin: '8px 0 4px' }}>{selectedWidgetName}</p>
+                    {WIDGET_PROPERTIES[selectedWidgetName] ? (
+                      <pre style={{ fontSize: 11, color: '#333', whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#f5f5f5', padding: 8, borderRadius: 4, margin: 0 }}>
+                        {JSON.stringify(WIDGET_PROPERTIES[selectedWidgetName], null, 2)}
+                      </pre>
+                    ) : (
+                      <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic' }}>No Entry</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="step-instructions">Select a widget to view its properties.</p>
+                )}
+              </div>
+            </SplitterItem>
+          </Splitter>
+        ) : (
+          <Splitter orientation="horizontal" style={{ height: '100%' }}>
+            <SplitterItem size="220px" minSize="120px" resizable={true}>
+            <div className="app-panel">
+              <TabPanel
+                height="100%"
+                animationEnabled={false}
+                swipeEnabled={false}
+              >
+                <TabPanelItem title="Visuals">
+                  <div className="left-panel-tab-content">
+                    <HierarchyTree
+                      dataSource={DX_WIDGET_DATA}
+                      displayExpr="name"
+                      itemRender={(item) => WidgetTreeItemTemplate(item, (item) => {
+                        const selected = selectedContainerId
+                          ? findContainerById(containers, selectedContainerId)
+                          : null;
+                        const targetId = selected?.isWidget
+                          ? (selected.parentId || ROOT_CONTAINER_ID)
+                          : (selectedContainerId || ROOT_CONTAINER_ID);
+                        handleWidgetDrop(targetId, item.name);
+                      })}
+                    />
+                  </div>
+                </TabPanelItem>
+                <TabPanelItem title="Data">
+                  <div className="left-panel-tab-content">
+                    <HierarchyTree
+                      dataSource={ASSET_DATA}
+                      displayExpr="name"
+                      itemRender={AssetTreeItemTemplate}
+                    />
+                  </div>
+                </TabPanelItem>
+                <TabPanelItem title="Page Visuals">
+                  <div className="left-panel-tab-content">
+                    <p className="panel-label" style={{ padding: '4px 0', marginBottom: 4 }}>
+                      Selected: {selectedContainerId
+                        ? (findContainerById(containers, selectedContainerId)?.title || 'none')
+                        : 'none'}
+                    </p>
+                    <PageVisualsTabWrapper
+                      containers={containers}
+                      selectedContainerId={selectedContainerId}
+                      onSelect={(id) => {
+                        setSelectedContainerId(id);
+                        setSelectedContainerIds(id ? [id] : []);
+                      }}
+                      onReparent={handleTreeReparent}
+                      onToggleLock={handleToggleLock}
+                    />
+                  </div>
+                </TabPanelItem>
+                <TabPanelItem title="Page Data">
+                  <div className="left-panel-tab-content">
+                    <HierarchyTree
+                      dataSource={ASSET_DATA}
+                      displayExpr="name"
+                      itemRender={AssetTreeItemTemplate}
+                    />
+                  </div>
+                </TabPanelItem>
+              </TabPanel>
+            </div>
+          </SplitterItem>
+          <SplitterItem resizable={true}>
+            <div className="app-panel app-panel--center">
+              <div className="center-toolbar">
+                {/* Device picker — always visible */}
+                <DevicePicker
+                  activeDeviceId={activeDeviceId}
+                  activeTierId={activeTierId}
+                  customWidth={customWidth}
+                  customHeight={customHeight}
+                  onDeviceSelect={handleDeviceSelect}
+                  onCustomChange={(w, h) => { setCustomWidth(w); setCustomHeight(h); }}
+                  open={devicePickerOpen}
+                  onToggle={() => setDevicePickerOpen(o => !o)}
+                />
+                <div style={{ width: 1, height: 20, background: '#e0e0e0', margin: '0 4px', flexShrink: 0 }} />
+                {selectedContainerId && (
+                  <>
+                    <Button
+                      text="+ Add Container"
+                      type="default"
+                      stylingMode="outlined"
+                      disabled={isSelectedLocked}
+                      onClick={handleAddContainer}
+                    />
+                    <button
+                      className={`focus-mode-btn${focusMode === 'stay' ? ' focus-mode-btn--active' : ''}`}
+                      onClick={() => setFocusMode(m => m === 'follow' ? 'stay' : 'follow')}
+                      title={focusMode === 'follow' ? 'Follow mode: focus moves to new container' : 'Stay mode: focus stays on parent'}
+                    >
+                      {focusMode === 'follow' ? '⤵ Follow' : '📌 Stay'}
+                    </button>
+                    {(() => {
+                      const sel = findContainerById(containers, selectedContainerId);
+                      if (!sel || sel.isWidget) return null;
+                      const dir = sel.layout?.flexDirection || 'row';
+                      return (
+                        <button
+                          className={`focus-mode-btn${dir === 'column' ? ' focus-mode-btn--active' : ''}`}
+                          title={`Direction: ${dir} — click to toggle`}
+                          disabled={isSelectedLocked}
+                          onClick={() => handleUpdateLayout(selectedContainerId, { flexDirection: dir === 'row' ? 'column' : 'row' })}
+                        >
+                          <i className={dir === 'row' ? 'dx-icon-deleterow' : 'dx-icon-deletecolumn'} style={{ marginRight: 4 }} />
+                          {dir}
+                        </button>
+                      );
+                    })()}
+                    <button
+                      className={`focus-mode-btn${!showGap ? ' focus-mode-btn--active' : ''}`}
+                      onClick={() => setShowGap(g => !g)}
+                      title={showGap ? 'Gap on — click to remove spacing' : 'Gap off — click to restore spacing'}
+                    >
+                      {showGap ? '⬜ Gap' : '▣ Gap'}
+                    </button>
+                    {(() => {
+                      const sel = selectedContainerId ? findContainerById(containers, selectedContainerId) : null;
+                      const selParent = sel?.parentId ? findContainerById(containers, sel.parentId) : null;
+                      const isCoordChild = selParent?.layout?.layoutType === 'coordinate';
+                      return (
+                        <>
+                          {/* Copy button */}
+                          {sel && sel.id !== ROOT_CONTAINER_ID && (
+                            <button className="focus-mode-btn" title="Copy (Ctrl/Cmd+C)" disabled={isSelectedLocked} onClick={handleCopy}>
+                              ⎘ Copy
+                            </button>
+                          )}
+                          {/* Paintbrush button */}
+                          {sel && sel.id !== ROOT_CONTAINER_ID && (
+                            <button
+                              className={`focus-mode-btn${paintbrush ? ' focus-mode-btn--active' : ''}`}
+                              title={paintbrush ? 'Paintbrush active — click any item to apply styles. Click again to cancel.' : 'Pick up style to paint onto other items'}
+                              disabled={isSelectedLocked && !paintbrush}
+                              onClick={() => paintbrush ? setPaintbrush(null) : handlePickUpPaintbrush()}
+                            >
+                              🖌 {paintbrush ? 'Painting...' : 'Paintbrush'}
+                            </button>
+                          )}
+                          {/* Cancel paintbrush if active but nothing selected */}
+                          {!sel && paintbrush && (
+                            <button className="focus-mode-btn focus-mode-btn--active" onClick={() => setPaintbrush(null)}>
+                              🖌 Cancel Paint
+                            </button>
+                          )}
+                          {/* Paste button — when clipboard has content */}
+                          {clipboard && (
+                            <button
+                              className="focus-mode-btn focus-mode-btn--active"
+                              title="Paste (Ctrl/Cmd+V)"
+                              disabled={isSelectedLocked}
+                              onClick={handlePaste}
+                            >
+                              ⊕ Paste
+                            </button>
+                          )}
+                          {/* Delete button — for any non-root selected item */}
+                          {sel && sel.id !== ROOT_CONTAINER_ID && (
+                            <button
+                              className="focus-mode-btn"
+                              style={{ color: '#d00', borderColor: '#d00' }}
+                              title="Delete selected container"
+                              disabled={isSelectedLocked}
+                              onClick={() => handleDeleteContainer(selectedContainerId)}
+                            >
+                              × Delete
+                            </button>
+                          )}
+                          {/* Move/Reparent toggle — only for coord children */}
+                          {isCoordChild && (
+                            <button
+                              className={`focus-mode-btn${coordMode === 'reparent' ? ' focus-mode-btn--active' : ''}`}
+                              disabled={isSelectedLocked}
+                              onClick={() => setCoordMode(m => m === 'reposition' ? 'reparent' : 'reposition')}
+                              title={coordMode === 'reposition' ? 'Drag moves item — click to switch to reparent' : 'Drag reparents item — click to switch to reposition'}
+                            >
+                              {coordMode === 'reposition' ? '⤢ Move' : '⇄ Reparent'}
+                            </button>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </>
+                )}
+              </div>
+              <div
+                className="center-content"
+                onClick={() => { setSelectedContainerId(null); setSelectedContainerIds([]); setSelectedGridCell(null); setDevicePickerOpen(false); if (paintbrush) setPaintbrush(null); }}
+                style={{ cursor: paintbrush ? 'crosshair' : undefined }}
+              >
+                {/* Device preview wrapper */}
+                <div style={{
+                  width: '100%', height: '100%',
+                  overflow: 'auto',
+                  display: 'flex',
+                  alignItems: previewWidth ? 'flex-start' : 'stretch',
+                  justifyContent: previewWidth ? 'center' : 'stretch',
+                  padding: previewWidth ? 24 : 0,
+                  boxSizing: 'border-box',
+                  background: previewWidth ? '#e8e8e8' : 'transparent',
+                }}>
+                  <div style={{
+                    width: previewWidth ? previewWidth : '100%',
+                    height: previewHeight ? previewHeight : '100%',
+                    flexShrink: 0,
+                    background: '#fff',
+                    boxShadow: previewWidth ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}>
+                    <div className={`container-canvas${showGap ? '' : ' canvas-no-gap'}`} style={{ padding: 0, height: '100%', boxSizing: 'border-box' }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => { e.preventDefault(); setDraggingId(null); setDragState({ overId: null, beforeId: null, overParentId: null }); }}
+                    >
+                  {containers.map(c => (
+                    <ContainerCard
+                      key={c.id}
+                      container={c}
+                      containers={containers}
+                      selectedIds={selectedContainerIds}
+                      onSelect={handleContainerSelect}
+                      onDelete={handleDeleteContainer}
+                      onDragStart={handleDragStart}
+                      onDragOver={(overId, beforeId, overParentId) => handleDragOver(overId, beforeId, overParentId)}
+                      onDrop={handleDrop}
+                      onWidgetDrop={handleWidgetDrop}
+                      onUpdateLayout={handleUpdateLayout}
+                      onUpdateSlot={handleUpdateSlot}
+                      onUpdateCoord={handleUpdateCoord}
+                      onGridCellDrop={handleGridCellDrop}
+                      onSetSelectedGridCell={setSelectedGridCell}
+                      onMergeCellContainers={handleMergeCellContainers}
+                      selectedGridCell={selectedGridCell}
+                      dragState={dragState}
+                      draggingId={draggingId}
+                      isDragging={!!draggingId}
+                      coordMode={coordMode}
+                      activeTierId={activeTierId}
+                    />
+                  ))}
+                </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </SplitterItem>
+          <SplitterItem size="220px" minSize="120px" resizable={true}>
+            <div className="app-panel details-panel">
+              {(() => {
+                const isBase = activeTierId === BASE_TIER_ID;
+                const tier = getTierById(activeTierId);
+                return (
+                  <div className="details-panel-header" style={{
+                    background: isBase ? undefined : tier?.color,
+                    color: isBase ? undefined : '#fff',
+                    transition: 'background 0.2s',
+                  }}>
+                    <span className="panel-label" style={{ color: isBase ? undefined : '#fff', margin: 0 }}>
+                      {isBase ? 'Details' : `${tier?.icon} ${tier?.label} Overrides`}
+                    </span>
+                    <Button
+                      text="Create"
+                      type={isBase ? 'default' : 'normal'}
+                      stylingMode="outlined"
+                      onClick={openWizard}
+                      style={{ marginLeft: 'auto' }}
+                    />
+                  </div>
+                );
+              })()}
+
+              {/* Locked banner (Pass 2) */}
+              {isSelectedLocked && (
+                <div className="details-locked-banner">🔒 Locked — unlock to edit</div>
+              )}
+
+              {/* Multi-select panel */}
+              {selectedContainerIds.length > 1 && (() => {
+                const selected = selectedContainerIds
+                  .map(id => findContainerById(containers, id))
+                  .filter(Boolean);
+
+                const sb = (ds, val, fn) => (
+                  <SelectBox
+                    dataSource={ds}
+                    value={val}
+                    onValueChanged={(e) => fn(e.value)}
+                    stylingMode="outlined"
+                    width="100%"
+                    height={24}
+                  />
+                );
+
+                const ti = (val, placeholder, fn, type = 'text') => (
+                  <input
+                    className="details-input"
+                    type={type}
+                    value={val ?? ''}
+                    placeholder={placeholder}
+                    onChange={(e) => fn(type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value)}
+                  />
+                );
+
+                // Helper: get shared value or null if values differ
+                const shared = (getter) => {
+                  const vals = selected.map(getter);
+                  return vals.every(v => v === vals[0]) ? vals[0] : undefined;
+                };
+
+                // Update all selected
+                const updateAllSlot = (slot) => selected.forEach(c => handleUpdateSlot(c.id, slot));
+                const updateAllLayout = (layout) => selected.forEach(c => handleUpdateLayout(c.id, layout));
+                const updateAllWidgetProps = (props) => selected.forEach(c => c.isWidget && handleUpdateWidgetProps(c.id, props));
+
+                // Shared slot values
+                const allHaveParent = selected.every(c => c.parentId !== null);
+                const sharedWidth = shared(c => c.slot?.width);
+                const sharedHeight = shared(c => c.slot?.height);
+                const sharedGrow = shared(c => c.slot?.flexGrow);
+                const sharedShrink = shared(c => c.slot?.flexShrink);
+
+                // Shared widget props — intersect by property NAME across all selected widgets
+                const allWidgets = selected.every(c => c.isWidget);
+                const sharedWidgetName = shared(c => c.widgetName);
+
+                // Build intersection of property definitions by name
+                const sharedPropDefs = (() => {
+                  if (!allWidgets) return [];
+                  const propMaps = selected.map(c => {
+                    const defs = WIDGET_PROPERTIES[c.widgetName] || [];
+                    return new Map(defs.map(p => [p.name, p]));
+                  });
+                  if (propMaps.length === 0) return [];
+                  // Start with first widget's props, keep only those present in ALL others
+                  return [...propMaps[0].values()].filter(p =>
+                    propMaps.every(m => m.has(p.name))
+                  );
+                })();
+
+                return (
+                  <div key={selectedContainerIds.join(',')} className={isSelectedLocked ? 'details-locked' : undefined}>
+                    <div className="details-section">
+                      <div className="details-grid">
+                        <span className="details-section-title">{selected.length} items selected</span>
+                      </div>
+                    </div>
+
+                    {allHaveParent && (
+                      <div className="details-section">
+                        <div className="details-grid">
+                          <span className="details-section-title">Slot</span>
+                          <span className="details-grid-label">Width</span>
+                          <div className="details-grid-control">{ti(sharedWidth, '—', v => updateAllSlot({ width: v }))}</div>
+                          <span className="details-grid-label">Height</span>
+                          <div className="details-grid-control">{ti(sharedHeight, '—', v => updateAllSlot({ height: v }))}</div>
+                          <span className="details-grid-label">Grow</span>
+                          <div className="details-grid-control">{sb([0,1,2,3], sharedGrow, v => updateAllSlot({ flexGrow: v }))}</div>
+                          <span className="details-grid-label">Shrink</span>
+                          <div className="details-grid-control">{sb([0,1,2,3], sharedShrink, v => updateAllSlot({ flexShrink: v }))}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {allHaveParent && (
+                      <div className="details-section">
+                        <div className="details-grid">
+                          <span className="details-section-title">Box</span>
+                          <span className="details-grid-label">Pad Top</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.paddingTop), '—', v => updateAllSlot({ paddingTop: v }))}</div>
+                          <span className="details-grid-label">Pad Bottom</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.paddingBottom), '—', v => updateAllSlot({ paddingBottom: v }))}</div>
+                          <span className="details-grid-label">Pad Left</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.paddingLeft), '—', v => updateAllSlot({ paddingLeft: v }))}</div>
+                          <span className="details-grid-label">Pad Right</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.paddingRight), '—', v => updateAllSlot({ paddingRight: v }))}</div>
+                          <span className="details-grid-label">Margin Top</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.marginTop), '—', v => updateAllSlot({ marginTop: v }))}</div>
+                          <span className="details-grid-label">Margin Bottom</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.marginBottom), '—', v => updateAllSlot({ marginBottom: v }))}</div>
+                          <span className="details-grid-label">Margin Left</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.marginLeft), '—', v => updateAllSlot({ marginLeft: v }))}</div>
+                          <span className="details-grid-label">Margin Right</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.marginRight), '—', v => updateAllSlot({ marginRight: v }))}</div>
+                          <span className="details-grid-label">Border Width</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.borderWidth), '—', v => updateAllSlot({ borderWidth: v }))}</div>
+                          <span className="details-grid-label">Border Style</span>
+                          <div className="details-grid-control">{sb(['','solid','dashed','dotted','double','none'], shared(c => c.slot?.borderStyle), v => updateAllSlot({ borderStyle: v }))}</div>
+                          <span className="details-grid-label">Border Color</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.borderColor), '—', v => updateAllSlot({ borderColor: v }))}</div>
+                          <span className="details-grid-label">Border Radius</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.borderRadius), '—', v => updateAllSlot({ borderRadius: v }))}</div>
+                          <span className="details-grid-label">Bg Color</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.backgroundColor), '—', v => updateAllSlot({ backgroundColor: v }))}</div>
+                          <span className="details-grid-label">Text Color</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.color), '—', v => updateAllSlot({ color: v }))}</div>
+                          <span className="details-grid-label">Font Size</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.fontSize), '—', v => updateAllSlot({ fontSize: v }))}</div>
+                          <span className="details-grid-label">Font Weight</span>
+                          <div className="details-grid-control">{sb(['','normal','bold','300','400','500','600','700'], shared(c => c.slot?.fontWeight), v => updateAllSlot({ fontWeight: v }))}</div>
+                          <span className="details-grid-label">Text Align</span>
+                          <div className="details-grid-control">{sb(['','left','center','right','justify'], shared(c => c.slot?.textAlign), v => updateAllSlot({ textAlign: v }))}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {sharedPropDefs.length > 0 && (
+                      <div className="details-section">
+                        <div className="details-grid">
+                          <span className="details-section-title">{sharedWidgetName ? `${sharedWidgetName} Properties` : 'Shared Widget Properties'}</span>
+                          {sharedPropDefs.map(p => {
+                            const sharedVal = shared(c => c.widgetProps?.[p.name]);
+                            return (
+                              <React.Fragment key={p.name}>
+                                <span className="details-grid-label">{p.label}</span>
+                                <div className="details-grid-control">
+                                  {p.type === 'bool' && sb(
+                                    [{ v: true, l: 'true' }, { v: false, l: 'false' }],
+                                    sharedVal,
+                                    v => updateAllWidgetProps({ [p.name]: v }),
+                                  )}
+                                  {p.type === 'enum' && sb(p.options, sharedVal, v => updateAllWidgetProps({ [p.name]: v }))}
+                                  {p.type === 'string' && ti(sharedVal, '—', v => updateAllWidgetProps({ [p.name]: v }))}
+                                  {p.type === 'number' && ti(sharedVal, '—', v => updateAllWidgetProps({ [p.name]: v }), 'number')}
+                                </div>
+                              </React.Fragment>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {selectedContainerIds.length <= 1 && selectedContainerId && (() => {
+                const flat = flattenContainers(containers);
+                const found = flat.find(c => c.id === selectedContainerId);
+                const fullContainer = found ? findContainerById(containers, selectedContainerId) : null;
+                if (!found || !fullContainer) return null;
+
+                // Override-aware values
+                const isBase = activeTierId === BASE_TIER_ID;
+                const tier = getTierById(activeTierId);
+                const overrides = fullContainer.breakpointOverrides?.[activeTierId] || {};
+                const isHidden = overrides.hidden ?? false;
+                const hasOverrides = Object.keys(fullContainer.breakpointOverrides || {}).some(t => {
+                  const o = fullContainer.breakpointOverrides[t];
+                  return Object.keys(o).length > 0;
+                });
+
+                const layout = fullContainer.layout || DEFAULT_LAYOUT;
+                // Merge slot with breakpoint override for display
+                const baseSlot = fullContainer.slot || DEFAULT_SLOT;
+                const slot = isBase ? baseSlot : { ...baseSlot, ...(overrides.slot || {}) };
+
+                const parentContainer = fullContainer.parentId !== null
+                  ? findContainerById(containers, fullContainer.parentId)
+                  : null;
+
+                const sb = (ds, val, fn) => (
+                  <SelectBox
+                    dataSource={ds}
+                    value={val}
+                    onValueChanged={(e) => fn(e.value)}
+                    stylingMode="outlined"
+                    width="100%"
+                    height={24}
+                  />
+                );
+
+                const ti = (val, placeholder, fn, type = 'text') => (
+                  <input
+                    className="details-input"
+                    type={type}
+                    value={val}
+                    placeholder={placeholder}
+                    onChange={(e) => fn(type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value)}
+                  />
+                );
+
+                const lockedClass = isSelectedLocked ? ' details-locked' : '';
+
+                return (
+                  <div key={selectedContainerId} style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                    <TabPanel
+                      height="100%"
+                      animationEnabled={false}
+                      swipeEnabled={false}
+                      selectedIndex={detailsTabIndex}
+                      onSelectedIndexChange={setDetailsTabIndex}
+                    >
+
+                      {/* Tab: Widget — DevExtreme widget properties */}
+                      {fullContainer.isWidget && fullContainer.widgetName && (() => {
+                        const propDefs = WIDGET_PROPERTIES[fullContainer.widgetName];
+                        if (!propDefs || propDefs.length === 0) return null;
+                        const props = fullContainer.widgetProps || {};
+                        return (
+                          <TabPanelItem title={fullContainer.widgetName}>
+                            <div className={`details-tab-content${lockedClass}`}>
+                              <div className="details-section">
+                                <div className="details-grid">
+                                  <span className="details-section-title">{fullContainer.widgetName}</span>
+                                  {propDefs.map(p => (
+                                    <React.Fragment key={p.name}>
+                                      <span className="details-grid-label">{p.label}</span>
+                                      <div className="details-grid-control">
+                                        {p.type === 'bool' && <SelectBox dataSource={[{v:true,l:'true'},{v:false,l:'false'}]} displayExpr="l" valueExpr="v" value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
+                                        {p.type === 'enum' && <SelectBox dataSource={p.options} value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
+                                        {p.type === 'string' && <input className="details-input" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.target.value})} />}
+                                        {p.type === 'number' && <input className="details-input" type="number" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: parseFloat(e.target.value) || 0})} />}
+                                      </div>
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </TabPanelItem>
+                        );
+                      })()}
+
+                      {/* Tab: Layout — container config, shown as "Widget" tab for containers */}
+                      {!fullContainer.isWidget && fullContainer.id !== ROOT_CONTAINER_ID && (
+                        <TabPanelItem title="Layout">
+                          <div className={`details-tab-content${lockedClass}`}>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Layout</span>
+                              <span className="details-grid-label">Type</span><div className="details-grid-control">{sb(['flex','coordinate','grid'],layout.layoutType,v=>handleUpdateLayout(selectedContainerId,{layoutType:v}))}</div>
+                              {layout.layoutType === 'grid' ? (<>
+                                <span className="details-grid-label">Columns</span><div className="details-grid-control">{ti(layout.gridColumns, '2', v => {
+                                  const newCols = Math.max(1, parseInt(v)||2);
+                                  const oldCells = layout.gridCells || buildDefaultCells(layout.gridColumns||2, layout.gridRows||2);
+                                  handleUpdateLayout(selectedContainerId, { gridColumns: newCols, gridCells: migrateGridCells(oldCells, layout.gridColumns||2, layout.gridRows||2, newCols, layout.gridRows||2) });
+                                }, 'number')}</div>
+                                <span className="details-grid-label">Rows</span><div className="details-grid-control">{ti(layout.gridRows, '2', v => {
+                                  const newRows = Math.max(1, parseInt(v)||2);
+                                  const oldCells = layout.gridCells || buildDefaultCells(layout.gridColumns||2, layout.gridRows||2);
+                                  handleUpdateLayout(selectedContainerId, { gridRows: newRows, gridCells: migrateGridCells(oldCells, layout.gridColumns||2, layout.gridRows||2, layout.gridColumns||2, newRows) });
+                                }, 'number')}</div>
+                                <span className="details-grid-label">Gap</span><div className="details-grid-control">{ti(layout.gridGap,'8px',v=>handleUpdateLayout(selectedContainerId,{gridGap:v}))}</div>
+                                <span className="details-grid-label">Direction</span><div className="details-grid-control">{sb(['horizontal','vertical'], layout.gridMergeDirection || 'horizontal', v => handleUpdateLayout(selectedContainerId, { gridMergeDirection: v }))}</div>
+                              </>) : layout.layoutType === 'flex' ? (<>
+                                <span className="details-grid-label">Direction</span><div className="details-grid-control">{sb(['row','column','row-reverse','column-reverse'],layout.flexDirection,v=>handleUpdateLayout(selectedContainerId,{flexDirection:v}))}</div>
+                                <span className="details-grid-label">Wrap</span><div className="details-grid-control">{sb(['no wrap','wrap','wrap-reverse'],layout.flexWrap,v=>handleUpdateLayout(selectedContainerId,{flexWrap:v}))}</div>
+                                <span className="details-grid-label">Justify</span><div className="details-grid-control">{sb(['flex-start','flex-end','center','space-between','space-around'],layout.justifyContent,v=>handleUpdateLayout(selectedContainerId,{justifyContent:v}))}</div>
+                                <span className="details-grid-label">Align</span><div className="details-grid-control">{sb(['flex-start','flex-end','center','baseline','stretch'],layout.alignItems,v=>handleUpdateLayout(selectedContainerId,{alignItems:v}))}</div>
+                              </>) : null}
+                            </div></div>
+                          </div>
+                        </TabPanelItem>
+                      )}
+
+                      {/* Tab: Slot */}
+                      {parentContainer && (
+                        <TabPanelItem title="Slot">
+                          <div className={`details-tab-content${lockedClass}`}>
+                            {!isBase && overrides.slot && Object.keys(overrides.slot).length > 0 && (
+                              <div style={{ padding: '4px 8px', fontSize: 10, background: tier?.color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span>{tier?.icon} {tier?.label} size overrides active</span>
+                                <span style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleClearBreakpointOverrides(selectedContainerId, activeTierId)}>clear</span>
+                              </div>
+                            )}
+                            {parentContainer.layout?.layoutType === 'coordinate' ? (
+                              <div className="details-section"><div className="details-grid">
+                                <span className="details-section-title">Coordinate</span>
+                                <span className="details-grid-label">Unit</span><div className="details-grid-control">{sb(['px','%'], (fullContainer.coord||DEFAULT_COORD).unit, v => handleUpdateCoord(selectedContainerId, {unit:v}))}</div>
+                                <span className="details-grid-label">Left</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).left,'—',v=>handleUpdateCoord(selectedContainerId,{left:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Right</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).right,'—',v=>handleUpdateCoord(selectedContainerId,{right:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Top</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).top,'—',v=>handleUpdateCoord(selectedContainerId,{top:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Bottom</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).bottom,'—',v=>handleUpdateCoord(selectedContainerId,{bottom:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Width</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).width,'—',v=>handleUpdateCoord(selectedContainerId,{width:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Height</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).height,'—',v=>handleUpdateCoord(selectedContainerId,{height:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Min W</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).minWidth,'—',v=>handleUpdateCoord(selectedContainerId,{minWidth:v}))}</div>
+                                <span className="details-grid-label">Max W</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).maxWidth,'—',v=>handleUpdateCoord(selectedContainerId,{maxWidth:v}))}</div>
+                                <span className="details-grid-label">Min H</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).minHeight,'—',v=>handleUpdateCoord(selectedContainerId,{minHeight:v}))}</div>
+                                <span className="details-grid-label">Max H</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).maxHeight,'—',v=>handleUpdateCoord(selectedContainerId,{maxHeight:v}))}</div>
+                              </div></div>
+                            ) : (
+                             <div className="details-section"><div className="details-grid">
+                                <span className="details-section-title">Slot</span>
+                                <span className="details-grid-label">Grow</span><div className="details-grid-control">{sb([0,1,2,3],slot.flexGrow,v=>handleUpdateSlot(selectedContainerId,{flexGrow:v}))}</div>
+                                <span className="details-grid-label">Shrink</span><div className="details-grid-control">{sb([0,1,2,3],slot.flexShrink,v=>handleUpdateSlot(selectedContainerId,{flexShrink:v}))}</div>
+                                <span className="details-grid-label">Basis</span><div className="details-grid-control">{ti(slot.flexBasis,'auto',v=>handleUpdateSlot(selectedContainerId,{flexBasis:v}))}</div>
+                                <span className="details-grid-label">Align Self</span><div className="details-grid-control">{sb(['auto','flex-start','flex-end','center','baseline','stretch'],slot.alignSelf,v=>handleUpdateSlot(selectedContainerId,{alignSelf:v}))}</div>
+                                <span className="details-grid-label">Order</span><div className="details-grid-control">{ti(slot.order,'0',v=>handleUpdateSlot(selectedContainerId,{order:v}),'number')}</div>
+                                <span className="details-grid-label">Width</span><div className="details-grid-control">{ti(slot.width,'auto',v=>handleUpdateSlot(selectedContainerId,{width:v}))}</div>
+                                <span className="details-grid-label">Min W</span><div className="details-grid-control">{ti(slot.minWidth,'0',v=>handleUpdateSlot(selectedContainerId,{minWidth:v}))}</div>
+                                <span className="details-grid-label">Max W</span><div className="details-grid-control">{ti(slot.maxWidth,'none',v=>handleUpdateSlot(selectedContainerId,{maxWidth:v}))}</div>
+                                <span className="details-grid-label">Height</span><div className="details-grid-control">{ti(slot.height,'auto',v=>handleUpdateSlot(selectedContainerId,{height:v}))}</div>
+                                <span className="details-grid-label">Min H</span><div className="details-grid-control">{ti(slot.minHeight,'0',v=>handleUpdateSlot(selectedContainerId,{minHeight:v}))}</div>
+                                <span className="details-grid-label">Max H</span><div className="details-grid-control">{ti(slot.maxHeight,'none',v=>handleUpdateSlot(selectedContainerId,{maxHeight:v}))}</div>
+                              </div></div>
+                            )}
+                          </div>
+                        </TabPanelItem>
+                      )}
+
+                      {/* Tab: Box */}
+                      {fullContainer.id !== ROOT_CONTAINER_ID && (
+                        <TabPanelItem title="Box">
+                          <div className={`details-tab-content${lockedClass}`}>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Padding</span>
+                              <span className="details-grid-label">Top</span><div className="details-grid-control">{ti(slot.paddingTop,'0',v=>handleUpdateSlot(selectedContainerId,{paddingTop:v}))}</div>
+                              <span className="details-grid-label">Bottom</span><div className="details-grid-control">{ti(slot.paddingBottom,'0',v=>handleUpdateSlot(selectedContainerId,{paddingBottom:v}))}</div>
+                              <span className="details-grid-label">Left</span><div className="details-grid-control">{ti(slot.paddingLeft,'0',v=>handleUpdateSlot(selectedContainerId,{paddingLeft:v}))}</div>
+                              <span className="details-grid-label">Right</span><div className="details-grid-control">{ti(slot.paddingRight,'0',v=>handleUpdateSlot(selectedContainerId,{paddingRight:v}))}</div>
+                            </div></div>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Margin</span>
+                              <span className="details-grid-label">Top</span><div className="details-grid-control">{ti(slot.marginTop,'0',v=>handleUpdateSlot(selectedContainerId,{marginTop:v}))}</div>
+                              <span className="details-grid-label">Bottom</span><div className="details-grid-control">{ti(slot.marginBottom,'0',v=>handleUpdateSlot(selectedContainerId,{marginBottom:v}))}</div>
+                              <span className="details-grid-label">Left</span><div className="details-grid-control">{ti(slot.marginLeft,'0',v=>handleUpdateSlot(selectedContainerId,{marginLeft:v}))}</div>
+                              <span className="details-grid-label">Right</span><div className="details-grid-control">{ti(slot.marginRight,'0',v=>handleUpdateSlot(selectedContainerId,{marginRight:v}))}</div>
+                            </div></div>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Border</span>
+                              <span className="details-grid-label">Width</span><div className="details-grid-control">{ti(slot.borderWidth,'1px',v=>handleUpdateSlot(selectedContainerId,{borderWidth:v}))}</div>
+                              <span className="details-grid-label">Style</span><div className="details-grid-control">{sb(['','solid','dashed','dotted','double','none'],slot.borderStyle,v=>handleUpdateSlot(selectedContainerId,{borderStyle:v}))}</div>
+                              <span className="details-grid-label">Color</span><div className="details-grid-control">{ti(slot.borderColor,'#e0e0e0',v=>handleUpdateSlot(selectedContainerId,{borderColor:v}))}</div>
+                              <span className="details-grid-label">Radius</span><div className="details-grid-control">{ti(slot.borderRadius,'0',v=>handleUpdateSlot(selectedContainerId,{borderRadius:v}))}</div>
+                            </div></div>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Background</span>
+                              <span className="details-grid-label">Color</span><div className="details-grid-control">{ti(slot.backgroundColor,'',v=>handleUpdateSlot(selectedContainerId,{backgroundColor:v}))}</div>
+                              <span className="details-grid-label">Image</span><div className="details-grid-control">{ti(slot.backgroundImage,'url(...)',v=>handleUpdateSlot(selectedContainerId,{backgroundImage:v}))}</div>
+                              <span className="details-grid-label">Size</span><div className="details-grid-control">{sb(['','cover','contain','auto','100% 100%'],slot.backgroundSize,v=>handleUpdateSlot(selectedContainerId,{backgroundSize:v}))}</div>
+                              <span className="details-grid-label">Position</span><div className="details-grid-control">{sb(['','center','top','bottom','left','right','top left','top right','bottom left','bottom right'],slot.backgroundPosition,v=>handleUpdateSlot(selectedContainerId,{backgroundPosition:v}))}</div>
+                              <span className="details-grid-label">Repeat</span><div className="details-grid-control">{sb(['','no-repeat','repeat','repeat-x','repeat-y'],slot.backgroundRepeat,v=>handleUpdateSlot(selectedContainerId,{backgroundRepeat:v}))}</div>
+                            </div></div>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Typography</span>
+                              <span className="details-grid-label">Color</span><div className="details-grid-control">{ti(slot.color,'inherit',v=>handleUpdateSlot(selectedContainerId,{color:v}))}</div>
+                              <span className="details-grid-label">Font Size</span><div className="details-grid-control">{ti(slot.fontSize,'',v=>handleUpdateSlot(selectedContainerId,{fontSize:v}))}</div>
+                              <span className="details-grid-label">Font Weight</span><div className="details-grid-control">{sb(['','normal','bold','100','200','300','400','500','600','700','800','900'],slot.fontWeight,v=>handleUpdateSlot(selectedContainerId,{fontWeight:v}))}</div>
+                              <span className="details-grid-label">Font Family</span><div className="details-grid-control">{ti(slot.fontFamily,'',v=>handleUpdateSlot(selectedContainerId,{fontFamily:v}))}</div>
+                              <span className="details-grid-label">Line Height</span><div className="details-grid-control">{ti(slot.lineHeight,'',v=>handleUpdateSlot(selectedContainerId,{lineHeight:v}))}</div>
+                              <span className="details-grid-label">Text Align</span><div className="details-grid-control">{sb(['','left','center','right','justify'],slot.textAlign,v=>handleUpdateSlot(selectedContainerId,{textAlign:v}))}</div>
+                              <span className="details-grid-label">Letter Spacing</span><div className="details-grid-control">{ti(slot.letterSpacing,'',v=>handleUpdateSlot(selectedContainerId,{letterSpacing:v}))}</div>
+                            </div></div>
+                          </div>
+                        </TabPanelItem>
+                      )}
+
+                      {/* Tab: General — always last */}
+                      <TabPanelItem title="General">
+                        <div className="details-tab-content">
+                          {/* Visibility — shown in non-base tiers */}
+                          {!isBase && (
+                            <div className={`details-section${lockedClass}`}>
+                              <div className="details-grid">
+                                <span className="details-section-title" style={{ color: tier?.color }}>
+                                  {tier?.icon} {tier?.label} Visibility
+                                </span>
+                                <span className="details-grid-label">Visible</span>
+                                <div className="details-grid-control">
+                                  <button
+                                    className={`focus-mode-btn${isHidden ? '' : ' focus-mode-btn--active'}`}
+                                    style={{ width: '100%', justifyContent: 'center' }}
+                                    onClick={() => handleToggleVisibility(selectedContainerId, activeTierId)}
+                                  >
+                                    {isHidden ? '👁 Hidden' : '👁 Visible'}
+                                  </button>
+                                </div>
+                                {hasOverrides && (
+                                  <>
+                                    <span className="details-grid-label">Overrides</span>
+                                    <div className="details-grid-control">
+                                      <button className="focus-mode-btn" style={{ color: '#d00', borderColor: '#d00', width: '100%', fontSize: 10 }}
+                                        onClick={() => handleClearBreakpointOverrides(selectedContainerId, activeTierId)}>
+                                        Clear {tier?.label} overrides
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          <div className="details-section">
+                            <div className="details-grid">
+                              <span className="details-section-title">Identity</span>
+                              <span className="details-grid-label">Name</span>
+                              <div className={`details-grid-control${lockedClass}`}>
+                                <input className="details-input" value={found.title} onChange={(e) => { const s = toHtmlId(e.target.value); if (s) handleRenameContainer(selectedContainerId, s); }} />
+                              </div>
+                              {fullContainer.id !== ROOT_CONTAINER_ID && (<>
+                                <span className="details-grid-label">Lock</span>
+                                <div className="details-grid-control">
+                                  <button
+                                    className={`focus-mode-btn${fullContainer.locked ? ' focus-mode-btn--active' : ''}`}
+                                    style={{ width: '100%', justifyContent: 'center' }}
+                                    onClick={() => handleToggleLock(selectedContainerId)}
+                                  >
+                                    {fullContainer.locked ? '🔒 Locked' : '🔓 Unlocked'}
+                                  </button>
+                                </div>
+                              </>)}
+                              {parentContainer && (<>
+                                <span className="details-grid-label">Parent</span>
+                                <div className="details-grid-control"><span style={{ fontSize: 11, color: '#555' }}>{parentContainer.title}</span></div>
+                                <span className="details-grid-label">Parent Layout</span>
+                                <div className="details-grid-control"><span style={{ fontSize: 11, color: parentContainer.layout?.layoutType === 'coordinate' ? '#0078d4' : '#555', fontWeight: 600 }}>{parentContainer.layout?.layoutType || 'flex'}</span></div>
+                              </>)}
+                            </div>
+                          </div>
+                          {fullContainer.id === ROOT_CONTAINER_ID && (
+                            <div className="details-section">
+                              <div className="details-grid">
+                                <span className="details-section-title">Page</span>
+                                <span className="details-grid-label">Type</span>
+                                <div className="details-grid-control">{sb(['fit','fixed','vertical fixed','horizontal fixed'], fullContainer.pageType || 'fit', v => setContainers(prev => updatePageTypeInTree(prev, selectedContainerId, v)))}</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </TabPanelItem>
+
+                    </TabPanel>
+                  </div>
+                );
+              })()}
+            </div>
+          </SplitterItem>
+        </Splitter>
+        )}
+      </div>
+
+      <Popup
+        visible={popupVisible}
+        onHiding={closeWizard}
+        title="Create"
+        width="90vw"
+        height="90vh"
+        showCloseButton={false}
+        hideOnOutsideClick={false}
+        dragEnabled={false}
+        contentRender={() => (
+          <WizardContent
+            currentStep={currentStep}
+            selectedAssetIds={selectedAssetIds}
+            onAssetsSelected={setSelectedAssetIds}
+            selectedTags={selectedTags}
+            onTagsChanged={setSelectedTags}
+          />
+        )}
+      >
+        <ToolbarItem
+          widget="dxButton"
+          toolbar="bottom"
+          location="before"
+          options={{ text: 'Cancel', stylingMode: 'outlined', onClick: closeWizard }}
+        />
+        {currentStep > 0 && (
+          <ToolbarItem
+            widget="dxButton"
+            toolbar="bottom"
+            location="after"
+            options={{ text: 'Back', stylingMode: 'outlined', onClick: handleBack }}
+          />
+        )}
+        <ToolbarItem
+          widget="dxButton"
+          toolbar="bottom"
+          location="after"
+          options={{
+            text: isLastStep ? 'Save' : 'Next',
+            type: isLastStep ? 'success' : 'default',
+            stylingMode: 'contained',
+            onClick: handleNext,
+          }}
+        />
+      </Popup>
+    </div>
+  );
+}

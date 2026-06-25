@@ -1,0 +1,43 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.locked.css — Pass 2 locked-selection styling
+   Imported by App.js. Provides the greyed/disabled treatment shown when a
+   locked container (or a multi-selection containing one) is selected.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Dim a locked region. Opacity only — the container itself stays interactive
+   so you can still SCROLL to read all the (now non-editable) values. */
+.details-locked {
+  opacity: 0.55;
+}
+
+/* Disable the actual controls inside a locked region. We target the controls
+   rather than the whole container so wheel-scrolling the panel still works. */
+.details-locked input,
+.details-locked button,
+.details-locked .dx-widget,
+.details-locked .details-grid-control {
+  pointer-events: none;
+}
+
+/* Banner shown at the top of the details panel when the selection is locked. */
+.details-locked-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: #fff4e5;
+  border-bottom: 1px solid #f0c987;
+  color: #8a5a00;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+
+/* Disabled toolbar buttons in the center panel. The .focus-mode-btn class sets
+   its own colors, which would otherwise override the browser's default disabled
+   look, so we make the disabled state explicit here. */
+.focus-mode-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
