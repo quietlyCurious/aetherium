@@ -19,6 +19,27 @@ import { TreeView } from 'devextreme-react';
 import 'devextreme/dist/css/dx.fluent.blue.light.compact.css';
 import './App.css';
 import './App.locked.css'; // Pass 2 — locked-selection styling
+import './App.snap.css';  // Snap-to-grid dot grid styles
+import './App.bindings.css'; // Phase 1 binding system
+import './App.data.css'; // Phase 2a data workspace
+import './App.detailsRadius.css'; // scoped border-radius override for details panel controls
+import DataSourcesWorkspace from './DataSourcesWorkspace';
+import QueriesWorkspace from './QueriesWorkspace';
+import EntitiesWorkspace from './EntitiesWorkspace';
+import { makeNewEntity } from './entityModel';
+import { loadEntities, saveEntities } from './entitiesStorage';
+import { loadDataSources, saveDataSources } from './dataSourcesStorage';
+import { loadQueries, saveQueries } from './queriesStorage';
+import ThemeWorkspace from './ThemeWorkspace';
+import DataListGrid from './DataListGrid';
+import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage } from './pagesStorage';
+import ScreensPanel from './ScreensPanel';
+import { evaluateExpression } from './expressionEval';
+import {
+  generateDataId, nextInstanceId,
+  DEFAULT_DATA_SOURCE, DEFAULT_QUERY, DEFAULT_SCRIPT, DEFAULT_QUERY_INSTANCE,
+  EXECUTION_TRIGGERS, INSTANCE_SCOPES,
+} from './dataModel';
 
 // ── Data
 import { ASSET_DATA, ASSET_MAP, buildSelectedAssetTree } from './assetData';
@@ -55,6 +76,7 @@ import WizardContent, { STEPS } from './Wizard';
 import DevicePicker from './DevicePicker';
 import WidgetConfigPanel from './WidgetConfigPanel';
 import WidgetPreview from './WidgetPreview';
+import notify from 'devextreme/ui/notify';
 
 // ── Template helpers used in left panel
 function WidgetTreeItemTemplate(item, onDblClick) {
@@ -105,14 +127,210 @@ function getAncestorBreadcrumb(assetId) {
   return crumbs;
 }
 
+// ── Aspect ratio presets ─────────────────────────────────────────────────────
+// Values are float w/h ratios. null = Free (no constraint).
+const ASPECT_RATIO_PRESETS = [
+  { label: 'Free',     value: null   },
+  { label: '1 : 1',   value: 1      },
+  { label: '4 : 3',   value: 4 / 3  },
+  { label: '3 : 2',   value: 3 / 2  },
+  { label: '16 : 9',  value: 16 / 9 },
+  { label: '16 : 10', value: 16 / 10 },
+  { label: '2 : 1',   value: 2      },
+  { label: '9 : 16',  value: 9 / 16 },
+  { label: '3 : 4',   value: 3 / 4  },
+  { label: '2 : 3',   value: 2 / 3  },
+];
+// Shown in the dropdown when the current ratio doesn't match any preset
+const CUSTOM_RATIO_SENTINEL = -1;
+
+// ── Pure AR constraint helpers ────────────────────────────────────────────────
+// Called inside handleUpdateSlot / handleUpdateCoord.
+// Width always drives when both dimensions are present.
+// Non-px slot values (auto, %, etc.) are left untouched.
+
+function adjustSlotForAR(container, slot) {
+  const ar = container?.aspectRatio;
+  if (!ar || typeof ar !== 'number') return slot;
+  const isPx = (v) => typeof v === 'string' && v.endsWith('px') && !isNaN(parseFloat(v));
+  if ('width' in slot && isPx(slot.width)) {
+    return { ...slot, height: `${Math.round(parseFloat(slot.width) / ar)}px` };
+  }
+  if ('height' in slot && !('width' in slot) && isPx(slot.height)) {
+    return { ...slot, width: `${Math.round(parseFloat(slot.height) * ar)}px` };
+  }
+  return slot;
+}
+
+function adjustCoordForAR(container, coord) {
+  const ar = container?.aspectRatio;
+  if (!ar || typeof ar !== 'number') return coord;
+  if ('width' in coord && typeof coord.width === 'number' && !isNaN(coord.width)) {
+    return { ...coord, height: Math.round(coord.width / ar) };
+  }
+  if ('height' in coord && !('width' in coord) && typeof coord.height === 'number' && !isNaN(coord.height)) {
+    return { ...coord, width: Math.round(coord.height * ar) };
+  }
+  return coord;
+}
+
 export default function App() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAssetIds, setSelectedAssetIds] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [containers, setContainers] = useState([makeRootContainer()]);
+  const [pages, setPages] = useState(() => loadPagesAndFolders().pages);
+  const [folders, setFolders] = useState(() => loadPagesAndFolders().folders);
+  const [activePageId, setActivePageId] = useState(null); // null = current canvas isn't tied to a saved page yet
+  // Tracks the JSON of whatever was last saved/loaded, so we can tell if the live
+  // canvas has diverged from it — a simple, correct-enough "dirty" check for a
+  // dev tool. (Only the ACTIVE page can ever be dirty — every other page's stored
+  // snapshot is untouched until you switch to it, since only one page's worth of
+  // containers is ever live in the canvas at a time.)
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState(() => JSON.stringify(containers));
+  const isDirty = JSON.stringify(containers) !== lastSavedSnapshot;
   const [selectedContainerId, setSelectedContainerId] = useState(null);
   const [selectedContainerIds, setSelectedContainerIds] = useState([]);
+
+  // ── Page (Screen) persistence handlers ─────────────────────────────────────
+  // MVP: explicit Save only — see pagesStorage.js for why there's no auto-sync.
+  const resetSelectionForPageSwitch = () => {
+    setSelectedContainerId(null);
+    setSelectedContainerIds([]);
+  };
+
+  // Returns true if it's OK to proceed (either nothing's dirty, or the user
+  // confirmed they want to discard). Centralized so every action that would
+  // blow away the live canvas (open, create) checks it the same way.
+  const confirmDiscardIfDirty = () => {
+    if (!isDirty) return true;
+    return window.confirm('You have unsaved changes on this screen. Discard them and continue?');
+  };
+
+  // Guards navigation via the top-left "Aetherium ▾" menu the same way page
+  // switching is guarded — if the canvas has unsaved edits, confirm before
+  // leaving. Note: navigating between menu areas doesn't itself discard the
+  // live `containers` state (unlike opening a different saved page, which
+  // does) — this is a deliberate "don't forget to save" nudge, not a data-loss
+  // prevention in the strict sense, though it's built the same way for a
+  // consistent, predictable habit either way.
+  const handleNavigate = (view) => {
+    if (!confirmDiscardIfDirty()) return;
+    setCurrentView(view);
+    setMenuOpen(false);
+  };
+
+  const handleCreatePage = () => {
+    if (!confirmDiscardIfDirty()) return;
+    const name = window.prompt('Name this screen:', `Screen ${pages.length + 1}`);
+    if (name === null) return; // cancelled
+    const blankContainers = [makeRootContainer()];
+    const page = makeNewPage(name, blankContainers, generateDataId);
+    setPages(prev => {
+      const next = [...prev, page];
+      savePagesAndFolders(next, folders);
+      return next;
+    });
+    setContainers(blankContainers);
+    setLastSavedSnapshot(JSON.stringify(blankContainers));
+    setActivePageId(page.id);
+    resetSelectionForPageSwitch();
+  };
+
+  const handleOpenPage = (pageId) => {
+    if (pageId === activePageId) return; // already open, nothing to switch
+    if (!confirmDiscardIfDirty()) return;
+    const page = pages.find(p => p.id === pageId);
+    if (!page) return;
+    const cloned = cloneContainersFromPage(page);
+    setContainers(cloned);
+    setLastSavedSnapshot(JSON.stringify(cloned));
+    setActivePageId(page.id);
+    resetSelectionForPageSwitch();
+  };
+
+  const handleSavePage = () => {
+    if (!activePageId) {
+      const name = window.prompt('Name this screen:', `Screen ${pages.length + 1}`);
+      if (name === null) return; // cancelled
+      const page = makeNewPage(name, containers, generateDataId);
+      setPages(prev => {
+        const next = [...prev, page];
+        savePagesAndFolders(next, folders);
+        return next;
+      });
+      setActivePageId(page.id);
+      setLastSavedSnapshot(JSON.stringify(containers));
+      notify(`Saved "${page.name}"`, 'success', 2000);
+      return;
+    }
+    setPages(prev => {
+      const next = prev.map(p => p.id === activePageId ? snapshotPage(p, containers) : p);
+      savePagesAndFolders(next, folders);
+      const savedName = next.find(p => p.id === activePageId)?.name;
+      notify(`Saved "${savedName}"`, 'success', 2000);
+      return next;
+    });
+    setLastSavedSnapshot(JSON.stringify(containers));
+  };
+
+  const handleDeletePage = (pageId) => {
+    const page = pages.find(p => p.id === pageId);
+    const confirmed = window.confirm(`Delete "${page?.name || 'this screen'}"? This can't be undone.`);
+    if (!confirmed) return;
+    setPages(prev => {
+      const next = prev.filter(p => p.id !== pageId);
+      savePagesAndFolders(next, folders);
+      return next;
+    });
+    if (activePageId === pageId) setActivePageId(null);
+  };
+
+  // ── Folder CRUD ──────────────────────────────────────────────────────────
+  const handleCreateFolder = () => {
+    const name = window.prompt('Name this folder:', `Folder ${folders.length + 1}`);
+    if (name === null) return;
+    const folder = makeNewFolder(name, generateDataId);
+    setFolders(prev => {
+      const next = [...prev, folder];
+      savePagesAndFolders(pages, next);
+      return next;
+    });
+  };
+
+  const handleRenameFolder = (folder) => {
+    const name = window.prompt('Rename folder:', folder.name);
+    if (name === null || name === folder.name) return;
+    setFolders(prev => {
+      const next = prev.map(f => f.id === folder.id ? { ...f, name } : f);
+      savePagesAndFolders(pages, next);
+      return next;
+    });
+  };
+
+  const handleDeleteFolder = (folder) => {
+    const hasContents = pages.some(p => p.folderId === folder.id);
+    if (hasContents) {
+      window.alert(`"${folder.name}" isn't empty. Move or delete the screens inside it first.`);
+      return;
+    }
+    const confirmed = window.confirm(`Delete the folder "${folder.name}"?`);
+    if (!confirmed) return;
+    setFolders(prev => {
+      const next = prev.filter(f => f.id !== folder.id);
+      savePagesAndFolders(pages, next);
+      return next;
+    });
+  };
+
+  const handleMovePageToFolder = (pageId, folderId) => {
+    setPages(prev => {
+      const next = prev.map(p => p.id === pageId ? { ...p, folderId } : p);
+      savePagesAndFolders(next, folders);
+      return next;
+    });
+  };
   const [detailsTabIndex, setDetailsTabIndex] = useState(0);
   const [clipboard, setClipboard] = useState(null);
   const [selectedGridCell, setSelectedGridCell] = useState(null);
@@ -152,7 +370,7 @@ export default function App() {
   const [focusMode, setFocusMode] = useState('follow');
   const [showGap, setShowGap] = useState(true);
   const [coordMode, setCoordMode] = useState('reposition');
-  const [currentView, setCurrentView] = useState('screens'); // 'screens' | 'widgets'
+  const [currentView, setCurrentView] = useState('screens'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedWidgetName, setSelectedWidgetName] = useState(null);
   // Breakpoint / device preview
@@ -161,10 +379,24 @@ export default function App() {
   const [customWidth, setCustomWidth] = useState(1280);
   const [customHeight, setCustomHeight] = useState(800);
   const [devicePickerOpen, setDevicePickerOpen] = useState(false);
+  const [snapEnabled, setSnapEnabled] = useState(true);  // snap-to-grid + snap-to-elements
+  const [snapSize,    setSnapSize]    = useState(8);     // grid interval AND element-snap threshold
+  const [snapGuides,  setSnapGuides]  = useState(null);  // active alignment guides during coord drag
+  const [bindingPopoverProp, setBindingPopoverProp] = useState(null); // { containerId, propName, x, y }
+
+  // ── Phase 2 Data Layer ────────────────────────────────────────────────────
+  // System-scoped (shared across all pages of this project):
+  const [dataSources,      setDataSources]      = useState(() => loadDataSources());  // DataSource definitions
+  const [entities,         setEntities]          = useState(() => loadEntities());  // Entity definitions (schema + rows)
+  const entitiesWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger entity-data save
+  const [queries,          setQueries]          = useState(() => loadQueries());  // Query definitions
+  const [scripts,          setScripts]          = useState([]);  // Script definitions (Phase 3+)
+  // Page-scoped (instances added to the current page; extend to { [pageId]: [] } when multi-page lands):
+  const [queryInstances,   setQueryInstances]   = useState([]);  // QueryInstance[]
 
   React.useEffect(() => {
     const onKeyDown = (e) => {
-      if (e.key === 'Escape') { setPaintbrush(null); }
+      if (e.key === 'Escape') { setPaintbrush(null); setSnapGuides(null); }
       const mod = e.ctrlKey || e.metaKey;
       if (!mod) return;
       if (e.key === 'c' || e.key === 'C') { e.preventDefault(); handleCopy(); }
@@ -548,6 +780,159 @@ export default function App() {
     setContainers(prev => updateWidgetPropsInTree(prev, id, props));
   };
 
+  // ── Binding handlers (Phase 1) ─────────────────────────────────────────────
+  const handleSetBinding = (id, propName, binding) => {
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) return { ...c, bindings: { ...(c.bindings || {}), [propName]: binding } };
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  const handleClearBinding = (id, propName) => {
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) {
+        const nb = { ...(c.bindings || {}) };
+        delete nb[propName];
+        return { ...c, bindings: nb };
+      }
+      return { ...c, children: c.children.map(upd) };
+    }));
+  };
+
+  // ── Phase 2 Data Layer Handlers ───────────────────────────────────────────
+
+  // ── Data Sources ──────────────────────────────────────────────────────────
+  const handleAddDataSource = (dsData = {}) => {
+    const ds = { ...DEFAULT_DATA_SOURCE, ...dsData, id: generateDataId() };
+    setDataSources(prev => {
+      const next = [...prev, ds];
+      saveDataSources(next);
+      return next;
+    });
+    return ds.id;
+  };
+
+  const handleUpdateDataSource = (id, updates) => {
+    setDataSources(prev => {
+      const next = prev.map(ds =>
+        ds.id === id ? { ...ds, ...updates, config: { ...ds.config, ...(updates.config || {}) } } : ds
+      );
+      saveDataSources(next);
+      return next;
+    });
+  };
+
+  const handleDeleteDataSource = (id) => {
+    // Guard: don't delete if queries reference this data source
+    const inUse = queries.some(q => q.dataSourceId === id);
+    if (inUse) {
+      // Caller should warn the user — handler returns false to signal blocked
+      return false;
+    }
+    setDataSources(prev => {
+      const next = prev.filter(ds => ds.id !== id);
+      saveDataSources(next);
+      return next;
+    });
+    return true;
+  };
+
+  // ── Entities ─────────────────────────────────────────────────────────────
+  const handleAddEntity = () => {
+    const entity = makeNewEntity('Untitled Entity', generateDataId);
+    setEntities(prev => {
+      const next = [...prev, entity];
+      saveEntities(next);
+      return next;
+    });
+    return entity.id;
+  };
+
+  const handleUpdateEntity = (id, updates) => {
+    setEntities(prev => {
+      const next = prev.map(e => e.id === id ? { ...e, ...updates, updatedAt: new Date().toISOString() } : e);
+      saveEntities(next);
+      return next;
+    });
+  };
+
+  const handleDeleteEntity = (id) => {
+    setEntities(prev => {
+      const next = prev.filter(e => e.id !== id);
+      saveEntities(next);
+      return next;
+    });
+    return true;
+  };
+
+  // ── Queries ───────────────────────────────────────────────────────────────
+  const handleAddQuery = (qData = {}) => {
+    const q = { ...DEFAULT_QUERY, ...qData, id: generateDataId() };
+    setQueries(prev => {
+      const next = [...prev, q];
+      saveQueries(next); // persisted inside the updater so a rapid loop of calls
+      return next;        // (e.g. the OpHub sync feature) always saves the correct final array
+    });
+    return q.id;
+  };
+
+  const handleUpdateQuery = (id, updates) => {
+    setQueries(prev => {
+      const next = prev.map(q =>
+        q.id === id ? { ...q, ...updates, config: { ...q.config, ...(updates.config || {}) } } : q
+      );
+      saveQueries(next);
+      return next;
+    });
+  };
+
+  const handleDeleteQuery = (id) => {
+    // Guard: don't delete if query instances reference this query
+    const inUse = queryInstances.some(qi => qi.queryId === id);
+    if (inUse) return false;
+    setQueries(prev => {
+      const next = prev.filter(q => q.id !== id);
+      saveQueries(next);
+      return next;
+    });
+    return true;
+  };
+
+  // ── Query Instances (page-scoped) ─────────────────────────────────────────
+  const handleAddQueryInstance = (instData = {}) => {
+    const inst = {
+      ...DEFAULT_QUERY_INSTANCE,
+      ...instData,
+      id: nextInstanceId(queryInstances),
+    };
+    if (!inst.alias && inst.queryId) {
+      // Auto-generate alias from query name
+      const q = queries.find(q => q.id === inst.queryId);
+      if (q) inst.alias = q.name;
+    }
+    setQueryInstances(prev => [...prev, inst]);
+    return inst.id;
+  };
+
+  const handleUpdateQueryInstance = (id, updates) => {
+    setQueryInstances(prev => prev.map(qi =>
+      qi.id === id ? { ...qi, ...updates } : qi
+    ));
+  };
+
+  const handleDeleteQueryInstance = (id) => {
+    setQueryInstances(prev => prev.filter(qi => qi.id !== id));
+  };
+
+  const handlePromoteQueryInstance = (id) => {
+    // Promote a page-scoped instance to app-scoped (shared across all pages)
+    setQueryInstances(prev => prev.map(qi =>
+      qi.id === id ? { ...qi, scope: INSTANCE_SCOPES.APP } : qi
+    ));
+  };
+
   // Create a fresh cell container for a grid cell
   const makeCellContainer = (parentId) => ({
     ...makeContainer(parentId, getNextContainerName(containers)),
@@ -691,13 +1076,17 @@ export default function App() {
       // Save to breakpoint override instead of base
       setContainers(prev => prev.map(function upd(c) {
         if (c.id === id) {
+          const adjusted = adjustSlotForAR(c, slot);
           const existing = c.breakpointOverrides?.[activeTierId]?.slot || {};
-          return { ...c, breakpointOverrides: { ...c.breakpointOverrides, [activeTierId]: { ...c.breakpointOverrides?.[activeTierId], slot: { ...existing, ...slot } } } };
+          return { ...c, breakpointOverrides: { ...c.breakpointOverrides, [activeTierId]: { ...c.breakpointOverrides?.[activeTierId], slot: { ...existing, ...adjusted } } } };
         }
         return { ...c, children: c.children.map(upd) };
       }));
     } else {
-      setContainers(prev => updateSlotInTree(prev, id, slot));
+      setContainers(prev => {
+        const container = findContainerById(prev, id);
+        return updateSlotInTree(prev, id, adjustSlotForAR(container, slot));
+      });
     }
   };
 
@@ -745,7 +1134,34 @@ export default function App() {
   const handleUpdateCoord = (id, coord) => {
     // LOCK GUARD
     if (isLockedOrAncestorLocked(containers, id)) return;
-    setContainers(prev => updateCoordInTree(prev, id, coord));
+    setContainers(prev => {
+      const container = findContainerById(prev, id);
+      return updateCoordInTree(prev, id, adjustCoordForAR(container, coord));
+    });
+  };
+
+  const handleSetAspectRatio = (id, ratio) => {
+    // LOCK GUARD
+    if (isLockedOrAncestorLocked(containers, id)) return;
+    // Sets the ratio flag AND immediately applies it to current dimensions
+    // in one atomic state update so there's no stale-closure timing issue.
+    setContainers(prev => prev.map(function upd(c) {
+      if (c.id === id) {
+        const withRatio = { ...c, aspectRatio: ratio ?? null };
+        if (!ratio) return withRatio; // Free — just clear the lock
+        // Apply immediately to whichever dimension system the container uses
+        if (typeof c.coord?.width === 'number' && !isNaN(c.coord.width)) {
+          return { ...withRatio, coord: { ...c.coord, height: Math.round(c.coord.width / ratio) } };
+        }
+        const wStr = c.slot?.width;
+        if (typeof wStr === 'string' && wStr.endsWith('px')) {
+          const w = parseFloat(wStr);
+          if (!isNaN(w)) return { ...withRatio, slot: { ...c.slot, height: `${Math.round(w / ratio)}px` } };
+        }
+        return withRatio;
+      }
+      return { ...c, children: c.children.map(upd) };
+    }));
   };
 
   const handleUpdatePageType = (id, pageType) => {
@@ -806,19 +1222,74 @@ export default function App() {
             <div className="app-titlebar-dropdown">
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'screens' ? ' active' : ''}`}
-                onClick={() => { setCurrentView('screens'); setMenuOpen(false); }}
+                onClick={() => handleNavigate('screens')}
               >
                 Screens
               </div>
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'widgets' ? ' active' : ''}`}
-                onClick={() => { setCurrentView('widgets'); setMenuOpen(false); }}
+                onClick={() => handleNavigate('widgets')}
               >
                 Widgets
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'theme' ? ' active' : ''}`}
+                onClick={() => handleNavigate('theme')}
+              >
+                Theme
+              </div>
+              <div className="app-titlebar-dropdown-divider" />
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'datasources' ? ' active' : ''}`}
+                onClick={() => handleNavigate('datasources')}
+              >
+                Data Sources
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'entities' ? ' active' : ''}`}
+                onClick={() => handleNavigate('entities')}
+              >
+                Entities
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'queries' ? ' active' : ''}`}
+                onClick={() => handleNavigate('queries')}
+              >
+                Queries
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'scripts' ? ' active' : ''}`}
+                onClick={() => handleNavigate('scripts')}
+              >
+                Scripts
               </div>
             </div>
           )}
         </div>
+        <button
+          onClick={() => {
+            if (currentView === 'entities') {
+              entitiesWorkspaceRef.current?.save();
+            } else {
+              handleSavePage();
+            }
+          }}
+          title={currentView === 'entities' ? 'Save entity data' : (activePageId ? 'Save this screen' : 'Save as a new screen')}
+          style={{
+            marginLeft: 'auto',
+            marginRight: 14,
+            fontSize: 12,
+            fontWeight: 600,
+            padding: '5px 14px',
+            borderRadius: 6,
+            border: '1px solid rgba(255,255,255,0.35)',
+            background: 'rgba(255,255,255,0.08)',
+            color: '#fff',
+            cursor: 'pointer',
+          }}
+        >
+          💾 Save
+        </button>
         <div className="app-titlebar-profile" title="Profile">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
@@ -884,6 +1355,49 @@ export default function App() {
               </div>
             </SplitterItem>
           </Splitter>
+
+        ) : currentView === 'theme' ? (
+          <ThemeWorkspace />
+
+        ) : currentView === 'datasources' ? (
+          <DataSourcesWorkspace
+            dataSources={dataSources}
+            onAdd={handleAddDataSource}
+            onUpdate={handleUpdateDataSource}
+            onDelete={handleDeleteDataSource}
+          />
+
+        ) : currentView === 'entities' ? (
+          <EntitiesWorkspace
+            ref={entitiesWorkspaceRef}
+            entities={entities}
+            onAdd={handleAddEntity}
+            onUpdate={handleUpdateEntity}
+            onDelete={handleDeleteEntity}
+          />
+
+        ) : currentView === 'queries' ? (
+          <QueriesWorkspace
+            queries={queries}
+            dataSources={dataSources}
+            onAdd={handleAddQuery}
+            onUpdate={handleUpdateQuery}
+            onDelete={handleDeleteQuery}
+          />
+
+        ) : currentView === 'scripts' ? (
+          <div className="data-workspace">
+            <div className="data-workspace-placeholder">
+              <div className="data-workspace-placeholder-icon">🐍</div>
+              <div className="data-workspace-placeholder-title">Scripts</div>
+              <div className="data-workspace-placeholder-desc">
+                Author Python scripts with typed inputs and outputs that can be added to pages and bound to widgets,
+                just like queries. Scripts run server-side and support complex data transformation logic.
+              </div>
+              <div className="data-workspace-placeholder-badge">Phase 3 · planned</div>
+            </div>
+          </div>
+
         ) : (
           <Splitter orientation="horizontal" style={{ height: '100%' }}>
             <SplitterItem size="220px" minSize="120px" resizable={true}>
@@ -893,6 +1407,23 @@ export default function App() {
                 animationEnabled={false}
                 swipeEnabled={false}
               >
+                <TabPanelItem title="Screens">
+                  <div className="left-panel-tab-content" style={{ height: '100%' }}>
+                    <ScreensPanel
+                      pages={pages}
+                      folders={folders}
+                      activePageId={activePageId}
+                      isDirty={isDirty}
+                      onOpenPage={handleOpenPage}
+                      onCreatePage={handleCreatePage}
+                      onDeletePage={handleDeletePage}
+                      onCreateFolder={handleCreateFolder}
+                      onRenameFolder={handleRenameFolder}
+                      onDeleteFolder={handleDeleteFolder}
+                      onMovePageToFolder={handleMovePageToFolder}
+                    />
+                  </div>
+                </TabPanelItem>
                 <TabPanelItem title="Visuals">
                   <div className="left-panel-tab-content">
                     <HierarchyTree
@@ -965,6 +1496,28 @@ export default function App() {
                   onToggle={() => setDevicePickerOpen(o => !o)}
                 />
                 <div style={{ width: 1, height: 20, background: '#e0e0e0', margin: '0 4px', flexShrink: 0 }} />
+                {/* Snap toggle + threshold input — always visible, canvas-level settings */}
+                <button
+                  className={`focus-mode-btn${snapEnabled ? ' focus-mode-btn--active' : ''}`}
+                  onClick={() => setSnapEnabled(s => !s)}
+                  title={snapEnabled ? 'Snap on (grid + elements) — click to disable' : 'Snap off — click to enable'}
+                >
+                  {snapEnabled ? '⊞ Snap' : '⊟ Snap'}
+                </button>
+                {snapEnabled && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <input
+                      type="number"
+                      min={1}
+                      max={64}
+                      value={snapSize}
+                      onChange={(e) => setSnapSize(Math.max(1, Math.min(64, parseInt(e.target.value) || 8)))}
+                      style={{ width: 40, fontSize: 11, padding: '2px 4px', border: '1px solid #d1d1d1', borderRadius: 4, textAlign: 'center' }}
+                      title="Snap threshold — controls grid interval and element-snap proximity"
+                    />
+                    <span style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap' }}>px</span>
+                  </div>
+                )}
                 {selectedContainerId && (
                   <>
                     <Button
@@ -1075,7 +1628,7 @@ export default function App() {
               </div>
               <div
                 className="center-content"
-                onClick={() => { setSelectedContainerId(null); setSelectedContainerIds([]); setSelectedGridCell(null); setDevicePickerOpen(false); if (paintbrush) setPaintbrush(null); }}
+                onClick={() => { setSelectedContainerId(null); setSelectedContainerIds([]); setSelectedGridCell(null); setDevicePickerOpen(false); if (paintbrush) setPaintbrush(null); setBindingPopoverProp(null); }}
                 style={{ cursor: paintbrush ? 'crosshair' : undefined }}
               >
                 {/* Device preview wrapper */}
@@ -1126,6 +1679,10 @@ export default function App() {
                       isDragging={!!draggingId}
                       coordMode={coordMode}
                       activeTierId={activeTierId}
+                      snapEnabled={snapEnabled}
+                      snapSize={snapSize}
+                      snapGuides={snapGuides}
+                      onSnapGuideChange={setSnapGuides}
                     />
                   ))}
                 </div>
@@ -1187,7 +1744,7 @@ export default function App() {
                     type={type}
                     value={val ?? ''}
                     placeholder={placeholder}
-                    onChange={(e) => fn(type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value)}
+                    onChange={(e) => fn(type === 'number' ? (e.target.value === '' ? '' : (parseFloat(e.target.value) || 0)) : e.target.value)}
                   />
                 );
 
@@ -1204,6 +1761,16 @@ export default function App() {
 
                 // Shared slot values
                 const allHaveParent = selected.every(c => c.parentId !== null);
+
+                // Coordinate-mode detection — each item's OWN parent may differ, so this
+                // is computed per-item rather than assumed from a single shared parent.
+                const isCoordItem = (c) => findContainerById(containers, c.parentId)?.layout?.layoutType === 'coordinate';
+                const allCoord = allHaveParent && selected.every(isCoordItem);
+                const allFlexLike = allHaveParent && selected.every(c => !isCoordItem(c));
+                const mixedLayoutTypes = allHaveParent && !allCoord && !allFlexLike;
+
+                const updateAllCoord = (coord) => selected.forEach(c => handleUpdateCoord(c.id, coord));
+
                 const sharedWidth = shared(c => c.slot?.width);
                 const sharedHeight = shared(c => c.slot?.height);
                 const sharedGrow = shared(c => c.slot?.flexGrow);
@@ -1235,14 +1802,64 @@ export default function App() {
                       </div>
                     </div>
 
-                    {allHaveParent && (
+                    {allCoord && (
+                      <div className="details-section">
+                        <div className="details-grid">
+                          <span className="details-section-title">Coordinate</span>
+                          <span className="details-grid-label">Left</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.left), '—', v => updateAllCoord({ left: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Right</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.right), '—', v => updateAllCoord({ right: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Top</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.top), '—', v => updateAllCoord({ top: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Bottom</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.bottom), '—', v => updateAllCoord({ bottom: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Width</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.width), '—', v => updateAllCoord({ width: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Min W</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.minWidth), '—', v => updateAllCoord({ minWidth: v }))}</div>
+                          <span className="details-grid-label">Max W</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.maxWidth), '—', v => updateAllCoord({ maxWidth: v }))}</div>
+                          <span className="details-grid-label">Height</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.height), '—', v => updateAllCoord({ height: v === '' ? '' : Number(v) }), 'number')}</div>
+                          <span className="details-grid-label">Min H</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.minHeight), '—', v => updateAllCoord({ minHeight: v }))}</div>
+                          <span className="details-grid-label">Max H</span>
+                          <div className="details-grid-control">{ti(shared(c => c.coord?.maxHeight), '—', v => updateAllCoord({ maxHeight: v }))}</div>
+                          <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#aaa', fontStyle: 'italic', paddingTop: 2 }}>
+                            Aspect ratio lock isn't available for multi-select yet.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {mixedLayoutTypes && (
+                      <div className="details-section">
+                        <div className="details-grid">
+                          <span className="details-section-title">Slot</span>
+                          <div style={{ gridColumn: '1 / -1', fontSize: 11, color: '#7a6000', background: '#fffbe6', border: '1px solid #ffe08a', borderRadius: 4, padding: '6px 8px', lineHeight: 1.5 }}>
+                            This selection mixes coordinate-layout and flex-layout items — position/size editing isn't available together. Select only coordinate items or only flex items to edit dimensions in bulk.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {allFlexLike && (
                       <div className="details-section">
                         <div className="details-grid">
                           <span className="details-section-title">Slot</span>
                           <span className="details-grid-label">Width</span>
                           <div className="details-grid-control">{ti(sharedWidth, '—', v => updateAllSlot({ width: v }))}</div>
+                          <span className="details-grid-label">Min W</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.minWidth), '—', v => updateAllSlot({ minWidth: v }))}</div>
+                          <span className="details-grid-label">Max W</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.maxWidth), '—', v => updateAllSlot({ maxWidth: v }))}</div>
                           <span className="details-grid-label">Height</span>
                           <div className="details-grid-control">{ti(sharedHeight, '—', v => updateAllSlot({ height: v }))}</div>
+                          <span className="details-grid-label">Min H</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.minHeight), '—', v => updateAllSlot({ minHeight: v }))}</div>
+                          <span className="details-grid-label">Max H</span>
+                          <div className="details-grid-control">{ti(shared(c => c.slot?.maxHeight), '—', v => updateAllSlot({ maxHeight: v }))}</div>
                           <span className="details-grid-label">Grow</span>
                           <div className="details-grid-control">{sb([0,1,2,3], sharedGrow, v => updateAllSlot({ flexGrow: v }))}</div>
                           <span className="details-grid-label">Shrink</span>
@@ -1289,6 +1906,47 @@ export default function App() {
                           <div className="details-grid-control">{sb(['','normal','bold','300','400','500','600','700'], shared(c => c.slot?.fontWeight), v => updateAllSlot({ fontWeight: v }))}</div>
                           <span className="details-grid-label">Text Align</span>
                           <div className="details-grid-control">{sb(['','left','center','right','justify'], shared(c => c.slot?.textAlign), v => updateAllSlot({ textAlign: v }))}</div>
+                          <span className="details-grid-label">Overflow X</span>
+                          <div className="details-grid-control">
+                            <SelectBox
+                              dataSource={[
+                                { v: 'auto',    l: 'Auto (if needed)' },
+                                { v: 'hidden',  l: 'Hidden / Clip' },
+                                { v: 'scroll',  l: 'Scroll (always)' },
+                                { v: 'visible', l: 'Visible ⚠' },
+                              ]}
+                              valueExpr="v"
+                              displayExpr="l"
+                              value={shared(c => c.slot?.overflowX) || 'auto'}
+                              onValueChanged={(e) => updateAllSlot({ overflowX: e.value })}
+                              stylingMode="outlined"
+                              width="100%"
+                              height={24}
+                            />
+                          </div>
+                          <span className="details-grid-label">Overflow Y</span>
+                          <div className="details-grid-control">
+                            <SelectBox
+                              dataSource={[
+                                { v: 'auto',    l: 'Auto (if needed)' },
+                                { v: 'hidden',  l: 'Hidden / Clip' },
+                                { v: 'scroll',  l: 'Scroll (always)' },
+                                { v: 'visible', l: 'Visible ⚠' },
+                              ]}
+                              valueExpr="v"
+                              displayExpr="l"
+                              value={shared(c => c.slot?.overflowY) || 'auto'}
+                              onValueChanged={(e) => updateAllSlot({ overflowY: e.value })}
+                              stylingMode="outlined"
+                              width="100%"
+                              height={24}
+                            />
+                          </div>
+                          {(shared(c => c.slot?.overflowX) === 'visible' || shared(c => c.slot?.overflowY) === 'visible') && (
+                            <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#8a5a00', background: '#fff8e6', border: '1px solid #f0c987', padding: '4px 8px', borderRadius: 4, margin: '2px 0' }}>
+                              ⚠ Visible overflow: content may render outside these containers' bounds.
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1364,11 +2022,46 @@ export default function App() {
                     type={type}
                     value={val}
                     placeholder={placeholder}
-                    onChange={(e) => fn(type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value)}
+                    onChange={(e) => fn(type === 'number' ? (e.target.value === '' ? '' : (parseInt(e.target.value) || 0)) : e.target.value)}
                   />
                 );
 
                 const lockedClass = isSelectedLocked ? ' details-locked' : '';
+
+                // ── Aspect ratio helpers (used in Slot tab) ────────────────
+                const currentAr = fullContainer.aspectRatio ?? null;
+                const arPresetMatch = currentAr !== null
+                  ? ASPECT_RATIO_PRESETS.find(p => p.value !== null && Math.abs(p.value - currentAr) < 0.001)
+                  : null;
+                const arSelectValue = currentAr === null
+                  ? null
+                  : (arPresetMatch ? arPresetMatch.value : CUSTOM_RATIO_SENTINEL);
+                const arDataSource = currentAr !== null && !arPresetMatch
+                  ? [...ASPECT_RATIO_PRESETS, { label: '🔒 Custom', value: CUSTOM_RATIO_SENTINEL }]
+                  : ASPECT_RATIO_PRESETS;
+
+                const handleLockCurrentRatio = () => {
+                  const isCoordChild = parentContainer?.layout?.layoutType === 'coordinate';
+                  let w, h;
+                  if (isCoordChild) {
+                    w = fullContainer.coord?.width;
+                    h = fullContainer.coord?.height;
+                    if (typeof w !== 'number' || typeof h !== 'number' || h === 0) return;
+                  } else {
+                    if (!slot?.width?.endsWith?.('px') || !slot?.height?.endsWith?.('px')) return;
+                    w = parseFloat(slot.width);
+                    h = parseFloat(slot.height);
+                    if (isNaN(w) || isNaN(h) || h === 0) return;
+                  }
+                  handleSetAspectRatio(selectedContainerId, w / h);
+                };
+
+                // ── Stretch mode detection (coord layout) ──────────────────
+                // Stretch = both edges on an axis have values → size is derived.
+                const coordVals = fullContainer.coord || DEFAULT_COORD;
+                const coordIsSet = (v) => v !== '' && v !== undefined && v !== null;
+                const isStretchX = coordIsSet(coordVals.left) && coordIsSet(coordVals.right);
+                const isStretchY = coordIsSet(coordVals.top)  && coordIsSet(coordVals.bottom);
 
                 return (
                   <div key={selectedContainerId} style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -1385,23 +2078,53 @@ export default function App() {
                         const propDefs = WIDGET_PROPERTIES[fullContainer.widgetName];
                         if (!propDefs || propDefs.length === 0) return null;
                         const props = fullContainer.widgetProps || {};
+                        const bindings = fullContainer.bindings || {};
                         return (
                           <TabPanelItem title={fullContainer.widgetName}>
                             <div className={`details-tab-content${lockedClass}`}>
                               <div className="details-section">
                                 <div className="details-grid">
                                   <span className="details-section-title">{fullContainer.widgetName}</span>
-                                  {propDefs.map(p => (
-                                    <React.Fragment key={p.name}>
-                                      <span className="details-grid-label">{p.label}</span>
-                                      <div className="details-grid-control">
-                                        {p.type === 'bool' && <SelectBox dataSource={[{v:true,l:'true'},{v:false,l:'false'}]} displayExpr="l" valueExpr="v" value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
-                                        {p.type === 'enum' && <SelectBox dataSource={p.options} value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
-                                        {p.type === 'string' && <input className="details-input" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.target.value})} />}
-                                        {p.type === 'number' && <input className="details-input" type="number" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: parseFloat(e.target.value) || 0})} />}
-                                      </div>
-                                    </React.Fragment>
-                                  ))}
+                                  {propDefs.map(p => {
+                                    const isBound = !!bindings[p.name];
+                                    const isOpen = bindingPopoverProp?.containerId === selectedContainerId && bindingPopoverProp?.propName === p.name;
+                                    const resolvedVal = isBound ? evaluateExpression(bindings[p.name]?.expression) : undefined;
+                                    const isErr = resolvedVal === '#ERR';
+                                    return (
+                                      <React.Fragment key={p.name}>
+                                        <span className="details-grid-label">{p.label}</span>
+                                        <div className="details-grid-control">
+                                          <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                                            {isBound ? (
+                                              <div
+                                                className={`binding-value-display${isErr ? ' binding-value-display--error' : ''}`}
+                                                title={`Expression: ${bindings[p.name]?.expression}`}
+                                              >
+                                                ⚡ {String(resolvedVal ?? '')}
+                                              </div>
+                                            ) : (
+                                              <>
+                                                {p.type === 'bool' && <SelectBox dataSource={[{v:true,l:'true'},{v:false,l:'false'}]} displayExpr="l" valueExpr="v" value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
+                                                {p.type === 'enum' && <SelectBox dataSource={p.options} value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
+                                                {p.type === 'string' && <input className="details-input" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.target.value})} />}
+                                                {p.type === 'number' && <input className="details-input" type="number" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: parseFloat(e.target.value) || 0})} />}
+                                              </>
+                                            )}
+                                            <button
+                                              className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
+                                              title={isBound ? `Edit binding: ${bindings[p.name]?.expression}` : 'Bind this property'}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (isOpen) { setBindingPopoverProp(null); return; }
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setBindingPopoverProp({ containerId: selectedContainerId, propName: p.name, x: rect.left, y: rect.top });
+                                              }}
+                                            >⚡</button>
+                                          </div>
+                                        </div>
+                                      </React.Fragment>
+                                    );
+                                  })}
                                 </div>
                               </div>
                             </div>
@@ -1458,12 +2181,53 @@ export default function App() {
                                 <span className="details-grid-label">Right</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).right,'—',v=>handleUpdateCoord(selectedContainerId,{right:v===''?'':Number(v)}),'number')}</div>
                                 <span className="details-grid-label">Top</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).top,'—',v=>handleUpdateCoord(selectedContainerId,{top:v===''?'':Number(v)}),'number')}</div>
                                 <span className="details-grid-label">Bottom</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).bottom,'—',v=>handleUpdateCoord(selectedContainerId,{bottom:v===''?'':Number(v)}),'number')}</div>
-                                <span className="details-grid-label">Width</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).width,'—',v=>handleUpdateCoord(selectedContainerId,{width:v===''?'':Number(v)}),'number')}</div>
-                                <span className="details-grid-label">Height</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).height,'—',v=>handleUpdateCoord(selectedContainerId,{height:v===''?'':Number(v)}),'number')}</div>
+                                <span className="details-grid-label">Width</span>
+                                <div className="details-grid-control">
+                                  {isStretchX ? (
+                                    <div style={{ fontSize: 11, color: '#888', padding: '2px 6px', background: '#f5f5f5', borderRadius: 4, border: '1px solid #e0e0e0', height: 24, display: 'flex', alignItems: 'center', fontStyle: 'italic' }}>derived</div>
+                                  ) : (
+                                    ti((fullContainer.coord||DEFAULT_COORD).width,'—',v=>handleUpdateCoord(selectedContainerId,{width:v===''?'':Number(v)}),'number')
+                                  )}
+                                </div>
+                                <span className="details-grid-label">Height</span>
+                                <div className="details-grid-control">
+                                  {isStretchY ? (
+                                    <div style={{ fontSize: 11, color: '#888', padding: '2px 6px', background: '#f5f5f5', borderRadius: 4, border: '1px solid #e0e0e0', height: 24, display: 'flex', alignItems: 'center', fontStyle: 'italic' }}>derived</div>
+                                  ) : (
+                                    ti((fullContainer.coord||DEFAULT_COORD).height,'—',v=>handleUpdateCoord(selectedContainerId,{height:v===''?'':Number(v)}),'number')
+                                  )}
+                                </div>
+                                {(isStretchX || isStretchY) && (
+                                  <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#0055aa', background: '#e8f2ff', border: '1px solid #b3d0ff', padding: '5px 8px', borderRadius: 4, margin: '2px 0', lineHeight: 1.5 }}>
+                                    {isStretchX && isStretchY
+                                      ? '↔↕ Width and height are derived from offset pairs.'
+                                      : isStretchX
+                                        ? '↔ Width is derived — set by Left + Right offsets.'
+                                        : '↕ Height is derived — set by Top + Bottom offsets.'}
+                                    {' '}Clear one offset to restore a fixed size.
+                                  </div>
+                                )}
                                 <span className="details-grid-label">Min W</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).minWidth,'—',v=>handleUpdateCoord(selectedContainerId,{minWidth:v}))}</div>
                                 <span className="details-grid-label">Max W</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).maxWidth,'—',v=>handleUpdateCoord(selectedContainerId,{maxWidth:v}))}</div>
                                 <span className="details-grid-label">Min H</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).minHeight,'—',v=>handleUpdateCoord(selectedContainerId,{minHeight:v}))}</div>
                                 <span className="details-grid-label">Max H</span><div className="details-grid-control">{ti((fullContainer.coord||DEFAULT_COORD).maxHeight,'—',v=>handleUpdateCoord(selectedContainerId,{maxHeight:v}))}</div>
+                                <span className="details-grid-label">Ratio</span>
+                                <div className="details-grid-control" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                                  <SelectBox
+                                    dataSource={arDataSource}
+                                    valueExpr="value"
+                                    displayExpr="label"
+                                    value={arSelectValue}
+                                    onValueChanged={(e) => {
+                                      if (e.value === CUSTOM_RATIO_SENTINEL) return;
+                                      handleSetAspectRatio(selectedContainerId, e.value);
+                                    }}
+                                    stylingMode="outlined"
+                                    width="100%"
+                                    height={24}
+                                  />
+                                  <button className="focus-mode-btn" title="Lock at current dimensions" style={{ flexShrink: 0, padding: '0 6px', fontSize: 14 }} onClick={handleLockCurrentRatio}>🔗</button>
+                                </div>
                               </div></div>
                             ) : (
                              <div className="details-section"><div className="details-grid">
@@ -1479,6 +2243,23 @@ export default function App() {
                                 <span className="details-grid-label">Height</span><div className="details-grid-control">{ti(slot.height,'auto',v=>handleUpdateSlot(selectedContainerId,{height:v}))}</div>
                                 <span className="details-grid-label">Min H</span><div className="details-grid-control">{ti(slot.minHeight,'0',v=>handleUpdateSlot(selectedContainerId,{minHeight:v}))}</div>
                                 <span className="details-grid-label">Max H</span><div className="details-grid-control">{ti(slot.maxHeight,'none',v=>handleUpdateSlot(selectedContainerId,{maxHeight:v}))}</div>
+                                <span className="details-grid-label">Ratio</span>
+                                <div className="details-grid-control" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                                  <SelectBox
+                                    dataSource={arDataSource}
+                                    valueExpr="value"
+                                    displayExpr="label"
+                                    value={arSelectValue}
+                                    onValueChanged={(e) => {
+                                      if (e.value === CUSTOM_RATIO_SENTINEL) return;
+                                      handleSetAspectRatio(selectedContainerId, e.value);
+                                    }}
+                                    stylingMode="outlined"
+                                    width="100%"
+                                    height={24}
+                                  />
+                                  <button className="focus-mode-btn" title="Lock at current dimensions" style={{ flexShrink: 0, padding: '0 6px', fontSize: 14 }} onClick={handleLockCurrentRatio}>🔗</button>
+                                </div>
                               </div></div>
                             )}
                           </div>
@@ -1509,6 +2290,50 @@ export default function App() {
                               <span className="details-grid-label">Style</span><div className="details-grid-control">{sb(['','solid','dashed','dotted','double','none'],slot.borderStyle,v=>handleUpdateSlot(selectedContainerId,{borderStyle:v}))}</div>
                               <span className="details-grid-label">Color</span><div className="details-grid-control">{ti(slot.borderColor,'#e0e0e0',v=>handleUpdateSlot(selectedContainerId,{borderColor:v}))}</div>
                               <span className="details-grid-label">Radius</span><div className="details-grid-control">{ti(slot.borderRadius,'0',v=>handleUpdateSlot(selectedContainerId,{borderRadius:v}))}</div>
+                            </div></div>
+                            <div className="details-section"><div className="details-grid">
+                              <span className="details-section-title">Content</span>
+                              <span className="details-grid-label">Overflow X</span>
+                              <div className="details-grid-control">
+                                <SelectBox
+                                  dataSource={[
+                                    { v: 'auto',    l: 'Auto (if needed)' },
+                                    { v: 'hidden',  l: 'Hidden / Clip' },
+                                    { v: 'scroll',  l: 'Scroll (always)' },
+                                    { v: 'visible', l: 'Visible ⚠' },
+                                  ]}
+                                  valueExpr="v"
+                                  displayExpr="l"
+                                  value={slot?.overflowX || 'auto'}
+                                  onValueChanged={(e) => handleUpdateSlot(selectedContainerId, { overflowX: e.value })}
+                                  stylingMode="outlined"
+                                  width="100%"
+                                  height={24}
+                                />
+                              </div>
+                              <span className="details-grid-label">Overflow Y</span>
+                              <div className="details-grid-control">
+                                <SelectBox
+                                  dataSource={[
+                                    { v: 'auto',    l: 'Auto (if needed)' },
+                                    { v: 'hidden',  l: 'Hidden / Clip' },
+                                    { v: 'scroll',  l: 'Scroll (always)' },
+                                    { v: 'visible', l: 'Visible ⚠' },
+                                  ]}
+                                  valueExpr="v"
+                                  displayExpr="l"
+                                  value={slot?.overflowY || 'auto'}
+                                  onValueChanged={(e) => handleUpdateSlot(selectedContainerId, { overflowY: e.value })}
+                                  stylingMode="outlined"
+                                  width="100%"
+                                  height={24}
+                                />
+                              </div>
+                              {(slot?.overflowX === 'visible' || slot?.overflowY === 'visible') && (
+                                <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#8a5a00', background: '#fff8e6', border: '1px solid #f0c987', padding: '4px 8px', borderRadius: 4, margin: '2px 0' }}>
+                                  ⚠ Visible overflow: content may render outside this container's bounds.
+                                </div>
+                              )}
                             </div></div>
                             <div className="details-section"><div className="details-grid">
                               <span className="details-section-title">Background</span>
@@ -1660,6 +2485,72 @@ export default function App() {
           }}
         />
       </Popup>
+
+      {/* ── Phase 1 Binding Expression Editor Popover ─────────────────────── */}
+      {bindingPopoverProp && (() => {
+        const bCont = findContainerById(containers, bindingPopoverProp.containerId);
+        if (!bCont) return null;
+        const binding  = bCont.bindings?.[bindingPopoverProp.propName];
+        const propDef  = WIDGET_PROPERTIES[bCont.widgetName]?.find(p => p.name === bindingPopoverProp.propName);
+        const prevVal  = binding?.expression ? evaluateExpression(binding.expression) : undefined;
+        const isErr    = prevVal === '#ERR';
+        // Position popover to the LEFT of the binding icon (which is in the right panel)
+        const popLeft  = Math.max(8, bindingPopoverProp.x - 252);
+        const popTop   = Math.min(bindingPopoverProp.y, window.innerHeight - 210);
+        return (
+          <>
+            {/* Transparent backdrop — click anywhere outside to close */}
+            <div style={{ position: 'fixed', inset: 0, zIndex: 1999 }} onClick={() => setBindingPopoverProp(null)} />
+            <div
+              className="binding-popover"
+              style={{ position: 'fixed', left: popLeft, top: popTop, zIndex: 2000 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="binding-popover-header">
+                <span>Bind: <strong>{propDef?.label || bindingPopoverProp.propName}</strong></span>
+                <button onClick={() => setBindingPopoverProp(null)}>×</button>
+              </div>
+              <div className="binding-popover-body">
+                <div className="binding-type-label">Expression</div>
+                <input
+                  className="details-input"
+                  autoFocus
+                  value={binding?.expression || ''}
+                  placeholder={`e.g.  42.5  ·  "Running"  ·  100 * 0.8`}
+                  onChange={(e) => {
+                    const expr = e.target.value;
+                    if (expr === '') {
+                      handleClearBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName);
+                    } else {
+                      handleSetBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName, { type: 'expression', expression: expr });
+                    }
+                  }}
+                />
+                <div className={`binding-preview${isErr ? ' binding-preview-error' : ''}`}>
+                  {binding?.expression
+                    ? <><span style={{ color: '#aaa', marginRight: 4 }}>→</span><strong>{String(prevVal ?? '')}</strong></>
+                    : <span style={{ color: '#bbb' }}>Type an expression above to preview</span>
+                  }
+                </div>
+              </div>
+              <div className="binding-popover-footer">
+                {!!binding && (
+                  <button
+                    className="focus-mode-btn"
+                    style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }}
+                    onClick={() => { handleClearBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName); setBindingPopoverProp(null); }}
+                  >× Clear</button>
+                )}
+                <button
+                  className="focus-mode-btn focus-mode-btn--active"
+                  style={{ fontSize: 11, marginLeft: 'auto' }}
+                  onClick={() => setBindingPopoverProp(null)}
+                >Done</button>
+              </div>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

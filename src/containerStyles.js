@@ -48,12 +48,47 @@ function getSlotStyle(slot) {
     alignSelf: slot.alignSelf || 'auto',
     order: slot.order || 0,
   };
-  if (slot.width) card.width = slot.width;
-  if (slot.minWidth) card.minWidth = slot.minWidth;
+
+  // A single consistent floor, matching the resize handles' own 40px minimum —
+  // used below so whichever axis is left at 'auto' can never collapse to zero,
+  // regardless of which axis ends up being the flex MAIN axis (that can change
+  // out from under a container if it's reparented into a different-direction
+  // flex container — e.g. column parent to row parent — since 'auto' behaves
+  // very differently on the main axis vs. the cross axis).
+  const AUTO_AXIS_FLOOR = '40px';
+
+  // ── Width / min-width ────────────────────────────────────────────────────
+  // A fixed (non-'auto') width with no explicit min-width can still be squeezed
+  // toward zero by the flex-shrink algorithm's "automatic minimum size" rule:
+  // min-width defaults to 'auto', which normally floors at the item's content
+  // size — UNLESS the item's overflow isn't 'visible' (ours defaults to 'auto'
+  // on the body), in which case the browser treats that automatic floor as 0
+  // instead. Net effect: a container with a real fixed width could collapse to
+  // a sliver under flex-shrink even though width is set correctly. Default
+  // min-width to match the fixed width so that can't happen, unless the user
+  // set their own min-width. When width itself is 'auto' (unset), fall back to
+  // the universal floor instead so THIS axis is protected too if it later
+  // becomes the main axis (see AUTO_AXIS_FLOOR above).
+  if (slot.width && slot.width !== 'auto') {
+    card.width = slot.width;
+    card.minWidth = slot.minWidth || slot.width;
+  } else {
+    if (slot.width) card.width = slot.width; // explicit 'auto'
+    card.minWidth = slot.minWidth || AUTO_AXIS_FLOOR;
+  }
   if (slot.maxWidth) card.maxWidth = slot.maxWidth;
-  if (slot.height) card.height = slot.height;
-  if (slot.minHeight) card.minHeight = slot.minHeight;
+
+  // ── Height / min-height ──────────────────────────────────────────────────
+  // Same collapse risk as width above, mirrored for the vertical axis.
+  if (slot.height && slot.height !== 'auto') {
+    card.height = slot.height;
+    card.minHeight = slot.minHeight || slot.height;
+  } else {
+    if (slot.height) card.height = slot.height; // explicit 'auto'
+    card.minHeight = slot.minHeight || AUTO_AXIS_FLOOR;
+  }
   if (slot.maxHeight) card.maxHeight = slot.maxHeight;
+
   // Margin and border on the card (outer)
   if (slot.marginTop) card.marginTop = slot.marginTop;
   if (slot.marginBottom) card.marginBottom = slot.marginBottom;

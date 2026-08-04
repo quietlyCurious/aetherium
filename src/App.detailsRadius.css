@@ -1,0 +1,47 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.detailsRadius.css  —  Scoped border-radius override
+   Applies a tighter, less-rounded corner to DevExtreme controls used inside the
+   Screen Builder's details/properties panel ONLY. The base Fluent theme's default
+   corner radius (4px on most editors) is intentionally overridden here rather than
+   changed globally — keeps the blast radius small while we evaluate the look.
+   Change the --aeth-details-radius value below to adjust everywhere at once.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.details-panel {
+  --aeth-details-radius: 2px; /* set to 0 for square corners */
+}
+
+.details-panel .dx-widget,
+.details-panel .dx-texteditor,
+.details-panel .dx-texteditor-input,
+.details-panel .dx-textbox,
+.details-panel .dx-numberbox,
+.details-panel .dx-datebox,
+.details-panel .dx-selectbox,
+.details-panel .dx-selectbox-container,
+.details-panel .dx-dropdowneditor-input-wrapper,
+.details-panel .dx-checkbox,
+.details-panel .dx-checkbox-icon,
+.details-panel .dx-switch,
+.details-panel .dx-switch-container,
+.details-panel .dx-switch-handle,
+.details-panel .dx-button,
+.details-panel .dx-button-content,
+.details-panel .dx-tagbox,
+.details-panel .dx-tag-container,
+.details-panel .dx-tag-content,
+.details-panel .dx-slider-handle,
+.details-panel .dx-radiobutton,
+.details-panel .dx-progressbar-container {
+  border-radius: var(--aeth-details-radius) !important;
+}
+
+/* This app's own hand-rolled inputs/buttons in the details panel (not DevExtreme
+   components) — .details-input and .focus-mode-btn are used throughout the Slot/
+   Box/Widget tabs alongside DevExtreme controls, so they need to match too. */
+.details-panel .details-input,
+.details-panel .focus-mode-btn,
+.details-panel .binding-icon-btn,
+.details-panel .binding-value-display {
+  border-radius: var(--aeth-details-radius) !important;
+}

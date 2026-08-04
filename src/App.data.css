@@ -1,0 +1,110 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.data.css  —  Data workspace styles (Phase 2a)
+   Covers: title bar dropdown divider, placeholder panels for
+   Data Sources / Queries / Scripts workspaces.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Title bar dropdown divider ──────────────────────────────────────────── */
+.app-titlebar-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 4px 8px;
+}
+
+/* ── Data workspace shell ─────────────────────────────────────────────────── */
+/* Full-height container for the three data views (Data Sources, Queries, Scripts) */
+.data-workspace {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f9f9;
+}
+
+/* ── Placeholder panel ────────────────────────────────────────────────────── */
+/* Shown while the full workspace UI is pending implementation.               */
+.data-workspace-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 380px;
+  text-align: center;
+  padding: 32px;
+}
+
+.data-workspace-placeholder-icon {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.data-workspace-placeholder-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.01em;
+}
+
+.data-workspace-placeholder-desc {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.6;
+}
+
+.data-workspace-placeholder-badge {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #0055aa;
+  background: #e8f2ff;
+  border: 1px solid #b3d0ff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* ── Shared DataListGrid (Data Sources / Queries / Scripts left panels) ───── */
+/* Tightens DevExtreme's default grid chrome to match Aetherium's compact density. */
+.data-list-grid .dx-datagrid-headers {
+  font-size: 10px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.data-list-grid .dx-datagrid-headers .dx-datagrid-text-content {
+  font-weight: 600;
+}
+
+.data-list-grid .dx-row > td {
+  padding: 5px 10px !important;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.data-list-grid .dx-data-row {
+  cursor: pointer;
+}
+
+.data-list-grid .dx-datagrid-rowsview .dx-row {
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.data-list-grid .dx-selection.dx-row > td,
+.data-list-grid .dx-selection.dx-row:hover > td {
+  background-color: #e3eaf6 !important;
+}
+
+.data-list-grid .dx-selection.dx-row > td:first-child {
+  box-shadow: inset 3px 0 0 #0078d4;
+}
+
+.data-list-grid .dx-datagrid-search-panel {
+  margin: 6px 10px !important;
+  width: calc(100% - 20px) !important;
+}
+
+.data-list-grid .dx-datagrid-header-panel {
+  padding: 0 !important;
+  border-bottom: 1px solid #ebebeb;
+}
