@@ -127,6 +127,30 @@ export function buildGalleryPreviewHtml({ cssUrl, paletteName }) {
     function showError(msg) {
       document.getElementById('root').innerHTML = '<div class="err">' + msg + '</div>';
     }
+
+    // Suppresses DevExtreme's trial/evaluation license banner INSIDE this
+    // iframe's own document. This has to be self-contained here — the parent
+    // app's own suppression (see App.js) can't reach inside a sandboxed
+    // iframe at all, by design (that's the whole point of the sandbox).
+    // Watches from the start, before the DevExtreme bundle even loads, since
+    // the banner can appear as soon as it initializes.
+    (function () {
+      function hideLicenseBanners() {
+        document.querySelectorAll('dx-license, [class*="dx-license"], [class*="dx-watermark"]').forEach(function (el) {
+          el.style.setProperty('display', 'none', 'important');
+          el.style.setProperty('height', '0', 'important');
+          el.style.setProperty('visibility', 'hidden', 'important');
+          el.style.setProperty('pointer-events', 'none', 'important');
+        });
+      }
+      hideLicenseBanners();
+      new MutationObserver(hideLicenseBanners).observe(document.documentElement, {
+        childList: true, subtree: true,
+        attributes: true, attributeFilter: ['style', 'class'],
+      });
+      setInterval(hideLicenseBanners, 250);
+    })();
+
     var s = document.createElement('script');
     s.src = '${DX_JS_URL}';
     s.onerror = function () {

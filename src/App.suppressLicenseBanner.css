@@ -1,0 +1,18 @@
+/* App.suppressLicenseBanner.css
+   Hides DevExtreme's trial/evaluation license notification banner (the
+   orange bar). This is internal proof-of-concept work only — never
+   distributed — so the banner adds nothing except eating vertical space and
+   introducing scrollbars on some pages. Multiple selectors targeted
+   defensively in case the exact class name varies slightly across
+   DevExtreme components/versions. */
+
+.dx-license,
+[class*="dx-license"],
+.dx-watermark,
+[class*="dx-watermark"] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}

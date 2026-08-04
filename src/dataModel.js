@@ -321,6 +321,7 @@ export const DEFAULT_QUERY_INSTANCE = {
   scriptId:            null,    // Reference to Script.id (Phase 3; mutually exclusive with queryId)
   alias:               '',      // User-facing label, e.g. 'Current Value for F1'
   scope:               INSTANCE_SCOPES.PAGE,
+  pageId:              null,    // Which page owns this instance when scope is PAGE; null when scope is APP (shared across all pages) — matches OpHub's own page.flows[] vs. globals[] split
 
   // Per-instance input value overrides
   // Any input not listed here uses the Query's defaultValue

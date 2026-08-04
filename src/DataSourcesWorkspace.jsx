@@ -2,10 +2,11 @@
 // Left-panel list of data sources + right-panel detail editor.
 // Connectivity fields adapt to the selected product type.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Splitter, Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
 import { Switch } from 'devextreme-react/switch';
+import notify from 'devextreme/ui/notify';
 import { Field, TxtInput, InfoNote, SectionTitle, SubSectionLabel } from './FormFields';
 import DataListGrid from './DataListGrid';
 
@@ -499,24 +500,61 @@ function PlantApplicationsFields({ config, onChange }) {
 // Data source detail editor
 // ─────────────────────────────────────────────────────────────────────────────
 
-function DataSourceEditor({ ds, onUpdate, onDelete }) {
+const DataSourceEditor = forwardRef(function DataSourceEditor({ ds: committedDs, onUpdate, onDelete, onDirtyChange }, ref) {
+  const [draft, setDraft] = useState(committedDs);
+  const [syncedId, setSyncedId] = useState(committedDs.id);
+
+  // Resets draft the moment the SELECTED data source changes — done
+  // synchronously DURING render (React's recommended pattern for this), not
+  // via useEffect. An effect-based reset runs AFTER the render that already
+  // compared stale draft data against the new committedDs, producing one
+  // real render where isDirty was wrongly true — the same false "unsaved
+  // changes" bug confirmed and fixed in QueriesWorkspace.
+  if (committedDs.id !== syncedId) {
+    setSyncedId(committedDs.id);
+    setDraft(committedDs);
+  }
+
+  // Everything below this line reads/writes `ds` exactly as before this
+  // refactor — aliasing it to the draft means the whole existing render body
+  // (General section, all five connectivity field sets) needed ZERO changes
+  // to become draft-aware.
+  const ds = draft;
+
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(committedDs);
+
+  // Propagate live dirty status up to the list (for its dirty-dot indicator)
+  // — a ref alone wouldn't trigger the parent to re-render as you type.
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty]);
+
+  useImperativeHandle(ref, () => ({
+    isDirty: () => isDirty,
+    save: () => {
+      onUpdate(committedDs.id, draft);
+      notify(`Saved "${draft.name || 'data source'}"`, 'success', 2000);
+    },
+  }), [isDirty, draft, committedDs.id, onUpdate]);
+
   const product = PRODUCT_BY_KEY[ds.productKey] || null;
   const connectivity = ds.productKey ? product?.connectivity : null;
 
-  const set = (field, value) => onUpdate(ds.id, { [field]: value });
+  const set = (field, value) => setDraft(prev => ({ ...prev, [field]: value }));
   const setConfig = (configUpdates) =>
-    onUpdate(ds.id, { config: { ...ds.config, ...configUpdates } });
+    setDraft(prev => ({ ...prev, config: { ...prev.config, ...configUpdates } }));
 
   const handleProductChange = (productKey) => {
     const p = PRODUCT_BY_KEY[productKey];
     if (!p) return;
-    onUpdate(ds.id, { productKey, productType: p.label, type: p.connectivity });
+    setDraft(prev => ({ ...prev, productKey, productType: p.label, type: p.connectivity }));
   };
 
   const handleDelete = () => {
     const confirmed = window.confirm(`Delete "${ds.name || 'this data source'}"?`);
     if (!confirmed) return;
-    const success = onDelete(ds.id);
+    const success = onDelete(committedDs.id);
     if (success === false) {
       window.alert('Cannot delete: one or more queries are using this data source. Remove those queries first.');
     }
@@ -665,42 +703,66 @@ function DataSourceEditor({ ds, onUpdate, onDelete }) {
       </div>
     </div>
   );
-}
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // List grid column definitions
 // ─────────────────────────────────────────────────────────────────────────────
 
-function nameCellRender(cellInfo) {
-  const ds = cellInfo.data;
-  const product = PRODUCT_BY_KEY[ds.productKey] || null;
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ width: 8, height: 8, borderRadius: '50%', background: product?.dot || '#bbb', flexShrink: 0 }} />
-      <span style={{ color: ds.name ? '#222' : '#aaa' }}>{ds.name || '(unnamed)'}</span>
-      {ds.isSystemManaged && <span style={{ fontSize: 9, color: '#aaa' }}>sys</span>}
-    </div>
-  );
+function makeColumns(selectedId, selectedIsDirty) {
+  const nameCellRender = (cellInfo) => {
+    const ds = cellInfo.data;
+    const product = PRODUCT_BY_KEY[ds.productKey] || null;
+    const isActiveDirty = ds.id === selectedId && selectedIsDirty;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: product?.dot || '#bbb', flexShrink: 0 }} />
+        {isActiveDirty && (
+          <span title="Unsaved changes" style={{ width: 6, height: 6, borderRadius: '50%', background: '#e08a00', flexShrink: 0 }} />
+        )}
+        <span style={{ color: ds.name ? '#222' : '#aaa' }}>{ds.name || '(unnamed)'}</span>
+        {ds.isSystemManaged && <span style={{ fontSize: 9, color: '#aaa' }}>sys</span>}
+      </div>
+    );
+  };
+  return [
+    { dataField: 'name',        caption: 'Name',        cellRender: nameCellRender, minWidth: 130 },
+    { dataField: 'productType', caption: 'Product',      width: 130 },
+    { dataField: 'description', caption: 'Description',  minWidth: 100 },
+  ];
 }
-
-const DS_COLUMNS = [
-  { dataField: 'name',        caption: 'Name',        cellRender: nameCellRender, minWidth: 130 },
-  { dataField: 'productType', caption: 'Product',      width: 130 },
-  { dataField: 'description', caption: 'Description',  minWidth: 100 },
-];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main workspace component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onDelete }) {
+const DataSourcesWorkspace = forwardRef(function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onDelete }, ref) {
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedIsDirty, setSelectedIsDirty] = useState(false);
+  const editorRef = useRef(null);
 
   // If the selected item gets deleted, clear the selection
   const selected = dataSources.find(ds => ds.id === selectedId) || null;
+  const columns = makeColumns(selectedId, selectedIsDirty);
+
+  useImperativeHandle(ref, () => ({
+    save: () => editorRef.current?.save(),
+  }), []);
+
+  const confirmDiscardIfDirty = () => {
+    if (!editorRef.current?.isDirty()) return true;
+    return window.confirm('You have unsaved changes on this data source. Discard them and continue?');
+  };
 
   const handleAdd = () => {
+    if (!confirmDiscardIfDirty()) return;
     const id = onAdd();
+    setSelectedId(id);
+  };
+
+  const handleSelect = (id) => {
+    if (id === selectedId) return;
+    if (!confirmDiscardIfDirty()) return;
     setSelectedId(id);
   };
 
@@ -735,9 +797,9 @@ export default function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onD
           <div style={{ flex: 1, overflow: 'hidden', paddingTop: 4 }}>
             <DataListGrid
               items={dataSources}
-              columns={DS_COLUMNS}
+              columns={columns}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={handleSelect}
               noDataText="No data sources yet. Click + to add one."
             />
           </div>
@@ -750,9 +812,11 @@ export default function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onD
         <div className="app-panel" style={{ height: '100%', overflow: 'hidden' }}>
           {selected ? (
             <DataSourceEditor
+              ref={editorRef}
               ds={selected}
               onUpdate={onUpdate}
               onDelete={handleDelete}
+              onDirtyChange={setSelectedIsDirty}
             />
           ) : (
             <div style={{
@@ -777,4 +841,6 @@ export default function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onD
 
     </Splitter>
   );
-}
+});
+
+export default DataSourcesWorkspace;

@@ -23,13 +23,16 @@ import './App.snap.css';  // Snap-to-grid dot grid styles
 import './App.bindings.css'; // Phase 1 binding system
 import './App.data.css'; // Phase 2a data workspace
 import './App.detailsRadius.css'; // scoped border-radius override for details panel controls
+import './App.suppressLicenseBanner.css'; // hides the DevExtreme trial/eval banner — internal POC only
 import DataSourcesWorkspace from './DataSourcesWorkspace';
 import QueriesWorkspace from './QueriesWorkspace';
 import EntitiesWorkspace from './EntitiesWorkspace';
+import RuntimeView from './RuntimeView';
 import { makeNewEntity } from './entityModel';
 import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
+import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage';
 import ThemeWorkspace from './ThemeWorkspace';
 import DataListGrid from './DataListGrid';
 import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage } from './pagesStorage';
@@ -174,7 +177,7 @@ function adjustCoordForAR(container, coord) {
   return coord;
 }
 
-export default function App() {
+function AetheriumEditor() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedAssetIds, setSelectedAssetIds] = useState([]);
@@ -284,6 +287,14 @@ export default function App() {
       savePagesAndFolders(next, folders);
       return next;
     });
+    // Cascade: page-scoped instances have no meaning once their page is gone
+    // — clean them up rather than leave orphans pointing at a dead pageId.
+    // App-scoped instances (shared across pages) are untouched.
+    setQueryInstances(prev => {
+      const next = prev.filter(qi => qi.pageId !== pageId);
+      saveQueryInstances(next);
+      return next;
+    });
     if (activePageId === pageId) setActivePageId(null);
   };
 
@@ -389,10 +400,12 @@ export default function App() {
   const [dataSources,      setDataSources]      = useState(() => loadDataSources());  // DataSource definitions
   const [entities,         setEntities]          = useState(() => loadEntities());  // Entity definitions (schema + rows)
   const entitiesWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger entity-data save
+  const dataSourcesWorkspaceRef = React.useRef(null);
+  const queriesWorkspaceRef = React.useRef(null);
   const [queries,          setQueries]          = useState(() => loadQueries());  // Query definitions
   const [scripts,          setScripts]          = useState([]);  // Script definitions (Phase 3+)
-  // Page-scoped (instances added to the current page; extend to { [pageId]: [] } when multi-page lands):
-  const [queryInstances,   setQueryInstances]   = useState([]);  // QueryInstance[]
+  // Page-scoped and app-scoped instances (flat array, each tagged with pageId):
+  const [queryInstances,   setQueryInstances]   = useState(() => loadQueryInstances());  // QueryInstance[]
 
   React.useEffect(() => {
     const onKeyDown = (e) => {
@@ -900,37 +913,60 @@ export default function App() {
     return true;
   };
 
-  // ── Query Instances (page-scoped) ─────────────────────────────────────────
+  // ── Query Instances (page-scoped by default; can be promoted to app-scoped) ─
   const handleAddQueryInstance = (instData = {}) => {
+    // Page-relative numbering (matches OpHub's own convention — instance IDs
+    // restart per page, not one global counter across every page) — only
+    // meaningful for page-scoped instances; app-scoped ones aren't tied to
+    // a single page's numbering at all.
+    const sameScopeInstances = instData.scope === INSTANCE_SCOPES.APP
+      ? queryInstances.filter(qi => qi.scope === INSTANCE_SCOPES.APP)
+      : queryInstances.filter(qi => qi.pageId === activePageId);
     const inst = {
       ...DEFAULT_QUERY_INSTANCE,
       ...instData,
-      id: nextInstanceId(queryInstances),
+      id: nextInstanceId(sameScopeInstances),
+      pageId: instData.scope === INSTANCE_SCOPES.APP ? null : (instData.pageId ?? activePageId),
     };
     if (!inst.alias && inst.queryId) {
       // Auto-generate alias from query name
       const q = queries.find(q => q.id === inst.queryId);
       if (q) inst.alias = q.name;
     }
-    setQueryInstances(prev => [...prev, inst]);
+    setQueryInstances(prev => {
+      const next = [...prev, inst];
+      saveQueryInstances(next);
+      return next;
+    });
     return inst.id;
   };
 
   const handleUpdateQueryInstance = (id, updates) => {
-    setQueryInstances(prev => prev.map(qi =>
-      qi.id === id ? { ...qi, ...updates } : qi
-    ));
+    setQueryInstances(prev => {
+      const next = prev.map(qi => qi.id === id ? { ...qi, ...updates } : qi);
+      saveQueryInstances(next);
+      return next;
+    });
   };
 
   const handleDeleteQueryInstance = (id) => {
-    setQueryInstances(prev => prev.filter(qi => qi.id !== id));
+    setQueryInstances(prev => {
+      const next = prev.filter(qi => qi.id !== id);
+      saveQueryInstances(next);
+      return next;
+    });
   };
 
   const handlePromoteQueryInstance = (id) => {
     // Promote a page-scoped instance to app-scoped (shared across all pages)
-    setQueryInstances(prev => prev.map(qi =>
-      qi.id === id ? { ...qi, scope: INSTANCE_SCOPES.APP } : qi
-    ));
+    // — clears pageId, since app-scoped means "not tied to one page".
+    setQueryInstances(prev => {
+      const next = prev.map(qi =>
+        qi.id === id ? { ...qi, scope: INSTANCE_SCOPES.APP, pageId: null } : qi
+      );
+      saveQueryInstances(next);
+      return next;
+    });
   };
 
   // Create a fresh cell container for a grid cell
@@ -1268,16 +1304,17 @@ export default function App() {
         </div>
         <button
           onClick={() => {
-            if (currentView === 'entities') {
-              entitiesWorkspaceRef.current?.save();
-            } else {
-              handleSavePage();
+            if (!activePageId) {
+              window.alert('Save this screen first, then Launch will open its runtime view in a new tab.');
+              return;
             }
+            const url = `${window.location.origin}${window.location.pathname}?runtime=${activePageId}`;
+            window.open(url, '_blank');
           }}
-          title={currentView === 'entities' ? 'Save entity data' : (activePageId ? 'Save this screen' : 'Save as a new screen')}
+          title={activePageId ? 'Open a chrome-free runtime view of this screen in a new tab' : 'Save this screen first'}
           style={{
             marginLeft: 'auto',
-            marginRight: 14,
+            marginRight: 8,
             fontSize: 12,
             fontWeight: 600,
             padding: '5px 14px',
@@ -1288,8 +1325,58 @@ export default function App() {
             cursor: 'pointer',
           }}
         >
-          💾 Save
+          ▶ Launch
         </button>
+        {(() => {
+          // Only 'screens' and 'entities' have a title-bar Save concept.
+          // Everything else (widgets, theme, datasources, queries, scripts)
+          // either auto-saves on every keystroke already or has nothing to
+          // save at all — this used to silently fall through to the PAGE
+          // save handler for all of those, which is how phantom pages named
+          // after whatever was being tested on another screen got created.
+          const saveInfo = {
+            screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },
+            entities:     { enabled: true,  label: 'Save entity data' },
+            datasources:  { enabled: true,  label: 'Save this data source' },
+            queries:      { enabled: true,  label: 'Save this query' },
+            theme:        { enabled: false, label: 'Nothing to save on this screen' },
+            widgets:      { enabled: false, label: 'Nothing to save on this screen' },
+            scripts:      { enabled: false, label: 'Nothing to save on this screen' },
+          }[currentView] || { enabled: false, label: 'Nothing to save on this screen' };
+
+          return (
+            <button
+              onClick={() => {
+                if (!saveInfo.enabled) return;
+                if (currentView === 'entities') {
+                  entitiesWorkspaceRef.current?.save();
+                } else if (currentView === 'datasources') {
+                  dataSourcesWorkspaceRef.current?.save();
+                } else if (currentView === 'queries') {
+                  queriesWorkspaceRef.current?.save();
+                } else {
+                  handleSavePage();
+                }
+              }}
+              disabled={!saveInfo.enabled}
+              title={saveInfo.label}
+              style={{
+                marginRight: 14,
+                fontSize: 12,
+                fontWeight: 600,
+                padding: '5px 14px',
+                borderRadius: 6,
+                border: '1px solid rgba(255,255,255,0.35)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#fff',
+                cursor: saveInfo.enabled ? 'pointer' : 'not-allowed',
+                opacity: saveInfo.enabled ? 1 : 0.4,
+              }}
+            >
+              💾 Save
+            </button>
+          );
+        })()}
         <div className="app-titlebar-profile" title="Profile">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
@@ -1361,6 +1448,7 @@ export default function App() {
 
         ) : currentView === 'datasources' ? (
           <DataSourcesWorkspace
+            ref={dataSourcesWorkspaceRef}
             dataSources={dataSources}
             onAdd={handleAddDataSource}
             onUpdate={handleUpdateDataSource}
@@ -1378,6 +1466,7 @@ export default function App() {
 
         ) : currentView === 'queries' ? (
           <QueriesWorkspace
+            ref={queriesWorkspaceRef}
             queries={queries}
             dataSources={dataSources}
             onAdd={handleAddQuery}
@@ -2553,4 +2642,59 @@ export default function App() {
       })()}
     </div>
   );
+}
+
+// Outer wrapper — deliberately calls NO hooks of its own. This is what makes
+// the runtime-mode branch safe: AetheriumEditor and RuntimeView are two
+// separate components, each unconditionally committing to their own hooks,
+// so nothing here is ever conditionally skipped within a single component's
+// render (the violation ESLint was correctly flagging when this check lived
+// inside AetheriumEditor itself, before its own hooks).
+export default function App() {
+  // Suppresses DevExtreme's trial/evaluation license banner. Pure CSS can't
+  // do this — the real <dx-license> element sets its own inline styles with
+  // !important on every property (display, visibility, height, etc.), which
+  // sits above ANY external stylesheet rule in CSS's specificity order, even
+  // one that also uses !important. Its `data-permanent` attribute confirms
+  // this is deliberate anti-tamper behavior on DevExtreme's part, not an
+  // oversight — so this actively re-asserts hidden styles via JS instead of
+  // trying to win a fight CSS structurally cannot win. One effect here
+  // covers both AetheriumEditor and RuntimeView, since it watches the whole
+  // document regardless of which one is currently rendered.
+  React.useEffect(() => {
+    const hideLicenseBanners = () => {
+      document.querySelectorAll('dx-license, [class*="dx-license"], [class*="dx-watermark"]').forEach(el => {
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('height', '0', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
+        el.style.setProperty('pointer-events', 'none', 'important');
+      });
+    };
+
+    hideLicenseBanners();
+
+    // Reacts instantly to DevExtreme inserting the element or re-touching
+    // its style/class attributes.
+    const observer = new MutationObserver(hideLicenseBanners);
+    observer.observe(document.body, {
+      childList: true, subtree: true,
+      attributes: true, attributeFilter: ['style', 'class'],
+    });
+
+    // Belt-and-suspenders: `data-permanent` suggests this may also reassert
+    // itself on DevExtreme's own internal timer, outside any DOM mutation we
+    // could otherwise catch — a short poll as a backstop.
+    const intervalId = setInterval(hideLicenseBanners, 250);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  const runtimePageId = new URLSearchParams(window.location.search).get('runtime');
+  if (runtimePageId) {
+    return <RuntimeView pageId={runtimePageId} />;
+  }
+  return <AetheriumEditor />;
 }

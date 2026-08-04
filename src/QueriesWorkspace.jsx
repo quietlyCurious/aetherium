@@ -4,7 +4,7 @@
 // output parameter lists (via the shared ParamListEditor), and type-specific
 // configuration for REST, SQL, OPC UA, and Entity queries.
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Splitter, Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
 import { Switch } from 'devextreme-react/switch';
@@ -13,7 +13,7 @@ import DataListGrid from './DataListGrid';
 import ParamListEditor from './ParamListEditor';
 import {
   QUERY_TYPE_LABELS, QUERY_TYPES,
-  FIELD_TYPE_OPTIONS, UI_HINT_OPTIONS, PARAM_TYPE_OPTIONS, ENTITY_OPERATOR_OPTIONS,
+  FIELD_TYPE_OPTIONS, PARAM_TYPE_OPTIONS, ENTITY_OPERATOR_OPTIONS,
   OPCUA_SAMPLING_MODE_OPTIONS, OPCUA_QUALITY_THRESHOLD_OPTIONS,
   makeBlankInput, makeBlankOutput, inferResultCardinality, generateDataId,
   OPCUA_CURRENT_VALUE_INPUT_TEMPLATE, OPCUA_HISTORICAL_INPUT_TEMPLATE,
@@ -45,10 +45,19 @@ const SQL_OUTPUT_TYPE_OPTIONS = [
 // List grid column definitions
 // ─────────────────────────────────────────────────────────────────────────────
 
-function makeColumns(dataSourceById) {
+function makeColumns(dataSourceById, selectedId, selectedIsDirty) {
   const nameCellRender = (cellInfo) => {
     const q = cellInfo.data;
-    return <span style={{ color: q.name ? '#222' : '#aaa' }}>{q.name || '(unnamed)'}</span>;
+    const isActiveDirty = q.id === selectedId && selectedIsDirty;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {isActiveDirty && (
+          <span title="Unsaved changes" style={{ width: 6, height: 6, borderRadius: '50%', background: '#e08a00', flexShrink: 0 }} />
+        )}
+        {q._ophubFlowUuid && <span title="Synced from Operations Hub — read-only" style={{ fontSize: 10, flexShrink: 0 }}>🔒</span>}
+        <span style={{ color: q.name ? '#222' : '#aaa' }}>{q.name || '(unnamed)'}</span>
+      </div>
+    );
   };
 
   const dataSourceCellRender = (cellInfo) => {
@@ -74,7 +83,6 @@ function getInputFields(queryType, entityColumnOptions) {
     { key: 'type',         label: 'Type',    type: 'select',   width: 1.3, options: FIELD_TYPE_OPTIONS },
     { key: 'optional',     label: 'Opt.',    type: 'checkbox', width: 0.5 },
     { key: 'defaultValue', label: 'Default', type: 'text',     width: 1.3 },
-    { key: 'uiHint',       label: 'UI Hint', type: 'select',   width: 1.3, options: UI_HINT_OPTIONS },
   ];
 
   if (queryType === QUERY_TYPES.SQL_SPROC) {
@@ -330,9 +338,53 @@ function TestQueryPanel({ query, dataSource }) {
 // Query detail editor
 // ─────────────────────────────────────────────────────────────────────────────
 
-function QueryEditor({ query, dataSources, onUpdate, onDelete }) {
-  const set = (field, value) => onUpdate(query.id, { [field]: value });
-  const setConfig = (updates) => onUpdate(query.id, { config: { ...query.config, ...updates } });
+const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dataSources, onUpdate, onDelete, onDirtyChange }, ref) {
+  const [draft, setDraft] = useState(committedQuery);
+  const [syncedId, setSyncedId] = useState(committedQuery.id);
+
+  // Resets draft the moment the SELECTED query changes — done synchronously
+  // DURING render (React's recommended pattern for this), not via useEffect.
+  // An effect-based reset runs AFTER the render that already compared stale
+  // draft data against the new committedQuery, producing one real render
+  // where isDirty was wrongly true — exactly the false "unsaved changes"
+  // prompt reported when just clicking between queries with no edits made.
+  if (committedQuery.id !== syncedId) {
+    setSyncedId(committedQuery.id);
+    setDraft(committedQuery);
+  }
+
+  // Everything below reads/writes `query` exactly as before this refactor —
+  // aliasing it to the draft means the whole existing render body (General,
+  // Data Source, Inputs, Outputs, Configuration, Test) needed ZERO changes
+  // to become draft-aware.
+  const query = draft;
+
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(committedQuery);
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty]);
+
+  // Queries synced in from Operations Hub carry _ophubFlowUuid — treated as
+  // the source of truth there, so Aetherium shouldn't let local edits drift
+  // out of sync with it silently. Locally-created queries never have this set.
+  const isReadOnly = !!committedQuery._ophubFlowUuid;
+
+  useImperativeHandle(ref, () => ({
+    isDirty: () => isDirty,
+    save: () => {
+      if (isReadOnly) {
+        notify('This query was synced from Operations Hub and is read-only.', 'warning', 3000);
+        return;
+      }
+      onUpdate(committedQuery.id, draft);
+      notify(`Saved "${draft.name || 'query'}"`, 'success', 2000);
+    },
+  }), [isDirty, draft, committedQuery.id, onUpdate, isReadOnly]);
+
+  const set = (field, value) => setDraft(prev => ({ ...prev, [field]: value }));
+  const setConfig = (updates) => setDraft(prev => ({ ...prev, config: { ...prev.config, ...updates } }));
 
   const dsOptions = dataSources.map(ds => ({ value: ds.id, label: ds.name || '(unnamed)' }));
 
@@ -396,8 +448,21 @@ function QueryEditor({ query, dataSources, onUpdate, onDelete }) {
         </button>
       </div>
 
+      {isReadOnly && (
+        <div style={{
+          padding: '6px 14px', fontSize: 11, color: '#7a6000', background: '#fffbe6',
+          borderBottom: '1px solid #ffe08a', flexShrink: 0,
+        }}>
+          🔒 Synced from Operations Hub — read-only. Editing/saving is disabled here to avoid drifting out of sync with the source flow.
+        </div>
+      )}
+
       {/* Form body */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '12px 14px' }}>
+      <div style={{
+        flex: 1, overflow: 'auto', padding: '12px 14px',
+        pointerEvents: isReadOnly ? 'none' : 'auto',
+        opacity: isReadOnly ? 0.65 : 1,
+      }}>
 
         {/* ── General ─────────────────────────────────────────────────────── */}
         <div className="details-section">
@@ -532,24 +597,42 @@ function QueryEditor({ query, dataSources, onUpdate, onDelete }) {
       </div>
     </div>
   );
-}
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main workspace component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate, onDelete }) {
+const QueriesWorkspace = forwardRef(function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate, onDelete }, ref) {
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedIsDirty, setSelectedIsDirty] = useState(false);
   const [syncDataSourceId, setSyncDataSourceId] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const editorRef = useRef(null);
 
   const selected = queries.find(q => q.id === selectedId) || null;
   const dataSourceById = Object.fromEntries(dataSources.map(ds => [ds.id, ds]));
-  const columns = makeColumns(dataSourceById);
+  const columns = makeColumns(dataSourceById, selectedId, selectedIsDirty);
   const restDataSources = dataSources.filter(ds => ds.type === 'rest' || ds.type === 'historian');
 
+  useImperativeHandle(ref, () => ({
+    save: () => editorRef.current?.save(),
+  }), []);
+
+  const confirmDiscardIfDirty = () => {
+    if (!editorRef.current?.isDirty()) return true;
+    return window.confirm('You have unsaved changes on this query. Discard them and continue?');
+  };
+
   const handleAdd = () => {
+    if (!confirmDiscardIfDirty()) return;
     const id = onAdd();
+    setSelectedId(id);
+  };
+
+  const handleSelect = (id) => {
+    if (id === selectedId) return;
+    if (!confirmDiscardIfDirty()) return;
     setSelectedId(id);
   };
 
@@ -645,7 +728,7 @@ export default function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate
               items={queries}
               columns={columns}
               selectedId={selectedId}
-              onSelect={setSelectedId}
+              onSelect={handleSelect}
               noDataText="No queries yet. Click + to add one."
             />
           </div>
@@ -657,10 +740,12 @@ export default function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate
         <div className="app-panel" style={{ height: '100%', overflow: 'hidden' }}>
           {selected ? (
             <QueryEditor
+              ref={editorRef}
               query={selected}
               dataSources={dataSources}
               onUpdate={onUpdate}
               onDelete={handleDelete}
+              onDirtyChange={setSelectedIsDirty}
             />
           ) : (
             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -680,4 +765,6 @@ export default function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate
 
     </Splitter>
   );
-}
+});
+
+export default QueriesWorkspace;
