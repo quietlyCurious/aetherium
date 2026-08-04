@@ -1,0 +1,51 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.snap.css — Snap-to-grid and snap-to-elements visual styles
+   Imported by App.js.
+
+   Two visual pieces:
+     1. Dot grid  — faint dots on coordinate-layout container bodies,
+                    spacing driven by the --snap-size CSS variable so it
+                    updates live when the user changes the threshold input.
+     2. Snap guides — thin bright lines that appear during a coord drag
+                      whenever element snap fires on an axis.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Dot grid ─────────────────────────────────────────────────────────────── */
+/*
+  Applied to container-card-body when layoutType === 'coordinate' and
+  snap is enabled. background-size uses the --snap-size CSS variable set
+  as an inline style by ContainerCard, so the grid visually matches the
+  live snap threshold. Fallback to 8px if the variable isn't set.
+
+  The dot color is a faint Fluent blue (0.18 opacity) — visible enough to
+  feel intentional without competing with content. Adjust opacity below.
+*/
+.container-card-body--coord-dots {
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 120, 212, 0.18) 1px,
+    transparent 1px
+  );
+  background-size: var(--snap-size, 8px) var(--snap-size, 8px);
+  background-position: 0 0;
+  /* background-attachment: local keeps dots fixed to the container's own
+     coordinate space rather than the viewport. */
+  background-attachment: local;
+}
+
+/* ── Snap guide lines ─────────────────────────────────────────────────────── */
+/*
+  Rendered as absolutely-positioned 1px divs inside the coordinate parent's
+  body whenever element snap fires. Both horizontal (.snap-guide where
+  height: 1px is set inline) and vertical (.snap-guide where width: 1px is
+  set inline) share this base class for color and opacity.
+
+  z-index: 50 (set inline) keeps them above coordinate children (z 1–N)
+  but they're pointer-events: none (also inline) so they never block interaction.
+*/
+.snap-guide {
+  background: #0078d4;
+  opacity: 0.75;
+  /* A subtle glow makes guides pop against any background color */
+  box-shadow: 0 0 2px rgba(0, 120, 212, 0.5);
+}

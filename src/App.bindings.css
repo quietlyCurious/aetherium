@@ -1,0 +1,162 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.bindings.css  —  Phase 1 binding system styles
+   Imported by App.js.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── Binding icon button ──────────────────────────────────────────────────── */
+/* Sits at the right of each widget property row in the Widget tab.           */
+.binding-icon-btn {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid #d1d1d1;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  padding: 0;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  line-height: 1;
+}
+
+.binding-icon-btn:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+  background: #f0f7ff;
+}
+
+.binding-icon-btn--active {
+  border-color: #0078d4;
+  background: #e8f2ff;
+  color: #0055aa;
+}
+
+/* ── Bound value display ──────────────────────────────────────────────────── */
+/* Replaces the static input when a property is bound.                        */
+.binding-value-display {
+  flex: 1;
+  min-width: 0; /* prevents the field from growing past its allotted width to fit long resolved values — lets overflow/ellipsis below actually do its job */
+  font-size: 11px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  color: #0055aa;
+  background: #e8f2ff;
+  border: 1px solid #b3d0ff;
+  border-radius: 4px;
+  padding: 2px 6px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.binding-value-display--error {
+  color: #c0392b;
+  background: #fdf0ee;
+  border-color: #e8b4ae;
+}
+
+/* ── Floating popover ─────────────────────────────────────────────────────── */
+/* Rendered at App level with position:fixed so it escapes overflow clipping. */
+.binding-popover {
+  width: 244px;
+  background: #fff;
+  border: 1px solid #c8c8c8;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.binding-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 12px;
+}
+
+.binding-popover-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  padding: 0 2px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.binding-popover-header button:hover {
+  color: #333;
+}
+
+.binding-popover-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.binding-type-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}
+
+.binding-preview {
+  font-size: 11px;
+  padding: 5px 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e8e8e8;
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.binding-preview-error {
+  color: #c0392b;
+}
+
+.binding-popover-footer {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-top: 1px solid #e8e8e8;
+  gap: 6px;
+  background: #fafafa;
+}
+
+/* ── Canvas binding badge ─────────────────────────────────────────────────── */
+/* Small indicator on widget cards that have at least one bound property.     */
+.binding-badge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  font-size: 9px;
+  line-height: 1;
+  z-index: 10;
+  pointer-events: none;
+  background: #e8f2ff;
+  border: 1px solid #b3d0ff;
+  border-radius: 3px;
+  padding: 1px 4px;
+  color: #0055aa;
+  font-weight: 600;
+}
