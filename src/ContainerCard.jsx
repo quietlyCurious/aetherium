@@ -6,15 +6,60 @@ import { isLockedOrAncestorLocked, findContainerById } from './containerTree';
 import GridEditor from './GridEditor';
 import WidgetPreview from './WidgetPreview';
 import { evaluateExpression } from './expressionEval';
+import { WIDGET_PROPERTIES } from './widgetData';
+
+// Resolves a query-type binding to a concrete value for one widget property.
+// A query's result is fundamentally table-shaped (rows) — even a single
+// output field can come back as multiple rows (e.g. several historian
+// samples) — so this reconciles that against what the property actually
+// needs, mirroring the adapter logic built into WidgetBindingPopover:
+//  - a stored `pickRow` transform (set when the popover detected a scalar
+//    property bound to a multi-row query) reduces the series to one value.
+//  - no transform + a naturally-scalar query (one row) → use that value.
+//  - a collection-typed property always gets the full array — a single row
+//    naturally becomes a one-item list, same as the "auto-wrap" note shown
+//    in the popover.
+function resolveQueryBindingValue(binding, queryResults, queries, isCollectionProp) {
+  const result = queryResults?.[binding.queryInstanceId];
+  if (!result || result.status !== 'success' || !Array.isArray(result.data)) return undefined;
+
+  // Every row shape seen from real queries so far — flat historian rows
+  // ({timestamp, name, quality, value}) and SQL-ish column-keyed rows alike
+  // — has outputField as a genuine COLUMN NAME within each row, never a
+  // value to filter rows BY. (The previous version filtered rows where
+  // row.name === outputField, which can never match: row.name holds a tag
+  // path like "FIX.SF_WINDTURBINE06>...", never the literal string "value"
+  // — so that filter always returned nothing, silently.)
+  const values = result.data.map(row => row[binding.outputField]).filter(v => v !== undefined);
+
+  if (isCollectionProp) return values;
+
+  const pickRow = binding.transform?.find(t => t.type === 'pickRow');
+  if (pickRow) {
+    if (values.length === 0) return undefined;
+    return pickRow.mode === 'first' ? values[0] : values[values.length - 1];
+  }
+  // No transform stored — the normal case when the query is naturally
+  // scalar. Falls back to the most recent value defensively otherwise.
+  return values.length > 0 ? values[values.length - 1] : undefined;
+}
 
 // Merges static widgetProps with resolved binding values.
 // Binding values take precedence over static props at render time.
-function resolveWidgetProps(widgetProps, bindings) {
+function resolveWidgetProps(widgetProps, bindings, widgetName, queryResults, queries) {
   if (!bindings || Object.keys(bindings).length === 0) return widgetProps || {};
   const resolved = { ...(widgetProps || {}) };
+  const propDefs = WIDGET_PROPERTIES[widgetName] || [];
   Object.entries(bindings).forEach(([propName, binding]) => {
     if (binding?.type === 'expression' && binding.expression != null) {
       resolved[propName] = evaluateExpression(binding.expression);
+    } else if (binding?.type === 'query') {
+      const propDef = propDefs.find(p => p.name === propName);
+      const isCollectionProp = propDef?.type === 'data';
+      const value = resolveQueryBindingValue(binding, queryResults, queries, isCollectionProp);
+      // undefined (still loading, errored, or no data yet) leaves the
+      // static default in place rather than blanking the widget out.
+      if (value !== undefined) resolved[propName] = value;
     }
   });
   return resolved;
@@ -154,6 +199,7 @@ function ContainerCard({
   dragState, draggingId, isDragging, coordMode, activeTierId,
   snapEnabled = false, snapSize = 8,
   snapGuides = null, onSnapGuideChange = null,
+  queryResults = null, queries = null,
   depth = 0,
 }) {
   const isSelected = selectedIds ? selectedIds.includes(container.id) : false;
@@ -571,6 +617,8 @@ function ContainerCard({
                         snapSize={snapSize}
                         snapGuides={snapGuides}
                         onSnapGuideChange={onSnapGuideChange}
+                        queryResults={queryResults}
+                        queries={queries}
                         depth={depth + 1}
                       />
                     ))}
@@ -583,7 +631,7 @@ function ContainerCard({
           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <WidgetPreview
               widgetName={container.widgetName || container.title}
-              widgetProps={resolveWidgetProps(container.widgetProps, container.bindings)}
+              widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, queryResults, queries)}
             />
           </div>
         ) : container.children.length === 0 ? (
@@ -630,6 +678,8 @@ function ContainerCard({
                   snapSize={snapSize}
                   snapGuides={snapGuides}
                   onSnapGuideChange={onSnapGuideChange}
+                  queryResults={queryResults}
+                  queries={queries}
                   depth={depth + 1}
                 />
                 {container.layout?.layoutType !== 'coordinate' && container.layout?.layoutType !== 'grid' && (

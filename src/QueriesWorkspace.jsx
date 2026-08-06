@@ -375,13 +375,24 @@ const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dat
     isDirty: () => isDirty,
     save: () => {
       if (isReadOnly) {
-        notify('This query was synced from Operations Hub and is read-only.', 'warning', 3000);
+        // dataSourceId/secondaryDataSourceId are exempt from the lock (see
+        // the Data Source section's own comment for why) — a synced query
+        // with no linked data source would otherwise be permanently
+        // unrunnable with no way to fix it. Everything else stays locked.
+        const wiringChanged = draft.dataSourceId !== committedQuery.dataSourceId
+          || draft.secondaryDataSourceId !== committedQuery.secondaryDataSourceId;
+        if (!wiringChanged) {
+          notify('This query was synced from Operations Hub and is read-only.', 'warning', 3000);
+          return;
+        }
+        onUpdate(committedQuery.id, { dataSourceId: draft.dataSourceId, secondaryDataSourceId: draft.secondaryDataSourceId });
+        notify('Data source updated', 'success', 2000);
         return;
       }
       onUpdate(committedQuery.id, draft);
       notify(`Saved "${draft.name || 'query'}"`, 'success', 2000);
     },
-  }), [isDirty, draft, committedQuery.id, onUpdate, isReadOnly]);
+  }), [isDirty, draft, committedQuery.id, committedQuery.dataSourceId, committedQuery.secondaryDataSourceId, onUpdate, isReadOnly]);
 
   const set = (field, value) => setDraft(prev => ({ ...prev, [field]: value }));
   const setConfig = (updates) => setDraft(prev => ({ ...prev, config: { ...prev.config, ...updates } }));
@@ -457,6 +468,61 @@ const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dat
         </div>
       )}
 
+      {/* ── Data Source — always editable, even for OpHub-synced queries ────
+           This is Aetherium's own local wiring (which local Data Source
+           record actually serves the request), not part of what comes FROM
+           OpHub's flow definition — OpHub's own concept of a data source for
+           OPC UA flows is a data_channel/data_provider pair, not the same
+           thing as an Aetherium DataSource record, so auto-linking during
+           sync deliberately skips OPC UA flows. Locking this field the same
+           way as the rest of a synced query would leave it permanently
+           unrunnable with no way to fix it. */}
+      <div className="details-section">
+        <div className="details-grid">
+          <SectionTitle>Data Source</SectionTitle>
+          {isReadOnly && (
+            <InfoNote>
+              Editable even though this query is otherwise read-only — this is local wiring,
+              not part of the synced flow definition.
+            </InfoNote>
+          )}
+
+          <Field label="Data Source">
+            <SelectBox
+              dataSource={dsOptions}
+              valueExpr="value"
+              displayExpr="label"
+              value={query.dataSourceId}
+              placeholder="Select a data source…"
+              onValueChanged={e => set('dataSourceId', e.value)}
+              stylingMode="outlined"
+              width="100%"
+              height={24}
+            />
+          </Field>
+
+          <Field label="Secondary Data Source">
+            <SelectBox
+              dataSource={dsOptions.filter(o => o.value !== query.dataSourceId)}
+              valueExpr="value"
+              displayExpr="label"
+              value={query.secondaryDataSourceId}
+              placeholder="None (optional)"
+              showClearButton={true}
+              onValueChanged={e => set('secondaryDataSourceId', e.value ?? null)}
+              stylingMode="outlined"
+              width="100%"
+              height={24}
+            />
+          </Field>
+
+          <InfoNote>
+            Aetherium-specific: if set, a failed read against the primary falls back to this
+            data source using the same query. Useful for redundant Historian or OPC UA pairs.
+          </InfoNote>
+        </div>
+      </div>
+
       {/* Form body */}
       <div style={{
         flex: 1, overflow: 'auto', padding: '12px 14px',
@@ -502,46 +568,6 @@ const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dat
           </div>
         </div>
 
-        {/* ── Data Source ─────────────────────────────────────────────────── */}
-        <div className="details-section">
-          <div className="details-grid">
-            <SectionTitle>Data Source</SectionTitle>
-
-            <Field label="Data Source">
-              <SelectBox
-                dataSource={dsOptions}
-                valueExpr="value"
-                displayExpr="label"
-                value={query.dataSourceId}
-                placeholder="Select a data source…"
-                onValueChanged={e => set('dataSourceId', e.value)}
-                stylingMode="outlined"
-                width="100%"
-                height={24}
-              />
-            </Field>
-
-            <Field label="Secondary Data Source">
-              <SelectBox
-                dataSource={dsOptions.filter(o => o.value !== query.dataSourceId)}
-                valueExpr="value"
-                displayExpr="label"
-                value={query.secondaryDataSourceId}
-                placeholder="None (optional)"
-                showClearButton={true}
-                onValueChanged={e => set('secondaryDataSourceId', e.value ?? null)}
-                stylingMode="outlined"
-                width="100%"
-                height={24}
-              />
-            </Field>
-
-            <InfoNote>
-              Aetherium-specific: if set, a failed read against the primary falls back to this
-              data source using the same query. Useful for redundant Historian or OPC UA pairs.
-            </InfoNote>
-          </div>
-        </div>
 
         {/* ── Inputs ──────────────────────────────────────────────────────── */}
         <div className="details-section">
@@ -678,6 +704,25 @@ const QueriesWorkspace = forwardRef(function QueriesWorkspace({ queries, dataSou
     }
   };
 
+  const handleLinkUnlinkedOphubQueries = () => {
+    const ds = dataSources.find(d => d.id === syncDataSourceId);
+    if (!ds) {
+      window.alert('Pick a Data Source first (same dropdown used for Sync).');
+      return;
+    }
+    // Only OpHub-synced queries with no linked data source — never touches a
+    // query that already has one, and never touches locally-created queries
+    // at all (those were never auto-linked by sync in the first place, so
+    // an empty dataSourceId there means it was deliberately left that way).
+    const unlinked = queries.filter(q => q._ophubFlowUuid && !q.dataSourceId);
+    if (unlinked.length === 0) {
+      notify('No unlinked OpHub queries found.', 'success', 2500);
+      return;
+    }
+    unlinked.forEach(q => onUpdate(q.id, { dataSourceId: ds.id }));
+    notify(`Linked ${unlinked.length} ${unlinked.length === 1 ? 'query' : 'queries'} to "${ds.name}"`, 'success', 3000);
+  };
+
   return (
     <Splitter orientation="horizontal" style={{ height: '100%' }}>
 
@@ -720,6 +765,15 @@ const QueriesWorkspace = forwardRef(function QueriesWorkspace({ queries, dataSou
               title="Sync queries from OpHub"
             >
               {syncing ? '…' : '↻ Sync'}
+            </button>
+            <button
+              className="focus-mode-btn"
+              style={{ fontSize: 10, flexShrink: 0, padding: '0 6px' }}
+              onClick={handleLinkUnlinkedOphubQueries}
+              disabled={!syncDataSourceId}
+              title="Link every unlinked OpHub-synced query to this data source"
+            >
+              🔗 Link Unlinked
             </button>
           </div>
 

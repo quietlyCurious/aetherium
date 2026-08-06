@@ -24,10 +24,14 @@ import './App.bindings.css'; // Phase 1 binding system
 import './App.data.css'; // Phase 2a data workspace
 import './App.detailsRadius.css'; // scoped border-radius override for details panel controls
 import './App.suppressLicenseBanner.css'; // hides the DevExtreme trial/eval banner — internal POC only
+import './App.thinScrollbars.css'; // thin, hover-only scrollbars — canvas and Runtime view only
 import DataSourcesWorkspace from './DataSourcesWorkspace';
 import QueriesWorkspace from './QueriesWorkspace';
 import EntitiesWorkspace from './EntitiesWorkspace';
 import RuntimeView from './RuntimeView';
+import QueryInstanceDetailsPanel from './QueryInstanceDetailsPanel';
+import InputBindingPopover from './InputBindingPopover';
+import WidgetBindingPopover from './WidgetBindingPopover';
 import { makeNewEntity } from './entityModel';
 import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
@@ -186,6 +190,7 @@ function AetheriumEditor() {
   const [pages, setPages] = useState(() => loadPagesAndFolders().pages);
   const [folders, setFolders] = useState(() => loadPagesAndFolders().folders);
   const [activePageId, setActivePageId] = useState(null); // null = current canvas isn't tied to a saved page yet
+  const [dataTabMode, setDataTabMode] = useState('model'); // 'model' | 'queries' — Data tab browsing mode
   // Tracks the JSON of whatever was last saved/loaded, so we can tell if the live
   // canvas has diverged from it — a simple, correct-enough "dirty" check for a
   // dev tool. (Only the ACTIVE page can ever be dirty — every other page's stored
@@ -195,6 +200,7 @@ function AetheriumEditor() {
   const isDirty = JSON.stringify(containers) !== lastSavedSnapshot;
   const [selectedContainerId, setSelectedContainerId] = useState(null);
   const [selectedContainerIds, setSelectedContainerIds] = useState([]);
+  const [selectedQueryInstanceId, setSelectedQueryInstanceId] = useState(null); // Page Data tab selection — mutually exclusive with container selection
 
   // ── Page (Screen) persistence handlers ─────────────────────────────────────
   // MVP: explicit Save only — see pagesStorage.js for why there's no auto-sync.
@@ -349,6 +355,7 @@ function AetheriumEditor() {
 
   // Helper to handle selection with shift/ctrl multi-select
   const handleContainerSelect = (id, e) => {
+    setSelectedQueryInstanceId(null); // switching to container selection — mutually exclusive with Page Data selection
     // If paintbrush is active, apply it instead of selecting
     if (paintbrush && id && id !== ROOT_CONTAINER_ID) {
       handleApplyPaintbrush(id);
@@ -394,6 +401,7 @@ function AetheriumEditor() {
   const [snapSize,    setSnapSize]    = useState(8);     // grid interval AND element-snap threshold
   const [snapGuides,  setSnapGuides]  = useState(null);  // active alignment guides during coord drag
   const [bindingPopoverProp, setBindingPopoverProp] = useState(null); // { containerId, propName, x, y }
+  const [inputBindingPopover, setInputBindingPopover] = useState(null); // { instanceId, fieldName, x, y } — same idea, for query instance inputs
 
   // ── Phase 2 Data Layer ────────────────────────────────────────────────────
   // System-scoped (shared across all pages of this project):
@@ -812,6 +820,32 @@ function AetheriumEditor() {
       }
       return { ...c, children: c.children.map(upd) };
     }));
+  };
+
+  // Same idea as the two handlers above, for query instance INPUTS rather than
+  // widget props — instances live in a flat array, so no recursive tree walk
+  // needed, just a straightforward map.
+  const handleSetInputBinding = (instanceId, fieldName, binding) => {
+    setQueryInstances(prev => {
+      const next = prev.map(qi =>
+        qi.id === instanceId ? { ...qi, bindings: { ...(qi.bindings || {}), [fieldName]: binding } } : qi
+      );
+      saveQueryInstances(next);
+      return next;
+    });
+  };
+
+  const handleClearInputBinding = (instanceId, fieldName) => {
+    setQueryInstances(prev => {
+      const next = prev.map(qi => {
+        if (qi.id !== instanceId) return qi;
+        const nb = { ...(qi.bindings || {}) };
+        delete nb[fieldName];
+        return { ...qi, bindings: nb };
+      });
+      saveQueryInstances(next);
+      return next;
+    });
   };
 
   // ── Phase 2 Data Layer Handlers ───────────────────────────────────────────
@@ -1423,7 +1457,7 @@ function AetheriumEditor() {
               </div>
             </SplitterItem>
             <SplitterItem size="220px" minSize="120px" resizable={true}>
-              <div className="app-panel details-panel">
+              <div className="app-panel details-panel aetherium-canvas-scroll">
                 <p className="panel-label">Details</p>
                 {selectedWidgetName ? (
                   <>
@@ -1531,12 +1565,73 @@ function AetheriumEditor() {
                   </div>
                 </TabPanelItem>
                 <TabPanelItem title="Data">
-                  <div className="left-panel-tab-content">
-                    <HierarchyTree
-                      dataSource={ASSET_DATA}
-                      displayExpr="name"
-                      itemRender={AssetTreeItemTemplate}
-                    />
+                  <div className="left-panel-tab-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+                      <SelectBox
+                        dataSource={[
+                          { value: 'queries', label: 'Queries' },
+                          { value: 'model',   label: 'Model' },
+                        ]}
+                        valueExpr="value"
+                        displayExpr="label"
+                        value={dataTabMode}
+                        onValueChanged={e => setDataTabMode(e.value)}
+                        stylingMode="outlined"
+                        width="100%"
+                        height={26}
+                      />
+                    </div>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      {dataTabMode === 'model' ? (
+                        <HierarchyTree
+                          dataSource={ASSET_DATA}
+                          displayExpr="name"
+                          itemRender={AssetTreeItemTemplate}
+                        />
+                      ) : (
+                        <div>
+                          {!activePageId && (
+                            <div style={{ padding: '10px 14px', fontSize: 11, color: '#7a6000', background: '#fffbe6', borderBottom: '1px solid #ffe08a' }}>
+                              Save this screen first — query instances need a real page to belong to.
+                            </div>
+                          )}
+                          {queries.length === 0 ? (
+                            <p style={{ padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
+                              No queries yet. Create one in the Queries workspace first.
+                            </p>
+                          ) : (
+                            queries.map(q => {
+                              const countOnPage = queryInstances.filter(qi => qi.pageId === activePageId && qi.queryId === q.id).length;
+                              return (
+                                <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderBottom: '1px solid #f1f1f1' }}>
+                                  <span style={{ fontSize: 13, flexShrink: 0 }}>⚡</span>
+                                  <span style={{ flex: 1, fontSize: 12, color: q.name ? '#222' : '#aaa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {q.name || '(unnamed)'}
+                                  </span>
+                                  {countOnPage > 0 && (
+                                    <span style={{ fontSize: 9, color: '#888', flexShrink: 0 }} title="Instances of this query already on this page">
+                                      {countOnPage} on page
+                                    </span>
+                                  )}
+                                  <button
+                                    className="focus-mode-btn"
+                                    style={{ fontSize: 11, padding: '2px 8px', flexShrink: 0 }}
+                                    disabled={!activePageId}
+                                    title={activePageId ? 'Add an instance of this query to the current page' : 'Save this screen first'}
+                                    onClick={() => {
+                                      handleAddQueryInstance({ queryId: q.id });
+                                      notify(`Added "${q.name || 'query'}" to this page`, 'success', 2000);
+                                    }}
+                                  >
+                                    + Add
+                                  </button>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </TabPanelItem>
                 <TabPanelItem title="Page Visuals">
@@ -1550,6 +1645,7 @@ function AetheriumEditor() {
                       containers={containers}
                       selectedContainerId={selectedContainerId}
                       onSelect={(id) => {
+                        setSelectedQueryInstanceId(null); // mirror of the guard added to the Page Data click handler
                         setSelectedContainerId(id);
                         setSelectedContainerIds(id ? [id] : []);
                       }}
@@ -1560,11 +1656,59 @@ function AetheriumEditor() {
                 </TabPanelItem>
                 <TabPanelItem title="Page Data">
                   <div className="left-panel-tab-content">
-                    <HierarchyTree
-                      dataSource={ASSET_DATA}
-                      displayExpr="name"
-                      itemRender={AssetTreeItemTemplate}
-                    />
+                    {(() => {
+                      const pageInstances = queryInstances.filter(qi => qi.pageId === activePageId);
+                      if (pageInstances.length === 0) {
+                        return (
+                          <p style={{ padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
+                            No queries added to this page yet. Add one from the Data tab.
+                          </p>
+                        );
+                      }
+                      return pageInstances.map(qi => {
+                        const q = queries.find(qq => qq.id === qi.queryId);
+                        const isSelected = qi.id === selectedQueryInstanceId;
+                        return (
+                          <div
+                            key={qi.id}
+                            onClick={() => {
+                              // Mirror of the clear in handleContainerSelect — switching to a
+                              // Page Data selection must clear the container selection too, or
+                              // both sections render stacked instead of one replacing the other.
+                              setSelectedContainerId(null);
+                              setSelectedContainerIds([]);
+                              setSelectedQueryInstanceId(qi.id);
+                            }}
+                            style={{
+                              display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
+                              borderBottom: '1px solid #f1f1f1', cursor: 'pointer',
+                              background: isSelected ? '#e3eaf6' : 'transparent',
+                              borderLeft: isSelected ? '3px solid #0078d4' : '3px solid transparent',
+                            }}
+                          >
+                            <span style={{ fontSize: 13, flexShrink: 0 }}>⚡</span>
+                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                              <div style={{ fontSize: 12, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {qi.alias || q?.name || '(unnamed instance)'}
+                              </div>
+                              {q?.name && qi.alias !== q.name && (
+                                <div style={{ fontSize: 9, color: '#aaa' }}>{q.name}</div>
+                              )}
+                            </div>
+                            <button
+                              className="focus-mode-btn"
+                              style={{ fontSize: 11, color: '#d00', borderColor: '#d00', padding: '2px 6px', flexShrink: 0 }}
+                              title="Remove from page"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isSelected) setSelectedQueryInstanceId(null);
+                                handleDeleteQueryInstance(qi.id);
+                              }}
+                            >×</button>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </TabPanelItem>
               </TabPanel>
@@ -1721,7 +1865,7 @@ function AetheriumEditor() {
                 style={{ cursor: paintbrush ? 'crosshair' : undefined }}
               >
                 {/* Device preview wrapper */}
-                <div style={{
+                <div className="aetherium-canvas-scroll" style={{
                   width: '100%', height: '100%',
                   overflow: 'auto',
                   display: 'flex',
@@ -1781,7 +1925,7 @@ function AetheriumEditor() {
             </div>
           </SplitterItem>
           <SplitterItem size="220px" minSize="120px" resizable={true}>
-            <div className="app-panel details-panel">
+            <div className="app-panel details-panel aetherium-canvas-scroll">
               {(() => {
                 const isBase = activeTierId === BASE_TIER_ID;
                 const tier = getTierById(activeTierId);
@@ -1809,6 +1953,27 @@ function AetheriumEditor() {
               {isSelectedLocked && (
                 <div className="details-locked-banner">🔒 Locked — unlock to edit</div>
               )}
+
+              {/* Query instance details (Page Data tab selection) */}
+              {selectedQueryInstanceId && (() => {
+                const inst = queryInstances.find(qi => qi.id === selectedQueryInstanceId);
+                const q = inst ? queries.find(qq => qq.id === inst.queryId) : null;
+                return inst ? (
+                  <QueryInstanceDetailsPanel
+                    instance={inst}
+                    query={q}
+                    evaluateExpression={evaluateExpression}
+                    openBindingField={inputBindingPopover?.instanceId === inst.id ? inputBindingPopover.fieldName : null}
+                    onOpenBindingPopover={(fieldName, rect) => {
+                      if (inputBindingPopover?.instanceId === inst.id && inputBindingPopover?.fieldName === fieldName) {
+                        setInputBindingPopover(null);
+                        return;
+                      }
+                      setInputBindingPopover({ instanceId: inst.id, fieldName, x: rect.left, y: rect.top });
+                    }}
+                  />
+                ) : null;
+              })()}
 
               {/* Multi-select panel */}
               {selectedContainerIds.length > 1 && (() => {
@@ -2175,33 +2340,67 @@ function AetheriumEditor() {
                                 <div className="details-grid">
                                   <span className="details-section-title">{fullContainer.widgetName}</span>
                                   {propDefs.map(p => {
-                                    const isBound = !!bindings[p.name];
+                                    const binding = bindings[p.name];
+                                    const isBound = !!binding;
                                     const isOpen = bindingPopoverProp?.containerId === selectedContainerId && bindingPopoverProp?.propName === p.name;
-                                    const resolvedVal = isBound ? evaluateExpression(bindings[p.name]?.expression) : undefined;
-                                    const isErr = resolvedVal === '#ERR';
+
+                                    // Query and Expression bindings show different things here — a
+                                    // query binding has no `expression` field to evaluate at all, so
+                                    // this used to silently render blank. Now shows a descriptive
+                                    // "Instance → OutputField" label instead (no live resolution yet
+                                    // — that's a separate step — this is just making the binding
+                                    // itself visible).
+                                    let bindingDisplayText = '';
+                                    let bindingTitle = '';
+                                    let isErr = false;
+                                    if (binding?.type === 'query') {
+                                      const boundInst = queryInstances.find(qi => qi.id === binding.queryInstanceId);
+                                      const boundQuery = boundInst ? queries.find(qq => qq.id === boundInst.queryId) : null;
+                                      const instLabel = boundInst?.alias || boundQuery?.name || null;
+                                      if (instLabel && binding.outputField) {
+                                        const rowPick = binding.transform?.find(t => t.type === 'pickRow');
+                                        bindingDisplayText = `${instLabel} → ${binding.outputField}` + (rowPick ? ` (${rowPick.mode} row)` : '');
+                                        bindingTitle = `Query: ${instLabel} → ${binding.outputField}`;
+                                      } else {
+                                        bindingDisplayText = '(query or output no longer exists)';
+                                        bindingTitle = 'The bound query instance or output field could not be found.';
+                                        isErr = true;
+                                      }
+                                    } else if (binding?.expression) {
+                                      const resolvedVal = evaluateExpression(binding.expression);
+                                      bindingDisplayText = String(resolvedVal ?? '');
+                                      bindingTitle = `Expression: ${binding.expression}`;
+                                      isErr = resolvedVal === '#ERR';
+                                    }
                                     return (
                                       <React.Fragment key={p.name}>
                                         <span className="details-grid-label">{p.label}</span>
                                         <div className="details-grid-control">
-                                          <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                                          <div style={{ display: 'flex', gap: 3, alignItems: 'center', width: '100%', minWidth: 0 }}>
                                             {isBound ? (
                                               <div
                                                 className={`binding-value-display${isErr ? ' binding-value-display--error' : ''}`}
-                                                title={`Expression: ${bindings[p.name]?.expression}`}
+                                                title={bindingTitle}
+                                                style={{ flex: 1, minWidth: 0 }}
                                               >
-                                                ⚡ {String(resolvedVal ?? '')}
+                                                ⚡ {bindingDisplayText}
                                               </div>
                                             ) : (
-                                              <>
+                                              <div style={{ flex: 1, minWidth: 0 }}>
                                                 {p.type === 'bool' && <SelectBox dataSource={[{v:true,l:'true'},{v:false,l:'false'}]} displayExpr="l" valueExpr="v" value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
                                                 {p.type === 'enum' && <SelectBox dataSource={p.options} value={props[p.name] ?? p.default} onValueChanged={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.value})} stylingMode="outlined" width="100%" height={24} />}
-                                                {p.type === 'string' && <input className="details-input" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.target.value})} />}
-                                                {p.type === 'number' && <input className="details-input" type="number" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: parseFloat(e.target.value) || 0})} />}
-                                              </>
+                                                {p.type === 'string' && <input className="details-input" style={{ width: '100%' }} value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: e.target.value})} />}
+                                                {p.type === 'number' && <input className="details-input" style={{ width: '100%' }} type="number" value={props[p.name] ?? p.default} onChange={(e) => handleUpdateWidgetProps(selectedContainerId, {[p.name]: parseFloat(e.target.value) || 0})} />}
+                                                {p.type === 'data' && (
+                                                  <span style={{ fontSize: 10, color: '#aaa', fontStyle: 'italic' }}>
+                                                    Bind to set — no static value for a collection
+                                                  </span>
+                                                )}
+                                              </div>
                                             )}
                                             <button
                                               className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
-                                              title={isBound ? `Edit binding: ${bindings[p.name]?.expression}` : 'Bind this property'}
+                                              title={isBound ? `Edit binding: ${bindingTitle}` : 'Bind this property'}
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (isOpen) { setBindingPopoverProp(null); return; }
@@ -2579,65 +2778,39 @@ function AetheriumEditor() {
       {bindingPopoverProp && (() => {
         const bCont = findContainerById(containers, bindingPopoverProp.containerId);
         if (!bCont) return null;
-        const binding  = bCont.bindings?.[bindingPopoverProp.propName];
-        const propDef  = WIDGET_PROPERTIES[bCont.widgetName]?.find(p => p.name === bindingPopoverProp.propName);
-        const prevVal  = binding?.expression ? evaluateExpression(binding.expression) : undefined;
-        const isErr    = prevVal === '#ERR';
-        // Position popover to the LEFT of the binding icon (which is in the right panel)
-        const popLeft  = Math.max(8, bindingPopoverProp.x - 252);
-        const popTop   = Math.min(bindingPopoverProp.y, window.innerHeight - 210);
+        const binding = bCont.bindings?.[bindingPopoverProp.propName];
+        const propDef = WIDGET_PROPERTIES[bCont.widgetName]?.find(p => p.name === bindingPopoverProp.propName);
+        const pageQueryInstances = queryInstances.filter(qi => qi.pageId === activePageId);
         return (
-          <>
-            {/* Transparent backdrop — click anywhere outside to close */}
-            <div style={{ position: 'fixed', inset: 0, zIndex: 1999 }} onClick={() => setBindingPopoverProp(null)} />
-            <div
-              className="binding-popover"
-              style={{ position: 'fixed', left: popLeft, top: popTop, zIndex: 2000 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="binding-popover-header">
-                <span>Bind: <strong>{propDef?.label || bindingPopoverProp.propName}</strong></span>
-                <button onClick={() => setBindingPopoverProp(null)}>×</button>
-              </div>
-              <div className="binding-popover-body">
-                <div className="binding-type-label">Expression</div>
-                <input
-                  className="details-input"
-                  autoFocus
-                  value={binding?.expression || ''}
-                  placeholder={`e.g.  42.5  ·  "Running"  ·  100 * 0.8`}
-                  onChange={(e) => {
-                    const expr = e.target.value;
-                    if (expr === '') {
-                      handleClearBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName);
-                    } else {
-                      handleSetBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName, { type: 'expression', expression: expr });
-                    }
-                  }}
-                />
-                <div className={`binding-preview${isErr ? ' binding-preview-error' : ''}`}>
-                  {binding?.expression
-                    ? <><span style={{ color: '#aaa', marginRight: 4 }}>→</span><strong>{String(prevVal ?? '')}</strong></>
-                    : <span style={{ color: '#bbb' }}>Type an expression above to preview</span>
-                  }
-                </div>
-              </div>
-              <div className="binding-popover-footer">
-                {!!binding && (
-                  <button
-                    className="focus-mode-btn"
-                    style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }}
-                    onClick={() => { handleClearBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName); setBindingPopoverProp(null); }}
-                  >× Clear</button>
-                )}
-                <button
-                  className="focus-mode-btn focus-mode-btn--active"
-                  style={{ fontSize: 11, marginLeft: 'auto' }}
-                  onClick={() => setBindingPopoverProp(null)}
-                >Done</button>
-              </div>
-            </div>
-          </>
+          <WidgetBindingPopover
+            propLabel={propDef?.label || bindingPopoverProp.propName}
+            propType={propDef?.type}
+            binding={binding}
+            x={bindingPopoverProp.x}
+            y={bindingPopoverProp.y}
+            pageQueryInstances={pageQueryInstances}
+            queries={queries}
+            onSave={(b) => handleSetBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName, b)}
+            onClear={() => handleClearBinding(bindingPopoverProp.containerId, bindingPopoverProp.propName)}
+            onClose={() => setBindingPopoverProp(null)}
+          />
+        );
+      })()}
+
+      {inputBindingPopover && (() => {
+        const inst = queryInstances.find(qi => qi.id === inputBindingPopover.instanceId);
+        if (!inst) return null;
+        const binding = inst.bindings?.[inputBindingPopover.fieldName];
+        return (
+          <InputBindingPopover
+            fieldName={inputBindingPopover.fieldName}
+            binding={binding}
+            x={inputBindingPopover.x}
+            y={inputBindingPopover.y}
+            onSave={(b) => handleSetInputBinding(inputBindingPopover.instanceId, inputBindingPopover.fieldName, b)}
+            onClear={() => handleClearInputBinding(inputBindingPopover.instanceId, inputBindingPopover.fieldName)}
+            onClose={() => setInputBindingPopover(null)}
+          />
         );
       })()}
     </div>

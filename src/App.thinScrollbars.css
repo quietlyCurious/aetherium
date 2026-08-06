@@ -1,0 +1,83 @@
+/* App.thinScrollbars.css
+   Thin, hover-only scrollbars — scoped specifically to the canvas, the
+   right-side details panel, and the Runtime view (.aetherium-canvas-scroll),
+   NOT applied globally. Everywhere else in the app keeps its normal-sized
+   scrollbars on purpose, for consistency with the rest of the UI.
+
+   Uses !important throughout: a first pass without it had no visible effect
+   on the canvas/runtime despite the class being applied correctly — almost
+   certainly an existing global or DevExtreme-originated scrollbar rule (also
+   likely using !important, same pattern we fought with the license banner
+   earlier) winning the cascade. !important here guarantees this rule wins
+   regardless of what else is competing for the same elements.
+
+   Width (6px) and the transition timing match DevExtreme's own
+   .dx-scrollbar-vertical.dx-scrollbar-hoverable styling, for visual
+   consistency with scrollbars elsewhere in the app. Note this is an
+   approximation, not a byte-for-byte match: DevExtreme's scrollbar is a
+   fully custom-rendered widget, not a native browser scrollbar, so it can
+   animate width smoothly in a way native ::-webkit-scrollbar genuinely
+   can't replicate as reliably — transition support on native scrollbar
+   properties is limited and inconsistent across browsers. This gets as
+   close as native scrollbars allow. */
+
+.aetherium-canvas-scroll {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+}
+.aetherium-canvas-scroll:hover {
+  scrollbar-color: #b0b0b0 transparent !important;
+}
+
+.aetherium-canvas-scroll::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  transition: width .2s linear .15s !important;
+}
+.aetherium-canvas-scroll::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.aetherium-canvas-scroll::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 4px !important;
+  transition: background-color .2s linear .15s !important;
+}
+.aetherium-canvas-scroll:hover::-webkit-scrollbar-thumb {
+  background: #b0b0b0 !important;
+}
+.aetherium-canvas-scroll::-webkit-scrollbar-thumb:hover {
+  background: #909090 !important;
+}
+
+/* The actual element responsible for the visible canvas scrollbar turned out
+   to be .container-card-body — rendered by ContainerCard.jsx for every
+   widget/container, not the outer canvas wrapper this file originally
+   targeted. Since ContainerCard is shared by both the canvas and the Runtime
+   view, targeting this class directly covers both in one place — no
+   component changes needed, the class already exists on the right element. */
+.container-card-body {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+}
+.container-card-body:hover {
+  scrollbar-color: #b0b0b0 transparent !important;
+}
+.container-card-body::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+  transition: width .2s linear .15s !important;
+}
+.container-card-body::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.container-card-body::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border-radius: 4px !important;
+  transition: background-color .2s linear .15s !important;
+}
+.container-card-body:hover::-webkit-scrollbar-thumb {
+  background: #b0b0b0 !important;
+}
+.container-card-body::-webkit-scrollbar-thumb:hover {
+  background: #909090 !important;
+}

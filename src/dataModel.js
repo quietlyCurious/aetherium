@@ -328,6 +328,12 @@ export const DEFAULT_QUERY_INSTANCE = {
   inputOverrides: [],           // [{ fieldName: string, value: any }]
 
   // SQL multi-resultset: which resultset this instance exposes
+  // Per-input bindings — same shape/expression-evaluation as container.bindings,
+  // just keyed by input field name instead of widget prop name. Takes priority
+  // over inputOverrides (a binding is a live expression; an override is a
+  // static value) when both exist for the same field.
+  bindings: {},                 // { [fieldName]: { type: 'expression', expression: string } }
+
   resultSet:            null,   // e.g. 'Resultset1', 'OutputParameter', null for non-SQL
   isSecondaryResultset: false,
 

@@ -143,7 +143,12 @@ export async function executeRestQuery({ dataSource, query, instance, inputValue
 // downstream consumers (charts, gauges) shouldn't assume JSON gave them the
 // right type.
 export function parseOpHubHistorianResponse(json) {
-  const rows = json?.result || [];
+  // The real captured response from /app/ajax/Query was a BARE array at the
+  // top level — not wrapped in {result: [...]} the way FlowMgr's response
+  // is. Handling both defensively: this was silently returning an empty
+  // array for every real response until caught, since json?.result was
+  // always undefined for the actual shape OpHub sends back.
+  const rows = Array.isArray(json) ? json : (json?.result || []);
   return rows.map(row => {
     const numeric = Number(row.value);
     return { ...row, value: Number.isNaN(numeric) ? row.value : numeric };
