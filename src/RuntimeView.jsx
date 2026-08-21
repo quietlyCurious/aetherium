@@ -94,36 +94,44 @@ export default function RuntimeView({ pageId }) {
   const containers = page.containers || [];
 
   return (
-    <div className="aetherium-canvas-scroll" style={{ width: '100vw', height: '100vh', overflow: 'auto', position: 'relative' }}>
-      {containers.map(c => (
-        <ContainerCard
-          key={c.id}
-          container={c}
-          containers={containers}
-          selectedIds={[]}
-          onSelect={NOOP}
-          onDelete={NOOP}
-          onDragStart={NOOP}
-          onDragOver={NOOP}
-          onDrop={NOOP}
-          onWidgetDrop={NOOP}
-          onUpdateLayout={NOOP}
-          onUpdateSlot={NOOP}
-          onUpdateCoord={NOOP}
-          onGridCellDrop={NOOP}
-          onSetSelectedGridCell={NOOP}
-          onMergeCellContainers={NOOP}
-          selectedGridCell={null}
-          dragState={{}}
-          draggingId={null}
-          isDragging={false}
-          coordMode="reposition"
-          activeTierId={BASE_TIER_ID}
-          snapEnabled={false}
-          queryResults={queryResults}
-          queries={queries}
-        />
-      ))}
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="app-titlebar" style={{ flexShrink: 0 }}>
+        <span className="app-titlebar-title" style={{ cursor: 'default', userSelect: 'none' }}>
+          {page.name || 'Aetherium'}
+        </span>
+      </div>
+      <div className="aetherium-canvas-scroll canvas-no-gap" style={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative' }}>
+        {containers.map(c => (
+          <ContainerCard
+            key={c.id}
+            container={c}
+            containers={containers}
+            selectedIds={[]}
+            onSelect={NOOP}
+            onDelete={NOOP}
+            onDragStart={NOOP}
+            onDragOver={NOOP}
+            onDrop={NOOP}
+            onWidgetDrop={NOOP}
+            onUpdateLayout={NOOP}
+            onUpdateSlot={NOOP}
+            onUpdateCoord={NOOP}
+            onGridCellDrop={NOOP}
+            onSetSelectedGridCell={NOOP}
+            onMergeCellContainers={NOOP}
+            selectedGridCell={null}
+            dragState={{}}
+            draggingId={null}
+            isDragging={false}
+            coordMode="reposition"
+            activeTierId={BASE_TIER_ID}
+            snapEnabled={false}
+            queryResults={queryResults}
+            queries={queries}
+            interactive={false}
+          />
+        ))}
+      </div>
     </div>
   );
 }

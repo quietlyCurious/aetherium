@@ -26,12 +26,42 @@ function getCoordStyle(coord) {
   if (!coord) return {};
   const u = coord.unit || 'px';
   const style = { position: 'absolute' };
-  if (coord.left !== '' && coord.left !== undefined) style.left = `${coord.left}${u}`;
-  if (coord.top !== '' && coord.top !== undefined) style.top = `${coord.top}${u}`;
-  if (coord.right !== '' && coord.right !== undefined) style.right = `${coord.right}${u}`;
-  if (coord.bottom !== '' && coord.bottom !== undefined) style.bottom = `${coord.bottom}${u}`;
-  if (coord.width !== '' && coord.width !== undefined) style.width = `${coord.width}${u}`;
-  if (coord.height !== '' && coord.height !== undefined) style.height = `${coord.height}${u}`;
+  const hasLeft = coord.left !== '' && coord.left !== undefined;
+  const hasRight = coord.right !== '' && coord.right !== undefined;
+  const hasTop = coord.top !== '' && coord.top !== undefined;
+  const hasBottom = coord.bottom !== '' && coord.bottom !== undefined;
+
+  if (hasLeft) style.left = `${coord.left}${u}`;
+  if (hasTop) style.top = `${coord.top}${u}`;
+  if (hasRight) style.right = `${coord.right}${u}`;
+  if (hasBottom) style.bottom = `${coord.bottom}${u}`;
+
+  // When both edges on an axis are anchored, CSS naturally stretches the
+  // element between them — an explicit width/height conflicts with that
+  // (the spec gives width priority, silently discarding the "other" edge),
+  // which is exactly the reported bug: setting both left and right left the
+  // right edge doing nothing until left was cleared. Explicitly setting
+  // width/height to undefined (not just omitting the key) is required here
+  // — every container also has a separate `slot` object with its own
+  // default width, merged in as {...slotStyle, ...coordStyle}. Omitting the
+  // key entirely left the slot's own width value leaking through and
+  // winning the merge regardless; an explicit undefined key in coordStyle
+  // correctly overrides it. Same logic applies to top+bottom, even though
+  // only the left/right case was reported — the bug is symmetric.
+  const widthIsStretched = hasLeft && hasRight;
+  const heightIsStretched = hasTop && hasBottom;
+
+  if (widthIsStretched) {
+    style.width = undefined;
+  } else if (coord.width !== '' && coord.width !== undefined) {
+    style.width = `${coord.width}${u}`;
+  }
+  if (heightIsStretched) {
+    style.height = undefined;
+  } else if (coord.height !== '' && coord.height !== undefined) {
+    style.height = `${coord.height}${u}`;
+  }
+
   if (coord.minWidth !== '') style.minWidth = `${coord.minWidth}${u}`;
   if (coord.maxWidth !== '') style.maxWidth = `${coord.maxWidth}${u}`;
   if (coord.minHeight !== '') style.minHeight = `${coord.minHeight}${u}`;

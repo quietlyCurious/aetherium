@@ -165,8 +165,8 @@ TreeList: [
   { name: 'editing.allowUpdating', label: 'Allow Updating', type: 'bool', default: false },
   { name: 'editing.allowDeleting', label: 'Allow Deleting', type: 'bool', default: false },
   { name: 'scrolling.mode', label: 'Scrolling Mode', type: 'enum', options: ['standard','virtual'], default: 'standard' },
-  { name: 'keyExpr', label: 'Key Expr', type: 'string', default: 'id' },
-  { name: 'parentIdExpr', label: 'Parent ID Expr', type: 'string', default: 'parentId' },
+  { name: 'keyExpr', label: 'Key Expr', type: 'string', default: 'id', bindable: false },
+  { name: 'parentIdExpr', label: 'Parent ID Expr', type: 'string', default: 'parentId', bindable: false },
 ],
 
 List: [
@@ -406,8 +406,8 @@ RadioGroup: [
   { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },
   { name: 'layout', label: 'Layout', type: 'enum', options: ['vertical','horizontal'], default: 'vertical' },
   { name: 'readOnly', label: 'Read Only', type: 'bool', default: false },
-  { name: 'displayExpr', label: 'Display Expr', type: 'string', default: '' },
-  { name: 'valueExpr', label: 'Value Expr', type: 'string', default: '' },
+  { name: 'displayExpr', label: 'Display Expr', type: 'string', default: '', bindable: false },
+  { name: 'valueExpr', label: 'Value Expr', type: 'string', default: '', bindable: false },
 ],
 
 ButtonGroup: [
@@ -471,6 +471,9 @@ Form: [
 // ─── CHARTS & VISUALIZATION (existing) ───────────────────────────────────
 Chart: [
   { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },
+  { name: 'commonSeriesSettings.argumentField', label: 'Argument Field', type: 'string', default: 'timestamp', bindable: false },
+  { name: 'commonSeriesSettings.valueField', label: 'Value Field', type: 'string', default: 'value', bindable: false },
+  { name: 'seriesTemplate.nameField', label: 'Series Group Field', type: 'string', default: '', bindable: false },
   { name: 'palette', label: 'Palette', type: 'enum', options: ['Material','Soft Pastel','Harmony Light','Office','Vintage','Violet','Carmine','Dark Moon','Soft Blue','Dark Violet','Green Mist'], default: 'Material' },
   { name: 'legend.visible', label: 'Legend Visible', type: 'bool', default: true },
   { name: 'legend.position', label: 'Legend Position', type: 'enum', options: ['inside','outside'], default: 'outside' },

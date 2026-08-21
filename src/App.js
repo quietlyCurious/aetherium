@@ -39,7 +39,7 @@ import { loadQueries, saveQueries } from './queriesStorage';
 import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage';
 import ThemeWorkspace from './ThemeWorkspace';
 import DataListGrid from './DataListGrid';
-import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage } from './pagesStorage';
+import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage, repairDuplicateContainerIds } from './pagesStorage';
 import ScreensPanel from './ScreensPanel';
 import { evaluateExpression } from './expressionEval';
 import {
@@ -86,6 +86,46 @@ import WidgetPreview from './WidgetPreview';
 import notify from 'devextreme/ui/notify';
 
 // ── Template helpers used in left panel
+// Sorts a flat parentId-based hierarchy (categories + items, the shape both
+// DX_WIDGET_DATA and ASSET_DATA use) alphabetically by name WITHIN each
+// category — categories themselves keep their existing relative order, only
+// items inside each one get reordered. Reordering the flat array is enough:
+// HierarchyTree preserves array order for same-level siblings, so this
+// doesn't require touching that shared component at all.
+// When searchText is given, narrows to items whose name matches (plus their
+// parent category, so the tree stays structurally coherent) and drops any
+// category left with no matches — matches ScreensPanel's own search
+// behavior for consistency across all three areas.
+// Instance IDs are deliberately page-relative (numbering restarts at 1 per
+// page, matching OpHub's own flowInstanceId convention) — meaning two
+// different pages can genuinely both have an instance with id 3. Looking one
+// up by id alone, across the FULL queryInstances array, can silently match
+// the wrong page's instance whenever such a collision exists. This scopes
+// the lookup to the currently active page (or to app-scoped instances, which
+// aren't tied to any single page and stay findable regardless).
+function findQueryInstance(queryInstances, id, activePageId) {
+  return queryInstances.find(qi => qi.id === id && (qi.pageId === activePageId || qi.scope === INSTANCE_SCOPES.APP));
+}
+
+function sortAndFilterHierarchy(flatData, searchText) {
+  const categories = flatData.filter(item => item.parentId === null);
+  const sorted = [];
+  categories.forEach(cat => {
+    const children = flatData
+      .filter(item => item.parentId === cat.id)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    sorted.push(cat, ...children);
+  });
+
+  const query = (searchText || '').trim().toLowerCase();
+  if (!query) return sorted;
+
+  const matchingItems = sorted.filter(item => item.parentId !== null && (item.name || '').toLowerCase().includes(query));
+  const neededCategoryIds = new Set(matchingItems.map(item => item.parentId));
+  const matchingCategories = sorted.filter(item => item.parentId === null && neededCategoryIds.has(item.id));
+  return [...matchingCategories, ...matchingItems];
+}
+
 function WidgetTreeItemTemplate(item, onDblClick) {
   const isWidget = item.assetLevel === 'widget';
   return (
@@ -187,10 +227,20 @@ function AetheriumEditor() {
   const [selectedAssetIds, setSelectedAssetIds] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [containers, setContainers] = useState([makeRootContainer()]);
-  const [pages, setPages] = useState(() => loadPagesAndFolders().pages);
+  const [pages, setPages] = useState(() => {
+    const { pages: loadedPages, folders: loadedFolders } = loadPagesAndFolders();
+    const { pages: repairedPages, totalFixed } = repairDuplicateContainerIds(loadedPages, generateDataId);
+    if (totalFixed > 0) {
+      savePagesAndFolders(repairedPages, loadedFolders);
+      console.log(`[containerIdRepair] Fixed ${totalFixed} duplicate container ID(s) across saved pages — this only needs to run once.`);
+    }
+    return repairedPages;
+  });
   const [folders, setFolders] = useState(() => loadPagesAndFolders().folders);
   const [activePageId, setActivePageId] = useState(null); // null = current canvas isn't tied to a saved page yet
   const [dataTabMode, setDataTabMode] = useState('model'); // 'model' | 'queries' — Data tab browsing mode
+  const [dataTabSearch, setDataTabSearch] = useState('');
+  const [visualsSearch, setVisualsSearch] = useState('');
   // Tracks the JSON of whatever was last saved/loaded, so we can tell if the live
   // canvas has diverged from it — a simple, correct-enough "dirty" check for a
   // dev tool. (Only the ACTIVE page can ever be dirty — every other page's stored
@@ -826,9 +876,14 @@ function AetheriumEditor() {
   // widget props — instances live in a flat array, so no recursive tree walk
   // needed, just a straightforward map.
   const handleSetInputBinding = (instanceId, fieldName, binding) => {
+    // Same scoping as findQueryInstance/handleUpdateQueryInstance — matching
+    // by id alone risks silently binding an unrelated instance on a
+    // different page that happens to share the same page-relative number.
     setQueryInstances(prev => {
       const next = prev.map(qi =>
-        qi.id === instanceId ? { ...qi, bindings: { ...(qi.bindings || {}), [fieldName]: binding } } : qi
+        (qi.id === instanceId && (qi.pageId === activePageId || qi.scope === INSTANCE_SCOPES.APP))
+          ? { ...qi, bindings: { ...(qi.bindings || {}), [fieldName]: binding } }
+          : qi
       );
       saveQueryInstances(next);
       return next;
@@ -838,7 +893,7 @@ function AetheriumEditor() {
   const handleClearInputBinding = (instanceId, fieldName) => {
     setQueryInstances(prev => {
       const next = prev.map(qi => {
-        if (qi.id !== instanceId) return qi;
+        if (!(qi.id === instanceId && (qi.pageId === activePageId || qi.scope === INSTANCE_SCOPES.APP))) return qi;
         const nb = { ...(qi.bindings || {}) };
         delete nb[fieldName];
         return { ...qi, bindings: nb };
@@ -976,16 +1031,27 @@ function AetheriumEditor() {
   };
 
   const handleUpdateQueryInstance = (id, updates) => {
+    // Scoped the same way as findQueryInstance and for the same reason —
+    // matching by id alone risks silently updating an unrelated instance on
+    // a DIFFERENT page that happens to share the same page-relative number.
     setQueryInstances(prev => {
-      const next = prev.map(qi => qi.id === id ? { ...qi, ...updates } : qi);
+      const next = prev.map(qi =>
+        (qi.id === id && (qi.pageId === activePageId || qi.scope === INSTANCE_SCOPES.APP))
+          ? { ...qi, ...updates }
+          : qi
+      );
       saveQueryInstances(next);
       return next;
     });
   };
 
   const handleDeleteQueryInstance = (id) => {
+    // Same scoping, and arguably more important here: unscoped, this could
+    // silently DELETE an instance on a completely unrelated page.
     setQueryInstances(prev => {
-      const next = prev.filter(qi => qi.id !== id);
+      const next = prev.filter(qi =>
+        !(qi.id === id && (qi.pageId === activePageId || qi.scope === INSTANCE_SCOPES.APP))
+      );
       saveQueryInstances(next);
       return next;
     });
@@ -994,9 +1060,13 @@ function AetheriumEditor() {
   const handlePromoteQueryInstance = (id) => {
     // Promote a page-scoped instance to app-scoped (shared across all pages)
     // — clears pageId, since app-scoped means "not tied to one page".
+    // Deliberately does NOT also match already-app-scoped instances (unlike
+    // update/delete above) — promoting only makes sense for a page-scoped
+    // one on the CURRENT page; an already-app-scoped instance with a
+    // colliding id on some other page should never be touched by this.
     setQueryInstances(prev => {
       const next = prev.map(qi =>
-        qi.id === id ? { ...qi, scope: INSTANCE_SCOPES.APP, pageId: null } : qi
+        (qi.id === id && qi.pageId === activePageId) ? { ...qi, scope: INSTANCE_SCOPES.APP, pageId: null } : qi
       );
       saveQueryInstances(next);
       return next;
@@ -1548,20 +1618,31 @@ function AetheriumEditor() {
                   </div>
                 </TabPanelItem>
                 <TabPanelItem title="Visuals">
-                  <div className="left-panel-tab-content">
-                    <HierarchyTree
-                      dataSource={DX_WIDGET_DATA}
-                      displayExpr="name"
-                      itemRender={(item) => WidgetTreeItemTemplate(item, (item) => {
-                        const selected = selectedContainerId
-                          ? findContainerById(containers, selectedContainerId)
-                          : null;
-                        const targetId = selected?.isWidget
-                          ? (selected.parentId || ROOT_CONTAINER_ID)
-                          : (selectedContainerId || ROOT_CONTAINER_ID);
-                        handleWidgetDrop(targetId, item.name);
-                      })}
-                    />
+                  <div className="left-panel-tab-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+                      <input
+                        className="details-input"
+                        style={{ width: '100%' }}
+                        value={visualsSearch}
+                        onChange={(e) => setVisualsSearch(e.target.value)}
+                        placeholder="Search widgets…"
+                      />
+                    </div>
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      <HierarchyTree
+                        dataSource={sortAndFilterHierarchy(DX_WIDGET_DATA, visualsSearch)}
+                        displayExpr="name"
+                        itemRender={(item) => WidgetTreeItemTemplate(item, (item) => {
+                          const selected = selectedContainerId
+                            ? findContainerById(containers, selectedContainerId)
+                            : null;
+                          const targetId = selected?.isWidget
+                            ? (selected.parentId || ROOT_CONTAINER_ID)
+                            : (selectedContainerId || ROOT_CONTAINER_ID);
+                          handleWidgetDrop(targetId, item.name);
+                        })}
+                      />
+                    </div>
                   </div>
                 </TabPanelItem>
                 <TabPanelItem title="Data">
@@ -1581,10 +1662,19 @@ function AetheriumEditor() {
                         height={26}
                       />
                     </div>
+                    <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
+                      <input
+                        className="details-input"
+                        style={{ width: '100%' }}
+                        value={dataTabSearch}
+                        onChange={(e) => setDataTabSearch(e.target.value)}
+                        placeholder={dataTabMode === 'model' ? 'Search model…' : 'Search queries…'}
+                      />
+                    </div>
                     <div style={{ flex: 1, overflow: 'auto' }}>
                       {dataTabMode === 'model' ? (
                         <HierarchyTree
-                          dataSource={ASSET_DATA}
+                          dataSource={sortAndFilterHierarchy(ASSET_DATA, dataTabSearch)}
                           displayExpr="name"
                           itemRender={AssetTreeItemTemplate}
                         />
@@ -1599,8 +1689,19 @@ function AetheriumEditor() {
                             <p style={{ padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
                               No queries yet. Create one in the Queries workspace first.
                             </p>
-                          ) : (
-                            queries.map(q => {
+                          ) : (() => {
+                            const queryFilter = dataTabSearch.trim().toLowerCase();
+                            const visibleQueries = [...queries]
+                              .filter(q => !queryFilter || (q.name || '').toLowerCase().includes(queryFilter))
+                              .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                            if (visibleQueries.length === 0) {
+                              return (
+                                <p style={{ padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
+                                  No queries match "{dataTabSearch}".
+                                </p>
+                              );
+                            }
+                            return visibleQueries.map(q => {
                               const countOnPage = queryInstances.filter(qi => qi.pageId === activePageId && qi.queryId === q.id).length;
                               return (
                                 <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderBottom: '1px solid #f1f1f1' }}>
@@ -1627,8 +1728,8 @@ function AetheriumEditor() {
                                   </button>
                                 </div>
                               );
-                            })
-                          )}
+                            });
+                          })()}
                         </div>
                       )}
                     </div>
@@ -1956,7 +2057,7 @@ function AetheriumEditor() {
 
               {/* Query instance details (Page Data tab selection) */}
               {selectedQueryInstanceId && (() => {
-                const inst = queryInstances.find(qi => qi.id === selectedQueryInstanceId);
+                const inst = findQueryInstance(queryInstances, selectedQueryInstanceId, activePageId);
                 const q = inst ? queries.find(qq => qq.id === inst.queryId) : null;
                 return inst ? (
                   <QueryInstanceDetailsPanel
@@ -2354,13 +2455,24 @@ function AetheriumEditor() {
                                     let bindingTitle = '';
                                     let isErr = false;
                                     if (binding?.type === 'query') {
-                                      const boundInst = queryInstances.find(qi => qi.id === binding.queryInstanceId);
+                                      const boundInst = findQueryInstance(queryInstances, binding.queryInstanceId, activePageId);
                                       const boundQuery = boundInst ? queries.find(qq => qq.id === boundInst.queryId) : null;
                                       const instLabel = boundInst?.alias || boundQuery?.name || null;
-                                      if (instLabel && binding.outputField) {
+                                      // Scalar bindings set outputField (singular, one string). Collection
+                                      // bindings set outputFields (plural, an array — possibly EMPTY, which
+                                      // is valid and means "all fields", not "nothing selected"). This only
+                                      // ever checked the scalar shape, so every valid collection binding —
+                                      // anything bound to a grid/chart dataSource — fell through to "no
+                                      // longer exists" regardless of whether it actually existed.
+                                      const hasScalarField = !!binding.outputField;
+                                      const hasCollectionFields = Array.isArray(binding.outputFields);
+                                      if (instLabel && (hasScalarField || hasCollectionFields)) {
                                         const rowPick = binding.transform?.find(t => t.type === 'pickRow');
-                                        bindingDisplayText = `${instLabel} → ${binding.outputField}` + (rowPick ? ` (${rowPick.mode} row)` : '');
-                                        bindingTitle = `Query: ${instLabel} → ${binding.outputField}`;
+                                        const fieldsLabel = hasCollectionFields
+                                          ? (binding.outputFields.length === 0 ? 'all fields' : binding.outputFields.map(f => f.fieldName).join(', '))
+                                          : binding.outputField;
+                                        bindingDisplayText = `${instLabel} → ${fieldsLabel}` + (rowPick ? ` (${rowPick.mode} row)` : '');
+                                        bindingTitle = `Query: ${instLabel} → ${fieldsLabel}`;
                                       } else {
                                         bindingDisplayText = '(query or output no longer exists)';
                                         bindingTitle = 'The bound query instance or output field could not be found.';
@@ -2398,16 +2510,18 @@ function AetheriumEditor() {
                                                 )}
                                               </div>
                                             )}
-                                            <button
-                                              className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
-                                              title={isBound ? `Edit binding: ${bindingTitle}` : 'Bind this property'}
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (isOpen) { setBindingPopoverProp(null); return; }
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                setBindingPopoverProp({ containerId: selectedContainerId, propName: p.name, x: rect.left, y: rect.top });
-                                              }}
-                                            >⚡</button>
+                                            {p.bindable !== false && (
+                                              <button
+                                                className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
+                                                title={isBound ? `Edit binding: ${bindingTitle}` : 'Bind this property'}
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  if (isOpen) { setBindingPopoverProp(null); return; }
+                                                  const rect = e.currentTarget.getBoundingClientRect();
+                                                  setBindingPopoverProp({ containerId: selectedContainerId, propName: p.name, x: rect.left, y: rect.top });
+                                                }}
+                                              >⚡</button>
+                                            )}
                                           </div>
                                         </div>
                                       </React.Fragment>
@@ -2798,7 +2912,7 @@ function AetheriumEditor() {
       })()}
 
       {inputBindingPopover && (() => {
-        const inst = queryInstances.find(qi => qi.id === inputBindingPopover.instanceId);
+        const inst = findQueryInstance(queryInstances, inputBindingPopover.instanceId, activePageId);
         if (!inst) return null;
         const binding = inst.bindings?.[inputBindingPopover.fieldName];
         return (

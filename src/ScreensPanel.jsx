@@ -4,8 +4,19 @@
 // Built as its own component rather than stretching the shared DataListGrid —
 // the hierarchical folder/expand-collapse/drag-drop needs here are meaningfully
 // different from the flat lists Data Sources/Queries/Theme use.
+//
+// Folders and pages are sorted alphabetically by name (folders keep their own
+// relative order among themselves; pages sort within their folder, and
+// separately within the root/ungrouped section). A search box filters pages
+// by name — while searching, folders with no matching pages are hidden
+// entirely, and folders that DO have matches auto-expand so results are
+// never hidden behind a collapsed folder.
 
 import React, { useState } from 'react';
+
+function sortByName(arr) {
+  return [...arr].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+}
 
 function FolderRow({ folder, isExpanded, onToggle, onRename, onDelete, isDropTarget, onDragOver, onDragLeave, onDrop }) {
   return (
@@ -88,6 +99,7 @@ export default function ScreensPanel({
   const [expanded, setExpanded] = useState(() => new Set(folders.map(f => f.id)));
   const [draggingPageId, setDraggingPageId] = useState(null);
   const [dropTargetFolderId, setDropTargetFolderId] = useState(undefined); // undefined = none; null = root drop zone
+  const [search, setSearch] = useState('');
 
   const toggleFolder = (id) => {
     setExpanded(prev => {
@@ -97,7 +109,11 @@ export default function ScreensPanel({
     });
   };
 
-  const rootPages = pages.filter(p => !p.folderId);
+  const searchLower = search.trim().toLowerCase();
+  const matchesSearch = (page) => !searchLower || (page.name || '').toLowerCase().includes(searchLower);
+
+  const sortedFolders = sortByName(folders);
+  const rootPages = sortByName(pages.filter(p => !p.folderId && matchesSearch(p)));
 
   const handleDragStart = (pageId) => (e) => {
     setDraggingPageId(pageId);
@@ -129,6 +145,16 @@ export default function ScreensPanel({
         </div>
       </div>
 
+      <div style={{ padding: '6px 12px 0', flexShrink: 0 }}>
+        <input
+          className="details-input"
+          style={{ width: '100%' }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search screens…"
+        />
+      </div>
+
       <div style={{ flex: 1, overflow: 'auto', paddingTop: 6 }}>
         {pages.length === 0 && folders.length === 0 ? (
           <p style={{ padding: '12px 16px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
@@ -136,34 +162,39 @@ export default function ScreensPanel({
           </p>
         ) : (
           <>
-            {folders.map(folder => (
-              <div key={folder.id}>
-                <FolderRow
-                  folder={folder}
-                  isExpanded={expanded.has(folder.id)}
-                  onToggle={() => toggleFolder(folder.id)}
-                  onRename={onRenameFolder}
-                  onDelete={onDeleteFolder}
-                  isDropTarget={dropTargetFolderId === folder.id}
-                  onDragOver={handleDragOverFolder(folder.id)}
-                  onDragLeave={handleDragLeaveFolder}
-                  onDrop={handleDropOnFolder(folder.id)}
-                />
-                {expanded.has(folder.id) && pages.filter(p => p.folderId === folder.id).map(page => (
-                  <ScreenRow
-                    key={page.id}
-                    page={page}
-                    indent={18}
-                    isActive={page.id === activePageId}
-                    isActiveDirty={page.id === activePageId && isDirty}
-                    onOpen={onOpenPage}
-                    onDelete={onDeletePage}
-                    onDragStart={handleDragStart(page.id)}
-                    onDragEnd={handleDragEnd}
+            {sortedFolders.map(folder => {
+              const folderPages = sortByName(pages.filter(p => p.folderId === folder.id && matchesSearch(p)));
+              if (searchLower && folderPages.length === 0) return null; // hide empty folders while searching
+              const isExpanded = searchLower ? true : expanded.has(folder.id); // auto-expand to reveal matches
+              return (
+                <div key={folder.id}>
+                  <FolderRow
+                    folder={folder}
+                    isExpanded={isExpanded}
+                    onToggle={() => toggleFolder(folder.id)}
+                    onRename={onRenameFolder}
+                    onDelete={onDeleteFolder}
+                    isDropTarget={dropTargetFolderId === folder.id}
+                    onDragOver={handleDragOverFolder(folder.id)}
+                    onDragLeave={handleDragLeaveFolder}
+                    onDrop={handleDropOnFolder(folder.id)}
                   />
-                ))}
-              </div>
-            ))}
+                  {isExpanded && folderPages.map(page => (
+                    <ScreenRow
+                      key={page.id}
+                      page={page}
+                      indent={18}
+                      isActive={page.id === activePageId}
+                      isActiveDirty={page.id === activePageId && isDirty}
+                      onOpen={onOpenPage}
+                      onDelete={onDeletePage}
+                      onDragStart={handleDragStart(page.id)}
+                      onDragEnd={handleDragEnd}
+                    />
+                  ))}
+                </div>
+              );
+            })}
 
             {/* Root / ungrouped drop zone — dragging a screen here clears its folder */}
             <div

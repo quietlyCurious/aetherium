@@ -84,3 +84,45 @@ export function makeNewFolder(name, generateId) {
   };
 }
 
+// One-time repair for a bug in the old container-ID generator (a plain
+// counter that reset to 2 on every app load, with no awareness of IDs
+// already present in a loaded page — confirmed: two unrelated containers on
+// the same page both ended up with id 4). The generator itself is fixed
+// (now uses the same UUID scheme as every other Aetherium entity), but that
+// only prevents NEW collisions — pages saved before the fix can still carry
+// existing duplicates baked into their stored data, which this walks every
+// saved page's container tree to find and correct.
+//
+// For each duplicate found (by walk order — depth-first, matching how the
+// tree is naturally traversed elsewhere), the FIRST occurrence of an id
+// keeps it; every later occurrence gets a fresh id via generateId(). Direct
+// children of a reassigned container have their parentId updated to match,
+// since parent/child linkage is tracked both by nesting AND by parentId
+// back-reference. Nothing outside the container tree needs updating —
+// bindings live on the container itself, and nothing else in the app
+// references a container by id externally.
+export function repairDuplicateContainerIds(pages, generateId) {
+  let totalFixed = 0;
+
+  const repairTree = (nodes, seenIds) => {
+    nodes.forEach(node => {
+      if (seenIds.has(node.id)) {
+        const newId = generateId();
+        node.id = newId;
+        (node.children || []).forEach(child => { child.parentId = newId; });
+        totalFixed++;
+      }
+      seenIds.add(node.id);
+      repairTree(node.children || [], seenIds);
+    });
+  };
+
+  const repairedPages = pages.map(page => {
+    const containers = deepClone(page.containers || []);
+    repairTree(containers, new Set());
+    return { ...page, containers };
+  });
+
+  return { pages: repairedPages, totalFixed };
+}
+

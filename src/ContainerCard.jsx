@@ -23,16 +23,28 @@ function resolveQueryBindingValue(binding, queryResults, queries, isCollectionPr
   const result = queryResults?.[binding.queryInstanceId];
   if (!result || result.status !== 'success' || !Array.isArray(result.data)) return undefined;
 
-  // Every row shape seen from real queries so far — flat historian rows
-  // ({timestamp, name, quality, value}) and SQL-ish column-keyed rows alike
-  // — has outputField as a genuine COLUMN NAME within each row, never a
-  // value to filter rows BY. (The previous version filtered rows where
-  // row.name === outputField, which can never match: row.name holds a tag
-  // path like "FIX.SF_WINDTURBINE06>...", never the literal string "value"
-  // — so that filter always returned nothing, silently.)
-  const values = result.data.map(row => row[binding.outputField]).filter(v => v !== undefined);
+  // Collection-typed properties (chart/grid dataSource, etc.) bind to the
+  // query's result set. If specific fields were selected (outputFields),
+  // each row is narrowed to just those columns — needed for widgets like a
+  // grid where showing every returned column isn't always wanted. No fields
+  // selected means "everything" — the raw row objects, unfiltered.
+  if (isCollectionProp) {
+    const fieldNames = (binding.outputFields || []).map(f => f.fieldName);
+    if (fieldNames.length === 0) return result.data;
+    return result.data.map(row => {
+      const filtered = {};
+      fieldNames.forEach(fn => { filtered[fn] = row[fn]; });
+      return filtered;
+    });
+  }
 
-  if (isCollectionProp) return values;
+  // Scalar properties: outputField is a genuine COLUMN NAME within each row
+  // (flat historian rows {timestamp, name, quality, value} and SQL-ish
+  // column-keyed rows alike), never a value to filter rows BY. (An earlier
+  // version filtered rows where row.name === outputField, which could never
+  // match: row.name holds a tag path like "FIX.SF_WINDTURBINE06>...", never
+  // the literal string "value" — that filter always returned nothing.)
+  const values = result.data.map(row => row[binding.outputField]).filter(v => v !== undefined);
 
   const pickRow = binding.transform?.find(t => t.type === 'pickRow');
   if (pickRow) {
@@ -46,11 +58,42 @@ function resolveQueryBindingValue(binding, queryResults, queries, isCollectionPr
 
 // Merges static widgetProps with resolved binding values.
 // Binding values take precedence over static props at render time.
+// Converts flat dot-notation keys ("pager.visible": true) into properly
+// nested objects ({ pager: { visible: true } }) — DevExtreme's React
+// components expect a real nested prop, not a flat key that happens to
+// contain a dot in its name, which is genuinely a different thing and gets
+// silently ignored (React just passes it through as an unrecognized prop).
+// This affects every dot-notation property across the whole widget catalog,
+// not just one widget — applied once, centrally, here.
+function expandDotPaths(flatProps) {
+  const expanded = {};
+  Object.entries(flatProps).forEach(([key, value]) => {
+    if (!key.includes('.')) {
+      if (typeof expanded[key] === 'object' && expanded[key] !== null && typeof value === 'object' && value !== null) {
+        expanded[key] = { ...expanded[key], ...value };
+      } else {
+        expanded[key] = value;
+      }
+      return;
+    }
+    const parts = key.split('.');
+    let cursor = expanded;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      if (typeof cursor[part] !== 'object' || cursor[part] === null) {
+        cursor[part] = { ...(cursor[part] || {}) };
+      }
+      cursor = cursor[part];
+    }
+    cursor[parts[parts.length - 1]] = value;
+  });
+  return expanded;
+}
+
 function resolveWidgetProps(widgetProps, bindings, widgetName, queryResults, queries) {
-  if (!bindings || Object.keys(bindings).length === 0) return widgetProps || {};
   const resolved = { ...(widgetProps || {}) };
   const propDefs = WIDGET_PROPERTIES[widgetName] || [];
-  Object.entries(bindings).forEach(([propName, binding]) => {
+  Object.entries(bindings || {}).forEach(([propName, binding]) => {
     if (binding?.type === 'expression' && binding.expression != null) {
       resolved[propName] = evaluateExpression(binding.expression);
     } else if (binding?.type === 'query') {
@@ -62,7 +105,7 @@ function resolveWidgetProps(widgetProps, bindings, widgetName, queryResults, que
       if (value !== undefined) resolved[propName] = value;
     }
   });
-  return resolved;
+  return expandDotPaths(resolved);
 }
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
@@ -200,6 +243,7 @@ function ContainerCard({
   snapEnabled = false, snapSize = 8,
   snapGuides = null, onSnapGuideChange = null,
   queryResults = null, queries = null,
+  interactive = true,
   depth = 0,
 }) {
   const isSelected = selectedIds ? selectedIds.includes(container.id) : false;
@@ -460,7 +504,15 @@ function ContainerCard({
           : base;
       })();
 
-  const cardStyle      = slotStyles.card;
+  // In runtime only, suppress whatever baseline border a CSS class imposes
+  // (the design-time "so you can see container edges to grab them" visual
+  // aid) when the user hasn't configured a real one — that aid is necessary
+  // in the editor, but shouldn't show up in the actual rendered output.
+  // Design time (interactive=true) is completely untouched here.
+  const noUserBorder = !effectiveSlot.borderWidth && !effectiveSlot.borderStyle && !effectiveSlot.borderColor;
+  const cardStyle = (!interactive && noUserBorder)
+    ? { ...slotStyles.card, border: 'none' }
+    : slotStyles.card;
   const bodyPaddingStyle = slotStyles.body;
   const layoutStyle    = getLayoutStyle(container.layout);
   const onUpdate       = isCoordChild ? onUpdateCoord : onUpdateSlot;
@@ -499,17 +551,17 @@ function ContainerCard({
         isEffectivelyLocked             ? 'container-card--locked' : '',
       ].filter(Boolean).join(' ')}
       style={cardStyle}
-      draggable={!isRoot && !isEffectivelyLocked}
-      onDragStart={!isRoot && !isEffectivelyLocked ? (e) => {
+      draggable={!isRoot && !isEffectivelyLocked && interactive}
+      onDragStart={!isRoot && !isEffectivelyLocked && interactive ? (e) => {
         if (e.target.closest('.container-card') !== e.currentTarget) return;
         if (isCoordChild && !e.altKey && coordMode !== 'reparent') { e.preventDefault(); return; }
         e.stopPropagation();
         onDragStart(container.id, container.parentId);
       } : undefined}
-      onMouseDown={isCoordChild && !isEffectivelyLocked ? onCoordMouseDown : undefined}
+      onMouseDown={isCoordChild && !isEffectivelyLocked && interactive ? onCoordMouseDown : undefined}
       onClick={(e) => { e.stopPropagation(); if (!isEffectivelyLocked) onSelect(container.id, e); }}
-      onDragOver={!container.isWidget ? (e) => { e.preventDefault(); e.stopPropagation(); onDragOver(container.id, null, null); } : undefined}
-      onDrop={!container.isWidget ? (e) => {
+      onDragOver={!container.isWidget && interactive ? (e) => { e.preventDefault(); e.stopPropagation(); onDragOver(container.id, null, null); } : undefined}
+      onDrop={!container.isWidget && interactive ? (e) => {
         e.preventDefault(); e.stopPropagation();
         const widgetName = e.dataTransfer.getData('dx-widget-name');
         if (widgetName) { onWidgetDrop(container.id, widgetName); } else { onDrop(container.id, null); }
@@ -619,6 +671,7 @@ function ContainerCard({
                         onSnapGuideChange={onSnapGuideChange}
                         queryResults={queryResults}
                         queries={queries}
+                        interactive={interactive}
                         depth={depth + 1}
                       />
                     ))}
@@ -629,10 +682,14 @@ function ContainerCard({
           );
         })() : container.isWidget && container.children.length === 0 ? (
           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            <WidgetPreview
-              widgetName={container.widgetName || container.title}
-              widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, queryResults, queries)}
-            />
+            {draggingId === container.id ? (
+              <div style={{ width: '100%', height: '100%', background: '#dcdcdc', borderRadius: 3 }} />
+            ) : (
+              <WidgetPreview
+                widgetName={container.widgetName || container.title}
+                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, queryResults, queries)}
+              />
+            )}
           </div>
         ) : container.children.length === 0 ? (
           <>
@@ -680,6 +737,7 @@ function ContainerCard({
                   onSnapGuideChange={onSnapGuideChange}
                   queryResults={queryResults}
                   queries={queries}
+                  interactive={interactive}
                   depth={depth + 1}
                 />
                 {container.layout?.layoutType !== 'coordinate' && container.layout?.layoutType !== 'grid' && (
@@ -710,7 +768,7 @@ function ContainerCard({
           <div className="resize-handle resize-handle--e"  onMouseDown={rE}  />
         </>
       )}
-      {hasBoundProperties && (
+      {hasBoundProperties && interactive && (
         <div className="binding-badge" title="Has bound properties">⚡</div>
       )}
     </div>

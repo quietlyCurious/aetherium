@@ -29,12 +29,16 @@ export default function WidgetBindingPopover({
   const [pendingInstanceId, setPendingInstanceId] = useState(binding?.type === 'query' ? binding.queryInstanceId : null);
   const existingPickRow = binding?.type === 'query' ? binding.transform?.find(t => t.type === 'pickRow') : null;
   const [rowMode, setRowMode] = useState(existingPickRow?.mode || 'last');
+  const [selectedFields, setSelectedFields] = useState(
+    binding?.type === 'query' && binding.outputFields ? binding.outputFields.map(f => f.fieldName) : []
+  );
 
   useEffect(() => {
     setMode(binding?.type || 'expression');
     setRawText(binding?.type === 'expression' ? (binding.expression ?? '') : '');
     setPendingInstanceId(binding?.type === 'query' ? binding.queryInstanceId : null);
     setRowMode(existingPickRow?.mode || 'last');
+    setSelectedFields(binding?.type === 'query' && binding.outputFields ? binding.outputFields.map(f => f.fieldName) : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propLabel]);
 
@@ -76,12 +80,45 @@ export default function WidgetBindingPopover({
   const wantsCollection = propType === 'data';
   const queryIsMultiRow = queryCardinality === RESULT_CARDINALITIES.SERIES || queryCardinality === RESULT_CARDINALITIES.RESULTSET;
   const needsRowPick = !wantsCollection && queryIsMultiRow;
-  const willAutoWrap = wantsCollection && queryCardinality === RESULT_CARDINALITIES.SCALAR;
 
   const handlePickInstance = (instanceId) => {
     setPendingInstanceId(instanceId);
-    // Picking a new instance doesn't save anything by itself — an output
-    // still needs to be chosen before there's a complete binding to store.
+    if (wantsCollection) {
+      // Collection-typed properties (chart/grid dataSource, etc.) bind to
+      // the query's result set. No fields selected yet means "everything" —
+      // she can narrow it down field-by-field below.
+      setSelectedFields([]);
+      const inst = pageQueryInstances.find(qi => qi.id === instanceId);
+      const query = inst ? queries.find(q => q.id === inst.queryId) : null;
+      if (query) {
+        onSave({ type: 'query', queryInstanceId: instanceId, queryId: query.id, outputFields: [], transform: [] });
+      }
+      return;
+    }
+    // Scalar properties: an output still needs to be chosen before there's
+    // a complete binding to store.
+  };
+
+  const saveCollectionBinding = (fieldNames) => {
+    if (!pendingQuery) return;
+    const outputFields = fieldNames.map(fn => {
+      const outDef = pendingQuery.outputs?.find(o => o.name === fn);
+      return { fieldName: fn, fieldType: outDef?.type || 'String' };
+    });
+    onSave({ type: 'query', queryInstanceId: pendingInstanceId, queryId: pendingQuery.id, outputFields, transform: [] });
+  };
+
+  const handleAddField = (fieldName) => {
+    if (!fieldName || selectedFields.includes(fieldName)) return;
+    const next = [...selectedFields, fieldName];
+    setSelectedFields(next);
+    saveCollectionBinding(next);
+  };
+
+  const handleRemoveField = (fieldName) => {
+    const next = selectedFields.filter(f => f !== fieldName);
+    setSelectedFields(next);
+    saveCollectionBinding(next);
   };
 
   const saveQueryBinding = (outputField, mode) => {
@@ -166,7 +203,7 @@ export default function WidgetBindingPopover({
                   width="100%"
                   height={26}
                 />
-                {pendingInstance && (
+                {pendingInstance && !wantsCollection && (
                   <>
                     <div className="binding-type-label" style={{ marginTop: 8 }}>Output</div>
                     {outputOptions.length === 0 ? (
@@ -188,6 +225,40 @@ export default function WidgetBindingPopover({
                     )}
                   </>
                 )}
+                {pendingInstance && wantsCollection && (() => {
+                  const availableFieldOptions = outputOptions.filter(o => !selectedFields.includes(o.value));
+                  return (
+                    <>
+                      <div className="binding-type-label" style={{ marginTop: 8 }}>
+                        Fields{selectedFields.length === 0 ? ' — none selected, using all fields' : ''}
+                      </div>
+                      {selectedFields.map(fieldName => (
+                        <div key={fieldName} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0' }}>
+                          <span style={{ fontSize: 11, flex: 1, minWidth: 0 }}>{fieldName}</span>
+                          <button
+                            onClick={() => handleRemoveField(fieldName)}
+                            style={{ fontSize: 11, color: '#d00', border: 'none', background: 'none', cursor: 'pointer', padding: '0 4px', flexShrink: 0 }}
+                            title="Remove this field"
+                          >×</button>
+                        </div>
+                      ))}
+                      {availableFieldOptions.length > 0 && (
+                        <SelectBox
+                          dataSource={availableFieldOptions}
+                          valueExpr="value"
+                          displayExpr="label"
+                          value={null}
+                          placeholder="+ Add a field…"
+                          onValueChanged={e => e.value && handleAddField(e.value)}
+                          stylingMode="outlined"
+                          width="100%"
+                          height={26}
+                          style={{ marginTop: 4 }}
+                        />
+                      )}
+                    </>
+                  );
+                })()}
                 {needsRowPick && (
                   <>
                     <div className="binding-type-label" style={{ marginTop: 8 }}>
@@ -204,11 +275,6 @@ export default function WidgetBindingPopover({
                       height={26}
                     />
                   </>
-                )}
-                {willAutoWrap && (
-                  <div style={{ fontSize: 10, color: '#888', fontStyle: 'italic', marginTop: 8 }}>
-                    This query returns a single value — it'll be treated as a one-item list.
-                  </div>
                 )}
               </>
             )}
