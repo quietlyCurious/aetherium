@@ -25,6 +25,7 @@ import './App.data.css'; // Phase 2a data workspace
 import './App.detailsRadius.css'; // scoped border-radius override for details panel controls
 import './App.suppressLicenseBanner.css'; // hides the DevExtreme trial/eval banner — internal POC only
 import './App.thinScrollbars.css'; // thin, hover-only scrollbars — canvas and Runtime view only
+import './App.operator.css'; // Operator Interface concept shell (Now/Attention/Investigate/Work)
 import DataSourcesWorkspace from './DataSourcesWorkspace';
 import QueriesWorkspace from './QueriesWorkspace';
 import EntitiesWorkspace from './EntitiesWorkspace';
@@ -38,6 +39,7 @@ import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage';
 import ThemeWorkspace from './ThemeWorkspace';
+import OperatorWorkspace from './OperatorWorkspace';
 import DataListGrid from './DataListGrid';
 import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage, repairDuplicateContainerIds } from './pagesStorage';
 import ScreensPanel from './ScreensPanel';
@@ -438,7 +440,7 @@ function AetheriumEditor() {
   const [focusMode, setFocusMode] = useState('follow');
   const [showGap, setShowGap] = useState(true);
   const [coordMode, setCoordMode] = useState('reposition');
-  const [currentView, setCurrentView] = useState('screens'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'
+  const [currentView, setCurrentView] = useState('screens'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator'
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedWidgetName, setSelectedWidgetName] = useState(null);
   // Breakpoint / device preview
@@ -1403,35 +1405,50 @@ function AetheriumEditor() {
               >
                 Scripts
               </div>
+              <div className="app-titlebar-dropdown-divider" />
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'operator' ? ' active' : ''}`}
+                onClick={() => handleNavigate('operator')}
+              >
+                Operator Interface
+              </div>
             </div>
           )}
         </div>
-        <button
-          onClick={() => {
-            if (!activePageId) {
-              window.alert('Save this screen first, then Launch will open its runtime view in a new tab.');
-              return;
-            }
-            const url = `${window.location.origin}${window.location.pathname}?runtime=${activePageId}`;
-            window.open(url, '_blank');
-          }}
-          title={activePageId ? 'Open a chrome-free runtime view of this screen in a new tab' : 'Save this screen first'}
-          style={{
-            marginLeft: 'auto',
-            marginRight: 8,
-            fontSize: 12,
-            fontWeight: 600,
-            padding: '5px 14px',
-            borderRadius: 6,
-            border: '1px solid rgba(255,255,255,0.35)',
-            background: 'rgba(255,255,255,0.08)',
-            color: '#fff',
-            cursor: 'pointer',
-          }}
-        >
-          ▶ Launch
-        </button>
+        {currentView !== 'operator' && (
+          <button
+            onClick={() => {
+              if (!activePageId) {
+                window.alert('Save this screen first, then Launch will open its runtime view in a new tab.');
+                return;
+              }
+              const url = `${window.location.origin}${window.location.pathname}?runtime=${activePageId}`;
+              window.open(url, '_blank');
+            }}
+            title={activePageId ? 'Open a chrome-free runtime view of this screen in a new tab' : 'Save this screen first'}
+            style={{
+              marginLeft: 'auto',
+              marginRight: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '5px 14px',
+              borderRadius: 6,
+              border: '1px solid rgba(255,255,255,0.35)',
+              background: 'rgba(255,255,255,0.08)',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            ▶ Launch
+          </button>
+        )}
         {(() => {
+          // Launch/Save are both hidden entirely for 'operator' — this is a
+          // concept shell with no page/save concept of its own yet, and the
+          // person asked to have both controls hidden (not just disabled)
+          // for this view specifically.
+          if (currentView === 'operator') return null;
+
           // Only 'screens' and 'entities' have a title-bar Save concept.
           // Everything else (widgets, theme, datasources, queries, scripts)
           // either auto-saves on every keystroke already or has nothing to
@@ -1446,6 +1463,7 @@ function AetheriumEditor() {
             theme:        { enabled: false, label: 'Nothing to save on this screen' },
             widgets:      { enabled: false, label: 'Nothing to save on this screen' },
             scripts:      { enabled: false, label: 'Nothing to save on this screen' },
+            operator:     { enabled: false, label: 'Nothing to save on this screen' },
           }[currentView] || { enabled: false, label: 'Nothing to save on this screen' };
 
           return (
@@ -1590,6 +1608,9 @@ function AetheriumEditor() {
               <div className="data-workspace-placeholder-badge">Phase 3 · planned</div>
             </div>
           </div>
+
+        ) : currentView === 'operator' ? (
+          <OperatorWorkspace />
 
         ) : (
           <Splitter orientation="horizontal" style={{ height: '100%' }}>
