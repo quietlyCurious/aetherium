@@ -1,0 +1,3560 @@
+Yes — and I think there’s a really interesting opportunity here to define what an operator interface becomes when it no longer has to be primarily a collection of screens.
+
+Your current plan is strong. I’d turn it into four phases:
+
+Understand the operator’s world
+Model the decisions and operating modes
+Define the role of AI
+Design the next-generation interaction model
+
+That middle step is important. If we jump directly from “operators do these tasks” to “how could AI help?”, we risk creating a traditional HMI/MES experience with a chatbot bolted onto it. The more interesting question is: what information, decisions, actions, and coordination does the operator actually need at each moment—and how should the system dynamically organize itself around that?
+
+That direction also lines up nicely with current thinking in the field. ISA-101 continues to emphasize operator awareness, usability, navigation, graphics and alarm presentation, while NIST’s manufacturing work is explicitly looking at productive human/machine teaming and “augmented intelligence,” rather than simply replacing the human with automation.
+
+1. Understand the operator’s world
+
+I would resist starting with screens or even features. Start with a day-in-the-life / shift-in-the-life model.
+
+And because you're covering both automation operators and manufacturing operators, I’d deliberately study several archetypes rather than trying to create one mythical “Operator.”
+
+For example:
+
+Control-room / process operator
+Monitors continuous or batch processes, responds to alarms, adjusts setpoints, coordinates field personnel, troubleshoots abnormal conditions.
+
+Machine / line operator
+Runs a machine or production area, performs changeovers, clears jams, checks quality, replenishes materials, records downtime, performs inspections.
+
+Lead operator / line lead
+Coordinates people and equipment, watches production targets, reallocates labor, escalates problems, participates in shift meetings.
+
+Hybrid / highly automated operator
+Oversees several assets rather than directly operating one machine; intervention becomes increasingly exception-driven.
+
+Then study their work across a whole shift, not merely while something is wrong.
+
+I’d capture things like:
+
+Dimension	Questions to research
+Start of shift	What do they need to know immediately? What happened on the previous shift?
+Normal operations	What do they watch? What do they mentally compare?
+Abnormal operations	How do they notice something is wrong?
+Diagnosis	What systems, people and historical information do they consult?
+Intervention	What can they change themselves? What requires approval?
+Coordination	Who do they call—maintenance, quality, supervisor, material handler?
+Documentation	What must they record, acknowledge, classify or explain?
+Meetings	Tier meetings, shift handoff, production meeting, quality review, safety meeting?
+Planned work	Changeovers, cleaning, inspections, PMs, sampling, recipe changes
+End of shift	What knowledge must be transferred to the next person?
+
+And I would specifically capture workarounds.
+
+Those are incredibly valuable.
+
+“What information do you keep on paper because the system doesn't show it?”
+
+“What spreadsheet do you use?”
+
+“What do you write on the whiteboard?”
+
+“What screen do you leave open all day?”
+
+“What alarm do you ignore?”
+
+“What does an experienced operator know that a new operator doesn't?”
+
+That last question becomes particularly important for AI.
+
+2. Model decisions, not just tasks
+
+This is the piece I’d add to your plan.
+
+Once we understand what operators do, transform the research into a decision inventory.
+
+For example:
+
+Machine speed is dropping.
+
+A task analysis might say:
+
+Operator checks machine status.
+
+But the actual cognitive work may be:
+
+Is this normal variation, an emerging problem, or something requiring immediate intervention?
+
+Then:
+
+What changed?
+
+Is it upstream, here, or downstream?
+
+Has this happened before?
+
+Will it recover itself?
+
+What happens if I do nothing?
+
+What action is safest?
+
+Who else needs to know?
+
+That gives us a much richer design target.
+
+I’d document every important decision using something like:
+
+Signal → Interpretation → Decision → Action → Verification
+
+For example:
+
+Conveyor accumulation rising
+↓
+Downstream machine appears constrained
+↓
+Is intervention required?
+↓
+Slow upstream / inspect downstream / call maintenance
+↓
+Did accumulation recover?
+
+Now suddenly the role of the interface becomes very clear.
+
+It should help the operator move through that chain.
+
+3. Understand operator modes
+
+I think this could become one of the foundations of the eventual interface.
+
+Operators don't have one information need. Their needs change depending upon what mode they're in.
+
+I’d probably start with something like:
+
+Orient
+
+“What is happening?”
+
+Start of shift. Returning from break. Walking up to a machine. Taking over from another operator.
+
+Monitor
+
+“Is everything okay?”
+
+Normal production.
+
+Investigate
+
+“Something seems wrong. Why?”
+
+Anomaly, alarm, quality deviation, performance drop.
+
+Act
+
+“What should I do?”
+
+Corrective action, setpoint adjustment, procedure, escalation.
+
+Verify
+
+“Did that fix it?”
+
+Watch recovery and unintended consequences.
+
+Coordinate
+
+“Who else needs to know or do something?”
+
+Maintenance, quality, production leadership, material handling.
+
+Handoff
+
+“What does the next person need to know?”
+
+Shift transition, maintenance handoff, escalation.
+
+This matters enormously for AI because the appropriate behavior changes.
+
+During Monitor, AI should probably be quiet.
+
+During Investigate, AI can become much more active.
+
+During Act, AI needs strong controls, explainability and confirmation.
+
+During Handoff, AI could summarize hours of operational history.
+
+That feels much more natural than imagining a permanently open chat window.
+
+4. Map pains and gains
+
+Your instinct here is exactly right, but I'd classify them.
+
+Information pain
+
+“Everything exists, but I have to find it.”
+
+Too many screens. Too many systems. Poor context.
+
+Attention pain
+
+“Everything is asking for my attention.”
+
+Alarm floods are a classic example. Alarm management remains significant enough that IEC 62682 specifically governs alarm systems presented through control systems and HMIs.
+
+Interpretation pain
+
+“I can see the data but don't know what it means.”
+
+Five trends move simultaneously.
+
+Knowledge pain
+
+“I know Joe has seen this problem before.”
+
+Tribal knowledge.
+
+Coordination pain
+
+“I know what needs to happen, but now I have to find someone.”
+
+Execution pain
+
+“The system tells me something is wrong but doesn't help me resolve it.”
+
+Documentation pain
+
+“I just fixed the problem; now I need to spend ten minutes explaining what happened.”
+
+That taxonomy will become useful later because different AI capabilities address different pains.
+
+5. Then ask: what jobs should AI perform?
+
+Rather than starting with “AI assistant”, I'd start with a set of AI roles.
+
+For instance:
+
+Observer
+Continuously evaluates system state.
+
+“Filler discharge pressure has been drifting for 18 minutes.”
+
+Filter
+Determines what deserves attention.
+
+“There are 17 active alerts, but two appear consequential.”
+
+Interpreter
+Explains what the signals collectively mean.
+
+“The throughput loss appears downstream-driven rather than a filler constraint.”
+
+Investigator
+Pulls context from multiple systems.
+
+“This pattern occurred three times this month. Each event followed a CIP cycle.”
+
+Advisor
+Recommends next steps.
+
+“Inspect valve XV-104 before increasing pump speed.”
+
+Executor
+Performs permitted actions.
+
+“Create a maintenance request.”
+
+Coordinator
+Communicates with others.
+
+“Maintenance has been notified and the shift lead has been updated.”
+
+Recorder
+Documents work automatically.
+
+“I captured the downtime reason and added the intervention to the shift log.”
+
+Teacher
+Provides just-in-time guidance.
+
+“Would you like the recovery procedure?”
+
+That is a fundamentally different vision from:
+
+Operator types question → chatbot answers question.
+
+And I think that's where the real “next generation” experience lies.
+
+6. Think carefully about AI initiative
+
+One of the biggest design questions is:
+
+Who starts the interaction?
+
+There are probably four levels.
+
+Operator initiated
+
+“Why is Line 3 slowing down?”
+
+AI suggested
+
+“I noticed an unusual pressure pattern. Want me to investigate?”
+
+AI proactive
+
+“Line 3 is developing a downstream constraint. At the current rate, the buffer will reach capacity in approximately 12 minutes.”
+
+AI autonomous
+
+“I reduced upstream speed 4% to prevent buffer saturation.”
+
+Those are radically different interaction models.
+
+And they require different levels of confidence, risk, authorization and trust.
+
+NIST's research on AI trust is relevant here: user trust depends partly upon the task and the consequence of trusting the system, meaning an AI recommendation for a low-risk informational task shouldn't necessarily be treated the same way as AI controlling an industrial process.
+
+I'd make AI autonomy level one of the explicit dimensions of the research.
+
+7. Research where operators currently spend attention
+
+Another exercise I'd recommend is creating an operator information ecosystem map.
+
+Not merely “what HMI do they use?”
+
+Something more like:
+
+Control system / HMI
+Process state, alarms, controls
+
+MES
+Orders, production, downtime, genealogy
+
+Quality
+Specs, tests, deviations
+
+Maintenance / CMMS
+Work orders, equipment history
+
+ERP / scheduling
+Production targets, materials
+
+Work instructions / SOPs
+
+Shift logs
+
+Andon / alerts
+
+Radio / Teams / phone
+
+Paper
+
+Spreadsheets
+
+Whiteboards
+
+Then ask:
+
+What if the operator no longer had to understand which system contained the answer?
+
+That could become a major design principle.
+
+The next-generation experience may provide a unified operational context, while AI retrieves information from those underlying systems.
+
+8. Only then define the interface architecture
+
+And here I think things get REALLY fun.
+
+I wouldn't start with:
+
+Dashboard + navigation + AI chat.
+
+I'd explore something more like:
+
+Operational picture
+
+The persistent understanding of what's happening now.
+
+Assets, process, production, current state.
+
+Attention
+
+What needs me?
+
+Anomalies, risks, alarms, upcoming constraints.
+
+Work
+
+What do I need to do?
+
+Tasks, inspections, changeovers, interventions, requested actions.
+
+Investigation
+
+Help me understand this.
+
+Trends, causal relationships, historical comparison, AI reasoning.
+
+Collaboration
+
+Who else is involved?
+
+Maintenance, quality, supervisor, shift team.
+
+And then AI is not one of those areas.
+
+AI is a capability woven through all of them.
+
+That distinction could be extremely important.
+
+Instead of having:
+
+Dashboard | Trends | Alarms | AI
+
+you might have:
+
+Now | Attention | Work | Investigate
+
+with AI operating throughout the whole experience.
+
+9. Explore interaction beyond chat
+
+This is another research area I would definitely include.
+
+Generative AI makes people immediately think chat.
+
+But chat is probably only one interaction mode.
+
+An industrial AI interface might include:
+
+Proactive cards
+
+“Cooling performance declining.”
+
+Inline explanations
+
+Click a strange value →
+“Explain this.”
+
+Contextual follow-ups
+
+Why?
+Show evidence
+What changed?
+What should I do?
+
+Natural-language navigation
+
+“Show me the packaging line.”
+
+Natural-language visualization
+
+“Compare this temperature with the previous three batches.”
+
+AI-generated views
+
+Instead of navigating through 12 screens:
+
+“Show me everything relevant to this issue.”
+
+And the UI temporarily assembles the useful trends, alarms, maintenance events and process relationships.
+
+That last one is particularly exciting to me.
+
+The interface itself could become partially generative.
+
+10. Study trust explicitly
+
+For an operator system, I'd make this a first-class research topic.
+
+Operators will need answers to questions like:
+
+Why are you telling me this?
+
+What evidence are you using?
+
+How confident are you?
+
+What happens if I follow your recommendation?
+
+Can I undo this?
+
+Who authorized this action?
+
+Did AI change something?
+
+So I would test things such as:
+
+Recommendation
+Evidence
+Confidence
+Expected outcome
+Risk
+Action
+
+rather than simply presenting:
+
+AI says: Increase temperature 3°C.
+
+Human oversight is also explicitly emphasized in NIST's AI risk guidance.
+
+The research artifacts I'd try to produce
+
+If we do this thoroughly, I think we want to end up with about seven artifacts:
+
+1. Operator archetypes
+Who we're designing for.
+
+2. Shift journey
+What happens over the course of their day.
+
+3. Task inventory
+Things they actually do.
+
+4. Decision inventory
+Things they must understand and decide.
+
+5. Pain/gain map
+Where current systems help or fail.
+
+6. Human/AI responsibility matrix
+What human does, what AI observes, recommends, performs.
+
+7. Next-generation interaction model
+The eventual conceptual UI architecture.
+
+Those seven things would give you a very defensible line from:
+
+research → insight → design principle → interface
+
+rather than “we made a cool AI HMI.”
+
+And there is one principle I'd keep pinned to the wall
+
+I think the central transition you're exploring may ultimately be something like:
+
+Traditional operator experience
+
+Give me the information so I can figure out what needs my attention.
+
+versus:
+
+Next-generation operator experience
+
+Tell me what deserves my attention, help me understand why, and help me resolve it.
+
+That doesn't mean removing conventional process views, trends, alarms, controls or operator judgment. High-performance HMI thinking has long emphasized making normal versus abnormal conditions easier to perceive, rather than simply making screens visually impressive.
+
+AI lets us take that principle much, much further.
+
+Instead of merely making abnormal conditions perceptually obvious, the system can potentially recognize, contextualize, explain, prioritize, and assist with them.
+
+And that, I think, is where your “next generation Operator” concept starts becoming genuinely different rather than just prettier. 😄
+
+If you're game, I would actually start our next pass at the very beginning and build an Operator Work Model together: a comprehensive map of what an operator does from arriving for a shift through handoff, including routine tasks, abnormal situations, interactions with other roles, meetings, systems, decisions, pains, and unofficial workarounds. That would give us the raw material for everything else.
+
+And I am very glad we didn't skip this step, because Pass 3 is giving us the bridge we wanted: operator work → operator decisions → information requirements → eventual interaction design.
+
+Research Pass 3: Operator Decision & Information Model
+
+The biggest finding is this:
+
+Operators don't primarily consume information. They use information to continuously answer questions.
+
+That sounds obvious, but it has huge interface implications.
+
+A traditional system tends to be organized around data sources and equipment:
+
+Alarms → Trends → Equipment → Production → Quality → Maintenance
+
+The operator's cognitive work is organized around questions:
+
+Are we okay?
+What's changing?
+Does this matter?
+Why is it happening?
+What should I do?
+What will happen if I do nothing?
+Did my action work?
+
+Human-factors research on process operations maps closely to this. Situation awareness is commonly described through three levels: perceiving relevant conditions, comprehending what they mean, and projecting their likely future state. Process interfaces should therefore support all three—not merely expose sensor values.
+
+Manufacturing research points in the same direction from a different angle: shop-floor IT systems have historically underserved workers' process-oriented information needs, creating extra searching, waiting, and communication.
+
+That gives us our foundation.
+
+Part I — The Universal Operator Decision Loop
+
+After the first three research passes, I think we can now make our common work loop more precise:
+
+1. ORIENT
+
+What situation am I responsible for?
+
+2. EVALUATE
+
+Is operation acceptable right now?
+
+3. ANTICIPATE
+
+Where is it heading?
+
+4. TRIAGE
+
+What deserves my attention?
+
+5. DIAGNOSE
+
+What is causing this?
+
+6. SELECT RESPONSE
+
+What should be done?
+
+7. EXECUTE / COORDINATE
+
+Who or what should act?
+
+8. VERIFY
+
+Did the response produce the intended result?
+
+9. PRESERVE CONTEXT
+
+What should be remembered or communicated?
+
+This isn't meant to imply operators consciously walk through nine steps every time.
+
+An expert might collapse:
+
+notice → diagnose → decide
+
+into a two-second recognition.
+
+But these are the underlying decision needs.
+
+And importantly, research on cognitive work analysis in manufacturing explicitly uses approaches such as control-task analysis and the decision ladder to model these kinds of operator cognitive demands and to determine where technology can appropriately assist.
+
+Decision 1 — “What am I inheriting?”
+ORIENT
+
+This occurs at:
+
+shift start
+return from break
+workstation reassignment
+taking control after maintenance
+startup
+handover between roles
+Information needed
+
+Current state
+
+running/stopped/idle
+operating mode
+rate/load
+current product/batch/order
+
+Recent history
+
+faults
+abnormal events
+interventions
+quality problems
+production losses
+
+Outstanding conditions
+
+unresolved problems
+bypasses/overrides
+impaired equipment
+open maintenance work
+temporary operating practices
+
+Future intent
+
+production plan
+upcoming changeovers
+maintenance
+testing
+inspections
+Decision
+
+Is there anything I must understand or address before assuming normal operation?
+
+Consequence of being wrong
+
+Potentially substantial, particularly in process industries.
+
+Shift-handover guidance explicitly emphasizes that incoming staff require more than a raw log: the transfer should meet their information needs, be written and verbal, support clarification, and convey current operating conditions and unusual circumstances.
+
+Current burden
+
+Reconstruction.
+
+The operator may have to reconstruct a meaningful story from disconnected events.
+
+AI-value hypothesis ○
+
+Summarize by significance, not chronology.
+
+Instead of:
+
+06:14 alarm
+06:16 reset
+06:32 work order
+07:03 alarm
+07:08 normal
+
+give:
+
+Recurring feed problem remains unresolved. Two resets restored operation temporarily; maintenance inspection is pending.
+
+That is a fundamentally different information product.
+
+Decision 2 — “Are we operating normally?”
+EVALUATE
+
+This is the continuous background judgment.
+
+Manufacturing operator evidence
+
+Likely combines:
+
+machine state
+cycle/rate
+product movement
+WIP/accumulation
+quality
+reject behavior
+material availability
+sounds/visual cues
+planned target
+Process operator evidence
+
+Likely combines:
+
+process variables
+alarms
+trends
+control-loop behavior
+equipment state
+process relationships
+quality/lab data
+operating envelope
+Important distinction
+
+The question usually isn't:
+
+“Is temperature 172°?”
+
+It is:
+
+“Is 172° appropriate given everything else happening?”
+
+That means context changes meaning.
+
+The same value could be:
+
+normal in one product
+unusual in another
+expected during startup
+dangerous during steady-state operation
+
+This also explains why naïve “AI anomaly detection” isn't enough.
+
+Anomaly ≠ problem.
+
+Decision
+
+Can I remain in monitor mode, or do I need to investigate?
+
+AI-value hypothesis ○
+
+Instead of simply detecting statistical deviation:
+
+“Pressure is unusual.”
+
+the system should eventually attempt:
+
+“Pressure is unusual for this operating state, but consistent with the current ramp-up and does not presently require intervention.”
+
+That is much closer to useful decision support.
+
+Decision 3 — “Where is this heading?”
+ANTICIPATE
+
+I think this is one of our most important next-generation opportunities.
+
+Research on situation awareness explicitly includes projection of future status as the highest of its three classic levels. Operators need not only perception and comprehension but some ability to anticipate what happens next.
+
+Questions
+Is this trend stable?
+Is it accelerating?
+How much margin remains?
+When will it become consequential?
+What downstream effect might occur?
+Will the system recover?
+What happens if no action is taken?
+Manufacturing examples
+
+Buffer currently 72% full.
+
+Not very helpful by itself.
+
+More useful:
+
+At the current accumulation rate, the buffer will reach its operating limit in approximately 11 minutes.
+
+Or:
+
+Current production target will likely be missed by 4.5% if micro-stop frequency continues.
+
+Process example
+
+Instead of:
+
+Vessel temperature increasing.
+
+perhaps:
+
+Temperature remains within limits but is rising faster than during comparable batches.
+
+Decision
+
+Should I intervene before a formal limit is reached?
+
+This changes the role of alarms
+
+Alarm systems fundamentally notify operators of conditions requiring timely assessment/action. HSE explicitly says alarms should direct attention toward conditions requiring response and provide enough time for that response before escalation.
+
+A next-generation system could supplement that with weak-signal awareness before an alarm exists.
+
+Interestingly, a 2026 ISA-published book on process situation management explicitly discusses weak signals as a supplement to alarms for operator situation awareness.
+
+That feels very relevant to what we're imagining.
+
+Decision 4 — “What deserves my attention?”
+TRIAGE
+
+This is different from merely determining whether something is abnormal.
+
+Operators may simultaneously have:
+
+8 alarms
+2 overdue tasks
+production below target
+maintenance waiting
+a quality sample due
+an upcoming changeover
+one slowly deteriorating machine
+
+The question becomes:
+
+What should I care about first?
+
+Information needed
+
+For every candidate issue:
+
+Severity
+How bad is it?
+
+Urgency
+How quickly must I act?
+
+Trajectory
+Is it worsening?
+
+Impact
+Safety? Quality? Production? Equipment?
+
+Recoverability
+Will it resolve itself?
+
+Responsibility
+Is this actually mine?
+
+Dependencies
+Will ignoring it create another problem?
+
+Alarm research strongly supports this general problem. Poor alarm systems can overload operators and degrade situational awareness; alarm management therefore emphasizes relevance, priority, defined response, and human response capability—not simply detection.
+
+Human-in-the-loop simulation has also found that rationalized/state-based alarming can reduce workload and improve process-control performance during abnormal conditions.
+
+Design implication
+
+I think Attention should eventually be much more sophisticated than:
+
+Critical / Warning / Information
+
+It may need something closer to:
+
+ACT NOW
+INVESTIGATE
+WATCH
+NO ACTION
+
+And AI could continuously recalculate that prioritization based on context.
+
+Decision 5 — “What is actually happening?”
+DIAGNOSE
+
+This might be the most cognitively expensive operator decision.
+
+Research describes fault diagnosis in process control as a high-level cognitive task requiring multiple inputs and prediction of the outcomes of possible interventions.
+
+The operator needs three types of evidence
+A. Current evidence
+
+What is happening now?
+
+signals
+states
+alarms
+product
+equipment
+physical observations
+B. Historical evidence
+
+What led here?
+
+trends
+preceding alarms
+mode changes
+settings
+interventions
+prior shift actions
+C. Comparative evidence
+
+Have we seen something like this before?
+
+previous incidents
+normal baseline
+similar batch/order
+same equipment fault
+maintenance history
+
+And perhaps a fourth:
+
+D. Relational evidence
+
+What else changed at the same time?
+
+This matters enormously.
+
+Traditional historian interaction might make the operator manually select:
+
+pressure
+flow
+valve position
+motor current
+upstream rate
+downstream rate
+
+because an experienced person knows those signals should be compared.
+
+A smarter system might know the functional relationships surrounding the problem.
+
+Research using causal maps in process control found preliminary evidence that adding structured causal information helped participants develop useful understanding of abnormal events without necessarily increasing overall task load.
+
+AI opportunity ○
+
+AI should be able to answer:
+
+“Why do you think that?”
+
+with evidence.
+
+Not:
+
+“I think Pump P102 is failing.”
+
+but:
+
+Pump P102 is one possible source.
+
+Supporting evidence:
+
+discharge pressure falling
+motor current rising
+inlet pressure stable
+valve command unchanged
+
+Alternative:
+downstream restriction remains possible.
+
+That produces assisted reasoning rather than outsourced reasoning.
+
+Decision 6 — “What should I do?”
+SELECT RESPONSE
+
+Once a likely interpretation exists, operators must choose among possible responses.
+
+Information needed
+available actions
+procedure
+expected result
+contraindications
+safety constraints
+production impact
+quality impact
+previous successful actions
+authority/permissions
+whether someone else needs to act
+Manufacturing example
+
+Problem:
+
+Repeated label feed failure.
+
+Options might include:
+
+reset
+clean sensor
+inspect material
+reduce speed
+change roll
+call maintenance
+stop production
+
+The best action depends on:
+
+severity + recurrence + operating state + product + previous attempts + risk
+
+Process example
+
+Possible intervention may require predicting how multiple coupled variables respond.
+
+That is precisely why an AI system should be cautious about presenting a single action as the answer.
+
+Better model
+
+Options + rationale + consequences
+
+For example:
+
+Recommended: Reduce line speed 5% and inspect label feed.
+
+Why: Maintains production while lowering feed demand.
+
+Expected: accumulation should stabilize within ~4 minutes.
+
+Alternative: Continue operating and monitor.
+
+Risk: repeated feed faults are currently increasing.
+
+This seems far more useful than:
+
+“Reduce line speed.”
+
+Decision 7 — “Can I trust this recommendation?”
+
+This is technically a new decision introduced by AI.
+
+And it deserves its own place in our model.
+
+The moment AI starts advising rather than simply retrieving information, the operator must evaluate:
+
+Why does it believe this?
+How certain is it?
+What evidence did it use?
+Does it understand my current operating state?
+Has this worked before?
+What happens if it's wrong?
+
+That means AI creates cognitive work too
+
+We should not assume:
+
+AI assistance = reduced workload.
+
+Poor AI could simply replace:
+
+interpreting process data
+
+with:
+
+interpreting mysterious AI recommendations.
+
+Alarm-management research makes the same broader point: technology only helps when its presentation supports human response capability.
+
+Design hypothesis ○
+
+Any consequential AI recommendation should eventually expose at least:
+
+Recommendation
+
+Why
+
+Evidence
+
+Confidence / uncertainty
+
+Expected consequence
+
+Ability to inspect further
+
+Not necessarily all visible simultaneously—but accessible.
+
+Decision 8 — “Who should act?”
+EXECUTE / COORDINATE
+
+The answer isn't always “me.”
+
+Potential actors:
+
+operator
+another operator
+maintenance
+quality
+supervisor
+engineer
+automated system
+Decision dimensions
+
+Capability — who can resolve it?
+
+Authority — who is permitted?
+
+Location — does it require someone physically present?
+
+Urgency — is escalation required?
+
+Specialization — maintenance vs quality vs operations?
+
+This suggests an interesting AI capability
+
+The system could understand organizational context:
+
+This requires maintenance intervention.
+
+Equipment can continue running at reduced rate.
+
+Maintenance request prepared with diagnostic evidence attached.
+
+The operator isn't merely choosing a technical action.
+
+They're choosing a response pathway.
+
+Decision 9 — “Did it work?”
+VERIFY
+
+This is surprisingly important.
+
+Human beings are vulnerable to what we might loosely call premature closure:
+
+“I did something. The alarm cleared. Done.”
+
+But those aren't necessarily equivalent.
+
+Verification requires knowing:
+
+What should change?
+
+How quickly?
+
+What else should remain stable?
+
+What constitutes recovery?
+
+Example:
+
+Operator reduces speed.
+
+Success isn't:
+
+button accepted.
+
+It might be:
+
+micro-stop rate falls
+accumulation stabilizes
+output becomes consistent
+reject rate remains acceptable
+
+AI opportunity ○
+
+Before execution:
+
+Expected recovery signals
+
+After execution:
+
+✓ Flow stabilized
+✓ Buffer decreasing
+✓ Quality unchanged
+○ Monitoring recurrence for 10 min
+
+Now the interface closes the decision loop.
+
+Decision 10 — “What should become shared knowledge?”
+PRESERVE CONTEXT
+
+Once the immediate work is complete:
+
+Is this worth recording?
+Does maintenance need it?
+Does the next shift need it?
+Does supervision need it?
+Does this represent a recurring pattern?
+
+That means documentation isn't merely administration.
+
+It's part of organizational memory.
+
+And the underlying value of good digital assistance may be partly its ability to externalize knowledge that otherwise remains in individual workers' heads. Manufacturing research describes assistance systems as cognitive aids that can reduce memory demands and preserve process knowledge, while also warning that rigid assistance can reduce operator flexibility.
+
+That balance is important.
+
+Now let's compare the decision anatomy of our two archetypes
+
+Here's where Pass 3 becomes especially useful.
+
+Decision	Manufacturing / Line Operator	Process / Control-Room Operator
+What state am I inheriting?	Order, line, materials, quality, equipment	Process mode, equipment availability, overrides, abnormalities
+Are we okay?	Rate, flow, quality, machine behavior	Process stability, operating envelope, control behavior
+Where are we heading?	Target attainment, buffer condition, deterioration	Process trajectory, constraints, excursion risk
+What needs attention?	Stops, defects, starvation/blocking, work tasks	Alarms, deviations, process interactions
+What's causing it?	Machine/material/upstream/downstream	Process/equipment/control interactions
+What should I do?	physical correction, adjustment, restart, escalation	control action, procedure, field intervention, escalation
+Who acts?	self/maintenance/quality/lead	console/field/maintenance/supervisor
+Did it work?	production/quality/flow recovery	stable process/desired response
+What should be remembered?	downtime, recurring equipment issue, quality	event, operating change, abnormal condition, handoff
+
+And again:
+
+the evidence differs.
+
+The cognitive questions are remarkably similar.
+
+That is terrific news for our eventual universal interface model.
+
+A second major finding: information has different roles
+
+I think we should stop classifying operator information only by source.
+
+Instead, classify it by what it does for the decision.
+
+STATUS
+
+What is true now?
+
+Example: Line speed = 118/min.
+
+BASELINE
+
+What should I expect?
+
+Example: Normal = 118–125/min.
+
+CHANGE
+
+What changed?
+
+Example: Rate began falling 14 minutes ago.
+
+RELATIONSHIP
+
+What else is connected?
+
+Example: Rate fell as downstream accumulation increased.
+
+HISTORY
+
+Has this happened before?
+
+Example: Similar pattern occurred three times this week.
+
+CONSEQUENCE
+
+Why should I care?
+
+Example: At current trajectory, target will be missed.
+
+OPTIONS
+
+What can I do?
+
+Example: reduce upstream speed / inspect labeler / continue monitoring.
+
+GUIDANCE
+
+How do I safely do it?
+
+Procedure/instructions.
+
+FEEDBACK
+
+Did it work?
+
+Recovery indicators.
+
+This taxonomy could become incredibly useful when we start deciding what belongs on screen at any moment.
+
+Instead of putting everything everywhere, we ask:
+
+What role does this information play in the current decision?
+
+And that gives us an “information ladder”
+
+Here's a model I particularly like coming out of this pass:
+
+DATA
+
+118 bottles/min
+
+↓
+
+CONTEXT
+
+Target = 125
+
+↓
+
+CHANGE
+
+Down 7% over 15 minutes
+
+↓
+
+MEANING
+
+Downstream restriction developing
+
+↓
+
+CONSEQUENCE
+
+Buffer likely full in ~11 minutes
+
+↓
+
+OPTIONS
+
+Inspect labeler / reduce upstream rate
+
+↓
+
+ACTION
+
+Reduce speed 5%
+
+↓
+
+OUTCOME
+
+Flow recovered
+
+Traditional operational systems are excellent at the bottom of that ladder:
+
+DATA.
+
+Some modern analytics products move upward toward:
+
+CHANGE.
+
+A next-generation operator experience could help move the human toward:
+
+MEANING → CONSEQUENCE → OPTIONS
+
+while preserving access downward to the evidence.
+
+That may be one of the clearest descriptions we've found yet of the design opportunity.
+
+But manufacturing gives us an important warning
+
+We shouldn't assume that “more assistance” is always better.
+
+Research into intelligent manufacturing assistance systems has found trade-offs: such systems can improve feedback and information processing while potentially reducing workers' autonomy over scheduling, methods, or decisions.
+
+Similarly, user-centered research on manufacturing guidance systems has emphasized simple systems and voluntary use rather than assuming workers always want maximal intervention.
+
+I think that's incredibly relevant for AI.
+
+Another principle for our wall:
+
+Assist the operator's judgment; don't unnecessarily confiscate it.
+
+An expert operator saying:
+
+“Get out of my way—I know what's happening”
+
+should probably be a supported interaction mode.
+
+The Decision-Risk Matrix
+
+Before we ever decide how autonomous AI should be, I think every operator decision should eventually receive three ratings:
+
+URGENCY
+
+How quickly must this decision happen?
+
+CONSEQUENCE
+
+How costly is a wrong decision?
+
+REVERSIBILITY
+
+How easily can the action be undone?
+
+That gives us very different AI behaviors.
+
+For example:
+
+Decision	Urgency	Consequence	Reversibility	Potential AI posture
+Which trend to show	Low	Low	High	Do automatically
+Prioritize likely problem	Medium	Medium	High	Proactively suggest
+Draft maintenance ticket	Low	Low	High	Prepare automatically
+Reduce line speed slightly	Medium	Medium	High-ish	Recommend / confirm
+Change critical process setpoint	High	High	Variable	Strong human control
+Safety shutdown	High	Very high	Low	Governed deterministic system/procedure
+
+This is going to stop us from falling into the trap of:
+
+“Should AI be autonomous?”
+
+That's the wrong question.
+
+The right question is:
+
+For which decisions, under which conditions, should AI have which level of initiative and authority?
+
+Much better.
+
+Our Operator Decision Inventory — V1
+
+I think we've now got enough evidence to formally establish our first version:
+
+Operator question	Work mode	Primary information need	Cognitive work
+What am I inheriting?	Orient	state + history + unfinished work	reconstruct
+Are we okay?	Monitor	state + baseline	compare
+Where is this heading?	Anticipate	trend + limits + forecast	project
+What deserves attention?	Triage	severity + urgency + impact	prioritize
+What's happening?	Investigate	related current/history evidence	integrate
+Why is it happening?	Diagnose	causal/relational evidence	infer
+What can I do?	Decide	alternatives + constraints	evaluate
+Which response is best?	Decide	consequences + risk	judge
+Can I trust the recommendation?	AI-mediated	rationale + evidence + uncertainty	calibrate trust
+Who should act?	Coordinate	responsibility + authority + availability	route
+Did it work?	Verify	expected vs actual response	validate
+What should others know?	Communicate	relevant context	summarize
+What should we remember?	Document	event + interpretation + result	preserve knowledge
+
+I think that's probably the most useful artifact we've produced so far.
+
+And now I think we can articulate the operator's core need differently
+
+At the beginning of this project, we might have said:
+
+Operators need visibility into their operations.
+
+After three research passes, I'd rewrite that substantially:
+
+Operators need to maintain an accurate understanding of operational state, recognize meaningful changes, anticipate consequences, make timely decisions, execute or coordinate appropriate responses, and verify that the operation returns to an acceptable state.
+
+The interface is there to support that cognitive loop.
+
+Not to display data.
+
+Not to display dashboards.
+
+Not even fundamentally to display equipment.
+
+Those things are mechanisms.
+
+One tantalizing design implication—without jumping ahead 😇
+
+Our earlier conceptual navigation was:
+
+Now | Attention | Work | Investigate
+
+After Pass 3, I can finally explain why each exists.
+
+NOW
+
+Supports:
+
+Orient → Evaluate → Anticipate
+
+What is happening, and where is it heading?
+
+ATTENTION
+
+Supports:
+
+Triage
+
+What deserves me?
+
+INVESTIGATE
+
+Supports:
+
+Diagnose → Decide
+
+What's happening, why, and what could I do?
+
+WORK
+
+Supports:
+
+Execute → Coordinate → Verify
+
+What am I doing about it?
+
+And then operational memory quietly spans all four:
+
+What happened, what was learned, and what should carry forward?
+
+AI would span the entire cycle rather than live in an AI tab.
+
+That architecture is looking considerably less arbitrary now.
+
+I think our research phase has one important pass left
+
+I would make Research Pass 4 specifically about human–automation and human–AI interaction before we start designing.
+
+We've established:
+
+what operators do → where they struggle → what decisions they make → what information supports those decisions.
+
+Now we need evidence around:
+
+When should technology interrupt an operator?
+
+When should it stay quiet?
+
+What makes operators trust or distrust automation?
+
+How does automation bias/overreliance happen?
+
+What happens when automation is wrong?
+
+How should uncertainty be communicated?
+
+How does expertise change the desired assistance level?
+
+When should systems recommend versus execute?
+
+How do we preserve operator competence when AI does more cognitive work?
+
+What does good human-AI teaming look like in safety-critical environments?
+
+That research will give us the guardrails and interaction principles we need.
+
+Then — and I promise I'm also exercising restraint here 😂 — I think we will have earned the right to start designing the actual AI-assisted Next Generation Operator Experience.
+
+Wow - Tons of info here, all super interesting - but I admit I'm not sure how to consolidate/work through all of this into an interface which supports the Operator's cognitive loop.  Please - Let's proceed with research Pass 4 and  work through some of the human-automation/human-AI interaction considerations.
+
+Ohhh yes. And I think this is the pass where the mountain of research starts becoming manageable again. 😄
+
+I went into Pass 4 with one question in mind:
+
+If we know what cognitive work operators are doing, what rules should govern how AI participates in that work?
+
+The encouraging answer is that we do not need a different AI behavior for every operator task. The research collapses into a surprisingly small number of principles.
+
+Research Pass 4: Human–Automation & Human–AI Interaction
+1. The goal is not “trust the AI”
+
+This is probably the most important finding.
+
+Human–automation research distinguishes between appropriate/calibrated trust and simply maximizing trust. Too much trust leads to inappropriate reliance; too little means useful automation gets ignored.
+
+So we should not design the operator experience around:
+
+“How do we make operators trust AI?”
+
+We should design around:
+
+“How do we help operators know when AI deserves reliance—and when it doesn't?”
+
+That is a much healthier design goal.
+
+NIST's current Industrial AI work makes almost exactly this point: industrial AI needs methods for establishing appropriate levels of trust, communicating performance expectations, and making its logic and reasoning understandable to users.
+
+And NIST's new 2026 AI-for-Manufacturing initiative specifically calls out human-AI collaboration effectiveness, operator understanding, interpretability, traceability, and trust as measurement targets.
+
+Principle 1
+Calibrate trust; don't manufacture confidence.
+
+Which means the interface needs to let the operator recognize:
+
+AI knows this well.
+
+AI isn't sure about this.
+
+AI doesn't have enough information.
+
+Those are all successful AI behaviors.
+
+2. AI advice creates a new operator task: evaluating the AI
+
+We touched this in Pass 3, but the research makes it much more important.
+
+The moment the AI says:
+
+“I believe Pump P102 is degrading.”
+
+the operator's job becomes:
+
+“Should I believe you?”
+
+Human-AI systems can suffer from automation bias: people may accept automated recommendations even when those recommendations are wrong, particularly under workload, complexity, or time pressure. A systematic review found that trust, task complexity, time pressure, user confidence and experience all influence susceptibility.
+
+So merely putting this next to the recommendation:
+
+Confidence: 87%
+
+doesn't solve the problem.
+
+We need to support inspection.
+
+Instead of:
+
+🔴 Bearing failure likely
+87% confidence
+
+I'd prefer something like:
+
+Possible bearing degradation
+
+Why this surfaced:
+
+motor vibration increasing
+current rising
+output falling
+pattern differs from normal product-change behavior
+
+AI assessment: moderate confidence
+
+Compare previous events · See evidence
+
+The operator can interrogate the claim.
+
+Principle 2
+AI recommendations should be inspectable, not authoritative pronouncements.
+3. Explainability does NOT mean showing an AI essay
+
+This one made me smile because it validates something we've already been circling.
+
+Research into explainable recommendations shows that explanation can improve trust calibration—but poorly designed explanations can actually cause people to accept or reject recommendations less thoughtfully. Researchers have proposed designing explanations for active engagement, attention guidance and even intentional friction when appropriate.
+
+So we should not interpret “explainable AI” as:
+
+AI generates six paragraphs explaining itself.
+
+For an operator, explanation probably needs layers.
+
+Level 1 — Meaning
+
+Filler instability developing
+
+Level 2 — Why
+
+Pressure oscillation + valve cycling are increasing together.
+
+Level 3 — Evidence
+
+Actual signals, trends, events.
+
+Level 4 — Model/context
+
+Compared against previous 30 minutes and similar production runs.
+
+That gives us progressive disclosure.
+
+An expert might stop at Level 1.
+
+A novice might continue to Level 4.
+
+Principle 3
+Explain on demand, with evidence underneath the explanation.
+
+And importantly:
+
+“Why?” may become one of the most important interactions in the entire product.
+
+4. AI should earn the right to interrupt
+
+This is one I'm especially interested in.
+
+Traditional operator systems often treat notifications independently.
+
+Alarm happens:
+
+BEEP.
+
+Task overdue:
+
+notification.
+
+Maintenance message:
+
+notification.
+
+AI detects something:
+
+notification.
+
+Pretty soon we have simply invented another alarm source.
+
+And we already know what happens when systems overproduce demands on operator attention. Alarm floods degrade situational awareness; experimental work with control-room operators has shown that better alarm presentation and response strategies can improve performance.
+
+So our AI cannot behave like an enthusiastic coworker standing beside the operator saying:
+
+“Hey Amy! I noticed something!”
+
+every few minutes.
+
+😂
+
+Instead we need an initiative policy.
+
+I'd start with four levels.
+
+0 — Silent
+
+AI observes but does not interrupt.
+
+Normal operation.
+
+1 — Ambient
+
+AI changes the presentation without demanding attention.
+
+Minor deviation highlighted.
+
+2 — Proactive
+
+AI explicitly surfaces something.
+
+“Label feed instability is increasing.”
+
+3 — Interruptive
+
+AI demands operator attention.
+
+“Tank level is approaching an operating constraint. Action required.”
+
+And the jump between levels should depend on things like:
+
+Urgency × consequence × trajectory × confidence × operator context
+
+Not simply:
+
+anomaly detected = interrupt.
+
+Principle 4
+The cost of interruption should be part of every AI decision.
+
+That one belongs on our wall.
+
+5. Sometimes the best AI interaction is no interaction
+
+This follows directly.
+
+During healthy operation, the operator's job includes maintaining awareness.
+
+If AI continually says:
+
+Everything looks good!
+
+Everything still looks good!
+
+Good news—the pump is normal!
+
+we haven't assisted them.
+
+We've created cognitive noise.
+
+This suggests a behavioral rule:
+
+The better normal operation is going, the quieter the intelligence layer should become.
+
+Think of a competent human teammate.
+
+You don't want someone beside you narrating every observation.
+
+You want them to speak when:
+
+you missed something
+something materially changed
+they possess information relevant to your decision
+they need your action
+
+That is a much better model for AI.
+
+6. Automation can actually make operators worse at intervention
+
+This is our first major caution against simply automating as much cognitive work as possible.
+
+Decades of human-automation research describe the out-of-the-loop performance problem.
+
+As automation takes over more activity, human operators can lose situation awareness or become less prepared to diagnose and recover when automation behaves unexpectedly.
+
+This is particularly relevant to our operator concept.
+
+Imagine AI eventually does all of this:
+
+Detect problem
+Diagnose problem
+Choose response
+Execute response
+Verify recovery
+
+The operator may appear incredibly productive.
+
+Until the AI is wrong.
+
+Then suddenly we ask the human:
+
+“Your turn! Fix the unusual condition you haven't been actively reasoning about for the last four hours.”
+
+That's precisely the situation we want to avoid.
+
+NASA's current human-system standard offers a useful analogue from another safety-critical domain: automation should be designed around defined human roles, the human should generally retain ultimate authority, responsibilities should optimize the performance of the integrated human/automation team, and operators need to understand the basis and consequences of automated recommendations.
+
+Principle 5
+AI should reduce unnecessary cognitive labor without removing necessary operational understanding.
+
+That's subtly different from:
+
+automate everything possible.
+
+7. Therefore, AI should sometimes help the operator think—not think instead of them
+
+This may become one of our core philosophical positions.
+
+Compare:
+
+AI replacement
+
+Cause: valve failure.
+
+Replace valve.
+
+versus:
+
+AI assistance
+
+Evidence points toward valve instability.
+
+The strongest indicators are:
+
+command stable
+actual position oscillating
+downstream flow responding correspondingly
+
+Two alternatives remain plausible.
+
+The second keeps the operator's mental model alive.
+
+And perhaps the interface can sometimes ask:
+
+What are you seeing at the machine?
+
+That physical observation becomes another piece of evidence.
+
+This actually aligns wonderfully with NIST's Industrial AI model, which explicitly portrays actionable industrial intelligence as coming from a combination of physics, data insights, and human observations/intuition, rather than AI acting alone.
+
+That is almost tailor-made for our concept.
+
+8. Human and AI roles need to be explicit
+
+NIST's AI Risk Management Framework explicitly recommends defining and differentiating human and AI roles and responsibilities, including human oversight.
+
+This means we probably shouldn't have one generic concept of:
+
+“AI-assisted.”
+
+Instead every capability gets a delegation level.
+
+I'm increasingly liking this model:
+
+AI posture	AI does	Human does
+Observe	Detect patterns	Nothing
+Surface	Identify something worth attention	Decide whether to engage
+Explain	Assemble context/evidence	Interpret
+Recommend	Propose response	Decide
+Prepare	Stage the action/workflow	Review + approve
+Execute	Perform authorized action	Supervise/override
+Autonomous	Detect → decide → act	Oversight / exception handling
+
+And we should not pick one posture for the whole application.
+
+It should vary by task.
+
+9. Autonomy should scale inversely with consequence
+
+Our Decision-Risk Matrix from Pass 3 now becomes extremely useful.
+
+Consider these:
+
+“Show me the signals related to this fault.”
+
+AI can just do it.
+
+Low consequence + highly reversible
+
+→ high AI autonomy.
+
+“Create a maintenance request.”
+
+AI could draft the request and perhaps even create it under appropriate business rules.
+
+Moderate consequence + reversible
+
+→ AI prepare/execute with visibility.
+
+“Reduce line speed 3%.”
+
+Potential production consequence.
+
+→ recommendation + confirmation may be appropriate.
+
+“Change reactor pressure setpoint.”
+
+Potential safety/process consequence.
+
+→ much stronger human authority and deterministic safeguards.
+
+“Disable an interlock.”
+
+Different universe.
+
+Generative AI should certainly not simply decide:
+
+“Seems reasonable.”
+
+😬
+
+NIST's newly launched 2026 work on trustworthy AI in critical infrastructure explicitly highlights guardrails, traceable diagnostic rationales, verified validity regions, graceful degradation, human oversight, and fail-safe deterministic controls as relevant characteristics for AI used around industrial control and critical infrastructure.
+
+Principle 6
+Authority follows risk, not AI capability.
+
+Just because AI can execute something doesn't mean it should.
+
+10. Uncertainty must be a legitimate interface state
+
+AI systems will encounter:
+
+missing sensors
+bad data
+unfamiliar operating states
+conflicting evidence
+insufficient historical examples
+model drift
+situations outside training/validation conditions
+
+The worst behavior would be confidently improvising.
+
+The interface needs ways of saying:
+
+I don't have enough evidence.
+
+or:
+
+This operating condition is outside the range where this model has been validated.
+
+The 2026 NIST critical-infrastructure work specifically discusses systems being monitored for operation outside verified validity regions and degrading gracefully and transparently when adverse conditions occur.
+
+Principle 7
+Uncertainty should change AI behavior, not merely change a confidence number.
+
+Meaning:
+
+High confidence + low risk:
+
+“Here's what I found.”
+
+Moderate confidence:
+
+“Here's the likely explanation and alternatives.”
+
+Low confidence:
+
+“I can't determine the cause yet. These are the most useful things to inspect next.”
+
+That last answer is still extremely useful.
+
+11. AI should distinguish observation from inference
+
+This feels crucial for industrial environments.
+
+Suppose the interface says:
+
+Bearing degradation detected.
+
+What does that mean?
+
+Was there actually a bearing sensor detecting degradation?
+
+Or did AI infer degradation from vibration, temperature and current?
+
+Those need to look different.
+
+I would establish three semantic categories:
+
+OBSERVED
+
+Motor current increased 18%.
+
+Measured fact.
+
+DERIVED
+
+Current exceeds its normal range for this production state.
+
+Calculation/context.
+
+INFERRED
+
+Bearing degradation is a plausible explanation.
+
+AI interpretation.
+
+That separation would help the operator understand what is known versus what is believed.
+
+Principle 8
+Never visually blur measured fact and AI inference.
+
+I think this could become one of our most important UI rules.
+
+12. Expertise should change depth—not necessarily create different interfaces
+
+We previously hypothesized this, and human-AI teaming research supports the importance of user expertise, roles, adaptability and shared mental models.
+
+So instead of:
+
+Novice Mode
+versus
+Expert Mode
+
+which can become awkward,
+
+we could use progressive assistance.
+
+AI surfaces:
+
+Downstream restriction developing
+
+Expert:
+
+“Yep.”
+Take action
+
+Less experienced operator:
+
+Why?
+
+Then:
+
+What should I check?
+
+Then:
+
+Walk me through it.
+
+Same interface.
+
+Different depth of assistance.
+
+Principle 9
+Make assistance expandable, not unavoidable.
+13. AI needs a shared mental model with the operator
+
+Human-AI teaming literature repeatedly identifies a shared mental model and effective communication as important to successful collaboration.
+
+In our context, that means AI needs to understand things such as:
+
+What asset am I responsible for?
+
+What operating state are we in?
+
+What product are we making?
+
+What goal are we pursuing?
+
+What problem am I currently investigating?
+
+What actions have already been attempted?
+
+Who else is working on it?
+
+Otherwise the operator constantly has to re-explain context:
+
+“No, I'm talking about Line 2.”
+
+“Remember we already changed the roller.”
+
+“No, we're in startup.”
+
+That's not a teammate.
+
+That's a search box with amnesia.
+
+Principle 10
+Context should persist across the operator's work.
+
+This is where our earlier concept of a living operational situation becomes increasingly important.
+
+Now let me consolidate all four passes
+
+This, I think, is the part that will make everything feel less overwhelming.
+
+We do not have 150 things to design.
+
+I think we have three layers.
+
+Layer 1 — What the operator is doing cognitively
+
+Our loop:
+
+ORIENT → EVALUATE → ANTICIPATE → TRIAGE → DIAGNOSE → DECIDE → ACT → VERIFY → PRESERVE
+
+Layer 2 — What the interface must provide
+
+This reduces to roughly six things:
+
+Awareness
+
+Help me understand current operational state.
+
+Attention
+
+Tell me what deserves consideration.
+
+Context
+
+Bring relevant evidence together.
+
+Guidance
+
+Help me determine possible responses.
+
+Execution
+
+Help me carry out and coordinate work.
+
+Memory
+
+Preserve what happened and what was learned.
+
+That's it.
+
+Nearly everything we've researched fits into one of those six buckets.
+
+Layer 3 — How AI should behave
+
+And Pass 4 gives us six core behavioral rules:
+
+1. Be quiet when I'm okay.
+
+Don't create attention demands unnecessarily.
+
+2. Tell me when something matters.
+
+Prioritize situations rather than dumping events.
+
+3. Show me why.
+
+Let claims be interrogated through evidence.
+
+4. Help me decide; don't steal my judgment.
+
+Especially as consequence increases.
+
+5. Know when you don't know.
+
+Uncertainty changes behavior.
+
+6. Carry context forward.
+
+Don't make humans repeatedly reconstruct or retell the situation.
+
+And that feels manageable.
+
+Mapping the cognitive loop to AI behavior
+
+This might be our most useful consolidation artifact yet:
+
+Operator cognitive need	Interface responsibility	AI's ideal posture
+Orient — What am I inheriting?	Awareness + memory	Summarize
+Evaluate — Are we okay?	Awareness	Mostly observe silently
+Anticipate — Where is this heading?	Awareness	Detect weak signals / forecast
+Triage — What matters?	Attention	Prioritize
+Diagnose — What's happening and why?	Context	Assemble evidence / suggest hypotheses
+Decide — What should I do?	Guidance	Offer options + consequences
+Act — Make it happen	Execution	Prepare/execute according to authority
+Verify — Did it work?	Awareness	Track expected recovery
+Preserve — What should carry forward?	Memory	Capture/summarize context
+
+Look at what happened there.
+
+Chat isn't anywhere in the model.
+
+Chat could certainly be one interaction mechanism:
+
+“Why did you flag this?”
+
+“Compare this to yesterday.”
+
+“What happens if I reduce speed?”
+
+But AI assistance is defined by its role in the cognitive loop, not by whether the operator typed something into a chat box.
+
+I think that's an extremely important distinction for your project.
+
+We can even define AI initiative by operator state
+
+Here's the beginning of what could become our AI Behavior Matrix:
+
+Operator state	Appropriate AI behavior
+Stable normal operation	Quiet / ambient
+Minor unexplained deviation	Subtle surfacing
+Developing meaningful condition	Proactive notification
+Urgent consequential situation	Interrupt
+Operator investigating	Highly responsive / contextual
+Operator deciding	Evidence + options + consequence
+Operator acting	Guide / prepare / execute within authority
+Recovery underway	Monitor quietly; report exception or success
+Shift transition	Proactively summarize
+
+That's dramatically more precise than saying:
+
+“We want a proactive AI assistant.”
+
+Because sometimes proactive is exactly right.
+
+Sometimes proactive is terrible.
+
+There is one concept I think ties the whole thing together
+
+After four research passes, I no longer think the core next-generation concept is:
+
+AI assistant for operators.
+
+I think it may be:
+
+An attention- and context-aware operating environment
+
+AI happens to be what makes it possible.
+
+The system understands:
+
+what is happening
+
+what the operator is trying to accomplish
+
+what deserves attention
+
+what evidence is relevant
+
+what actions are possible
+
+what has already happened
+
+and changes the interface accordingly.
+
+That is far more profound than putting Copilot beside an HMI.
+
+And I think we can stop researching broadly now
+
+Not because there isn't more research—we could read papers for six months. 😄
+
+But we've reached a point of research saturation for conceptual design.
+
+The evidence is also moving in exactly this direction at NIST right now. Its July 2026 smart-manufacturing roadmap describes AI/ML as increasingly important while emphasizing explainable, reliable operation in high-stakes industrial environments; its current manufacturing program is actively developing methods for human-AI teaming, operator understanding and trustworthy AI-assisted operation.
+
+So I would freeze our research foundation as:
+
+Pass 1 — Work
+What operators actually do.
+
+Pass 2 — Friction
+Where the work becomes difficult.
+
+Pass 3 — Decisions
+What operators must understand and decide.
+
+Pass 4 — Teaming
+How AI should and should not participate.
+
+And now I think you've earned the fun part. 😄
+
+But rather than suddenly drawing a dashboard, I would make our first design exercise extremely conceptual:
+
+Imagine the operator arrives for work. What should this new environment do from the moment they take responsibility for the operation through the first 30 minutes of a completely normal shift?
+
+No emergency. No flashy AI demo.
+
+Just normal operation.
+
+If we can make that feel fundamentally next-generation—quiet, contextual, intelligent and operator-centered—then we'll have found the bones of the interface.
+
+And then we can introduce the first anomaly and watch the experience transform around the operator's cognitive loop.
+
+That, I think, is exactly how I would start Interaction Design Pass 1. 😁
+
+Nooooooo! No drawing dashboards yet? My pencil hand is getting twitchy, I don't know how much longer I can control it.  But my brain is also turning to mush, the information overload is real.   Is it okay if I leave you alone for a while, and ask you to do stuff in my absence? I feel bad, because I'm giving you all the work... But I think I need to take a break from this/take a walk/watch some tv/whatnot before jumping back in.  Is it okay if I ask you to go forth and work through all the design/thought needed, all the way through user experience/interface design?  Then maybe I can revisit this with some fresh eyes.  To be clear, I'm looking for the same level of description/explanation/reasoning as you have been giving me -- I want and need this! -- But I want you to go ahead and advance to the next step... Keep advancing, making minor decisions as needed, until there is a major decision that needs my input/interaction.   Can we please do this? 
+
+Oh, absolutely. And please do not feel bad about “giving me all the work.” This is exactly the kind of synthesis I’m useful for. 😄
+
+There is one practical limitation I should make explicit: I can’t literally keep working after I send this reply or continue asynchronously while you’re away. But I can take the wheel now, make the minor design decisions myself, and advance the concept as far as I reasonably can in this response. When you come back, you’ll have something substantial to react to rather than another research assignment.
+
+And yes: the pencil is officially released from containment. ✏️
+
+What follows is my first serious attempt to turn everything we’ve learned into an actual next-generation Operator Experience.
+
+Interaction Design Pass 1
+From Operator Cognitive Loop → Product Experience
+
+I’m going to make one foundational decision for us:
+
+We will not design an HMI with AI added to it.
+
+We will design an operator workspace whose structure follows the operator’s cognitive work, and conventional HMI/control capabilities will exist inside that environment where appropriate.
+
+That distinction matters.
+
+The product should primarily answer four questions:
+
+NOW
+
+What is happening?
+
+ATTENTION
+
+What needs me?
+
+WORK
+
+What am I responsible for doing?
+
+INVESTIGATE
+
+Help me understand something.
+
+And underlying all four:
+
+OPERATIONAL MEMORY
+
+What happened, what was tried, what was learned, and what needs to carry forward?
+
+AI is not a fifth navigation item.
+
+It operates throughout all of them.
+
+1. The overall shell
+
+My first conceptual architecture would be:
+
+NOW | ATTENTION | WORK | INVESTIGATE
+
+with a persistent contextual layer around it.
+
+Something roughly like:
+
+┌───────────────────────────────────────────────────────────────────┐
+│ Line 2 / Packaging            Running Product A        10:42 AM  │
+│ Current responsibility: Packaging Area 2                         │
+├──────────┬──────────────┬─────────────┬───────────────────────────┤
+│   NOW    │  ATTENTION   │    WORK     │       INVESTIGATE         │
+├──────────┴──────────────┴─────────────┴───────────────────────────┤
+│                                                                   │
+│                    CURRENT EXPERIENCE AREA                        │
+│                                                                   │
+│                                                                   │
+└───────────────────────────────────────────────────────────────────┘
+
+But I do not imagine these as conventional independent screens.
+
+They are perspectives on the same operational context.
+
+If Line 2 develops a labeler problem:
+
+Now changes to show the developing condition.
+Attention receives a situation.
+Investigate already understands which situation you're investigating.
+Work receives whatever actions result.
+The entire experience retains the history.
+
+That continuity is crucial.
+
+2. NOW
+“What is happening, and where is it heading?”
+
+This is the operator's default home.
+
+But I would deliberately avoid making it a giant KPI dashboard.
+
+The primary purpose of Now is:
+
+Maintain situation awareness with minimal cognitive effort.
+
+There are three layers.
+
+A. Operational state
+
+At a glance:
+
+Running / stopped / transition
+Product/order/batch
+current rate/load
+target
+quality state
+equipment availability
+important operating mode
+B. Operational topology
+
+The operator needs some representation of the physical/process environment.
+
+For a manufacturing line:
+
+Orienter → Filler → Labeler → Inspection → Packer
+
+For a process environment:
+
+Feed → Reactor → Separation → Storage
+
+But the visual should answer:
+
+Where is something interesting happening?
+
+rather than:
+
+“Here is a beautiful digital twin with 487 animated valves.”
+
+I would continue to honor high-performance HMI principles:
+
+normal = visually quiet
+
+abnormal = visually prominent
+
+Color and emphasis are used to encode meaning—not decoration.
+
+C. Trajectory
+
+This is where it becomes next-generation.
+
+Traditional interface:
+
+Throughput: 118/min
+
+Next-generation interface:
+
+118/min
+
+↓ gradually declining
+Target: 125/min
+
+Or:
+
+Buffer 71%
+
+Increasing
+Estimated operating margin: ~13 min
+
+Or simply:
+
+Line stable
+
+if nothing deserves the operator's attention.
+
+The product shouldn't force operators to perform trend analysis constantly.
+
+It should provide just enough trajectory to answer:
+
+Are we still okay?
+
+3. Normal operation should feel almost boring
+
+This is an intentional design goal.
+
+Imagine the operator has been running successfully for 45 minutes.
+
+I do not want:
+
+AI insights: 7
+Optimization opportunities: 4
+Suggestions: 12
+
+No.
+
+I want:
+
+Line 2
+
+Running normally
+124/min · Target 125
+Quality within expected range
+
+No intervention needed.
+
+And perhaps underneath:
+
+Next planned activity: quality sample in 24 min
+
+That's it.
+
+AI is doing enormous work underneath:
+
+evaluating anomalies
+comparing baseline
+observing trends
+understanding production context
+checking developing risks
+
+But because none of it warrants the human's attention:
+
+it stays quiet.
+
+That's one of our strongest principles from Pass 4 made tangible.
+
+4. ATTENTION
+“What unexpectedly needs me?”
+
+This is probably the most radical departure from conventional alarm design.
+
+I would not make Attention an alarm list.
+
+It is a situation list.
+
+Instead of:
+
+10:42 PT-204 high
+10:42 FT-211 low
+10:43 Labeler speed deviation
+10:43 Buffer high
+10:44 Production rate low
+
+we might see:
+
+Label feed instability developing
+
+Investigate
+
+Production impact increasing
+14 related events · began 18 min ago
+
+Likely centered around Labeler 2
+
+The underlying signals and alarms remain available.
+
+But they have been assembled into a meaningful operational situation.
+
+This is what I earlier called:
+
+Turn events into situations.
+
+I now think that should be one of the defining capabilities of the product.
+
+5. Attention shouldn't be a flat priority list
+
+I'd give situations behavioral states such as:
+
+WATCH
+
+Something is changing, but intervention isn't required.
+
+INVESTIGATE
+
+Human attention is warranted.
+
+ACT
+
+Response is required.
+
+URGENT
+
+Time-sensitive consequential response required.
+
+Notice that these aren't simply alarm severities.
+
+They're closer to:
+
+What relationship should the human have with this condition?
+
+That is much more useful.
+
+6. An attention item should tell a tiny story
+
+Every situation should answer roughly four questions:
+
+What?
+
+Label feed instability developing.
+
+Why should I care?
+
+Currently reducing throughput ~7%.
+
+How urgent?
+
+No immediate safety/quality consequence. Trend worsening.
+
+What do I do?
+
+Investigate.
+
+That is enough for triage.
+
+Not enough for diagnosis.
+
+The operator shouldn't have to diagnose from the Attention view.
+
+7. INVESTIGATE
+This may be the heart of the experience
+
+This area supports:
+
+What is happening?
+
+Why?
+
+What evidence supports that?
+
+Have we seen this before?
+
+What can I do?
+
+And here I think the interface should become dynamically assembled around the situation.
+
+This may be our biggest break from traditional screen navigation.
+
+Traditional workflow:
+
+alarm → navigate asset → find trend screen → select tags → find alarm history → open maintenance → search history
+
+Next-generation workflow:
+
+Open situation
+
+and the system automatically assembles the useful context.
+
+For example:
+
+Label feed instability
+Situation summary
+
+Feed interruptions have increased over the last 18 minutes and are now reducing line output.
+
+What changed
+feed motor cycling increased
+labeler speed variation increased
+downstream accumulation decreased
+filler remains stable
+Evidence
+
+Relevant trends automatically selected.
+
+Timeline
+
+10:19 first deviation
+10:24 first micro-stop
+10:31 operator reset
+10:38 recurrence
+10:42 production impact exceeds threshold
+
+Similar history
+
+3 similar incidents in previous 30 days.
+
+Maintenance context
+
+Feed roller replaced 47 days ago.
+
+Possible explanations
+Material-feed instability
+Feed roller degradation
+Sensor contamination
+
+Each marked as inferred, not measured fact.
+
+Now that is an investigation workspace.
+
+8. AI interaction inside Investigate
+
+This is where conversational interaction becomes extremely powerful.
+
+The important difference is:
+
+The conversation already has operational context.
+
+The operator shouldn't need to say:
+
+“I am looking at Line 2, Labeler 2, where we've had feed interruptions for 18 minutes…”
+
+They can simply ask:
+
+Why do you think it's the roller?
+
+or:
+
+Show me what changed first.
+
+or:
+
+Has this happened with this product before?
+
+or:
+
+Compare this to last Tuesday.
+
+or:
+
+What should I inspect first?
+
+Chat becomes one way of interrogating a situation.
+
+Not a destination.
+
+9. The AI conversation may not even look like traditional chat
+
+This is one of my stronger design decisions.
+
+I would support free-form conversational input, but I would not make a giant empty chat box the dominant UI.
+
+Instead, the interface itself gives the operator natural questions.
+
+For example:
+
+Why was this flagged?
+
+Show evidence
+
+What changed first?
+
+Similar events
+
+What should I check?
+
+What happens if I wait?
+
+Then, below:
+
+Ask anything about this situation…
+
+This does several things:
+
+teaches users what AI can do
+reduces typing
+works well on touch displays
+decreases prompt-writing burden
+keeps interaction grounded in the operational situation
+10. Progressive explanation
+
+Remember our four explanation levels?
+
+I would make them real.
+
+Level 1
+
+Likely material-feed issue
+
+Enough for an expert.
+
+Why?
+
+Feed variation began before the speed loss and correlates strongly with each interruption.
+
+Evidence
+
+Show actual trends/events.
+
+Deeper context
+
+Compared against 14 similar runs of Product A and three previous incidents on this labeler.
+
+The operator decides how far down the rabbit hole to go.
+
+11. Separate FACT from INTERPRETATION
+
+I would make this visually and linguistically explicit throughout the product.
+
+For example:
+
+Observed
+
+Motor current increased 14%.
+
+Derived
+
+Motor current is outside its normal operating range for Product A.
+
+AI interpretation
+
+Feed roller degradation may be contributing.
+
+Different semantic treatment.
+
+Perhaps even visually different typography/icons.
+
+The goal is:
+
+Never let inference masquerade as instrumentation.
+
+12. DECISION SUPPORT
+“What can I do?”
+
+Once the operator understands the situation, the interface changes from explanation to decision support.
+
+Perhaps:
+
+Recommended response
+
+Inspect label feed path and roller before restarting at full rate.
+
+Why?
+
+Recurrence after reset suggests the interruption is not transient.
+
+Alternatives
+
+Continue at reduced speed
+
+Production continues, but recurrence remains likely.
+
+Request maintenance inspection
+
+Higher downtime now; may prevent repeated stops.
+
+The operator can inspect:
+
+Expected outcome
+
+Risk
+
+Previous results
+
+This supports judgment rather than replacing it.
+
+13. Action should occur in context
+
+Suppose the operator selects:
+
+Request maintenance
+
+The interface should not dump them into another application.
+
+Instead:
+
+Maintenance request prepared
+
+Asset: Labeler 2
+Issue: recurring feed interruption
+Started: 10:19
+Production impact: −7% current rate
+Operator actions: reset at 10:31
+Evidence: attached
+Similar event: Aug 19
+
+Operator can add:
+
+“I can hear intermittent chatter near the feed roller.”
+
+Then:
+
+Send request
+
+Now we've captured human observation alongside machine data.
+
+That's exactly the combined intelligence model we've been researching.
+
+14. WORK
+“What am I responsible for accomplishing?”
+
+The Work space handles intentional work and actions generated by situations.
+
+This might include:
+
+NOW
+
+Inspect Labeler 2 feed roller
+Generated from active situation
+
+UPCOMING
+
+Quality sample — due 11:10
+
+Packaging replenishment — approximately 11:25
+
+LATER
+
+Product changeover — scheduled 13:00
+
+Notice what is happening:
+
+Traditional application:
+
+task list
+
+Next-generation environment:
+
+context-aware operating plan
+
+If an urgent problem occurs, the system understands that priorities changed.
+
+15. Work should understand dependencies
+
+Changeover, for example, might appear as:
+
+Change to Product B — 13:00
+
+✓ Product available
+✓ Labels staged
+✓ Tooling ready
+⚠ Quality release pending
+○ Run remaining Product A
+○ Stop line
+○ Clean contact surfaces
+○ Change tooling
+○ Load recipe
+○ First-piece verification
+
+Now AI can assist without “taking over.”
+
+For example:
+
+Quality release is still pending. At the current production rate, this may delay changeover by approximately 12 minutes.
+
+That's useful.
+
+Not:
+
+“Hello! Would you like some help with your changeover today?”
+
+😂
+
+16. VERIFY becomes an explicit interaction
+
+This is a design element I particularly like.
+
+Suppose the operator takes an action.
+
+The situation doesn't immediately disappear.
+
+Instead it enters:
+
+Recovery monitoring
+
+Intervention: Reduced line speed 5%
+
+Expected:
+
+feed interruptions decrease
+buffer stabilizes
+reject rate remains normal
+
+Then the interface watches.
+
+A few minutes later:
+
+Recovering
+
+✓ No new feed interruption — 7 min
+✓ accumulation stable
+✓ quality normal
+○ monitoring another 3 min
+
+Then:
+
+Resolved
+
+Operating state stable.
+
+And the situation collapses into operational memory.
+
+That closes the cognitive loop.
+
+17. Handoff becomes almost automatic
+
+Now imagine the operator reaches end of shift.
+
+Because we've been capturing situations, actions and work all day, the handoff shouldn't require reconstructing everything.
+
+The system prepares:
+
+Shift handoff
+Needs attention next shift
+
+Labeler feed issue — monitor recurrence
+
+Maintenance inspected roller at 14:20. No recurrence for 2.1 hrs.
+
+Production
+
+97.4% attainment
+Primary loss: labeler interruptions
+
+Quality
+
+No unresolved deviations.
+
+Maintenance
+
+Feed roller inspection completed. Replacement deferred.
+
+Upcoming
+
+Product C change scheduled 19:30.
+
+And the operator can say:
+
+Add: “If it starts chattering again, call maintenance before resetting it repeatedly.”
+
+Beautiful.
+
+That's human knowledge becoming persistent operational context.
+
+18. Operational Memory
+
+This starts to deserve recognition as an actual product capability.
+
+Every meaningful situation becomes a reusable record:
+
+What happened
+
+What evidence existed
+
+What people thought
+
+What was tried
+
+What worked
+
+What did not
+
+Who participated
+
+What ultimately resolved it
+
+Future AI can then use these records:
+
+“This looks similar to the August 26 incident.”
+
+And the operator can inspect that incident.
+
+That's how tribal knowledge slowly becomes organizational knowledge.
+
+19. What about conventional HMI controls?
+
+They're still needed.
+
+Very much so.
+
+But they become contextual tools, not necessarily the organizing architecture.
+
+Operators still need:
+
+equipment controls
+faceplates
+setpoints
+process graphics
+trends
+alarms
+permissives/interlocks
+modes
+sequences
+
+For process/control-room environments especially, conventional process visualization remains absolutely essential.
+
+I would expose those as part of the Now and Investigate experiences.
+
+For example:
+
+click pump → equipment detail
+
+with:
+
+state
+controls
+related process context
+history
+active situations
+
+rather than maintaining a complete conceptual separation between:
+
+HMI world
+
+and
+
+AI world.
+
+20. The manufacturing and process variants
+
+Here's how I would avoid forcing the exact same UI onto both.
+
+The architecture stays constant:
+
+Now | Attention | Work | Investigate
+
+But emphasis changes.
+
+Manufacturing operator
+
+NOW
+
+line/product
+flow
+production attainment
+equipment state
+WIP
+quality
+
+WORK
+more prominent:
+
+inspections
+materials
+cleaning
+changeovers
+minor interventions
+
+ATTENTION
+
+stops
+defects
+constraints
+material issues
+performance losses
+Process/control-room operator
+
+NOW
+more prominent:
+
+process topology
+operating envelope
+control state
+trends
+abnormal conditions
+
+ATTENTION
+more sophisticated:
+
+alarm/situation relationships
+process deviations
+trajectory
+equipment/process risk
+
+WORK
+
+procedures
+operating transitions
+field coordination
+maintenance
+
+Same cognitive architecture.
+
+Different operational content.
+
+That feels right.
+
+21. The persistent AI affordance
+
+I think there should be a way to access AI globally.
+
+But I would make it small and contextual, not a permanent 35%-width chatbot panel.
+
+Perhaps:
+
+Ask
+
+or a compact input:
+
+Ask about Line 2…
+
+And what the user asks determines what happens.
+
+“Why are we behind target?”
+
+→ opens an investigation.
+
+“Show Labeler 2.”
+
+→ navigates operational context.
+
+“When is the next changeover?”
+
+→ surfaces Work.
+
+“What happened last shift?”
+
+→ operational memory.
+
+“Create a maintenance request for this.”
+
+→ action workflow.
+
+This is less like chat.
+
+More like natural-language access to the entire operational environment.
+
+22. Proactive AI should appear where the work is
+
+This is another important decision.
+
+If AI detects something relevant to production:
+
+It appears in Now and perhaps Attention.
+
+If AI discovers a conflict with a future task:
+
+It appears in Work.
+
+If AI discovers supporting evidence during investigation:
+
+It appears in Investigate.
+
+We don't funnel every intelligent event through:
+
+🤖 AI Assistant
+
+That would create an artificial conceptual boundary.
+
+23. AI initiative ladder
+
+I'd formally make this part of the UX framework:
+
+OBSERVE
+
+No visible interaction.
+
+ENRICH
+
+Add context to existing UI.
+
+Example:
+
+“Typical range 115–126”
+
+SURFACE
+
+Bring something to awareness.
+
+“Rate deterioration detected.”
+
+ENGAGE
+
+Offer contextual assistance.
+
+“Investigate”
+
+RECOMMEND
+
+Propose action.
+
+PREPARE
+
+Stage action/workflow.
+
+EXECUTE
+
+Only where permitted by policy/risk.
+
+The UI could potentially communicate this implicitly rather than showing the vocabulary to users, but internally it gives us an excellent design framework.
+
+24. My proposed visual hierarchy
+
+We're allowed to pick up pencils now, so here's what I'd sketch first.
+
+Not polished UI. Just anatomy.
+
+Desktop / control-room
+┌───────────────────────────────────────────────────────────────┐
+│ AREA / LINE          STATUS         PRODUCT        USER       │
+├───────────────────────────────────────────────────────────────┤
+│ NOW      ATTENTION (2)      WORK (3)      INVESTIGATE        │
+├───────────────────────────────────────────────┬───────────────┤
+│                                               │               │
+│          OPERATIONAL PICTURE                  │ NEXT /         │
+│                                               │ IMPORTANT     │
+│   [ asset/process visualization ]             │               │
+│                                               │ upcoming work │
+│                                               │ active issue  │
+│                                               │               │
+├───────────────────────────────────────────────┴───────────────┤
+│  Ask about this operation…                                    │
+└───────────────────────────────────────────────────────────────┘
+
+But importantly, that right rail is not necessarily permanent.
+
+During a serious event, the entire layout can shift.
+
+25. The interface should change with cognitive mode
+
+This may be the biggest visual design idea.
+
+Monitor mode
+
+Large operational picture.
+
+Very little text.
+
+Quiet.
+
+Investigate mode
+
+Situation becomes dominant.
+
+Evidence/trends/timeline appear.
+
+Operational picture remains visible for context.
+
+Action mode
+
+Options/procedure become prominent.
+
+Noise falls away.
+
+Recovery mode
+
+Expected-versus-actual response becomes prominent.
+
+Handoff mode
+
+Operational memory becomes prominent.
+
+So the interface isn't merely:
+
+navigation → screens
+
+It has behavioral states corresponding to operator cognition.
+
+That feels genuinely next-generation to me.
+
+26. An example of the entire experience
+
+Let's put it together.
+
+08:00 — operator arrives
+
+System:
+
+Good morning
+
+Line 2 is running normally.
+
+Three things from the previous shift:
+
+• Labeler feed issue occurred twice; currently stable
+• Maintenance inspection scheduled 10:00
+• Product change planned 13:00
+
+No immediate action required.
+
+Operator enters Now.
+
+09:02 — normal production
+
+Interface:
+
+Line stable
+
+124/min · Target 125
+Quality normal
+
+AI stays quiet.
+
+09:18
+
+One subtle indicator changes:
+
+Labeler · Changing
+
+No interruption.
+
+09:25
+
+Condition worsens.
+
+Attention shows:
+
+Label feed instability developing
+
+Production impact emerging
+Investigate
+
+Operator taps.
+
+Investigation opens
+
+Repeated feed variation began 11 min ago.
+
+Filler and upstream equipment remain stable.
+
+Pattern is similar to two previous label-feed incidents.
+
+Relevant trend appears automatically.
+
+Operator asks:
+
+What changed first?
+
+AI:
+
+Feed-motor cycling increased approximately four minutes before the first speed loss.
+
+Operator:
+
+What should I inspect?
+
+AI:
+
+Based on the current evidence:
+
+material feed path
+roller condition
+feed sensor
+
+Maintenance history shows the roller was previously flagged for wear.
+
+Operator inspects machine
+
+They return:
+
+Roller is chattering.
+
+System now records that as operator observation.
+
+AI updates interpretation:
+
+Roller degradation is now the leading explanation.
+
+Operator selects:
+
+Request maintenance
+
+Request is prepopulated.
+
+Operator reduces speed while waiting
+
+System:
+
+Recovery monitoring
+
+Watching feed stability, accumulation and quality.
+
+Maintenance arrives
+
+They can see the same situation context.
+
+No complete re-explanation required.
+
+10:12
+
+Roller adjusted.
+
+System verifies:
+
+No interruptions for 10 minutes.
+Throughput returned to target.
+Quality unaffected.
+
+Situation resolved.
+
+16:00 — handoff
+
+System includes:
+
+Labeler feed instability
+
+Roller adjusted by maintenance at 10:02.
+Stable since.
+Replacement recommended during next planned stop.
+
+Operator observation: audible chatter preceded failure.
+
+That is now part of the organization's operational memory.
+
+27. The design principles I would officially carry forward
+
+I think we've now earned a first real design manifesto.
+
+1. Design around operator decisions, not software modules.
+2. Normal operation should be quiet.
+3. Surface situations, not floods of events.
+4. Show trajectory, not merely current state.
+5. Bring evidence to the operator instead of sending the operator searching.
+6. Keep facts, derived information and AI inference distinguishable.
+7. Make AI reasoning inspectable.
+8. Assistance should deepen on demand.
+9. AI initiative must scale with urgency, confidence and consequence.
+10. Authority must scale with risk.
+11. Actions remain attached to the context that caused them.
+12. Verification is part of the action—not an afterthought.
+13. Operational knowledge should accumulate over time.
+14. AI spans the interface; it is not a destination.
+15. Preserve operator understanding while reducing unnecessary cognitive labor.
+
+That is enough to start evaluating virtually any feature idea.
+
+And we've reached our first genuinely major design decision
+
+This is where I'm going to stop making decisions for you.
+
+Because I think there are two legitimate product directions, and the choice affects almost everything downstream.
+
+Direction A — Evolutionary
+
+The primary experience remains recognizably an industrial HMI/operator interface.
+
+The operational/process visualization is the center of gravity.
+
+Now is essentially the evolution of the HMI.
+
+Attention, Work, Investigation and AI intelligence surround and enhance it.
+
+Conceptually:
+
+The HMI becomes intelligent.
+
+This would probably feel safer, more familiar, and easier to introduce into existing automation environments.
+
+Direction B — Transformational
+
+The primary experience becomes an operator workspace.
+
+The system is organized around:
+
+Now
+Attention
+Work
+Investigate
+
+and process graphics/HMI controls are tools inside that environment when needed.
+
+The dominant unit isn't:
+
+screen
+
+or even:
+
+asset
+
+It increasingly becomes:
+
+situation + work + operating context
+
+Conceptually:
+
+The operator gets a new operating system for their work.
+
+This direction is much more ambitious.
+
+And I suspect it has considerably more potential to feel genuinely next-generation.
+
+But it also asks users—and your product organization—to make a larger conceptual leap.
+
+And that is the first choice I don't want to quietly make while you're out taking your well-earned walk. 😄
+
+Everything before it I feel comfortable choosing based on the research.
+
+But “Are we evolving the HMI, or redefining the operator workspace?” is a product-strategy decision masquerading as a UX decision.
+
+So I think this is the perfect stopping point.
+
+Go give your brain something completely unrelated to industrial operations. 😂 When you come back with fresh eyes, you don't need to digest every word above again. Start with just those final two directions.
+
+Because your instinctive reaction to A versus B will tell us an awful lot about where we should take the interface next.
