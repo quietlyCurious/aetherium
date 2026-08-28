@@ -87,9 +87,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Two episodes today; throughput drops about 15% each time and fully recovers once it clears.",
     since: "15m ago",
     sinceMinutes: 15,
+    attentionState: "act",
     detail: {
       signal: "36 microstop events logged on Power Charge today (24 high-severity), in two episodes: 09:14–09:27 and 10:29–10:44.",
-      interpretation: "Throughput drops from a baseline of about 160 units/min into the low 130s during each episode, then recovers within a few minutes once it clears — the shape is nearly identical both times.",
+      observed: 'Power Charge logged 36 microstop events today, 24 marked high-severity, in two clusters: 09:14–09:27 and 10:29–10:44.',
+      derived: 'Throughput fell from a baseline near 160 units/min into the 130s during each cluster — roughly a 15–20% drop — and returned to baseline within a few minutes each time.',
+      inferred: 'The repeating, self-resolving pattern suggests an intermittent hardware fault (loose connection, marginal component) rather than a process or operator-driven cause.',
       recommendation: "Inspect Power Charge for a recurring intermittent fault (loose connection, marginal component) rather than treating each occurrence as isolated.",
       evidence: [160.19, 154.69, 150.29, 142.13, 137.78, 136.67, 142.59, 151.16],
       evidencePoints: [
@@ -127,9 +130,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Matches Ferrum F1's Power Charge pattern almost exactly — same cause code, same timing.",
     since: "15m ago",
     sinceMinutes: 15,
+    attentionState: "act",
     detail: {
       signal: "36 microstop events logged on Power Charge today (22 high-severity), in two episodes: 09:14–09:27 and 10:30–10:41.",
-      interpretation: "Throughput drops from about 156 to the low 130s during each episode — nearly identical shape and timing to Ferrum F1's Power Charge station today.",
+      observed: 'Power Charge logged 36 microstop events today, 22 marked high-severity, in the same two windows as Ferrum F1: 09:14–09:27 and 10:30–10:41.',
+      derived: "Throughput dropped from ~156 to the low 130s during each window, matching F1's Power Charge shape almost exactly.",
+      inferred: "The near-identical timing and magnitude to F1 suggests a shared root cause across both lines — a common part batch or supply issue — rather than two unrelated faults.",
       recommendation: "Investigate alongside F1's Power Charge — a shared root cause (shift-wide supply issue, common part batch) is plausible given the matching timing.",
       evidence: [156.5, 149.6, 142.38, 134.13, 130.54, 132.69, 137.26, 147.17],
       evidencePoints: [
@@ -166,9 +172,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Throughput collapsed from 155 to 11 units/min, then recovered within a single minute once the blockage cleared.",
     since: "51m ago",
     sinceMinutes: 51,
+    attentionState: "investigate",
     detail: {
       signal: "Transfer station blocking event from 09:56–10:08. Throughput fell from a baseline of about 155 units/min to 11.4 at the low point, while queue and wait time climbed the entire time.",
-      interpretation: "The recovery is nearly instantaneous (11.4 → 155.8 units/min in one minute), which reads more like a physical blockage clearing than a gradual mechanical slowdown.",
+      observed: 'Transfer logged a blocking event from 09:56–10:08, with 8 of its 12 events marked high-severity.',
+      derived: 'Throughput collapsed from ~155 units/min to 11.4 at the low point, then recovered to 155.8 within a single minute once the event ended.',
+      inferred: 'The near-instant recovery reads more like a physical blockage clearing than a gradual mechanical degradation.',
       recommendation: "Check Transfer for a jam or blockage that was cleared around 10:08 — confirm what actually cleared it so it can be prevented next time.",
       evidence: [151.93, 100.31, 81.57, 56.27, 39.11, 19.54, 155.81, 151.82],
       evidencePoints: [
@@ -203,9 +212,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "One contained episode today, lower severity than F1/F6's Power Charge pattern.",
     since: "35m ago",
     sinceMinutes: 35,
+    attentionState: "watch",
     detail: {
       signal: "9 medium-severity microstop events on Power Charge, 10:15–10:24 — a single episode, not yet repeated.",
-      interpretation: "Microstop intensity rose steadily through the episode and dropped back to baseline within a minute of the last logged event — no measurable effect on throughput.",
+      observed: 'Power Charge logged 9 medium-severity microstop events in a single window, 10:15–10:24.',
+      derived: 'Microstop intensity rose steadily through the window and returned to near-zero within a minute of the last event.',
+      inferred: "A single contained episode isn't yet enough to confirm a repeating pattern the way F1 and F6 show — worth monitoring for recurrence before treating it the same way.",
       recommendation: "Monitor for a repeat; a single contained episode doesn't yet justify the same priority as F1/F6.",
       evidence: [6.67, 7.5, 8.41, 8.87, 8.71, 8.96, 0.24, 0.49],
       evidencePoints: [
@@ -240,9 +252,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Same two-episode shape as Power Charge on this line, but lower severity and no measured throughput impact.",
     since: "17m ago",
     sinceMinutes: 17,
+    attentionState: "watch",
     detail: {
       signal: "29 medium-severity microstop events on Output, in two episodes: 09:16–09:29 and 10:28–10:42.",
-      interpretation: "Timing lines up closely with the Power Charge episodes on the same line — plausibly connected, though Output itself never dropped in throughput.",
+      observed: 'Output logged 29 medium-severity microstop events, in two windows: 09:16–09:29 and 10:28–10:42.',
+      derived: "Timing overlaps closely with the Power Charge episodes on the same line, though Output's own throughput never measurably dropped.",
+      inferred: 'This reads as a downstream symptom of the Power Charge issue on F1 rather than an independent fault.',
       recommendation: "Review alongside the Power Charge investigation on F1 rather than as a separate issue.",
       evidence: [4.39, 7.58, 11.42, 13.01, 12.9, 10.34, 6.96, 3.03],
       evidencePoints: [
@@ -278,9 +293,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Matches Ferrum F1's Shaping station pattern; lower severity than the Power Charge issue on this line.",
     since: "20m ago",
     sinceMinutes: 20,
+    attentionState: "watch",
     detail: {
       signal: "18 medium-severity microstop events on Shaping today, clustered mainly 09:18–09:25 with a smaller recurrence near 10:30.",
-      interpretation: "Intensity rises and falls within each cluster and doesn't coincide with a measurable throughput drop.",
+      observed: 'Shaping logged 18 medium-severity microstop events, clustered mainly 09:18–09:25 with a smaller recurrence near 10:30.',
+      derived: 'Intensity rises and falls within each cluster with no measurable throughput impact.',
+      inferred: "Matches F1's Shaping pattern closely enough to suggest the same underlying cause is present on this station type fleet-wide, not unique to F6.",
       recommendation: "Low priority relative to this line's Power Charge issue — monitor only for now.",
       evidence: [4.68, 7.26, 8.47, 9.45, 7.4, 5.72, 1.55, 0.61],
       evidencePoints: [
@@ -315,9 +333,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Intake has been running ~121 units/min against Output's ~113 for the entire shift — a small, sustained gap that compounds over time.",
     since: "Ongoing",
     sinceMinutes: 0,
+    attentionState: "act",
     detail: {
       signal: "Buffer level on A3 has grown from 60 to over 1,130 units since the start of the shift (09:00–10:59) — every other Aurelia buffer sits between 218 and 242.",
-      interpretation: "Intake (~121 units/min) has been outpacing Output (~113 units/min) for the whole window. The gap is small enough that it wouldn't trip an alarm on either station individually, but it compounds into a very large buffer over two hours.",
+      observed: 'Buffer/WIP on A3 grew from 60 to over 1,130 units across the full shift (09:00–10:59); every sibling Aurelia buffer sits between 218 and 242.',
+      derived: "Intake ran ~121 units/min against Output's ~113 for the entire window — a ~7% gap sustained the whole shift.",
+      inferred: "The size of the pileup is the cumulative effect of a small persistent rate mismatch, not one triggering event — which is also why 'Other recent' comes up empty for this item.",
       recommendation: "Confirm A3's Output rate against its design target — even a small permanent correction there would stop further growth. This is a growing-WIP risk, not a stopped line.",
       evidence: [60.25, 88.11, 167.01, 319.12, 536.96, 810.22, 1076.98, 1120.58],
       evidencePoints: [
@@ -352,9 +373,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Lower priority than this line's Power Charge and Output issues — no high-severity events here today.",
     since: "18m ago",
     sinceMinutes: 18,
+    attentionState: "watch",
     detail: {
       signal: "25 medium-severity events on Transfer today (10 blocking, 15 microstop), in two episodes matching this line’s other stations: 09:17–09:28 and 10:29–10:41.",
-      interpretation: "Same two-episode shape as the rest of F1's issues today, but every event here logged as medium — nothing reached high severity on this station.",
+      observed: "Transfer logged 25 medium-severity events today (10 blocking, 15 microstop), in the same two windows as this line's other stations.",
+      derived: 'Every event on this station logged as medium — none reached high severity, unlike Power Charge on the same line.',
+      inferred: 'Likely the same underlying F1 issue rippling through Transfer, at lower intensity than Power Charge itself.',
       recommendation: "Fold into the same F1 investigation as Power Charge and Output rather than treating separately.",
       evidence: [40.94, 44.45, 66.22, 100.7, 98.0, 91.91, 28.18, 38.87],
       evidencePoints: [
@@ -389,9 +413,12 @@ const ATTENTION_ITEMS = [
     aiInterpretation: "Ferrum lines structurally run lower OEE than Aurelia (different target rate), which is not the same as a flagged issue.",
     since: "This shift",
     sinceMinutes: 119,
+    attentionState: "watch",
     detail: {
       signal: "F2 logged zero microstop or blocking events during this window (09:00–10:59) — the cleanest line in the Ferrum refinery today.",
-      interpretation: "F2's OEE (~0.80) sits below Aurelia's lines (~0.84–0.91), but that gap is consistent across every clean Ferrum line, not specific to F2 — it reflects a different target rate, not degraded performance.",
+      observed: 'F2 logged zero microstop or blocking events during the full window.',
+      derived: "F2's OEE (~0.80) sits below Aurelia's (~0.84–0.91), but every clean Ferrum line shows the same gap.",
+      inferred: 'The Ferrum/Aurelia OEE gap reflects a structurally different target rate, not degraded performance — included here only as a clean baseline for comparison.',
       recommendation: "No action needed. Useful as a baseline for comparing the flagged Ferrum lines against.",
       evidence: [0.795, 0.795],
       evidencePoints: [
@@ -420,6 +447,23 @@ const SEVERITY_COLORS = {
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 };
 const SEVERITY_LABELS = { high: 'High', medium: 'Medium', low: 'Low' };
 
+// A second, independent axis from severity — "how bad is this" vs "what's
+// my relationship to it right now." Colors deliberately don't reuse
+// severity's red/amber/grey, so a card showing both a severity dot and a
+// state badge doesn't read as two competing opinions in the same palette.
+const ATTENTION_STATE_COLORS = {
+  watch: '#6b7a99',
+  investigate: '#0078d4',
+  act: '#0e8a7d',
+  urgent: '#b91c3c',
+};
+const ATTENTION_STATE_LABELS = {
+  watch: 'Watch',
+  investigate: 'Investigate',
+  act: 'Act',
+  urgent: 'Urgent',
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Attention controls — group-by / sort-by options and the logic behind them
 // ─────────────────────────────────────────────────────────────────────────────
@@ -428,17 +472,24 @@ const GROUP_BY_OPTIONS = [
   { value: 'none', label: 'None' },
   { value: 'severity', label: 'Severity' },
   { value: 'asset', label: 'Asset' },
+  { value: 'state', label: 'State' },
 ];
 
 const SORT_BY_OPTIONS = [
   { value: 'time', label: 'Time' },
   { value: 'severity', label: 'Severity' },
+  { value: 'state', label: 'State' },
 ];
+
+// Most urgent first, mirroring the high-to-low convention severity already uses.
+const ATTENTION_STATE_ORDER = { urgent: 0, act: 1, investigate: 2, watch: 3 };
 
 function sortAttentionItems(items, sortBy) {
   const sorted = [...items];
   if (sortBy === 'severity') {
     sorted.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+  } else if (sortBy === 'state') {
+    sorted.sort((a, b) => ATTENTION_STATE_ORDER[a.attentionState] - ATTENTION_STATE_ORDER[b.attentionState]);
   } else {
     // 'time' — most recent first (smallest elapsed time on top)
     sorted.sort((a, b) => a.sinceMinutes - b.sinceMinutes);
@@ -452,17 +503,21 @@ function groupAttentionItems(items, groupBy) {
   }
   const buckets = {};
   items.forEach(item => {
-    const key = groupBy === 'severity' ? item.severity : item.line;
+    const key = groupBy === 'severity' ? item.severity : groupBy === 'state' ? item.attentionState : item.line;
     if (!buckets[key]) buckets[key] = [];
     buckets[key].push(item);
   });
   let keys = Object.keys(buckets);
-  keys.sort(groupBy === 'severity'
-    ? (a, b) => SEVERITY_ORDER[a] - SEVERITY_ORDER[b]
-    : (a, b) => a.localeCompare(b));
+  if (groupBy === 'severity') {
+    keys.sort((a, b) => SEVERITY_ORDER[a] - SEVERITY_ORDER[b]);
+  } else if (groupBy === 'state') {
+    keys.sort((a, b) => ATTENTION_STATE_ORDER[a] - ATTENTION_STATE_ORDER[b]);
+  } else {
+    keys.sort((a, b) => a.localeCompare(b));
+  }
   return keys.map(key => ({
     key,
-    label: groupBy === 'severity' ? SEVERITY_LABELS[key] : key,
+    label: groupBy === 'severity' ? SEVERITY_LABELS[key] : groupBy === 'state' ? ATTENTION_STATE_LABELS[key] : key,
     items: buckets[key],
   }));
 }
@@ -937,6 +992,13 @@ function AttentionCard({ item, selected, pinned, onSelect, onTogglePin }) {
       <div className="op-attention-card-top">
         <span className="op-severity-dot" style={{ background: SEVERITY_COLORS[item.severity] }} />
         <span className="op-attention-asset">{item.asset}</span>
+        <span
+          className="op-attention-state-badge"
+          style={{ color: ATTENTION_STATE_COLORS[item.attentionState] }}
+          title={ATTENTION_STATE_LABELS[item.attentionState]}
+        >
+          {ATTENTION_STATE_LABELS[item.attentionState]}
+        </span>
         <span className="op-attention-since">{item.since}</span>
         <button
           className={`op-pin-btn${pinned ? ' op-pin-btn--active' : ''}`}
@@ -950,6 +1012,10 @@ function AttentionCard({ item, selected, pinned, onSelect, onTogglePin }) {
       <div className="op-attention-interpretation">
         <AiPill />
         <span className="op-attention-interpretation-text">{item.aiInterpretation}</span>
+      </div>
+      <div className="op-attention-recommendation">
+        <AiPill />
+        <span className="op-attention-recommendation-text">{item.detail.recommendation}</span>
       </div>
     </div>
   );
@@ -1216,9 +1282,20 @@ function InvestigatePanel({ item, onCreateWorkItem }) {
         </div>
 
         <div className="op-dashboard-card op-dashboard-card--interpretation">
-          <div className="op-dashboard-card-title"><AiPill />Interpretation</div>
-          <div className="op-dashboard-card-body">
-            <div className="op-dash-text op-dash-text--clamp3">{d.interpretation}</div>
+          <div className="op-dashboard-card-title">Interpretation</div>
+          <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+            <div className="op-evidence-layer">
+              <span className="op-evidence-layer-label op-evidence-layer-label--observed">Observed</span>
+              <div className="op-dash-text op-dash-text--clamp2">{d.observed}</div>
+            </div>
+            <div className="op-evidence-layer">
+              <span className="op-evidence-layer-label op-evidence-layer-label--derived">Derived</span>
+              <div className="op-dash-text op-dash-text--clamp2">{d.derived}</div>
+            </div>
+            <div className="op-evidence-layer">
+              <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Inferred</span>
+              <div className="op-dash-text op-dash-text--clamp2">{d.inferred}</div>
+            </div>
           </div>
         </div>
 
@@ -1411,6 +1488,18 @@ const AI_CHAT_CANNED_REPLIES = [
   "Nothing else correlates with that in the current readings.",
 ];
 
+// Suggested-prompt chips — teaches what's possible and removes the
+// prompt-writing burden, rather than a blank chat box. Generic for now
+// (not yet tied to whichever Attention item is selected); a natural
+// follow-up is making this context-aware.
+const AI_CHAT_SUGGESTED_PROMPTS = [
+  'Why was this flagged?',
+  'What changed first?',
+  'Similar events',
+  'What should I check?',
+  'What happens if I wait?',
+];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Side panel content — Chat / AI, now driven by the RightRail below rather
 // than an internal tab bar
@@ -1487,8 +1576,8 @@ function AiChatPanel() {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   }, []);
 
-  const send = () => {
-    const text = draft.trim();
+  const send = (overrideText) => {
+    const text = (overrideText !== undefined ? overrideText : draft).trim();
     if (!text) return;
     setMessages(prev => [...prev, { from: 'user', text }]);
     setDraft('');
@@ -1508,6 +1597,13 @@ function AiChatPanel() {
           </div>
         ))}
       </div>
+      <div className="op-ai-chat-prompts">
+        {AI_CHAT_SUGGESTED_PROMPTS.map(prompt => (
+          <button key={prompt} className="op-ai-chat-prompt-chip" onClick={() => send(prompt)}>
+            {prompt}
+          </button>
+        ))}
+      </div>
       <div className="op-ai-chat-input-row">
         <input
           type="text"
@@ -1516,7 +1612,7 @@ function AiChatPanel() {
           onChange={e => setDraft(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') send(); }}
         />
-        <button className="op-btn op-btn--primary" onClick={send}>Send</button>
+        <button className="op-btn op-btn--primary" onClick={() => send()}>Send</button>
       </div>
     </>
   );

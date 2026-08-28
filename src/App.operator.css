@@ -1,0 +1,1395 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.operator.css  —  Operator Interface concept shell
+   Now / Attention / Investigate / Work layout. Mirrors the visual language
+   of App.data.css (badges, greys, #0078d4 accent) so it reads as part of
+   the same app rather than a bolted-on mockup.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.op-workspace {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f9f9f9;
+  overflow: hidden;
+}
+
+.op-workspace-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ebebeb;
+  background: #fff;
+}
+
+.op-workspace-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-workspace-badge {
+  font-size: 11px;
+  color: #0055aa;
+  background: #e8f2ff;
+  border: 1px solid #b3d0ff;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.op-zone-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #999;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+  flex-shrink: 0;
+  /* Hidden per request (Now/Attention/Investigate/Work headers) — remove
+     this line to bring all four back at once, since they share this class. */
+  display: none;
+}
+
+.op-ai-pill {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #6a3fd6;
+  background: #f0ebfd;
+  border: 1px solid #d9c9fb;
+  border-radius: 8px;
+  padding: 1px 5px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ── Now strip ────────────────────────────────────────────────────────────── */
+/* Deliberately dark — distinguishes the always-visible operational picture
+   from the working area below, and echoes the app's own dark titlebar. */
+
+.op-now-strip {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  background: #1a1e26;
+}
+
+.op-now-strip .op-zone-label {
+  color: #7d8494;
+}
+
+.op-now-tiles {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  /* Thin, hover-only scrollbar — same technique as App.thinScrollbars.css
+     (canvas/Runtime view), colors tuned for this strip's dark background.
+     !important isn't needed here since this is a plain div, not a
+     DevExtreme-rendered element competing for the same rule. */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.op-now-tiles:hover {
+  scrollbar-color: #4a5164 transparent;
+}
+
+.op-now-tiles::-webkit-scrollbar {
+  height: 5px;
+  transition: background-color .2s linear .15s;
+}
+
+.op-now-tiles::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.op-now-tiles::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background-color .2s linear .15s;
+}
+
+.op-now-tiles:hover::-webkit-scrollbar-thumb {
+  background: #4a5164;
+}
+
+.op-now-tiles::-webkit-scrollbar-thumb:hover {
+  background: #5f6880;
+}
+
+.op-now-tile {
+  flex: 0 0 150px;
+  border: 1px solid #333a48;
+  border-radius: 3px;
+  padding: 8px 10px 10px;
+  background: #262b36;
+  text-align: center;
+}
+
+.op-now-tile-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+.op-now-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.op-now-tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e4e6eb;
+}
+
+.op-now-tile-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0;
+}
+
+.op-now-gauge-center {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e4e6eb;
+}
+
+.op-now-duration {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+}
+
+.op-now-duration-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 1px;
+}
+
+.op-now-duration-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.op-now-duration-unit {
+  font-size: 11px;
+  color: #9096a3;
+}
+
+.op-now-tile-state {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Now section wrapper ──────────────────────────────────────────────────── */
+
+.op-now-section {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.op-now-pulltab {
+  position: absolute;
+  bottom: 0;
+  right: 16px;
+  transform: translateY(100%);
+  width: 64px;
+  height: 20px;
+  border: none;
+  background: #1a1e26;
+  color: #9096a3;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3px;
+  clip-path: polygon(8% 0%, 92% 0%, 78% 100%, 22% 100%);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.28);
+  transition: background 0.12s, color 0.12s;
+}
+
+.op-now-pulltab:hover {
+  background: #262c38;
+  color: #e4e6eb;
+}
+
+.op-now-pulltab-chevron {
+  font-size: 11px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.op-now-pulltab-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ── Issue map — one rigid sliding element, tab included. The tab is simply
+   the bottom 20px of this same box (position:absolute; bottom:0 within
+   it), not a separately-tracked control. Collapsed, the whole box is
+   translated up by its own height minus 20px, so only that bottom strip
+   (the tab) still pokes out below the Now strip — the rest is tucked up
+   behind the strip itself (Now strip has the higher z-index, so it visibly
+   covers that overlap). Expanding slides the whole rigid box down to
+   translateY(0), carrying the tab down to the new true bottom with it —
+   like pulling a page out from under the one on top, not growing a box. */
+
+.op-now-issuemap-overlay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: #1a1e26;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+  border-top: 1px solid #333a48;
+  border-bottom: 1px solid #333a48;
+  transform: translateY(-100%);
+  transition: transform 0.28s ease;
+}
+
+.op-now-issuemap-overlay--open {
+  transform: translateY(0);
+}
+
+.op-issuemap-content {
+  padding: 12px 16px 30px;
+}
+
+.op-issuemap-legend {
+  display: flex;
+  gap: 14px;
+  margin: 0 0 10px;
+}
+
+.op-issuemap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: #9096a3;
+}
+
+.op-issuemap-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.op-issuemap-body {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.op-issuemap-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #c7cbd4;
+  margin-bottom: 6px;
+}
+
+.op-issuemap-table {
+  border-collapse: collapse;
+}
+
+.op-issuemap-table th {
+  font-size: 9px;
+  font-weight: 600;
+  color: #737a89;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 0 3px 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.op-issuemap-table th:first-child {
+  text-align: right;
+  padding-right: 6px;
+  color: #9096a3;
+  text-transform: none;
+  font-weight: 700;
+  font-size: 10.5px;
+}
+
+.op-issuemap-table td {
+  padding: 1.5px;
+}
+
+.op-issuemap-cell {
+  width: 22px;
+  height: 16px;
+  border-radius: 3px;
+  cursor: default;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.op-issuemap-cell--issue {
+  cursor: pointer;
+}
+
+.op-issuemap-cell--issue:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.5);
+}
+
+/* ── Lower row: Attention / Investigate / Work ───────────────────────────── */
+
+.op-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.op-attention-panel {
+  background: #fff;
+}
+
+.op-investigate-panel {
+  background: #f9f9f9;
+}
+
+.op-side-panel {
+  background: #fff;
+}
+
+/* ── Nav rail (Gmail-style collapsible) ──────────────────────────────────── */
+
+.op-main-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.op-nav-rail {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  background: #fff;
+  border-right: 1px solid #ebebeb;
+  padding: 8px 0;
+  transition: width 0.15s ease;
+  overflow: visible;
+}
+
+.op-nav-rail--right {
+  border-right: none;
+  border-left: 1px solid #ebebeb;
+}
+
+.op-nav-rail--expanded {
+  width: 180px;
+}
+
+.op-nav-rail-toggle {
+  align-self: flex-end;
+  margin: 0 8px 8px auto;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: none;
+  background: #f2f2f2;
+  border-radius: 3px;
+  color: #888;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.op-nav-rail-toggle:hover {
+  background: #e5e5e5;
+  color: #333;
+}
+
+.op-nav-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px 13px;
+  color: #777;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.op-nav-rail-item:hover {
+  background: #f5f9ff;
+  color: #222;
+}
+
+.op-nav-rail-item--active {
+  background: #eaf3fc;
+  color: #0078d4;
+}
+
+.op-nav-rail-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+}
+
+.op-nav-rail-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f7de1;
+  border: 1.5px solid #fff;
+}
+
+.op-nav-rail-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.op-nav-rail-count {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  background: #2f7de1;
+  border-radius: 8px;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.op-side-tab-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Attention controls bar (group by / sort by) ─────────────────────────── */
+
+.op-attention-controls {
+  display: flex;
+  gap: 16px;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.op-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.op-control-label {
+  font-size: 11px;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* ── Attention list ───────────────────────────────────────────────────────── */
+
+.op-attention-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.op-attention-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #999;
+  margin: 10px 0 6px 0;
+  padding: 3px 2px;
+  border-radius: 3px;
+  user-select: none;
+}
+
+.op-attention-group-header:first-child {
+  margin-top: 0;
+}
+
+.op-attention-group-header--clickable {
+  cursor: pointer;
+}
+
+.op-attention-group-header--clickable:hover {
+  background: #f2f2f2;
+}
+
+.op-attention-group-header--pinned {
+  color: #a5750f;
+}
+
+.op-pin-icon {
+  font-size: 11px;
+}
+
+.op-group-chevron {
+  display: inline-block;
+  font-size: 9px;
+  color: #aaa;
+  transition: transform 0.12s;
+  transform: rotate(0deg);
+}
+
+.op-group-chevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+.op-group-count-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #777;
+  background: #ececec;
+  border-radius: 8px;
+  padding: 1px 7px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.op-attention-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 9px 10px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.op-attention-card:hover {
+  border-color: #b3d0ff;
+  background: #f5f9ff;
+}
+
+.op-attention-card--selected {
+  border-color: #0078d4;
+  background: #eaf3fc;
+  box-shadow: inset 3px 0 0 #0078d4;
+}
+
+.op-attention-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.op-severity-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.op-attention-asset {
+  font-size: 11px;
+  color: #777;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-attention-since {
+  font-size: 10px;
+  color: #aaa;
+  flex-shrink: 0;
+}
+
+.op-attention-state-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.op-pin-btn {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px;
+  border-radius: 3px;
+  opacity: 0.28;
+  filter: grayscale(1);
+  transition: opacity 0.12s, filter 0.12s;
+}
+
+.op-pin-btn:hover {
+  opacity: 0.75;
+  filter: grayscale(0.4);
+}
+
+.op-pin-btn--active {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.op-attention-signal {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-attention-interpretation {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.op-attention-interpretation-text {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-attention-recommendation {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  color: #0055aa;
+  line-height: 1.5;
+}
+
+.op-attention-recommendation-text {
+  flex: 1 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Investigate ──────────────────────────────────────────────────────────── */
+
+.op-investigate-empty {
+  font-size: 13px;
+  color: #999;
+  font-style: italic;
+  padding: 20px 0;
+}
+
+.op-investigate-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.op-investigate-header .op-severity-dot {
+  margin-top: 5px;
+}
+
+.op-investigate-asset {
+  font-size: 12px;
+  color: #777;
+}
+
+.op-investigate-signal {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-investigate-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 12px 14px;
+}
+
+.op-chain-row {
+  display: flex;
+  gap: 12px;
+}
+
+.op-chain-label {
+  flex: 0 0 130px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-top: 1px;
+}
+
+.op-chain-value {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.5;
+}
+
+/* ── Investigate dashboard (Signal / Interpretation / Similar / Other
+   recent / Next steps) — a 4-column × 4-row grid. Signal takes the left
+   three columns for the full height; Interpretation, Similar, Other
+   recent, and Next steps stack one-per-row in the last column. ───────── */
+
+.op-investigate-dashboard {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.op-dashboard-card--signal {
+  grid-column: 1 / span 3;
+  grid-row: 1 / span 4;
+}
+
+.op-dashboard-card--interpretation {
+  grid-column: 4 / span 1;
+  grid-row: 1 / span 1;
+}
+
+.op-dashboard-card--similar {
+  grid-column: 4 / span 1;
+  grid-row: 2 / span 1;
+}
+
+.op-dashboard-card--otherrecent {
+  grid-column: 4 / span 1;
+  grid-row: 3 / span 1;
+}
+
+.op-dashboard-card--nextsteps {
+  grid-column: 4 / span 1;
+  grid-row: 4 / span 1;
+}
+
+.op-dashboard-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  overflow: hidden;
+}
+
+.op-dashboard-card-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.op-dashboard-card-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.op-evidence-chart-wrap {
+  flex: 1;
+  min-height: 0;
+}
+
+.op-dashboard-card-body--scrollable {
+  overflow-y: auto;
+}
+
+.op-dash-chart-toggle {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.op-evidence-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.op-evidence-table th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0 8px 5px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.op-evidence-table td {
+  padding: 4px 8px 4px 0;
+  color: #333;
+  border-bottom: 1px solid #f1f1f1;
+  white-space: nowrap;
+}
+
+.op-evidence-table td:first-child {
+  color: #999;
+  font-variant-numeric: tabular-nums;
+}
+
+.op-evidence-table-row--notable td {
+  font-weight: 600;
+  color: #222;
+}
+
+.op-dash-text {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.op-dash-text--muted {
+  color: #999;
+  font-style: italic;
+}
+
+.op-dash-text--clamp2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.op-dash-text--clamp3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-evidence-layer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.op-evidence-layer-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.op-evidence-layer-label--observed {
+  color: #666;
+}
+
+.op-evidence-layer-label--derived {
+  color: #0078d4;
+}
+
+.op-evidence-layer-label--inferred {
+  color: #6a3fd6;
+}
+
+.op-investigate-toprow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.op-dash-ministat-row {
+  display: flex;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.op-dash-separator {
+  flex-shrink: 0;
+  height: 1px;
+  background: #e5e5e5;
+  margin: 8px 0 10px;
+}
+
+.op-dash-ministat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.op-dash-ministat svg {
+  flex-shrink: 0;
+}
+
+/* ── Vertical timeline (Evidence readings + What-changed) ────────────────── */
+
+.op-timeline {
+  position: relative;
+  padding-left: 16px;
+  flex-shrink: 0;
+}
+
+.op-timeline::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 4px;
+  bottom: 4px;
+  width: 1.5px;
+  background: #e5e5e5;
+}
+
+.op-timeline-row {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.op-timeline-row:last-child {
+  padding-bottom: 0;
+}
+
+.op-timeline-dot {
+  position: absolute;
+  left: -16px;
+  top: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d5d5d5;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #e5e5e5;
+}
+
+.op-timeline-dot--highlighted {
+  width: 9px;
+  height: 9px;
+  left: -16.5px;
+}
+
+.op-timeline-time {
+  font-size: 9.5px;
+  color: #999;
+  font-variant-numeric: tabular-nums;
+}
+
+.op-timeline-primary {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.op-timeline-secondary {
+  font-size: 10.5px;
+  color: #888;
+  margin-top: 1px;
+}
+
+.op-investigate-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.op-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.op-btn--primary {
+  background: #0078d4;
+  color: #fff;
+  border-color: #0078d4;
+}
+
+.op-btn--primary:hover {
+  background: #0063b1;
+}
+
+.op-btn--secondary {
+  background: #fff;
+  color: #444;
+  border-color: #d5d5d5;
+}
+
+.op-btn--secondary:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
+/* ── Work list ────────────────────────────────────────────────────────────── */
+
+.op-work-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.op-work-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px;
+  margin: 0 -4px;
+  border-radius: 3px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+}
+
+.op-work-item:hover {
+  background: #f5f9ff;
+}
+
+.op-work-item--selected {
+  background: #eaf3fc;
+  box-shadow: inset 3px 0 0 #0078d4;
+}
+
+.op-work-item--done .op-work-text {
+  color: #aaa;
+  text-decoration: line-through;
+}
+
+.op-work-text {
+  font-size: 12px;
+  color: #333;
+  flex: 1;
+  min-width: 0;
+}
+
+.op-work-add {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.op-work-add input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+}
+
+/* ── Chat (contacts) ──────────────────────────────────────────────────────── */
+
+.op-chat-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.op-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 4px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+}
+
+.op-contact-row:hover {
+  background: #f5f9ff;
+}
+
+.op-contact-avatar {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e3eaf6;
+  color: #0078d4;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.op-contact-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.op-contact-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.op-contact-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-unread-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f7de1;
+  flex-shrink: 0;
+}
+
+.op-contact-role {
+  font-size: 10px;
+  color: #999;
+  margin-bottom: 2px;
+}
+
+.op-contact-preview {
+  font-size: 11.5px;
+  color: #777;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-chat-thread {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.op-chat-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 10px;
+  border-bottom: 1px solid #ebebeb;
+  margin-bottom: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.op-chat-back {
+  font-size: 14px;
+  color: #888;
+}
+
+.op-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.op-chat-bubble {
+  max-width: 85%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.op-chat-bubble--them {
+  align-self: flex-start;
+  background: #f0f1f3;
+  color: #222;
+  border-bottom-left-radius: 3px;
+}
+
+.op-chat-bubble--me {
+  align-self: flex-end;
+  background: #0078d4;
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.op-chat-bubble-time {
+  font-size: 9px;
+  opacity: 0.6;
+  margin-top: 3px;
+}
+
+.op-chat-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.op-chat-input-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+}
+
+/* ── AI chat ──────────────────────────────────────────────────────────────── */
+
+.op-ai-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.op-ai-chat-bubble {
+  max-width: 92%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.op-ai-chat-bubble--ai {
+  align-self: flex-start;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  background: #f0ebfd;
+  color: #3f2d66;
+  border-bottom-left-radius: 3px;
+}
+
+.op-ai-chat-bubble--user {
+  align-self: flex-end;
+  background: #0078d4;
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.op-ai-chat-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+
+.op-ai-chat-prompt-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6a3fd6;
+  background: #f0ebfd;
+  border: 1px solid #d9c9fb;
+  border-radius: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.op-ai-chat-prompt-chip:hover {
+  background: #e4d9fb;
+}
+
+.op-ai-chat-input-row {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.op-ai-chat-input-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+}
