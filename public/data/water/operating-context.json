@@ -1,0 +1,50 @@
+{
+  "MERIDIAN_MER_T01": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "MERIDIAN_MER_T02": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "MERIDIAN_MER_T03": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "MERIDIAN_MER_T04": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "MERIDIAN_MER_T05": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "MERIDIAN_MER_T06": {
+    "mode": "STEADY",
+    "product": "Potable Supply"
+  },
+  "CONFLUENCE_CON_T01": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  },
+  "CONFLUENCE_CON_T02": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  },
+  "CONFLUENCE_CON_T03": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  },
+  "CONFLUENCE_CON_T04": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  },
+  "CONFLUENCE_CON_T05": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  },
+  "CONFLUENCE_CON_T06": {
+    "mode": "STEADY",
+    "product": "Reclaimed Effluent"
+  }
+}

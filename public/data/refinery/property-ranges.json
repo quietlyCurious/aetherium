@@ -1,0 +1,218 @@
+{
+  "buffer_capacity_utilization": [
+    20,
+    60
+  ],
+  "buffer_inflow_rate": [
+    100,
+    140
+  ],
+  "buffer_level": [
+    15,
+    75
+  ],
+  "buffer_outflow_rate": [
+    100,
+    140
+  ],
+  "buffer_turnover_rate": [
+    1,
+    5
+  ],
+  "time_in_buffer": [
+    0,
+    8
+  ],
+  "charge_rate": [
+    35,
+    65
+  ],
+  "FlowRate": [
+    110,
+    130
+  ],
+  "TransferRate": [
+    95,
+    130
+  ],
+  "blocking_time": [
+    0,
+    3
+  ],
+  "starvation_time": [
+    0,
+    3
+  ],
+  "defect_rate": [
+    0,
+    3
+  ],
+  "final_defect_rate": [
+    0,
+    1.5
+  ],
+  "rework_rate": [
+    0,
+    2
+  ],
+  "RejectRatePct": [
+    0,
+    8
+  ],
+  "control_effort": [
+    40,
+    60
+  ],
+  "deviation": [
+    0,
+    1
+  ],
+  "measurement_noise": [
+    0,
+    3
+  ],
+  "oscillation_index": [
+    0,
+    6
+  ],
+  "process_variability": [
+    0,
+    5
+  ],
+  "settling_time": [
+    5,
+    30
+  ],
+  "stability_score": [
+    88,
+    100
+  ],
+  "system_stress": [
+    0,
+    30
+  ],
+  "ControlEffortPct": [
+    40,
+    60
+  ],
+  "ControllerOutputPct": [
+    35,
+    65
+  ],
+  "VibrationMmS": [
+    0,
+    6
+  ],
+  "consistency_index": [
+    85,
+    100
+  ],
+  "false_accept_rate": [
+    0,
+    1
+  ],
+  "false_reject_rate": [
+    0,
+    1.5
+  ],
+  "first_pass_yield": [
+    90,
+    100
+  ],
+  "inspection_pass_rate": [
+    92,
+    100
+  ],
+  "on_time_output_rate": [
+    92,
+    100
+  ],
+  "order_fulfillment_rate": [
+    94,
+    100
+  ],
+  "output_consistency_index": [
+    88,
+    100
+  ],
+  "output_quality_score": [
+    94,
+    100
+  ],
+  "yield_rate": [
+    92,
+    100
+  ],
+  "CalibrationScore": [
+    97,
+    100
+  ],
+  "InputCharacteristicIndex": [
+    40,
+    65
+  ],
+  "PurityPct": [
+    97,
+    100
+  ],
+  "saturation_risk_index": [
+    0,
+    20
+  ],
+  "starvation_risk_index": [
+    0,
+    18
+  ],
+  "BearingTempC": [
+    55,
+    75
+  ],
+  "MotorCurrentA": [
+    85,
+    115
+  ],
+  "PressurePV": [
+    70,
+    100
+  ],
+  "LocalGaugePressure": [
+    75,
+    85
+  ],
+  "TemperatureC": [
+    65,
+    75
+  ],
+  "energy_per_unit": [
+    3,
+    6
+  ],
+  "input_quality_score": [
+    95,
+    100
+  ],
+  "material_availability": [
+    95,
+    100
+  ],
+  "batch_variability": [
+    0,
+    8
+  ],
+  "supply_variability": [
+    0,
+    5
+  ],
+  "input_signal_noise": [
+    0,
+    3
+  ],
+  "input_variability": [
+    0,
+    5
+  ],
+  "input_defect_rate": [
+    0,
+    1.5
+  ]
+}

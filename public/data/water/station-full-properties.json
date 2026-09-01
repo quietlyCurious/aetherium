@@ -1,0 +1,440 @@
+{
+  "MER_T01_INTAKE": {
+    "raw_water_turbidity_ntu": 6.882,
+    "raw_water_ph": 7.404,
+    "screen_differential_pressure_psi": 2.427,
+    "intake_flow_variability": 2.751,
+    "algae_risk_index": 14.225
+  },
+  "MER_T01_COAGULATION": {
+    "coagulant_dose_mg_l": 17.021,
+    "rapid_mix_gradient_per_s": 744.419,
+    "jar_test_deviation_pct": 3.217,
+    "coagulant_pump_stability": 98.47,
+    "floc_formation_index": 92.819
+  },
+  "MER_T01_FLOCCULATION": {
+    "floc_size_index": 86.906,
+    "paddle_speed_rpm": 4.35,
+    "mixing_energy_gradient_per_s": 45.98,
+    "floc_carryover_risk": 10.018
+  },
+  "MER_T01_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 1.683,
+    "sludge_blanket_level_pct": 32.103,
+    "weir_overflow_rate_gpd_ft": 17720.349,
+    "basin_short_circuiting_index": 5.947
+  },
+  "MER_T01_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.08,
+    "headloss_ft": 4.4,
+    "filter_run_time_hrs": 30.0,
+    "unit_filter_run_volume_gal_sf": 9486.752,
+    "backwash_frequency_per_week": 2.576
+  },
+  "MER_T01_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.14,
+    "ct_value_actual": 146.134,
+    "ct_value_required": 120.37,
+    "contact_time_min": 35.897,
+    "chlorine_demand_mg_l": 0.786,
+    "dbp_formation_risk": 9.428
+  },
+  "MER_T02_INTAKE": {
+    "raw_water_turbidity_ntu": 10.084,
+    "raw_water_ph": 7.341,
+    "screen_differential_pressure_psi": 2.335,
+    "intake_flow_variability": 2.587,
+    "algae_risk_index": 8.133
+  },
+  "MER_T02_COAGULATION": {
+    "coagulant_dose_mg_l": 18.0,
+    "rapid_mix_gradient_per_s": 705.094,
+    "jar_test_deviation_pct": 3.377,
+    "coagulant_pump_stability": 99.106,
+    "floc_formation_index": 87.092
+  },
+  "MER_T02_FLOCCULATION": {
+    "floc_size_index": 74.257,
+    "paddle_speed_rpm": 3.702,
+    "mixing_energy_gradient_per_s": 49.104,
+    "floc_carryover_risk": 11.589
+  },
+  "MER_T02_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 2.465,
+    "sludge_blanket_level_pct": 40.771,
+    "weir_overflow_rate_gpd_ft": 18299.841,
+    "basin_short_circuiting_index": 5.682
+  },
+  "MER_T02_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.056,
+    "headloss_ft": 3.318,
+    "filter_run_time_hrs": 47.102,
+    "unit_filter_run_volume_gal_sf": 10102.327,
+    "backwash_frequency_per_week": 2.911
+  },
+  "MER_T02_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.036,
+    "ct_value_actual": 128.0,
+    "ct_value_required": 119.263,
+    "contact_time_min": 29.0,
+    "chlorine_demand_mg_l": 0.728,
+    "dbp_formation_risk": 18.117
+  },
+  "MER_T03_INTAKE": {
+    "raw_water_turbidity_ntu": 11.4,
+    "raw_water_ph": 7.331,
+    "screen_differential_pressure_psi": 2.97,
+    "intake_flow_variability": 3.088,
+    "algae_risk_index": 7.163
+  },
+  "MER_T03_COAGULATION": {
+    "coagulant_dose_mg_l": 17.013,
+    "rapid_mix_gradient_per_s": 677.244,
+    "jar_test_deviation_pct": 5.747,
+    "coagulant_pump_stability": 96.139,
+    "floc_formation_index": 86.859
+  },
+  "MER_T03_FLOCCULATION": {
+    "floc_size_index": 82.414,
+    "paddle_speed_rpm": 3.923,
+    "mixing_energy_gradient_per_s": 46.565,
+    "floc_carryover_risk": 2.833
+  },
+  "MER_T03_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 2.568,
+    "sludge_blanket_level_pct": 37.588,
+    "weir_overflow_rate_gpd_ft": 18328.948,
+    "basin_short_circuiting_index": 17.384
+  },
+  "MER_T03_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.111,
+    "headloss_ft": 2.972,
+    "filter_run_time_hrs": 55.214,
+    "unit_filter_run_volume_gal_sf": 8558.268,
+    "backwash_frequency_per_week": 3.5
+  },
+  "MER_T03_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.264,
+    "ct_value_actual": 136.153,
+    "ct_value_required": 123.408,
+    "contact_time_min": 33.29,
+    "chlorine_demand_mg_l": 1.172,
+    "dbp_formation_risk": 18.497
+  },
+  "MER_T04_INTAKE": {
+    "raw_water_turbidity_ntu": 10.617,
+    "raw_water_ph": 7.484,
+    "screen_differential_pressure_psi": 2.88,
+    "intake_flow_variability": 3.395,
+    "algae_risk_index": -1.424
+  },
+  "MER_T04_COAGULATION": {
+    "coagulant_dose_mg_l": 14.854,
+    "rapid_mix_gradient_per_s": 722.811,
+    "jar_test_deviation_pct": 2.881,
+    "coagulant_pump_stability": 97.411,
+    "floc_formation_index": 90.225
+  },
+  "MER_T04_FLOCCULATION": {
+    "floc_size_index": 78.968,
+    "paddle_speed_rpm": 4.044,
+    "mixing_energy_gradient_per_s": 40.511,
+    "floc_carryover_risk": 8.911
+  },
+  "MER_T04_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 2.169,
+    "sludge_blanket_level_pct": 35.1,
+    "weir_overflow_rate_gpd_ft": 17831.349,
+    "basin_short_circuiting_index": 10.541
+  },
+  "MER_T04_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.07,
+    "headloss_ft": 2.893,
+    "filter_run_time_hrs": 55.257,
+    "unit_filter_run_volume_gal_sf": 9272.023,
+    "backwash_frequency_per_week": 3.432
+  },
+  "MER_T04_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.363,
+    "ct_value_actual": 142.852,
+    "ct_value_required": 118.139,
+    "contact_time_min": 33.769,
+    "chlorine_demand_mg_l": 0.978,
+    "dbp_formation_risk": 10.737
+  },
+  "MER_T05_INTAKE": {
+    "raw_water_turbidity_ntu": 9.021,
+    "raw_water_ph": 7.589,
+    "screen_differential_pressure_psi": 2.248,
+    "intake_flow_variability": 3.393,
+    "algae_risk_index": 10.015
+  },
+  "MER_T05_COAGULATION": {
+    "coagulant_dose_mg_l": 18.025,
+    "rapid_mix_gradient_per_s": 700.678,
+    "jar_test_deviation_pct": 4.866,
+    "coagulant_pump_stability": 97.579,
+    "floc_formation_index": 89.962
+  },
+  "MER_T05_FLOCCULATION": {
+    "floc_size_index": 80.089,
+    "paddle_speed_rpm": 4.123,
+    "mixing_energy_gradient_per_s": 47.705,
+    "floc_carryover_risk": 15.979
+  },
+  "MER_T05_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 2.0,
+    "sludge_blanket_level_pct": 37.957,
+    "weir_overflow_rate_gpd_ft": 17555.699,
+    "basin_short_circuiting_index": 9.604
+  },
+  "MER_T05_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.089,
+    "headloss_ft": 3.065,
+    "filter_run_time_hrs": 42.983,
+    "unit_filter_run_volume_gal_sf": 8486.46,
+    "backwash_frequency_per_week": 3.296
+  },
+  "MER_T05_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.148,
+    "ct_value_actual": 145.817,
+    "ct_value_required": 118.593,
+    "contact_time_min": 36.426,
+    "chlorine_demand_mg_l": 0.946,
+    "dbp_formation_risk": 15.026
+  },
+  "MER_T06_INTAKE": {
+    "raw_water_turbidity_ntu": 6.121,
+    "raw_water_ph": 7.348,
+    "screen_differential_pressure_psi": 2.297,
+    "intake_flow_variability": 4.016,
+    "algae_risk_index": 2.822
+  },
+  "MER_T06_COAGULATION": {
+    "coagulant_dose_mg_l": 17.933,
+    "rapid_mix_gradient_per_s": 724.312,
+    "jar_test_deviation_pct": 6.352,
+    "coagulant_pump_stability": 95.884,
+    "floc_formation_index": 83.38
+  },
+  "MER_T06_FLOCCULATION": {
+    "floc_size_index": 81.966,
+    "paddle_speed_rpm": 3.688,
+    "mixing_energy_gradient_per_s": 44.886,
+    "floc_carryover_risk": 4.224
+  },
+  "MER_T06_SEDIMENTATION": {
+    "settled_water_turbidity_ntu": 2.585,
+    "sludge_blanket_level_pct": 34.22,
+    "weir_overflow_rate_gpd_ft": 16629.236,
+    "basin_short_circuiting_index": 11.567
+  },
+  "MER_T06_FILTRATION": {
+    "filter_effluent_turbidity_ntu": 0.073,
+    "headloss_ft": 4.544,
+    "filter_run_time_hrs": 37.003,
+    "unit_filter_run_volume_gal_sf": 8721.528,
+    "backwash_frequency_per_week": 6.5
+  },
+  "MER_T06_DISINFECTION": {
+    "chlorine_residual_mg_l": 1.148,
+    "ct_value_actual": 158.844,
+    "ct_value_required": 121.015,
+    "contact_time_min": 32.767,
+    "chlorine_demand_mg_l": 1.15,
+    "dbp_formation_risk": 13.072
+  },
+  "CON_T01_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 4.249,
+    "grit_removal_efficiency_pct": 92.486,
+    "influent_flow_variability": 11.053,
+    "odor_index": 16.28
+  },
+  "CON_T01_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 56.562,
+    "primary_bod_removal_pct": 33.027,
+    "sludge_blanket_level_pct": 29.309,
+    "scum_removal_rate": 95.029,
+    "surge_control_index": 15.538
+  },
+  "CON_T01_AERATION": {
+    "dissolved_oxygen_mg_l": 2.658,
+    "mlss_mg_l": 2578.26,
+    "blower_air_flow_scfm": 4076.364,
+    "food_to_microorganism_ratio": 0.298,
+    "sludge_age_days": 10.194
+  },
+  "CON_T01_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 86.558,
+    "sludge_settleability_svi": 142.0,
+    "ras_rate_pct": 50.371,
+    "clarifier_torque_pct": 57.709
+  },
+  "CON_T01_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.63,
+    "ct_value_actual": 68.607,
+    "effluent_fecal_coliform_risk": 14.373,
+    "dechlorination_residual_mg_l": 0.02
+  },
+  "CON_T02_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 5.194,
+    "grit_removal_efficiency_pct": 92.745,
+    "influent_flow_variability": 13.195,
+    "odor_index": 23.578
+  },
+  "CON_T02_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 60.319,
+    "primary_bod_removal_pct": 31.931,
+    "sludge_blanket_level_pct": 39.632,
+    "scum_removal_rate": 94.742,
+    "surge_control_index": 19.064
+  },
+  "CON_T02_AERATION": {
+    "dissolved_oxygen_mg_l": 2.137,
+    "mlss_mg_l": 2893.008,
+    "blower_air_flow_scfm": 4284.56,
+    "food_to_microorganism_ratio": 0.28,
+    "sludge_age_days": 7.933
+  },
+  "CON_T02_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 87.223,
+    "sludge_settleability_svi": 106.748,
+    "ras_rate_pct": 46.368,
+    "clarifier_torque_pct": 48.126
+  },
+  "CON_T02_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.641,
+    "ct_value_actual": 70.13,
+    "effluent_fecal_coliform_risk": 16.155,
+    "dechlorination_residual_mg_l": 0.07
+  },
+  "CON_T03_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 6.176,
+    "grit_removal_efficiency_pct": 90.728,
+    "influent_flow_variability": 16.242,
+    "odor_index": 22.294
+  },
+  "CON_T03_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 58.234,
+    "primary_bod_removal_pct": 35.145,
+    "sludge_blanket_level_pct": 27.39,
+    "scum_removal_rate": 91.666,
+    "surge_control_index": 11.056
+  },
+  "CON_T03_AERATION": {
+    "dissolved_oxygen_mg_l": 2.2,
+    "mlss_mg_l": 2885.927,
+    "blower_air_flow_scfm": 4007.927,
+    "food_to_microorganism_ratio": 0.265,
+    "sludge_age_days": 10.23
+  },
+  "CON_T03_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 90.379,
+    "sludge_settleability_svi": 114.119,
+    "ras_rate_pct": 44.222,
+    "clarifier_torque_pct": 56.458
+  },
+  "CON_T03_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.491,
+    "ct_value_actual": 61.177,
+    "effluent_fecal_coliform_risk": 9.711,
+    "dechlorination_residual_mg_l": 0.029
+  },
+  "CON_T04_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 6.159,
+    "grit_removal_efficiency_pct": 88.206,
+    "influent_flow_variability": 7.192,
+    "odor_index": 21.104
+  },
+  "CON_T04_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 57.21,
+    "primary_bod_removal_pct": 35.794,
+    "sludge_blanket_level_pct": 24.131,
+    "scum_removal_rate": 96.332,
+    "surge_control_index": 14.567
+  },
+  "CON_T04_AERATION": {
+    "dissolved_oxygen_mg_l": 2.858,
+    "mlss_mg_l": 2710.808,
+    "blower_air_flow_scfm": 3883.092,
+    "food_to_microorganism_ratio": 0.245,
+    "sludge_age_days": 10.477
+  },
+  "CON_T04_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 83.626,
+    "sludge_settleability_svi": 128.342,
+    "ras_rate_pct": 42.518,
+    "clarifier_torque_pct": 59.477
+  },
+  "CON_T04_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.688,
+    "ct_value_actual": 62.508,
+    "effluent_fecal_coliform_risk": 12.0,
+    "dechlorination_residual_mg_l": 0.041
+  },
+  "CON_T05_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 6.791,
+    "grit_removal_efficiency_pct": 92.147,
+    "influent_flow_variability": 8.571,
+    "odor_index": 25.353
+  },
+  "CON_T05_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 61.0,
+    "primary_bod_removal_pct": 31.64,
+    "sludge_blanket_level_pct": 31.62,
+    "scum_removal_rate": 96.762,
+    "surge_control_index": 6.113
+  },
+  "CON_T05_AERATION": {
+    "dissolved_oxygen_mg_l": 2.229,
+    "mlss_mg_l": 2888.896,
+    "blower_air_flow_scfm": 4367.671,
+    "food_to_microorganism_ratio": 0.285,
+    "sludge_age_days": 9.883
+  },
+  "CON_T05_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 88.473,
+    "sludge_settleability_svi": 108.202,
+    "ras_rate_pct": 40.599,
+    "clarifier_torque_pct": 45.921
+  },
+  "CON_T05_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.666,
+    "ct_value_actual": 60.82,
+    "effluent_fecal_coliform_risk": 5.697,
+    "dechlorination_residual_mg_l": 0.047
+  },
+  "CON_T06_PRELIMINARY": {
+    "screenings_removal_rate_ft3_mg": 5.598,
+    "grit_removal_efficiency_pct": 89.368,
+    "influent_flow_variability": 10.934,
+    "odor_index": 17.356
+  },
+  "CON_T06_PRIMARYCLARIFIER": {
+    "primary_tss_removal_pct": 56.366,
+    "primary_bod_removal_pct": 44.734,
+    "sludge_blanket_level_pct": 23.564,
+    "scum_removal_rate": 97.507,
+    "surge_control_index": 11.44
+  },
+  "CON_T06_AERATION": {
+    "dissolved_oxygen_mg_l": 2.301,
+    "mlss_mg_l": 2796.784,
+    "blower_air_flow_scfm": 4406.913,
+    "food_to_microorganism_ratio": 0.282,
+    "sludge_age_days": 8.859
+  },
+  "CON_T06_SECONDARYCLARIFIER": {
+    "secondary_tss_removal_pct": 84.627,
+    "sludge_settleability_svi": 115.539,
+    "ras_rate_pct": 44.46,
+    "clarifier_torque_pct": 55.936
+  },
+  "CON_T06_DISINFECTION": {
+    "chlorine_residual_mg_l": 0.562,
+    "ct_value_actual": 60.411,
+    "effluent_fecal_coliform_risk": 7.671,
+    "dechlorination_residual_mg_l": 0.023
+  }
+}

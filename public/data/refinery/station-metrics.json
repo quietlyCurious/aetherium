@@ -1,0 +1,1574 @@
+{
+  "AUR_L01_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 119.88,
+    "targetRate": 120.0,
+    "oee": 98.68,
+    "wip": 8.9,
+    "queueLength": 1.5,
+    "scrapRate": 1.068,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.721
+      },
+      {
+        "label": "batch_variability",
+        "value": 3.69
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L01_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": false,
+    "throughput": 118.89,
+    "targetRate": 120.0,
+    "oee": 98.29,
+    "wip": 6.2,
+    "queueLength": 3.9,
+    "scrapRate": 1.123,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 96.762
+      },
+      {
+        "label": "oscillation_index",
+        "value": 1.946
+      }
+    ],
+    "measured": {
+      "PressurePV": 82.254,
+      "LocalGaugePressure": 80.561,
+      "FlowRate": 118.103,
+      "TemperatureC": 71.171
+    }
+  },
+  "AUR_L01_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": true,
+    "throughput": 119.5,
+    "targetRate": 120.0,
+    "oee": 98.11,
+    "wip": 9.1,
+    "queueLength": 3.6,
+    "scrapRate": 0.9,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 98.437
+      },
+      {
+        "label": "consistency_index",
+        "value": 95.511
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 49.233,
+      "PurityPct": 99.293,
+      "InputCharacteristicIndex": 53.597
+    }
+  },
+  "AUR_L01_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": true,
+    "throughput": 118.4,
+    "targetRate": 120.0,
+    "oee": 96.41,
+    "wip": 6.8,
+    "queueLength": 2.1,
+    "scrapRate": 1.004,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 97.898
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 96.932
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 2.137,
+      "CalibrationScore": 99.729
+    }
+  },
+  "AUR_L01_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": false,
+    "throughput": 115.72,
+    "targetRate": 120.0,
+    "oee": 95.89,
+    "wip": 8.1,
+    "queueLength": 2.2,
+    "scrapRate": 0.945,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 45.613
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 8.896
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L01_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 120.76,
+    "targetRate": 120.0,
+    "oee": 100.03,
+    "wip": 7.9,
+    "queueLength": 3.9,
+    "scrapRate": 0.884,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.56
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 99.121
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L02_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 120.55,
+    "targetRate": 120.0,
+    "oee": 99.82,
+    "wip": 7.8,
+    "queueLength": 4.7,
+    "scrapRate": 0.735,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.504
+      },
+      {
+        "label": "batch_variability",
+        "value": 3.394
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L02_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": false,
+    "throughput": 120.04,
+    "targetRate": 120.0,
+    "oee": 98.37,
+    "wip": 7.1,
+    "queueLength": 2.9,
+    "scrapRate": 0.454,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 96.495
+      },
+      {
+        "label": "oscillation_index",
+        "value": 1.249
+      }
+    ],
+    "measured": {
+      "PressurePV": 80.741,
+      "LocalGaugePressure": 80.631,
+      "FlowRate": 121.304,
+      "TemperatureC": 71.737
+    }
+  },
+  "AUR_L02_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": false,
+    "throughput": 120.18,
+    "targetRate": 120.0,
+    "oee": 98.01,
+    "wip": 4.7,
+    "queueLength": 0.3,
+    "scrapRate": 0.946,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 98.507
+      },
+      {
+        "label": "consistency_index",
+        "value": 96.342
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 50.499,
+      "PurityPct": 99.227,
+      "InputCharacteristicIndex": 49.544
+    }
+  },
+  "AUR_L02_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": false,
+    "throughput": 118.46,
+    "targetRate": 120.0,
+    "oee": 95.63,
+    "wip": 8.4,
+    "queueLength": 3.8,
+    "scrapRate": 0.797,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 97.701
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 97.96
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 2.396,
+      "CalibrationScore": 99.647
+    }
+  },
+  "AUR_L02_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": false,
+    "throughput": 115.27,
+    "targetRate": 120.0,
+    "oee": 94.9,
+    "wip": 6.1,
+    "queueLength": 1.8,
+    "scrapRate": 0.621,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 43.505
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 7.77
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L02_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 121.49,
+    "targetRate": 120.0,
+    "oee": 99.54,
+    "wip": 6.1,
+    "queueLength": 1.5,
+    "scrapRate": 1.014,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.96
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.249
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L03_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 117.24,
+    "targetRate": 120.0,
+    "oee": 97.22,
+    "wip": 6.7,
+    "queueLength": 2.3,
+    "scrapRate": 0.591,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.395
+      },
+      {
+        "label": "batch_variability",
+        "value": 2.832
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L03_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": false,
+    "throughput": 117.07,
+    "targetRate": 120.0,
+    "oee": 96.99,
+    "wip": 7.3,
+    "queueLength": 4.5,
+    "scrapRate": 0.626,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 96.563
+      },
+      {
+        "label": "oscillation_index",
+        "value": 2.042
+      }
+    ],
+    "measured": {
+      "PressurePV": 79.779,
+      "LocalGaugePressure": 78.23,
+      "FlowRate": 118.406,
+      "TemperatureC": 71.328
+    }
+  },
+  "AUR_L03_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": true,
+    "throughput": 119.72,
+    "targetRate": 120.0,
+    "oee": 97.61,
+    "wip": 7.6,
+    "queueLength": 2.4,
+    "scrapRate": 0.107,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 98.976
+      },
+      {
+        "label": "consistency_index",
+        "value": 94.625
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 49.626,
+      "PurityPct": 99.269,
+      "InputCharacteristicIndex": 47.199
+    }
+  },
+  "AUR_L03_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": false,
+    "throughput": 119.4,
+    "targetRate": 120.0,
+    "oee": 97.02,
+    "wip": 7.8,
+    "queueLength": 1.6,
+    "scrapRate": 0.616,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 98.293
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 97.87
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 2.578,
+      "CalibrationScore": 99.611
+    }
+  },
+  "AUR_L03_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": false,
+    "throughput": 117.52,
+    "targetRate": 120.0,
+    "oee": 97.6,
+    "wip": 7.4,
+    "queueLength": 2.8,
+    "scrapRate": 0.629,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 43.263
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 3.54
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L03_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 121.3,
+    "targetRate": 120.0,
+    "oee": 99.58,
+    "wip": 7.8,
+    "queueLength": 4.8,
+    "scrapRate": 0.463,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.552
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.326
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L04_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 117.86,
+    "targetRate": 120.0,
+    "oee": 96.92,
+    "wip": 8.4,
+    "queueLength": 2.7,
+    "scrapRate": 0.773,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.859
+      },
+      {
+        "label": "batch_variability",
+        "value": 3.205
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L04_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": false,
+    "throughput": 120.15,
+    "targetRate": 120.0,
+    "oee": 99.62,
+    "wip": 8.4,
+    "queueLength": 4.2,
+    "scrapRate": 0.695,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 95.916
+      },
+      {
+        "label": "oscillation_index",
+        "value": 2.322
+      }
+    ],
+    "measured": {
+      "PressurePV": 80.679,
+      "LocalGaugePressure": 78.988,
+      "FlowRate": 120.004,
+      "TemperatureC": 70.766
+    }
+  },
+  "AUR_L04_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": false,
+    "throughput": 119.81,
+    "targetRate": 120.0,
+    "oee": 97.97,
+    "wip": 6.9,
+    "queueLength": 3.3,
+    "scrapRate": 0.905,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 98.364
+      },
+      {
+        "label": "consistency_index",
+        "value": 95.882
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 51.443,
+      "PurityPct": 99.242,
+      "InputCharacteristicIndex": 49.011
+    }
+  },
+  "AUR_L04_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": false,
+    "throughput": 119.05,
+    "targetRate": 120.0,
+    "oee": 97.14,
+    "wip": 10.2,
+    "queueLength": 4.1,
+    "scrapRate": 0.942,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 97.498
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 98.03
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 2.246,
+      "CalibrationScore": 99.721
+    }
+  },
+  "AUR_L04_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": true,
+    "throughput": 116.12,
+    "targetRate": 120.0,
+    "oee": 96.63,
+    "wip": 10.7,
+    "queueLength": 3.7,
+    "scrapRate": 1.019,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 43.0
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 8.395
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L04_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": true,
+    "throughput": 122.36,
+    "targetRate": 120.0,
+    "oee": 101.69,
+    "wip": 8.9,
+    "queueLength": 4.0,
+    "scrapRate": 0.9,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.285
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.858
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L05_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 118.11,
+    "targetRate": 120.0,
+    "oee": 98.35,
+    "wip": 6.7,
+    "queueLength": 3.8,
+    "scrapRate": 0.821,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.5
+      },
+      {
+        "label": "batch_variability",
+        "value": 3.181
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L05_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": true,
+    "throughput": 119.01,
+    "targetRate": 120.0,
+    "oee": 98.4,
+    "wip": 11.2,
+    "queueLength": 2.3,
+    "scrapRate": 0.794,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 96.603
+      },
+      {
+        "label": "oscillation_index",
+        "value": 2.461
+      }
+    ],
+    "measured": {
+      "PressurePV": 79.235,
+      "LocalGaugePressure": 79.456,
+      "FlowRate": 121.296,
+      "TemperatureC": 71.255
+    }
+  },
+  "AUR_L05_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": false,
+    "throughput": 119.73,
+    "targetRate": 120.0,
+    "oee": 98.09,
+    "wip": 10.3,
+    "queueLength": 3.6,
+    "scrapRate": 0.791,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 97.428
+      },
+      {
+        "label": "consistency_index",
+        "value": 98.503
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 48.523,
+      "PurityPct": 99.287,
+      "InputCharacteristicIndex": 49.76
+    }
+  },
+  "AUR_L05_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": false,
+    "throughput": 117.95,
+    "targetRate": 120.0,
+    "oee": 96.07,
+    "wip": 6.8,
+    "queueLength": 2.5,
+    "scrapRate": 0.818,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 98.346
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 96.621
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 2.787,
+      "CalibrationScore": 99.878
+    }
+  },
+  "AUR_L05_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": false,
+    "throughput": 115.52,
+    "targetRate": 120.0,
+    "oee": 94.67,
+    "wip": 4.2,
+    "queueLength": 0.8,
+    "scrapRate": 0.923,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 46.913
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 6.789
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L05_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 121.6,
+    "targetRate": 120.0,
+    "oee": 99.89,
+    "wip": 6.2,
+    "queueLength": 2.1,
+    "scrapRate": 0.306,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 97.683
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.352
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L06_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "throughput": 118.17,
+    "targetRate": 120.0,
+    "oee": 98.61,
+    "wip": 4.2,
+    "queueLength": 3.3,
+    "scrapRate": 0.952,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "input_quality_score",
+        "value": 98.502
+      },
+      {
+        "label": "batch_variability",
+        "value": 3.651
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L06_STABILIZATION": {
+    "stationType": "STABILIZATION",
+    "isReal": false,
+    "throughput": 118.21,
+    "targetRate": 120.0,
+    "oee": 97.75,
+    "wip": 10.6,
+    "queueLength": 0.9,
+    "scrapRate": 0.738,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "stability_score",
+        "value": 95.821
+      },
+      {
+        "label": "oscillation_index",
+        "value": 1.763
+      }
+    ],
+    "measured": {
+      "PressurePV": 79.981,
+      "LocalGaugePressure": 79.554,
+      "FlowRate": 119.614,
+      "TemperatureC": 70.874
+    }
+  },
+  "AUR_L06_REFINEMENT": {
+    "stationType": "REFINEMENT",
+    "isReal": true,
+    "throughput": 119.32,
+    "targetRate": 120.0,
+    "oee": 97.31,
+    "wip": 6.6,
+    "queueLength": 4.1,
+    "scrapRate": 0.647,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "yield_rate",
+        "value": 97.927
+      },
+      {
+        "label": "consistency_index",
+        "value": 94.148
+      }
+    ],
+    "measured": {
+      "ControlEffortPct": 48.407,
+      "PurityPct": 99.248,
+      "InputCharacteristicIndex": 53.048
+    }
+  },
+  "AUR_L06_INSPECTION": {
+    "stationType": "INSPECTION",
+    "isReal": true,
+    "throughput": 120.05,
+    "targetRate": 120.0,
+    "oee": 97.27,
+    "wip": 10.3,
+    "queueLength": 3.4,
+    "scrapRate": 0.759,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "inspection_pass_rate",
+        "value": 97.648
+      },
+      {
+        "label": "first_pass_yield",
+        "value": 95.955
+      }
+    ],
+    "measured": {
+      "RejectRatePct": 1.856,
+      "CalibrationScore": 99.66
+    }
+  },
+  "AUR_L06_BUFFER": {
+    "stationType": "BUFFER",
+    "isReal": false,
+    "throughput": 117.09,
+    "targetRate": 120.0,
+    "oee": 96.92,
+    "wip": 6.5,
+    "queueLength": 2.9,
+    "scrapRate": 0.876,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "buffer_level",
+        "value": 42.239
+      },
+      {
+        "label": "saturation_risk_index",
+        "value": 11.059
+      }
+    ],
+    "measured": {}
+  },
+  "AUR_L06_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 120.87,
+    "targetRate": 120.0,
+    "oee": 99.36,
+    "wip": 7.2,
+    "queueLength": 1.2,
+    "scrapRate": 0.713,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 99.0
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 98.469
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L01_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 122.75,
+    "targetRate": 125.0,
+    "oee": 96.69,
+    "wip": 9.0,
+    "queueLength": 3.1,
+    "scrapRate": 0.417,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 99.115
+      },
+      {
+        "label": "supply_variability",
+        "value": 2.864
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L01_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": true,
+    "throughput": 124.46,
+    "targetRate": 125.0,
+    "oee": 97.44,
+    "wip": 7.9,
+    "queueLength": 2.0,
+    "scrapRate": 0.616,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 50.078
+      },
+      {
+        "label": "system_stress",
+        "value": 10.418
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 2.836,
+      "BearingTempC": 64.791,
+      "MotorCurrentA": 97.861,
+      "ControllerOutputPct": 50.782
+    }
+  },
+  "FER_L01_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": false,
+    "throughput": 124.94,
+    "targetRate": 125.0,
+    "oee": 97.64,
+    "wip": 11.0,
+    "queueLength": 3.2,
+    "scrapRate": 0.755,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 94.656
+      },
+      {
+        "label": "defect_rate",
+        "value": 1.267
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L01_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": false,
+    "throughput": 124.08,
+    "targetRate": 125.0,
+    "oee": 98.57,
+    "wip": 8.8,
+    "queueLength": 4.3,
+    "scrapRate": 0.603,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 1.474
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.147
+      }
+    ],
+    "measured": {
+      "TransferRate": 120.812,
+      "MotorCurrentA": 93.65
+    }
+  },
+  "FER_L01_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 126.02,
+    "targetRate": 125.0,
+    "oee": 99.43,
+    "wip": 5.0,
+    "queueLength": 2.6,
+    "scrapRate": 0.987,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.91
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.733
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L02_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 122.76,
+    "targetRate": 125.0,
+    "oee": 97.23,
+    "wip": 10.1,
+    "queueLength": 2.1,
+    "scrapRate": 1.003,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 98.53
+      },
+      {
+        "label": "supply_variability",
+        "value": 2.842
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L02_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": true,
+    "throughput": 124.43,
+    "targetRate": 125.0,
+    "oee": 98.23,
+    "wip": 5.7,
+    "queueLength": 3.9,
+    "scrapRate": 0.638,
+    "microstopCount": 20,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 50.88
+      },
+      {
+        "label": "system_stress",
+        "value": 13.284
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 4.248,
+      "BearingTempC": 71.367,
+      "MotorCurrentA": 107.604,
+      "ControllerOutputPct": 49.275
+    }
+  },
+  "FER_L02_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": false,
+    "throughput": 123.89,
+    "targetRate": 125.0,
+    "oee": 96.61,
+    "wip": 7.9,
+    "queueLength": 2.5,
+    "scrapRate": 0.351,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 95.979
+      },
+      {
+        "label": "defect_rate",
+        "value": 1.016
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L02_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": false,
+    "throughput": 124.96,
+    "targetRate": 125.0,
+    "oee": 99.27,
+    "wip": 4.6,
+    "queueLength": 2.7,
+    "scrapRate": 1.268,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 0.522
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.177
+      }
+    ],
+    "measured": {
+      "TransferRate": 125.396,
+      "MotorCurrentA": 95.901
+    }
+  },
+  "FER_L02_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 127.37,
+    "targetRate": 125.0,
+    "oee": 101.26,
+    "wip": 5.7,
+    "queueLength": 2.7,
+    "scrapRate": 0.661,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.345
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 97.928
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L03_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 123.32,
+    "targetRate": 125.0,
+    "oee": 97.69,
+    "wip": 8.7,
+    "queueLength": 2.3,
+    "scrapRate": 0.782,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 99.178
+      },
+      {
+        "label": "supply_variability",
+        "value": 2.48
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L03_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": true,
+    "throughput": 124.03,
+    "targetRate": 125.0,
+    "oee": 97.08,
+    "wip": 7.4,
+    "queueLength": 3.3,
+    "scrapRate": 0.067,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 50.193
+      },
+      {
+        "label": "system_stress",
+        "value": 14.836
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 2.682,
+      "BearingTempC": 62.683,
+      "MotorCurrentA": 101.629,
+      "ControllerOutputPct": 51.044
+    }
+  },
+  "FER_L03_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": true,
+    "throughput": 123.61,
+    "targetRate": 125.0,
+    "oee": 96.27,
+    "wip": 9.7,
+    "queueLength": 4.7,
+    "scrapRate": 1.312,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 96.195
+      },
+      {
+        "label": "defect_rate",
+        "value": 0.746
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L03_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": true,
+    "throughput": 125.11,
+    "targetRate": 125.0,
+    "oee": 98.75,
+    "wip": 7.0,
+    "queueLength": 2.6,
+    "scrapRate": 0.811,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 0.927
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.605
+      }
+    ],
+    "measured": {
+      "TransferRate": 125.752,
+      "MotorCurrentA": 97.393
+    }
+  },
+  "FER_L03_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 126.12,
+    "targetRate": 125.0,
+    "oee": 99.75,
+    "wip": 5.9,
+    "queueLength": 2.3,
+    "scrapRate": 0.758,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 97.973
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 98.137
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L04_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 116.4,
+    "targetRate": 0.0,
+    "oee": 97.7,
+    "wip": 8.2,
+    "queueLength": 3.5,
+    "scrapRate": 0.675,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 99.245
+      },
+      {
+        "label": "supply_variability",
+        "value": 2.587
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L04_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": false,
+    "throughput": 119.32,
+    "targetRate": 0.0,
+    "oee": 98.0,
+    "wip": 9.4,
+    "queueLength": 3.3,
+    "scrapRate": 1.056,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 51.025
+      },
+      {
+        "label": "system_stress",
+        "value": 18.461
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 2.374,
+      "BearingTempC": 60.962,
+      "MotorCurrentA": 100.537,
+      "ControllerOutputPct": 47.22
+    }
+  },
+  "FER_L04_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": false,
+    "throughput": 121.61,
+    "targetRate": 0.0,
+    "oee": 97.22,
+    "wip": 6.3,
+    "queueLength": 3.6,
+    "scrapRate": 0.593,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 94.701
+      },
+      {
+        "label": "defect_rate",
+        "value": 1.267
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L04_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": false,
+    "throughput": 116.43,
+    "targetRate": 0.0,
+    "oee": 98.8,
+    "wip": 8.5,
+    "queueLength": 4.8,
+    "scrapRate": 0.713,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 0.525
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.419
+      }
+    ],
+    "measured": {
+      "TransferRate": 126.815,
+      "MotorCurrentA": 97.263
+    }
+  },
+  "FER_L04_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 118.36,
+    "targetRate": 0.0,
+    "oee": 99.39,
+    "wip": 7.7,
+    "queueLength": 3.4,
+    "scrapRate": 0.613,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 98.347
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 98.496
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L05_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 123.61,
+    "targetRate": 125.0,
+    "oee": 96.92,
+    "wip": 7.0,
+    "queueLength": 2.1,
+    "scrapRate": 0.696,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 99.3
+      },
+      {
+        "label": "supply_variability",
+        "value": 2.317
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L05_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": false,
+    "throughput": 125.45,
+    "targetRate": 125.0,
+    "oee": 98.27,
+    "wip": 8.5,
+    "queueLength": 0.2,
+    "scrapRate": 0.375,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 50.334
+      },
+      {
+        "label": "system_stress",
+        "value": 12.335
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 2.893,
+      "BearingTempC": 66.021,
+      "MotorCurrentA": 96.545,
+      "ControllerOutputPct": 49.829
+    }
+  },
+  "FER_L05_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": false,
+    "throughput": 124.78,
+    "targetRate": 125.0,
+    "oee": 97.07,
+    "wip": 7.5,
+    "queueLength": 4.4,
+    "scrapRate": 0.956,
+    "microstopCount": 9,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 94.697
+      },
+      {
+        "label": "defect_rate",
+        "value": 0.75
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L05_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": false,
+    "throughput": 122.96,
+    "targetRate": 125.0,
+    "oee": 97.67,
+    "wip": 11.9,
+    "queueLength": 2.9,
+    "scrapRate": 1.033,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 0.325
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.634
+      }
+    ],
+    "measured": {
+      "TransferRate": 125.366,
+      "MotorCurrentA": 92.527
+    }
+  },
+  "FER_L05_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 125.29,
+    "targetRate": 125.0,
+    "oee": 98.8,
+    "wip": 6.3,
+    "queueLength": 4.5,
+    "scrapRate": 0.328,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 97.588
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 98.706
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L06_BULKINTAKE": {
+    "stationType": "BULK_INTAKE",
+    "isReal": false,
+    "throughput": 126.52,
+    "targetRate": 125.0,
+    "oee": 99.98,
+    "wip": 8.8,
+    "queueLength": 1.9,
+    "scrapRate": 0.753,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "material_availability",
+        "value": 99.094
+      },
+      {
+        "label": "supply_variability",
+        "value": 3.196
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L06_POWERCHARGE": {
+    "stationType": "POWER_CHARGE",
+    "isReal": false,
+    "throughput": 125.44,
+    "targetRate": 125.0,
+    "oee": 98.72,
+    "wip": 10.4,
+    "queueLength": 2.0,
+    "scrapRate": 0.295,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "charge_rate",
+        "value": 50.152
+      },
+      {
+        "label": "system_stress",
+        "value": 12.965
+      }
+    ],
+    "measured": {
+      "VibrationMmS": 2.538,
+      "BearingTempC": 63.699,
+      "MotorCurrentA": 96.546,
+      "ControllerOutputPct": 50.027
+    }
+  },
+  "FER_L06_SHAPING": {
+    "stationType": "SHAPING",
+    "isReal": false,
+    "throughput": 125.37,
+    "targetRate": 125.0,
+    "oee": 98.23,
+    "wip": 7.0,
+    "queueLength": 3.0,
+    "scrapRate": 0.642,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "consistency_index",
+        "value": 94.924
+      },
+      {
+        "label": "defect_rate",
+        "value": 0.883
+      }
+    ],
+    "measured": {}
+  },
+  "FER_L06_TRANSFER": {
+    "stationType": "TRANSFER",
+    "isReal": true,
+    "throughput": 124.54,
+    "targetRate": 125.0,
+    "oee": 98.16,
+    "wip": 9.5,
+    "queueLength": 2.9,
+    "scrapRate": 1.446,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "blocking_time",
+        "value": 0.27
+      },
+      {
+        "label": "starvation_time",
+        "value": 0.582
+      }
+    ],
+    "measured": {
+      "TransferRate": 124.791,
+      "MotorCurrentA": 94.216
+    }
+  },
+  "FER_L06_OUTPUT": {
+    "stationType": "OUTPUT",
+    "isReal": false,
+    "throughput": 127.0,
+    "targetRate": 125.0,
+    "oee": 100.78,
+    "wip": 7.8,
+    "queueLength": 3.2,
+    "scrapRate": 1.113,
+    "microstopCount": 0,
+    "highlights": [
+      {
+        "label": "output_quality_score",
+        "value": 97.586
+      },
+      {
+        "label": "on_time_output_rate",
+        "value": 96.781
+      }
+    ],
+    "measured": {}
+  }
+}

@@ -1,0 +1,602 @@
+{
+  "AUR_L01_INTAKE": {
+    "batch_variability": 3.69,
+    "input_defect_rate": 0.56,
+    "input_quality_score": 98.721,
+    "input_signal_noise": 1.013,
+    "input_variability": 1.588,
+    "system_stress": 7.427
+  },
+  "AUR_L01_STABILIZATION": {
+    "control_effort": 49.286,
+    "deviation": 0.249,
+    "oscillation_index": 1.946,
+    "stability_score": 96.762,
+    "settling_time": 17.37,
+    "system_stress": 13.269,
+    "PressurePV": 82.254,
+    "LocalGaugePressure": 80.561,
+    "FlowRate": 118.103,
+    "TemperatureC": 71.171
+  },
+  "AUR_L01_REFINEMENT": {
+    "consistency_index": 95.511,
+    "defect_rate": 0.537,
+    "process_variability": 2.679,
+    "rework_rate": 0.25,
+    "yield_rate": 98.437,
+    "system_stress": 13.945,
+    "ControlEffortPct": 49.233,
+    "PurityPct": 99.293,
+    "InputCharacteristicIndex": 53.597
+  },
+  "AUR_L01_INSPECTION": {
+    "false_accept_rate": 0.362,
+    "false_reject_rate": 0.58,
+    "first_pass_yield": 96.932,
+    "inspection_pass_rate": 97.898,
+    "measurement_noise": 1.393,
+    "system_stress": 14.219,
+    "RejectRatePct": 2.137,
+    "CalibrationScore": 99.729
+  },
+  "AUR_L01_BUFFER": {
+    "buffer_level": 45.613,
+    "buffer_capacity_utilization": 44.651,
+    "buffer_inflow_rate": 116.483,
+    "buffer_outflow_rate": 117.817,
+    "buffer_turnover_rate": 2.913,
+    "saturation_risk_index": 8.896,
+    "starvation_risk_index": 1.723,
+    "time_in_buffer": 4.068,
+    "system_stress": 15.023
+  },
+  "AUR_L01_OUTPUT": {
+    "final_defect_rate": 0.374,
+    "on_time_output_rate": 99.121,
+    "order_fulfillment_rate": 97.99,
+    "output_consistency_index": 96.804,
+    "output_quality_score": 98.56,
+    "system_stress": 11.22
+  },
+  "AUR_L02_INTAKE": {
+    "batch_variability": 3.394,
+    "input_defect_rate": 0.528,
+    "input_quality_score": 98.504,
+    "input_signal_noise": 0.723,
+    "input_variability": 2.339,
+    "system_stress": 7.997
+  },
+  "AUR_L02_STABILIZATION": {
+    "control_effort": 50.736,
+    "deviation": 0.425,
+    "oscillation_index": 1.249,
+    "stability_score": 96.495,
+    "settling_time": 15.614,
+    "system_stress": 13.911,
+    "PressurePV": 80.741,
+    "LocalGaugePressure": 80.631,
+    "FlowRate": 121.304,
+    "TemperatureC": 71.737
+  },
+  "AUR_L02_REFINEMENT": {
+    "consistency_index": 96.342,
+    "defect_rate": 1.203,
+    "process_variability": 2.467,
+    "rework_rate": 0.778,
+    "yield_rate": 98.507,
+    "system_stress": 12.758,
+    "ControlEffortPct": 50.499,
+    "PurityPct": 99.227,
+    "InputCharacteristicIndex": 49.544
+  },
+  "AUR_L02_INSPECTION": {
+    "false_accept_rate": 0.26,
+    "false_reject_rate": 0.662,
+    "first_pass_yield": 97.96,
+    "inspection_pass_rate": 97.701,
+    "measurement_noise": 0.967,
+    "system_stress": 10.765,
+    "RejectRatePct": 2.396,
+    "CalibrationScore": 99.647
+  },
+  "AUR_L02_BUFFER": {
+    "buffer_level": 43.505,
+    "buffer_capacity_utilization": 39.285,
+    "buffer_inflow_rate": 110.17,
+    "buffer_outflow_rate": 117.275,
+    "buffer_turnover_rate": 2.221,
+    "saturation_risk_index": 7.77,
+    "starvation_risk_index": 5.97,
+    "time_in_buffer": 4.023,
+    "system_stress": 10.199
+  },
+  "AUR_L02_OUTPUT": {
+    "final_defect_rate": 0.496,
+    "on_time_output_rate": 97.249,
+    "order_fulfillment_rate": 98.709,
+    "output_consistency_index": 95.059,
+    "output_quality_score": 98.96,
+    "system_stress": 7.267
+  },
+  "AUR_L03_INTAKE": {
+    "batch_variability": 2.832,
+    "input_defect_rate": 0.61,
+    "input_quality_score": 98.395,
+    "input_signal_noise": 1.541,
+    "input_variability": 2.381,
+    "system_stress": 14.558
+  },
+  "AUR_L03_STABILIZATION": {
+    "control_effort": 52.087,
+    "deviation": 0.112,
+    "oscillation_index": 2.042,
+    "stability_score": 96.563,
+    "settling_time": 21.072,
+    "system_stress": 15.713,
+    "PressurePV": 79.779,
+    "LocalGaugePressure": 78.23,
+    "FlowRate": 118.406,
+    "TemperatureC": 71.328
+  },
+  "AUR_L03_REFINEMENT": {
+    "consistency_index": 94.625,
+    "defect_rate": 1.199,
+    "process_variability": 1.753,
+    "rework_rate": 0.818,
+    "yield_rate": 98.976,
+    "system_stress": 12.882,
+    "ControlEffortPct": 49.626,
+    "PurityPct": 99.269,
+    "InputCharacteristicIndex": 47.199
+  },
+  "AUR_L03_INSPECTION": {
+    "false_accept_rate": 0.297,
+    "false_reject_rate": 0.571,
+    "first_pass_yield": 97.87,
+    "inspection_pass_rate": 98.293,
+    "measurement_noise": 0.458,
+    "system_stress": 13.72,
+    "RejectRatePct": 2.578,
+    "CalibrationScore": 99.611
+  },
+  "AUR_L03_BUFFER": {
+    "buffer_level": 43.263,
+    "buffer_capacity_utilization": 40.338,
+    "buffer_inflow_rate": 116.671,
+    "buffer_outflow_rate": 120.739,
+    "buffer_turnover_rate": 2.897,
+    "saturation_risk_index": 3.54,
+    "starvation_risk_index": 7.566,
+    "time_in_buffer": 4.016,
+    "system_stress": 10.766
+  },
+  "AUR_L03_OUTPUT": {
+    "final_defect_rate": 0.151,
+    "on_time_output_rate": 97.326,
+    "order_fulfillment_rate": 98.242,
+    "output_consistency_index": 95.621,
+    "output_quality_score": 98.552,
+    "system_stress": 3.943
+  },
+  "AUR_L04_INTAKE": {
+    "batch_variability": 3.205,
+    "input_defect_rate": 0.566,
+    "input_quality_score": 98.859,
+    "input_signal_noise": 1.219,
+    "input_variability": 2.059,
+    "system_stress": 7.11
+  },
+  "AUR_L04_STABILIZATION": {
+    "control_effort": 49.995,
+    "deviation": 0.4,
+    "oscillation_index": 2.322,
+    "stability_score": 95.916,
+    "settling_time": 15.819,
+    "system_stress": 12.339,
+    "PressurePV": 80.679,
+    "LocalGaugePressure": 78.988,
+    "FlowRate": 120.004,
+    "TemperatureC": 70.766
+  },
+  "AUR_L04_REFINEMENT": {
+    "consistency_index": 95.882,
+    "defect_rate": 0.746,
+    "process_variability": 3.053,
+    "rework_rate": 0.645,
+    "yield_rate": 98.364,
+    "system_stress": 11.234,
+    "ControlEffortPct": 51.443,
+    "PurityPct": 99.242,
+    "InputCharacteristicIndex": 49.011
+  },
+  "AUR_L04_INSPECTION": {
+    "false_accept_rate": 0.255,
+    "false_reject_rate": 0.703,
+    "first_pass_yield": 98.03,
+    "inspection_pass_rate": 97.498,
+    "measurement_noise": 0.856,
+    "system_stress": 14.864,
+    "RejectRatePct": 2.246,
+    "CalibrationScore": 99.721
+  },
+  "AUR_L04_BUFFER": {
+    "buffer_level": 43.0,
+    "buffer_capacity_utilization": 46.626,
+    "buffer_inflow_rate": 116.236,
+    "buffer_outflow_rate": 121.732,
+    "buffer_turnover_rate": 2.92,
+    "saturation_risk_index": 8.395,
+    "starvation_risk_index": 4.969,
+    "time_in_buffer": 3.521,
+    "system_stress": 17.778
+  },
+  "AUR_L04_OUTPUT": {
+    "final_defect_rate": 0.418,
+    "on_time_output_rate": 97.858,
+    "order_fulfillment_rate": 98.405,
+    "output_consistency_index": 95.381,
+    "output_quality_score": 98.285,
+    "system_stress": 17.474
+  },
+  "AUR_L05_INTAKE": {
+    "batch_variability": 3.181,
+    "input_defect_rate": 0.572,
+    "input_quality_score": 98.5,
+    "input_signal_noise": 1.782,
+    "input_variability": 1.938,
+    "system_stress": 8.76
+  },
+  "AUR_L05_STABILIZATION": {
+    "control_effort": 50.859,
+    "deviation": 0.003,
+    "oscillation_index": 2.461,
+    "stability_score": 96.603,
+    "settling_time": 15.022,
+    "system_stress": 14.939,
+    "PressurePV": 79.235,
+    "LocalGaugePressure": 79.456,
+    "FlowRate": 121.296,
+    "TemperatureC": 71.255
+  },
+  "AUR_L05_REFINEMENT": {
+    "consistency_index": 98.503,
+    "defect_rate": 1.078,
+    "process_variability": 2.836,
+    "rework_rate": 0.396,
+    "yield_rate": 97.428,
+    "system_stress": 16.295,
+    "ControlEffortPct": 48.523,
+    "PurityPct": 99.287,
+    "InputCharacteristicIndex": 49.76
+  },
+  "AUR_L05_INSPECTION": {
+    "false_accept_rate": 0.177,
+    "false_reject_rate": 0.341,
+    "first_pass_yield": 96.621,
+    "inspection_pass_rate": 98.346,
+    "measurement_noise": 0.472,
+    "system_stress": 8.589,
+    "RejectRatePct": 2.787,
+    "CalibrationScore": 99.878
+  },
+  "AUR_L05_BUFFER": {
+    "buffer_level": 46.913,
+    "buffer_capacity_utilization": 43.793,
+    "buffer_inflow_rate": 118.175,
+    "buffer_outflow_rate": 120.111,
+    "buffer_turnover_rate": 2.755,
+    "saturation_risk_index": 6.789,
+    "starvation_risk_index": 4.417,
+    "time_in_buffer": 4.214,
+    "system_stress": 16.296
+  },
+  "AUR_L05_OUTPUT": {
+    "final_defect_rate": 0.544,
+    "on_time_output_rate": 97.352,
+    "order_fulfillment_rate": 98.363,
+    "output_consistency_index": 96.232,
+    "output_quality_score": 97.683,
+    "system_stress": 9.925
+  },
+  "AUR_L06_INTAKE": {
+    "batch_variability": 3.651,
+    "input_defect_rate": 0.403,
+    "input_quality_score": 98.502,
+    "input_signal_noise": 1.334,
+    "input_variability": 2.233,
+    "system_stress": 12.793
+  },
+  "AUR_L06_STABILIZATION": {
+    "control_effort": 49.618,
+    "deviation": 0.459,
+    "oscillation_index": 1.763,
+    "stability_score": 95.821,
+    "settling_time": 15.227,
+    "system_stress": 10.691,
+    "PressurePV": 79.981,
+    "LocalGaugePressure": 79.554,
+    "FlowRate": 119.614,
+    "TemperatureC": 70.874
+  },
+  "AUR_L06_REFINEMENT": {
+    "consistency_index": 94.148,
+    "defect_rate": 1.174,
+    "process_variability": 2.841,
+    "rework_rate": 0.597,
+    "yield_rate": 97.927,
+    "system_stress": 11.808,
+    "ControlEffortPct": 48.407,
+    "PurityPct": 99.248,
+    "InputCharacteristicIndex": 53.048
+  },
+  "AUR_L06_INSPECTION": {
+    "false_accept_rate": 0.317,
+    "false_reject_rate": 0.229,
+    "first_pass_yield": 95.955,
+    "inspection_pass_rate": 97.648,
+    "measurement_noise": 0.342,
+    "system_stress": 8.109,
+    "RejectRatePct": 1.856,
+    "CalibrationScore": 99.66
+  },
+  "AUR_L06_BUFFER": {
+    "buffer_level": 42.239,
+    "buffer_capacity_utilization": 41.423,
+    "buffer_inflow_rate": 123.544,
+    "buffer_outflow_rate": 114.08,
+    "buffer_turnover_rate": 2.851,
+    "saturation_risk_index": 11.059,
+    "starvation_risk_index": 8.062,
+    "time_in_buffer": 3.434,
+    "system_stress": 14.792
+  },
+  "AUR_L06_OUTPUT": {
+    "final_defect_rate": 0.277,
+    "on_time_output_rate": 98.469,
+    "order_fulfillment_rate": 99.176,
+    "output_consistency_index": 96.202,
+    "output_quality_score": 99.0,
+    "system_stress": 7.565
+  },
+  "FER_L01_BULKINTAKE": {
+    "batch_variability": 3.263,
+    "input_defect_rate": 0.25,
+    "input_quality_score": 98.282,
+    "material_availability": 99.115,
+    "supply_variability": 2.864,
+    "system_stress": 9.88
+  },
+  "FER_L01_POWERCHARGE": {
+    "charge_rate": 50.078,
+    "energy_per_unit": 4.448,
+    "oscillation_index": 2.501,
+    "system_stress": 10.418,
+    "VibrationMmS": 2.836,
+    "BearingTempC": 64.791,
+    "MotorCurrentA": 97.861,
+    "ControllerOutputPct": 50.782
+  },
+  "FER_L01_SHAPING": {
+    "consistency_index": 94.656,
+    "defect_rate": 1.267,
+    "process_variability": 2.489,
+    "rework_rate": 0.517,
+    "system_stress": 16.701
+  },
+  "FER_L01_TRANSFER": {
+    "blocking_time": 1.474,
+    "starvation_time": 0.147,
+    "system_stress": 9.849,
+    "TransferRate": 120.812,
+    "MotorCurrentA": 93.65
+  },
+  "FER_L01_OUTPUT": {
+    "final_defect_rate": 0.848,
+    "on_time_output_rate": 97.733,
+    "order_fulfillment_rate": 99.45,
+    "output_consistency_index": 96.283,
+    "output_quality_score": 98.91,
+    "system_stress": 6.742
+  },
+  "FER_L02_BULKINTAKE": {
+    "batch_variability": 3.619,
+    "input_defect_rate": 0.802,
+    "input_quality_score": 97.712,
+    "material_availability": 98.53,
+    "supply_variability": 2.842,
+    "system_stress": 14.125
+  },
+  "FER_L02_POWERCHARGE": {
+    "charge_rate": 50.88,
+    "energy_per_unit": 4.182,
+    "oscillation_index": 3.01,
+    "system_stress": 13.284,
+    "VibrationMmS": 4.248,
+    "BearingTempC": 71.367,
+    "MotorCurrentA": 107.604,
+    "ControllerOutputPct": 49.275
+  },
+  "FER_L02_SHAPING": {
+    "consistency_index": 95.979,
+    "defect_rate": 1.016,
+    "process_variability": 2.878,
+    "rework_rate": 0.665,
+    "system_stress": 13.405
+  },
+  "FER_L02_TRANSFER": {
+    "blocking_time": 0.522,
+    "starvation_time": 0.177,
+    "system_stress": 11.946,
+    "TransferRate": 125.396,
+    "MotorCurrentA": 95.901
+  },
+  "FER_L02_OUTPUT": {
+    "final_defect_rate": 0.523,
+    "on_time_output_rate": 97.928,
+    "order_fulfillment_rate": 98.504,
+    "output_consistency_index": 94.399,
+    "output_quality_score": 98.345,
+    "system_stress": 5.595
+  },
+  "FER_L03_BULKINTAKE": {
+    "batch_variability": 3.632,
+    "input_defect_rate": 0.76,
+    "input_quality_score": 98.709,
+    "material_availability": 99.178,
+    "supply_variability": 2.48,
+    "system_stress": 6.732
+  },
+  "FER_L03_POWERCHARGE": {
+    "charge_rate": 50.193,
+    "energy_per_unit": 4.183,
+    "oscillation_index": 2.025,
+    "system_stress": 14.836,
+    "VibrationMmS": 2.682,
+    "BearingTempC": 62.683,
+    "MotorCurrentA": 101.629,
+    "ControllerOutputPct": 51.044
+  },
+  "FER_L03_SHAPING": {
+    "consistency_index": 96.195,
+    "defect_rate": 0.746,
+    "process_variability": 3.311,
+    "rework_rate": 0.913,
+    "system_stress": 21.268
+  },
+  "FER_L03_TRANSFER": {
+    "blocking_time": 0.927,
+    "starvation_time": 0.605,
+    "system_stress": 15.011,
+    "TransferRate": 125.752,
+    "MotorCurrentA": 97.393
+  },
+  "FER_L03_OUTPUT": {
+    "final_defect_rate": 0.277,
+    "on_time_output_rate": 98.137,
+    "order_fulfillment_rate": 98.347,
+    "output_consistency_index": 95.33,
+    "output_quality_score": 97.973,
+    "system_stress": 7.587
+  },
+  "FER_L04_BULKINTAKE": {
+    "batch_variability": 4.26,
+    "input_defect_rate": 0.676,
+    "input_quality_score": 97.541,
+    "material_availability": 99.245,
+    "supply_variability": 2.587,
+    "system_stress": 12.446
+  },
+  "FER_L04_POWERCHARGE": {
+    "charge_rate": 51.025,
+    "energy_per_unit": 4.084,
+    "oscillation_index": 1.303,
+    "system_stress": 18.461,
+    "VibrationMmS": 2.374,
+    "BearingTempC": 60.962,
+    "MotorCurrentA": 100.537,
+    "ControllerOutputPct": 47.22
+  },
+  "FER_L04_SHAPING": {
+    "consistency_index": 94.701,
+    "defect_rate": 1.267,
+    "process_variability": 2.988,
+    "rework_rate": 0.923,
+    "system_stress": 13.178
+  },
+  "FER_L04_TRANSFER": {
+    "blocking_time": 0.525,
+    "starvation_time": 0.419,
+    "system_stress": 9.595,
+    "TransferRate": 126.815,
+    "MotorCurrentA": 97.263
+  },
+  "FER_L04_OUTPUT": {
+    "final_defect_rate": 0.357,
+    "on_time_output_rate": 98.496,
+    "order_fulfillment_rate": 99.038,
+    "output_consistency_index": 97.229,
+    "output_quality_score": 98.347,
+    "system_stress": 10.952
+  },
+  "FER_L05_BULKINTAKE": {
+    "batch_variability": 4.441,
+    "input_defect_rate": 0.702,
+    "input_quality_score": 98.679,
+    "material_availability": 99.3,
+    "supply_variability": 2.317,
+    "system_stress": 9.116
+  },
+  "FER_L05_POWERCHARGE": {
+    "charge_rate": 50.334,
+    "energy_per_unit": 4.242,
+    "oscillation_index": 2.395,
+    "system_stress": 12.335,
+    "VibrationMmS": 2.893,
+    "BearingTempC": 66.021,
+    "MotorCurrentA": 96.545,
+    "ControllerOutputPct": 49.829
+  },
+  "FER_L05_SHAPING": {
+    "consistency_index": 94.697,
+    "defect_rate": 0.75,
+    "process_variability": 2.82,
+    "rework_rate": 0.816,
+    "system_stress": 18.433
+  },
+  "FER_L05_TRANSFER": {
+    "blocking_time": 0.325,
+    "starvation_time": 0.634,
+    "system_stress": 9.865,
+    "TransferRate": 125.366,
+    "MotorCurrentA": 92.527
+  },
+  "FER_L05_OUTPUT": {
+    "final_defect_rate": 0.44,
+    "on_time_output_rate": 98.706,
+    "order_fulfillment_rate": 98.506,
+    "output_consistency_index": 95.794,
+    "output_quality_score": 97.588,
+    "system_stress": 13.989
+  },
+  "FER_L06_BULKINTAKE": {
+    "batch_variability": 4.128,
+    "input_defect_rate": 0.452,
+    "input_quality_score": 97.676,
+    "material_availability": 99.094,
+    "supply_variability": 3.196,
+    "system_stress": 7.734
+  },
+  "FER_L06_POWERCHARGE": {
+    "charge_rate": 50.152,
+    "energy_per_unit": 4.384,
+    "oscillation_index": 2.62,
+    "system_stress": 12.965,
+    "VibrationMmS": 2.538,
+    "BearingTempC": 63.699,
+    "MotorCurrentA": 96.546,
+    "ControllerOutputPct": 50.027
+  },
+  "FER_L06_SHAPING": {
+    "consistency_index": 94.924,
+    "defect_rate": 0.883,
+    "process_variability": 1.696,
+    "rework_rate": 0.69,
+    "system_stress": 17.953
+  },
+  "FER_L06_TRANSFER": {
+    "blocking_time": 0.27,
+    "starvation_time": 0.582,
+    "system_stress": 8.468,
+    "TransferRate": 124.791,
+    "MotorCurrentA": 94.216
+  },
+  "FER_L06_OUTPUT": {
+    "final_defect_rate": 0.607,
+    "on_time_output_rate": 96.781,
+    "order_fulfillment_rate": 97.96,
+    "output_consistency_index": 94.868,
+    "output_quality_score": 97.586,
+    "system_stress": 17.786
+  }
+}

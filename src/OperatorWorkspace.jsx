@@ -28,34 +28,35 @@ import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
 import ButtonGroup from 'devextreme-react/button-group';
 import {
-  CircularGauge, Scale, Label as GaugeValueLabel, Tick, MinorTick,
-  RangeContainer, Range, ValueIndicator, Size as GaugeSize, Margin as GaugeMargin,
-  Export as GaugeExport, Tooltip as GaugeTooltip,
-} from 'devextreme-react/circular-gauge';
-import {
   Chart, Series, Point, ArgumentAxis, ValueAxis,
   Grid as ChartGrid, Legend as ChartLegend, Tooltip as ChartTooltip,
-  Export as ChartExport, CommonSeriesSettings,
+  Export as ChartExport, CommonSeriesSettings, Aggregation,
 } from 'devextreme-react/chart';
+import RangeSelector, {
+  Size as RsSize, Scale as RsScale, Chart as RsChart, ValueAxis as RsValueAxis,
+  Series as RsSeries, Behavior as RsBehavior, Aggregation as RsAggregation,
+} from 'devextreme-react/range-selector';
+import Sparkline from 'devextreme-react/sparkline';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — "Now" (line status strip)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const LINE_STATUS = [
-  { id: "AURELIA_A1", label: "Aurelia · A1", state: "running", percent: 90 },
-  { id: "AURELIA_A2", label: "Aurelia · A2", state: "running", percent: 92 },
-  { id: "AURELIA_A3", label: "Aurelia · A3", state: "attention", percent: 95 },
-  { id: "AURELIA_A4", label: "Aurelia · A4", state: "running", percent: 92 },
-  { id: "AURELIA_A5", label: "Aurelia · A5", state: "running", percent: 94 },
-  { id: "AURELIA_A6", label: "Aurelia · A6", state: "running", percent: 88 },
-  { id: "FERRUM_F1", label: "Ferrum · F1", state: "attention", percent: 94 },
-  { id: "FERRUM_F2", label: "Ferrum · F2", state: "running", percent: 92 },
-  { id: "FERRUM_F3", label: "Ferrum · F3", state: "attention", percent: 93 },
-  { id: "FERRUM_F4", label: "Ferrum · F4", state: "attention", percent: 90 },
-  { id: "FERRUM_F5", label: "Ferrum · F5", state: "running", percent: 92 },
-  { id: "FERRUM_F6", label: "Ferrum · F6", state: "attention", percent: 92 },
-];
+// LineThroughputRate at 2026-08-28 14:05 from the nextgen simulation
+// workbook, against each line's target rate from OperatingContext.
+// FER_L02 is flagged 'attention' (Component Degradation + Recurring
+// Micro-stops both live there right now); FER_L04 is 'changeover' — its
+// low output is expected mid-transition, not a problem, so it gets a
+// duration indicator instead of a percent gauge, same as before.
+// statusSinceMinutes = how long each line has held its CURRENT state, as of
+// the shared 14:05 reference — real numbers, not estimates:
+//   - Running lines: minutes since their last situation actually resolved
+//     (A2 never had one at all, so it's running since shift start, 08:00).
+//   - F2 (attention): minutes since the EARLIER of its two situations'
+//     real AttentionRequired timestamp (SIT05, 10:25 — SIT12 didn't
+//     require attention until 13:55, so SIT05 is the one that set this).
+//   - F4 (changeover): minutes since the changeover actually began, 13:50.
+let LINE_STATUS = [];
 
 const STATE_COLORS = {
   running:    '#4ade80',
@@ -72,371 +73,32 @@ const STATE_LABELS = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock data — "Attention" items, each carrying the Investigate detail it
-// expands into (Signal → Interpretation → Recommendation → Evidence, per
-// the trust-framework shape from the brainstorm doc).
+// Attention items — migrated from the real Jan 1 historian window to the
+// nextgen scenario dataset (aetherium_nextgen_simulation_v1.xlsx), so the
+// whole interface now runs on one timeline instead of two. 13 of the 14
+// scenarios are represented (SIT02–SIT14 — SIT01 "Normal Shift" is
+// deliberately excluded: it has no real situation, and the whole point of
+// that scenario is proving the system stays quiet, which an Attention
+// item for it would undercut).
+//
+// All content — signal, evidence, hypotheses, events, outcomes — is pulled
+// from the workbook's real records (Situations/SituationEvidence/
+// SituationHypotheses/Events/GroundTruth sheets) at the shared 2026-08-28
+// 14:05 reference point, not invented. Two adaptations worth knowing about:
+//   - SituationHypotheses is really "competing explanations for this one
+//     situation," not "similar past occurrences" — repurposed into the
+//     Similar card as ruled-out alternatives, which is close in spirit but
+//     not identical to what that card originally meant.
+//   - For situations still active at 14:05 (SIT05, SIT12), the eventual
+//     OperationalMemory record (confirmed cause, successful fix) is
+//     deliberately withheld, since the AI shouldn't know the answer before
+//     its own diagnosis has actually gotten there — this is the exact
+//     "detection confidence vs. diagnosis maturity" distinction from the
+//     Aug 27 design conversation.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ATTENTION_ITEMS = [
-  {
-    id: "att-1",
-    severity: "high",
-    asset: "Ferrum · F1 · Power Charge",
-    line: "Ferrum · F1",
-    signal: "Recurring high-severity microstops on Power Charge",
-    aiInterpretation: "Two episodes today; throughput drops about 15% each time and fully recovers once it clears.",
-    since: "15m ago",
-    sinceMinutes: 15,
-    attentionState: "act",
-    detail: {
-      signal: "36 microstop events logged on Power Charge today (24 high-severity), in two episodes: 09:14–09:27 and 10:29–10:44.",
-      observed: 'Power Charge logged 36 microstop events today, 24 marked high-severity, in two clusters: 09:14–09:27 and 10:29–10:44.',
-      derived: 'Throughput fell from a baseline near 160 units/min into the 130s during each cluster — roughly a 15–20% drop — and returned to baseline within a few minutes each time.',
-      inferred: 'The repeating, self-resolving pattern suggests an intermittent hardware fault (loose connection, marginal component) rather than a process or operator-driven cause.',
-      recommendation: "Inspect Power Charge for a recurring intermittent fault (loose connection, marginal component) rather than treating each occurrence as isolated.",
-      evidence: [160.19, 154.69, 150.29, 142.13, 137.78, 136.67, 142.59, 151.16],
-      evidencePoints: [
-        { time: "09:09", value: "160.2/min", label: "Baseline" },
-        { time: "09:12", value: "154.7/min", label: "" },
-        { time: "09:15", value: "150.3/min", label: "Episode begins" },
-        { time: "09:18", value: "142.1/min", label: "" },
-        { time: "09:22", value: "137.8/min", label: "" },
-        { time: "09:25", value: "136.7/min", label: "Lowest point" },
-        { time: "09:28", value: "142.6/min", label: "Recovering" },
-        { time: "09:31", value: "151.2/min", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Today, 10:29–10:44", summary: "Same station repeated the identical pattern a second time this shift." },
-        { date: "Ferrum · F6 · Power Charge", summary: "F6 logged the same cause code and severity mix today, within the same minute-by-minute windows." },
-      ],
-      whatChangedSummary: "No control-mode change or operator action logged at onset — both episodes start and stop on their own.",
-      whatChanged: [
-        { time: "09:14", source: "Control Log", description: "Power Charge remained in AUTO mode throughout; no manual intervention logged.", related: false },
-      ],
-      confidence: "Repeats an identical pattern twice in one shift",
-      confidenceLevel: "high",
-      risk: "Cumulative output loss if left unaddressed",
-      riskLevel: "medium",
-      expectedOutcome: "Recovers fully within minutes each time",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-2",
-    severity: "high",
-    asset: "Ferrum · F6 · Power Charge",
-    line: "Ferrum · F6",
-    signal: "Recurring high-severity microstops on Power Charge",
-    aiInterpretation: "Matches Ferrum F1's Power Charge pattern almost exactly — same cause code, same timing.",
-    since: "15m ago",
-    sinceMinutes: 15,
-    attentionState: "act",
-    detail: {
-      signal: "36 microstop events logged on Power Charge today (22 high-severity), in two episodes: 09:14–09:27 and 10:30–10:41.",
-      observed: 'Power Charge logged 36 microstop events today, 22 marked high-severity, in the same two windows as Ferrum F1: 09:14–09:27 and 10:30–10:41.',
-      derived: "Throughput dropped from ~156 to the low 130s during each window, matching F1's Power Charge shape almost exactly.",
-      inferred: "The near-identical timing and magnitude to F1 suggests a shared root cause across both lines — a common part batch or supply issue — rather than two unrelated faults.",
-      recommendation: "Investigate alongside F1's Power Charge — a shared root cause (shift-wide supply issue, common part batch) is plausible given the matching timing.",
-      evidence: [156.5, 149.6, 142.38, 134.13, 130.54, 132.69, 137.26, 147.17],
-      evidencePoints: [
-        { time: "09:09", value: "156.5/min", label: "Baseline" },
-        { time: "09:12", value: "149.6/min", label: "" },
-        { time: "09:15", value: "142.4/min", label: "Episode begins" },
-        { time: "09:18", value: "134.1/min", label: "" },
-        { time: "09:22", value: "130.5/min", label: "Lowest point" },
-        { time: "09:25", value: "132.7/min", label: "" },
-        { time: "09:28", value: "137.3/min", label: "Recovering" },
-        { time: "09:31", value: "147.2/min", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Ferrum · F1 · Power Charge", summary: "F1 logged the same cause code, severity mix, and near-identical timing today." },
-      ],
-      whatChangedSummary: "No control-mode change logged at onset, same as F1.",
-      whatChanged: [
-        { time: "09:14", source: "Control Log", description: "Power Charge remained in AUTO mode throughout; no manual intervention logged.", related: false },
-      ],
-      confidence: "Matches F1's pattern almost exactly",
-      confidenceLevel: "high",
-      risk: "Cumulative output loss if left unaddressed",
-      riskLevel: "medium",
-      expectedOutcome: "Recovers fully within minutes each time",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-3",
-    severity: "high",
-    asset: "Ferrum · F3 · Transfer",
-    line: "Ferrum · F3",
-    signal: "Transfer blocked, throughput fell to near zero for ~8 minutes",
-    aiInterpretation: "Throughput collapsed from 155 to 11 units/min, then recovered within a single minute once the blockage cleared.",
-    since: "51m ago",
-    sinceMinutes: 51,
-    attentionState: "investigate",
-    detail: {
-      signal: "Transfer station blocking event from 09:56–10:08. Throughput fell from a baseline of about 155 units/min to 11.4 at the low point, while queue and wait time climbed the entire time.",
-      observed: 'Transfer logged a blocking event from 09:56–10:08, with 8 of its 12 events marked high-severity.',
-      derived: 'Throughput collapsed from ~155 units/min to 11.4 at the low point, then recovered to 155.8 within a single minute once the event ended.',
-      inferred: 'The near-instant recovery reads more like a physical blockage clearing than a gradual mechanical degradation.',
-      recommendation: "Check Transfer for a jam or blockage that was cleared around 10:08 — confirm what actually cleared it so it can be prevented next time.",
-      evidence: [151.93, 100.31, 81.57, 56.27, 39.11, 19.54, 155.81, 151.82],
-      evidencePoints: [
-        { time: "09:54", value: "151.9/min", label: "Baseline" },
-        { time: "09:57", value: "100.3/min", label: "Blocking begins" },
-        { time: "09:59", value: "81.6/min", label: "" },
-        { time: "10:02", value: "56.3/min", label: "" },
-        { time: "10:04", value: "39.1/min", label: "" },
-        { time: "10:07", value: "19.5/min", label: "Lowest point" },
-        { time: "10:09", value: "155.8/min", label: "Cleared — instant recovery" },
-        { time: "10:12", value: "151.8/min", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [],
-      whatChangedSummary: "No logged operator action or control-mode change coincides with either the onset or the clearance.",
-      whatChanged: [
-        { time: "10:08 → 10:09", source: "Control Log", description: "Throughput recovered in a single minute with no logged manual intervention — likely cleared automatically or by an action not captured in this log.", related: true },
-      ],
-      confidence: "Clear before/during/after signature",
-      confidenceLevel: "high",
-      risk: "Near-complete stoppage for 8 minutes",
-      riskLevel: "high",
-      expectedOutcome: "Fully recovered once cleared",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-4",
-    severity: "medium",
-    asset: "Ferrum · F4 · Power Charge",
-    line: "Ferrum · F4",
-    signal: "Medium-severity microstops, single episode",
-    aiInterpretation: "One contained episode today, lower severity than F1/F6's Power Charge pattern.",
-    since: "35m ago",
-    sinceMinutes: 35,
-    attentionState: "watch",
-    detail: {
-      signal: "9 medium-severity microstop events on Power Charge, 10:15–10:24 — a single episode, not yet repeated.",
-      observed: 'Power Charge logged 9 medium-severity microstop events in a single window, 10:15–10:24.',
-      derived: 'Microstop intensity rose steadily through the window and returned to near-zero within a minute of the last event.',
-      inferred: "A single contained episode isn't yet enough to confirm a repeating pattern the way F1 and F6 show — worth monitoring for recurrence before treating it the same way.",
-      recommendation: "Monitor for a repeat; a single contained episode doesn't yet justify the same priority as F1/F6.",
-      evidence: [6.67, 7.5, 8.41, 8.87, 8.71, 8.96, 0.24, 0.49],
-      evidencePoints: [
-        { time: "10:09", value: "6.7", label: "Baseline" },
-        { time: "10:12", value: "7.5", label: "Episode begins" },
-        { time: "10:15", value: "8.4", label: "" },
-        { time: "10:18", value: "8.9", label: "" },
-        { time: "10:20", value: "8.7", label: "" },
-        { time: "10:23", value: "9.0", label: "Highest point" },
-        { time: "10:26", value: "0.2", label: "Cleared" },
-        { time: "10:29", value: "0.5", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Ferrum · F1 & F6 · Power Charge", summary: "Same station type on two other lines had more frequent, higher-severity episodes today." },
-      ],
-      whatChangedSummary: "No control-mode or setpoint change logged around the episode.",
-      whatChanged: [],
-      confidence: "Single episode, not yet a confirmed pattern",
-      confidenceLevel: "medium",
-      risk: "Brief and contained so far",
-      riskLevel: "low",
-      expectedOutcome: "Cleared on its own within a minute",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-5",
-    severity: "medium",
-    asset: "Ferrum · F1 · Output",
-    line: "Ferrum · F1",
-    signal: "Recurring medium-severity microstops on Output",
-    aiInterpretation: "Same two-episode shape as Power Charge on this line, but lower severity and no measured throughput impact.",
-    since: "17m ago",
-    sinceMinutes: 17,
-    attentionState: "watch",
-    detail: {
-      signal: "29 medium-severity microstop events on Output, in two episodes: 09:16–09:29 and 10:28–10:42.",
-      observed: 'Output logged 29 medium-severity microstop events, in two windows: 09:16–09:29 and 10:28–10:42.',
-      derived: "Timing overlaps closely with the Power Charge episodes on the same line, though Output's own throughput never measurably dropped.",
-      inferred: 'This reads as a downstream symptom of the Power Charge issue on F1 rather than an independent fault.',
-      recommendation: "Review alongside the Power Charge investigation on F1 rather than as a separate issue.",
-      evidence: [4.39, 7.58, 11.42, 13.01, 12.9, 10.34, 6.96, 3.03],
-      evidencePoints: [
-        { time: "09:12", value: "4.4", label: "Baseline" },
-        { time: "09:15", value: "7.6", label: "Episode begins" },
-        { time: "09:18", value: "11.4", label: "" },
-        { time: "09:21", value: "13.0", label: "Highest point" },
-        { time: "09:24", value: "12.9", label: "" },
-        { time: "09:27", value: "10.3", label: "" },
-        { time: "09:30", value: "7.0", label: "Clearing" },
-        { time: "09:33", value: "3.0", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Ferrum · F1 · Power Charge", summary: "Same line, overlapping episode timing — worth investigating together." },
-        { date: "Ferrum · F6 · Output", summary: "F6's Output logged a nearly identical pattern today (28 events)." },
-      ],
-      whatChangedSummary: "Nothing logged beyond the microstop events themselves.",
-      whatChanged: [],
-      confidence: "Recurring, timing matches Power Charge on the same line",
-      confidenceLevel: "medium",
-      risk: "No measured throughput impact so far",
-      riskLevel: "low",
-      expectedOutcome: "Clears fully between episodes",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-6",
-    severity: "medium",
-    asset: "Ferrum · F6 · Shaping",
-    line: "Ferrum · F6",
-    signal: "Recurring medium-severity microstops on Shaping",
-    aiInterpretation: "Matches Ferrum F1's Shaping station pattern; lower severity than the Power Charge issue on this line.",
-    since: "20m ago",
-    sinceMinutes: 20,
-    attentionState: "watch",
-    detail: {
-      signal: "18 medium-severity microstop events on Shaping today, clustered mainly 09:18–09:25 with a smaller recurrence near 10:30.",
-      observed: 'Shaping logged 18 medium-severity microstop events, clustered mainly 09:18–09:25 with a smaller recurrence near 10:30.',
-      derived: 'Intensity rises and falls within each cluster with no measurable throughput impact.',
-      inferred: "Matches F1's Shaping pattern closely enough to suggest the same underlying cause is present on this station type fleet-wide, not unique to F6.",
-      recommendation: "Low priority relative to this line's Power Charge issue — monitor only for now.",
-      evidence: [4.68, 7.26, 8.47, 9.45, 7.4, 5.72, 1.55, 0.61],
-      evidencePoints: [
-        { time: "09:14", value: "4.7", label: "Baseline" },
-        { time: "09:17", value: "7.3", label: "Episode begins" },
-        { time: "09:20", value: "8.5", label: "" },
-        { time: "09:23", value: "9.5", label: "Highest point" },
-        { time: "09:27", value: "7.4", label: "" },
-        { time: "09:30", value: "5.7", label: "Clearing" },
-        { time: "09:33", value: "1.6", label: "" },
-        { time: "09:36", value: "0.6", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Ferrum · F1 · Shaping", summary: "F1's Shaping logged a nearly identical pattern today (19 events)." },
-      ],
-      whatChangedSummary: "Nothing logged beyond the microstop events themselves.",
-      whatChanged: [],
-      confidence: "Recurring, matches a sibling line",
-      confidenceLevel: "medium",
-      risk: "No measured throughput impact",
-      riskLevel: "low",
-      expectedOutcome: "Clears fully between clusters",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-7",
-    severity: "high",
-    asset: "Aurelia · A3 · Buffer",
-    line: "Aurelia · A3",
-    signal: "Buffer/WIP over 4x every other Aurelia line, still climbing",
-    aiInterpretation: "Intake has been running ~121 units/min against Output's ~113 for the entire shift — a small, sustained gap that compounds over time.",
-    since: "Ongoing",
-    sinceMinutes: 0,
-    attentionState: "act",
-    detail: {
-      signal: "Buffer level on A3 has grown from 60 to over 1,130 units since the start of the shift (09:00–10:59) — every other Aurelia buffer sits between 218 and 242.",
-      observed: 'Buffer/WIP on A3 grew from 60 to over 1,130 units across the full shift (09:00–10:59); every sibling Aurelia buffer sits between 218 and 242.',
-      derived: "Intake ran ~121 units/min against Output's ~113 for the entire window — a ~7% gap sustained the whole shift.",
-      inferred: "The size of the pileup is the cumulative effect of a small persistent rate mismatch, not one triggering event — which is also why 'Other recent' comes up empty for this item.",
-      recommendation: "Confirm A3's Output rate against its design target — even a small permanent correction there would stop further growth. This is a growing-WIP risk, not a stopped line.",
-      evidence: [60.25, 88.11, 167.01, 319.12, 536.96, 810.22, 1076.98, 1120.58],
-      evidencePoints: [
-        { time: "09:00", value: "60 units", label: "Baseline — in line with other Aurelia buffers" },
-        { time: "09:30", value: "88 units", label: "Still in normal range" },
-        { time: "09:40", value: "167 units", label: "Starting to pull away from siblings" },
-        { time: "09:50", value: "319 units", label: "" },
-        { time: "10:00", value: "537 units", label: "" },
-        { time: "10:10", value: "810 units", label: "" },
-        { time: "10:20", value: "1,077 units", label: "Now 4x+ every other Aurelia buffer" },
-        { time: "10:59", value: "1,137 units", label: "Current — still climbing" },
-      ],
-      relatedOccurrences: [],
-      whatChangedSummary: "No single triggering event — Intake has simply run faster than Output for the entire shift.",
-      whatChanged: [
-        { time: "09:00–10:59", source: "Rate Comparison", description: "A3 Intake averaged ~121 units/min against Output's ~113 units/min for the full window — a persistent ~7% gap rather than a step change.", related: true },
-      ],
-      confidence: "Clear, sustained, measurable for the full 2-hour window",
-      confidenceLevel: "high",
-      risk: "Buffer already 4x+ normal and still rising",
-      riskLevel: "high",
-      expectedOutcome: "Still climbing as of the latest reading — no sign of leveling off yet",
-      outcomeStatus: "none",
-    },
-  },
-  {
-    id: "att-8",
-    severity: "low",
-    asset: "Ferrum · F1 · Transfer",
-    line: "Ferrum · F1",
-    signal: "Blocking + microstops, medium severity, two episodes",
-    aiInterpretation: "Lower priority than this line's Power Charge and Output issues — no high-severity events here today.",
-    since: "18m ago",
-    sinceMinutes: 18,
-    attentionState: "watch",
-    detail: {
-      signal: "25 medium-severity events on Transfer today (10 blocking, 15 microstop), in two episodes matching this line’s other stations: 09:17–09:28 and 10:29–10:41.",
-      observed: "Transfer logged 25 medium-severity events today (10 blocking, 15 microstop), in the same two windows as this line's other stations.",
-      derived: 'Every event on this station logged as medium — none reached high severity, unlike Power Charge on the same line.',
-      inferred: 'Likely the same underlying F1 issue rippling through Transfer, at lower intensity than Power Charge itself.',
-      recommendation: "Fold into the same F1 investigation as Power Charge and Output rather than treating separately.",
-      evidence: [40.94, 44.45, 66.22, 100.7, 98.0, 91.91, 28.18, 38.87],
-      evidencePoints: [
-        { time: "09:16", value: "40.9s", label: "Baseline" },
-        { time: "09:18", value: "44.5s", label: "" },
-        { time: "09:20", value: "66.2s", label: "" },
-        { time: "09:22", value: "100.7s", label: "Highest point" },
-        { time: "09:23", value: "98.0s", label: "" },
-        { time: "09:25", value: "91.9s", label: "" },
-        { time: "09:27", value: "28.2s", label: "Clearing" },
-        { time: "09:29", value: "38.9s", label: "Back to baseline" },
-      ],
-      relatedOccurrences: [
-        { date: "Ferrum · F1 · Power Charge & Output", summary: "Same line, same two episode windows — likely one connected issue rather than three separate ones." },
-      ],
-      whatChangedSummary: "Nothing logged beyond the events themselves.",
-      whatChanged: [],
-      confidence: "Recurring, matches sibling stations on this line",
-      confidenceLevel: "medium",
-      risk: "Lowest severity of the issues logged on this line today",
-      riskLevel: "low",
-      expectedOutcome: "Clears fully between episodes",
-      outcomeStatus: "recovering",
-    },
-  },
-  {
-    id: "att-9",
-    severity: "low",
-    asset: "Ferrum · F2",
-    line: "Ferrum · F2",
-    signal: "Running clean — no events logged today",
-    aiInterpretation: "Ferrum lines structurally run lower OEE than Aurelia (different target rate), which is not the same as a flagged issue.",
-    since: "This shift",
-    sinceMinutes: 119,
-    attentionState: "watch",
-    detail: {
-      signal: "F2 logged zero microstop or blocking events during this window (09:00–10:59) — the cleanest line in the Ferrum refinery today.",
-      observed: 'F2 logged zero microstop or blocking events during the full window.',
-      derived: "F2's OEE (~0.80) sits below Aurelia's (~0.84–0.91), but every clean Ferrum line shows the same gap.",
-      inferred: 'The Ferrum/Aurelia OEE gap reflects a structurally different target rate, not degraded performance — included here only as a clean baseline for comparison.',
-      recommendation: "No action needed. Useful as a baseline for comparing the flagged Ferrum lines against.",
-      evidence: [0.795, 0.795],
-      evidencePoints: [
-        { time: "09:00", value: "0.80 OEE", label: "Start of shift" },
-        { time: "10:59", value: "0.80 OEE", label: "Current — steady" },
-      ],
-      relatedOccurrences: [],
-      whatChangedSummary: "Nothing changed — included for comparison only.",
-      whatChanged: [],
-      confidence: "Informational only",
-      confidenceLevel: "n/a",
-      risk: "None at this time",
-      riskLevel: "none",
-      expectedOutcome: "—",
-      outcomeStatus: "none",
-    },
-  },
-];
+let ATTENTION_ITEMS = [];
+
 
 const SEVERITY_COLORS = {
   high: '#d64545',
@@ -524,37 +186,109 @@ function groupAttentionItems(items, groupBy) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — "Work" items
+//
+// Real content mined from aetherium_nextgen_simulation_v1.xlsx (WorkItems +
+// WorkDependencies sheets) — the Aug 28 scenario-driven simulation. This is
+// now the SAME dataset the Attention items above are grounded in (both
+// migrated together), replacing the old real Jan 1 historian window
+// entirely — one timeline for the whole interface, not two.
+//
+// "Now" for the whole interface is pinned to 2026-08-28 14:05 — the middle
+// of Ferrum F4's real changeover window, which is what actually produces a
+// good planned/unplanned + time-margin story (11 of 14 items already done,
+// 3 genuinely live: one overdue by 5 min, one due right now, one with 15
+// min left).
 // ─────────────────────────────────────────────────────────────────────────────
 
-const INITIAL_WORK_ITEMS = [
-  {
-    id: 'wk-1',
-    text: 'Inspect breaker CB-204 (Ferrum F2)',
-    description: 'Created from Attention: Line down 34 minutes (Ferrum · F2 · Power Charge)',
-    source: 'ai',
-    done: false,
-    createdAt: new Date(Date.now() - 20 * 60000),
-  },
-  {
-    id: 'wk-2',
-    text: 'Confirm CIP schedule for F3 tooling review',
-    description: '',
-    source: 'operator',
-    done: false,
-    createdAt: new Date(Date.now() - 2 * 3600000),
-  },
-  {
-    id: 'wk-3',
-    text: 'Log shift-start walkthrough — Aurelia',
-    description: '',
-    source: 'operator',
-    done: true,
-    createdAt: new Date(Date.now() - 5 * 3600000),
-  },
-];
+const WORK_NOW_REFERENCE = new Date('2026-08-28T14:05:00');
+
+const WORK_PRIORITY_ORDER = { urgent: 0, important: 1, routine: 2 };
+const WORK_PRIORITY_COLORS = { urgent: '#d64545', important: '#e0a336', routine: '#8c8c8c' };
+const WORK_PRIORITY_LABELS = { urgent: 'Urgent', important: 'Important', routine: 'Routine' };
+const WORK_SOURCE_TYPE_LABELS = { planned: 'Planned', situation: 'Unplanned' };
+
+let INITIAL_WORK_ITEMS = [];
 
 function formatCreatedAt(date) {
+  if (!date) return null;
   return date.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+}
+
+function computeMarginMinutes(item) {
+  if (!item.dueAt) return null;
+  return Math.round((item.dueAt.getTime() - WORK_NOW_REFERENCE.getTime()) / 60000);
+}
+
+function formatMargin(minutes) {
+  if (minutes === null) return null;
+  if (minutes < 0) return `Overdue ${Math.abs(minutes)}m`;
+  if (minutes === 0) return 'Due now';
+  if (minutes < 60) return `Due in ${minutes}m`;
+  return `Due in ${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+}
+
+function marginColor(minutes) {
+  if (minutes === null) return '#aaa';
+  if (minutes < 0) return '#d64545';
+  if (minutes <= 15) return '#e0a336';
+  return '#8c8c8c';
+}
+
+const WORK_GROUP_BY_OPTIONS = [
+  { value: 'none', label: 'None' },
+  { value: 'sourceType', label: 'Type' },
+  { value: 'priority', label: 'Priority' },
+];
+
+const WORK_SORT_BY_OPTIONS = [
+  { value: 'margin', label: 'Time margin' },
+  { value: 'priority', label: 'Priority' },
+];
+
+function sortWorkItems(items, sortBy) {
+  const sorted = [...items];
+  sorted.sort((a, b) => {
+    // Not-done items always float above done ones, regardless of sort
+    // choice — a finished item's time margin isn't a prioritization signal
+    // anymore.
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    if (a.done && b.done) {
+      return (b.completedAt ? b.completedAt.getTime() : 0) - (a.completedAt ? a.completedAt.getTime() : 0);
+    }
+    if (sortBy === 'priority') {
+      return WORK_PRIORITY_ORDER[a.priority] - WORK_PRIORITY_ORDER[b.priority];
+    }
+    const ma = computeMarginMinutes(a);
+    const mb = computeMarginMinutes(b);
+    if (ma === null && mb === null) return 0;
+    if (ma === null) return 1;
+    if (mb === null) return -1;
+    return ma - mb;
+  });
+  return sorted;
+}
+
+function groupWorkItems(items, groupBy) {
+  if (groupBy === 'none') {
+    return [{ key: 'all', label: null, items }];
+  }
+  const buckets = {};
+  items.forEach(item => {
+    const key = groupBy === 'priority' ? item.priority : item.sourceType;
+    if (!buckets[key]) buckets[key] = [];
+    buckets[key].push(item);
+  });
+  let keys = Object.keys(buckets);
+  if (groupBy === 'priority') {
+    keys.sort((a, b) => WORK_PRIORITY_ORDER[a] - WORK_PRIORITY_ORDER[b]);
+  } else {
+    keys.sort((a, b) => a.localeCompare(b));
+  }
+  return keys.map(key => ({
+    key,
+    label: groupBy === 'priority' ? WORK_PRIORITY_LABELS[key] : WORK_SOURCE_TYPE_LABELS[key],
+    items: buckets[key],
+  }));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -568,28 +302,86 @@ function AiPill() {
 // One of two chart-type options for the Evidence card (toggled via a
 // ButtonGroup) — a conventional line chart with a visible axis, gridlines,
 // and point markers at each reading.
+const SHIFT_START_MIN = 8 * 60;   // 08:00
+const NOW_REFERENCE_MIN = 14 * 60 + 5; // 14:05, the app's shared "now"
+const PAD_STEP_MIN = 15;
+
+function timeStrToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function minutesToShiftDate(mins) {
+  return new Date(2026, 7, 28, Math.floor(mins / 60), mins % 60);
+}
+
+// The chart used to be scoped to ONLY the event's own evidencePoints —
+// honest, but too little data for the RangeSelector to zoom out into
+// (nothing existed outside that narrow window to zoom out TO). This pads
+// the real event data with flat baseline values spanning the rest of the
+// shift, so there's an actual full-shift dataset to work with. It's a
+// stand-in, not real telemetry outside the event window — flagged here so
+// it's not mistaken for one later. Real per-property full-shift samples
+// (like STATION_TELEMETRY already has for other views) would replace this
+// properly once this attention-item data model records which property
+// each item's evidence actually corresponds to.
+function padEvidenceAcrossShift(evidencePoints, evidence) {
+  const real = evidencePoints.map((p, i) => ({ minutes: timeStrToMinutes(p.time), value: evidence[i] }));
+  const first = real[0];
+  const last = real[real.length - 1];
+  const padded = [];
+  for (let m = SHIFT_START_MIN; m < first.minutes - PAD_STEP_MIN; m += PAD_STEP_MIN) {
+    padded.push({ minutes: m, value: first.value });
+  }
+  padded.push(...real);
+  for (let m = last.minutes + PAD_STEP_MIN; m <= NOW_REFERENCE_MIN; m += PAD_STEP_MIN) {
+    padded.push({ minutes: m, value: last.value });
+  }
+  return padded
+    .sort((a, b) => a.minutes - b.minutes)
+    .map(p => ({ time: minutesToShiftDate(p.minutes), value: p.value }));
+}
+
 function ComparisonLineChart({ evidence, evidencePoints, color }) {
-  const data = evidence.map((v, i) => ({
-    time: evidencePoints[i] ? evidencePoints[i].time : String(i),
-    value: v,
-  }));
+  const initialRange = useMemo(() => [
+    minutesToShiftDate(timeStrToMinutes(evidencePoints[0].time)),
+    minutesToShiftDate(timeStrToMinutes(evidencePoints[evidencePoints.length - 1].time)),
+  ], [evidencePoints]);
+  const [visualRange, setVisualRange] = useState(initialRange);
+  const data = useMemo(() => padEvidenceAcrossShift(evidencePoints, evidence), [evidencePoints, evidence]);
   return (
-    <div className="op-evidence-chart-wrap">
-      <Chart dataSource={data} palette={[color]} height="100%">
-        <CommonSeriesSettings argumentField="time" type="line" />
-        <Series valueField="value">
-          <Point visible={true} size={7} />
-        </Series>
-        <ArgumentAxis>
-          <ChartGrid visible={false} />
-        </ArgumentAxis>
-        <ValueAxis>
-          <ChartGrid visible={true} />
-        </ValueAxis>
-        <ChartLegend visible={false} />
-        <ChartTooltip enabled={true} />
-        <ChartExport enabled={false} />
-      </Chart>
+    <div className="op-evidence-chart-wrap op-evidence-chart-wrap--with-range">
+      <div className="op-evidence-chart-main">
+        <Chart dataSource={data} palette={[color]} height="100%">
+          <CommonSeriesSettings argumentField="time" type="line" />
+          <Series valueField="value">
+            <Point visible={true} size={7} />
+            <Aggregation enabled={true} />
+          </Series>
+          <ArgumentAxis argumentType="datetime" visualRange={visualRange} valueMarginsEnabled={false}>
+            <ChartGrid visible={false} />
+          </ArgumentAxis>
+          <ValueAxis>
+            <ChartGrid visible={true} />
+          </ValueAxis>
+          <ChartLegend visible={false} />
+          <ChartTooltip enabled={true} />
+          <ChartExport enabled={false} />
+        </Chart>
+      </div>
+      <div className="op-evidence-rangeselector">
+        <RangeSelector dataSource={data} defaultValue={initialRange} onValueChanged={e => setVisualRange(e.value)}>
+          <RsSize height={70} />
+          <RsChart>
+            <RsValueAxis visible={false} />
+            <RsSeries type="line" valueField="value" argumentField="time">
+              <RsAggregation enabled={true} />
+            </RsSeries>
+          </RsChart>
+          <RsScale valueType="datetime" placeholderHeight={14} />
+          <RsBehavior snapToTicks={false} valueChangeMode="onHandleMove" />
+        </RangeSelector>
+      </div>
     </div>
   );
 }
@@ -624,6 +416,7 @@ const EVIDENCE_VIEW_ITEMS = [
   { text: 'Candlestick', value: 'candlestick' },
   { text: 'Timeline', value: 'timeline' },
   { text: 'Table', value: 'table' },
+  { text: 'KPIs', value: 'hmi' },
 ];
 
 function CandlestickChart({ evidence, evidencePoints, color }) {
@@ -649,6 +442,111 @@ function CandlestickChart({ evidence, evidencePoints, color }) {
         <ChartTooltip enabled={true} />
         <ChartExport enabled={false} />
       </Chart>
+    </div>
+  );
+}
+
+// "Refinery · Line · Station" (how attention items name their asset) ->
+// the nextgen workbook's own station id format ("FER_L02_POWERCHARGE").
+// Only resolves for station-level assets — line-wide items (2-part asset
+// strings, e.g. "Ferrum · F4") have no single station to look up.
+function attentionAssetToStationId(asset) {
+  const parts = asset.split(' · ');
+  if (parts.length < 3) return null;
+  const [refinery, line, station] = parts;
+  const prefix = refinery === 'Aurelia' ? 'AUR' : 'FER';
+  const num = line.slice(1).padStart(2, '0');
+  const stationSuffix = station.replace(/\s+/g, '').toUpperCase();
+  return `${prefix}_L${num}_${stationSuffix}`;
+}
+
+const HMI_CATEGORY_ORDER = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition'];
+
+function timeToMinutes(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+// Full property series lives in STATION_TELEMETRY under either typed or
+// measured — checked in that order since a property never appears in both.
+function getPropertySeries(stationId, propKey) {
+  const station = STATION_TELEMETRY && STATION_TELEMETRY.stations && STATION_TELEMETRY.stations[stationId];
+  if (!station) return null;
+  return (station.typed && station.typed[propKey]) || (station.measured && station.measured[propKey]) || null;
+}
+
+// Clips a full series down to [startTime, endTime] using STATION_TELEMETRY's
+// own timestamp grid — the same window the Line/Candlestick tabs show for
+// this item, via its evidencePoints. If that window reaches past what's
+// actually available (a couple of items' evidence extends past the shared
+// "now" reference as a projection), this naturally clips to real data
+// rather than inventing future readings to match exactly.
+function sliceSeriesToRange(series, startTime, endTime) {
+  if (!series || !STATION_TELEMETRY || !STATION_TELEMETRY.timestamps) return null;
+  const grid = STATION_TELEMETRY.timestamps.map(timeToMinutes);
+  const startMin = timeToMinutes(startTime);
+  const endMin = timeToMinutes(endTime);
+  let startIdx = grid.findIndex(m => m >= startMin);
+  if (startIdx === -1) startIdx = grid.length - 1;
+  let endIdx = startIdx;
+  for (let i = grid.length - 1; i >= 0; i--) {
+    if (grid[i] <= endMin) { endIdx = i; break; }
+  }
+  if (endIdx < startIdx) endIdx = startIdx;
+  return series.slice(startIdx, endIdx + 1);
+}
+
+// Every property EXCEPT the universal/common ones already shown elsewhere
+// (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
+// already covers) — grouped by property type rather than dumped as one
+// long list, same visual language as Line Detail's stat tiles.
+function HmiPropertiesListing({ asset, evidencePoints }) {
+  const stationId = attentionAssetToStationId(asset);
+  const props = stationId ? STATION_FULL_PROPERTIES[stationId] : null;
+
+  if (!props) {
+    return <div className="op-dash-text op-dash-text--muted">No station-level properties for this item.</div>;
+  }
+
+  const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
+  const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;
+
+  const grouped = {};
+  Object.entries(props).forEach(([key, value]) => {
+    const category = PROPERTY_CATEGORIES[key] || 'Other';
+    if (!grouped[category]) grouped[category] = [];
+    grouped[category].push({ key, label: PROPERTY_LABELS[key] || key, value });
+  });
+  const categories = HMI_CATEGORY_ORDER.filter(c => grouped[c]);
+
+  return (
+    <div className="op-hmiprops">
+      {categories.map(cat => (
+        <div key={cat} className="op-hmiprops-card">
+          <div className="op-hmiprops-card-title">{cat}</div>
+          <div className="op-hmiprops-kpis">
+            {grouped[cat].map(p => {
+              const range = PROPERTY_RANGES[p.key];
+              const fullSeries = stationId ? getPropertySeries(stationId, p.key) : null;
+              const sparkline = (fullSeries && rangeStart && rangeEnd)
+                ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd)
+                : null;
+              return (
+                <StatTile
+                  key={p.key}
+                  label={p.label}
+                  value={p.value}
+                  min={range ? range[0] : undefined}
+                  max={range ? range[1] : undefined}
+                  sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+                  horizontal
+                  labelFirst
+                />
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -694,8 +592,8 @@ const CONFIDENCE_BARS = { high: 3, medium: 2, low: 1, 'n/a': 0 };
 const RISK_COLORS = { high: '#d64545', medium: '#e0a336', low: '#3fa64c', none: '#9096a3' };
 const RISK_LABELS = { high: 'High', medium: 'Medium', low: 'Low', none: 'None' };
 
-const OUTCOME_COLORS = { recovering: '#3fa64c', none: '#9096a3' };
-const OUTCOME_LABELS = { recovering: 'Improving', none: 'N/A' };
+const OUTCOME_COLORS = { recovering: '#3fa64c', resolved: '#3fa64c', none: '#9096a3' };
+const OUTCOME_LABELS = { recovering: 'Improving', resolved: 'Resolved', none: 'N/A' };
 
 function ConfidenceIcon({ filled }) {
   const bar = n => (filled >= n ? 'currentColor' : '#e2e5ea');
@@ -723,6 +621,19 @@ function ShieldCheckIcon() {
     <svg width="18" height="19" viewBox="0 0 18 19" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 1.3 16 3.8v5.1c0 4.4-2.9 7.2-7 8.3-4.1-1.1-7-3.9-7-8.3V3.8L9 1.3z" />
       <path d="M5.8 9.3 8 11.5l4.2-4.6" />
+    </svg>
+  );
+}
+
+// Two opposing arrows — reads as "switching from one thing to another,"
+// which is what a changeover actually is (grade A to grade B), rather than
+// borrowing an icon meant for a different concept (a clock/duration, or a
+// generic gear/settings icon that doesn't say "in transition" specifically).
+function ChangeoverIcon() {
+  return (
+    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1.5 5.5h14.5l-3.5-3.5" />
+      <path d="M18.5 12.5H4l3.5 3.5" />
     </svg>
   );
 }
@@ -778,82 +689,85 @@ function VerticalTimeline({ items, maxItems }) {
 // Now — line status strip
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ClockIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5V8l2.5 1.5" />
-    </svg>
-  );
+// One consistent visual language for all three states, rather than the old
+// gauge-for-running/attention + separate duration-for-changeover split. A
+// percent gauge implied a denominator worth reading closely — but with
+// every running line clustered at 99-101%, that precision wasn't actually
+// informative, just noisy. Icon + label reads faster at a glance anyway.
+function NowStatusIcon({ state }) {
+  if (state === 'attention') return <RiskAlertIcon />;
+  if (state === 'changeover') return <ChangeoverIcon />;
+  return <ShieldCheckIcon />;
 }
 
-// Radial "progress ring" gauge — used for Running/Attention lines, where the
-// underlying value is genuinely a percent-of-target. Scaled to 120 (not 100)
-// since lines can run above target; the ring is colored by line state, the
-// center readout stays neutral so it's legible against the dark strip
-// regardless of state color.
-function PercentGauge({ value, color }) {
-  const clamped = Math.max(0, Math.min(value, 120));
-  return (
-    <div className="op-now-gauge">
-      <CircularGauge value={clamped} centerRender={() => (
-        <div className="op-now-gauge-center">{value}%</div>
-      )}>
-        <GaugeSize width={52} height={52} />
-        <GaugeMargin top={0} bottom={0} left={0} right={0} />
-        <Scale startValue={0} endValue={120} tickInterval={40}>
-          <GaugeValueLabel visible={false} />
-          <Tick visible={false} />
-          <MinorTick visible={false} />
-        </Scale>
-        <RangeContainer>
-          <Range startValue={0} endValue={120} color="rgba(255,255,255,0.12)" />
-        </RangeContainer>
-        <ValueIndicator type="rangeBar" color={color} />
-        <GaugeExport enabled={false} />
-        <GaugeTooltip enabled={false} />
-      </CircularGauge>
-    </div>
-  );
+function formatStatusDuration(minutes) {
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
-// Deliberately NOT a gauge — Down/Changeover are durations, not a value
-// against a target, so representing them as a percent-style ring would
-// imply a denominator we don't actually have.
-function DurationIndicator({ minutes, color }) {
-  return (
-    <div className="op-now-duration">
-      <span className="op-now-duration-icon" style={{ color }}><ClockIcon /></span>
-      <span className="op-now-duration-value" style={{ color }}>{minutes}</span>
-      <span className="op-now-duration-unit">min</span>
-    </div>
-  );
-}
+// Attention first (needs a person to look), changeover second (expected,
+// but worth a glance since it's a transition), running last (calm).
+const LINE_STATE_PRIORITY = { attention: 0, changeover: 1, running: 2 };
 
-function NowStrip() {
+function NowStrip({ selectedLine, onSelectLine }) {
+  const orderedLines = useMemo(
+    () => [...LINE_STATUS].sort((a, b) => LINE_STATE_PRIORITY[a.state] - LINE_STATE_PRIORITY[b.state]),
+    []
+  );
   return (
     <div className="op-now-strip">
       <div className="op-zone-label">Now</div>
       <div className="op-now-tiles">
-        {LINE_STATUS.map(line => (
-          <div key={line.id} className="op-now-tile">
-            <div className="op-now-tile-top">
-              <span className="op-now-dot" style={{ background: STATE_COLORS[line.state] }} />
-              <span className="op-now-tile-label">{line.label}</span>
-            </div>
-            <div className="op-now-tile-visual">
-              {line.percent !== undefined
-                ? <PercentGauge value={line.percent} color={STATE_COLORS[line.state]} />
-                : <DurationIndicator minutes={line.elapsedMinutes} color={STATE_COLORS[line.state]} />}
-            </div>
-            <div className="op-now-tile-state" style={{ color: STATE_COLORS[line.state] }}>
-              {STATE_LABELS[line.state]}
-            </div>
-          </div>
-        ))}
+        {orderedLines.map(line => {
+          const ctx = OPERATING_CONTEXT_BY_LINE[line.id];
+          return (
+            <button
+              key={line.id}
+              className={`op-now-tile${selectedLine === lineIdToAssetId(line.id) ? ' op-now-tile--selected' : ''}`}
+              onClick={() => onSelectLine(lineIdToAssetId(line.id))}
+            >
+              <div className="op-now-tile-top">
+                <span className="op-now-dot" style={{ background: STATE_COLORS[line.state] }} />
+                <span className="op-now-tile-label">{line.label}</span>
+              </div>
+              <div className="op-now-tile-status-row">
+                <span className="op-now-tile-status-icon" style={{ color: STATE_COLORS[line.state] }}>
+                  <NowStatusIcon state={line.state} />
+                </span>
+                <span className="op-now-tile-status-text" style={{ color: STATE_COLORS[line.state] }}>
+                  {STATE_LABELS[line.state]}
+                </span>
+              </div>
+              {line.statusSinceMinutes != null && (
+                <div className="op-now-tile-duration">for {formatStatusDuration(line.statusSinceMinutes)}</div>
+              )}
+              {ctx && (
+                <div className="op-now-tile-context">
+                  <span className="op-now-tile-mode" style={{ color: OPERATING_MODE_COLORS[ctx.mode] }}>
+                    {ctx.mode.replace('_', ' ')}
+                  </span>
+                  <span className="op-now-tile-product">{ctx.product}</span>
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
+}
+
+// LINE_STATUS uses ids like "AURELIA_A1"; LINE_ROLLUPS/STATION_METRICS use
+// the nextgen workbook's own asset ids like "AUR_L01" — this converts
+// between the two rather than renaming one of two already-established
+// conventions.
+function lineIdToAssetId(lineStatusId) {
+  const [refinery, code] = lineStatusId.split('_');
+  const prefix = refinery === 'AURELIA' ? 'AUR' : 'FER';
+  const num = code.slice(1).padStart(2, '0'); // "A1" -> "1" -> "01"
+  return `${prefix}_L${num}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -891,8 +805,19 @@ function buildIssueLookup() {
     const station = parts[2];
     const key = `${line}|${station}`;
     const existing = map[key];
+    // "Resolved" here means the situation has actually concluded
+    // (detail.outcomeStatus), not how urgent it was — attentionState answers
+    // a different question (how urgent is this) than whether it's still
+    // open at all, and a low-urgency-but-still-open item should still read
+    // as active, not muted.
+    const isResolved = item.detail.outcomeStatus === 'resolved';
     if (!existing || SEVERITY_RANK[item.severity] > SEVERITY_RANK[existing.severity]) {
-      map[key] = { severity: item.severity, id: item.id, signal: item.signal };
+      map[key] = { severity: item.severity, id: item.id, signal: item.signal, resolved: isResolved };
+    } else if (!isResolved && existing.resolved) {
+      // A still-open item shares this cell with a higher-severity resolved
+      // one — keep the cell reading as active rather than letting the
+      // resolved item's color choice silently mute it.
+      existing.resolved = false;
     }
   });
   return map;
@@ -918,12 +843,13 @@ function IssueMapGrid({ title, lines, stations, lookup, onSelectIssue }) {
               {stations.map(st => {
                 const hit = lookup[`${line}|${st}`];
                 const color = hit ? SEVERITY_COLORS[hit.severity] : ISSUEMAP_CLEAN_COLOR;
+                const isResolved = hit && hit.resolved;
                 return (
                   <td key={st}>
                     <div
-                      className={`op-issuemap-cell${hit ? ' op-issuemap-cell--issue' : ''}`}
-                      style={{ background: color }}
-                      title={hit ? `${line} · ${st}: ${hit.signal}` : `${line} · ${st}: no issues logged`}
+                      className={`op-issuemap-cell${hit ? ' op-issuemap-cell--issue' : ''}${isResolved ? ' op-issuemap-cell--resolved' : ''}`}
+                      style={isResolved ? { borderColor: color } : { background: color }}
+                      title={hit ? `${line} · ${st}: ${hit.signal}${isResolved ? ' (resolved)' : ''}` : `${line} · ${st}: no issues logged`}
                       onClick={hit ? () => onSelectIssue(hit.id) : undefined}
                     />
                   </td>
@@ -943,11 +869,14 @@ function IssueMapGrid({ title, lines, stations, lookup, onSelectIssue }) {
 // Now strip; clicking slides the whole rigid box down to translateY(0),
 // so the tab visibly travels down together with the content, ending up at
 // the true bottom of the fully revealed panel. Same idea reversed to close.
-function IssueMapOverlay({ expanded, onToggle, onSelectIssue }) {
+function IssueMapOverlay({ expanded, onToggle, onSelectIssue, selectedDetailLine, onCloseDetailLine, topOffset }) {
   return (
-    <div className={`op-now-issuemap-overlay${expanded ? ' op-now-issuemap-overlay--open' : ''}`}>
+    <div
+      className={`op-now-issuemap-overlay${expanded ? ' op-now-issuemap-overlay--open' : ''}`}
+      style={{ top: topOffset, bottom: 100 }}
+    >
       <div className="op-issuemap-content">
-        <IssueMap onSelectIssue={onSelectIssue} />
+        <IssueMap onSelectIssue={onSelectIssue} selectedDetailLine={selectedDetailLine} onCloseDetailLine={onCloseDetailLine} />
       </div>
       <button
         className="op-now-pulltab"
@@ -960,21 +889,310 @@ function IssueMapOverlay({ expanded, onToggle, onSelectIssue }) {
   );
 }
 
-function IssueMap({ onSelectIssue }) {
+// Mined from OperatingContext in the nextgen workbook, at the same 14:05
+// reference used for Work — this is what makes Ferrum F4 show CHANGEOVER
+// while everything else is STEADY (its changeover window is 13:50–14:18).
+const OPERATING_MODE_COLORS = {
+  STEADY: '#3fa66c',
+  CHANGEOVER: '#0078d4',
+  RAMP_UP: '#e0a336',
+  RAMP_DOWN: '#e0a336',
+  STOPPED: '#8c8c8c',
+  MAINTENANCE: '#6a3fd6',
+  CONTROLLED_HOLD: '#d64545',
+};
+
+// Display labels only — "Grade A/F/B" are the workbook's real ProductID
+// values (GRADE_A, GRADE_F, GRADE_B), left untouched underneath. Renamed
+// here because "Grade F" reads like a failing grade at a glance, which is
+// exactly the wrong impression for a healthy line. F4's changeover target
+// gets "Product C" rather than reusing "Product B", since B is now taken
+// by Ferrum's standard product and reusing it would make the changeover
+// arrow read as "back to Ferrum's own product," which it isn't.
+let OPERATING_CONTEXT_BY_LINE = {};
+
+let LINE_ROLLUPS = {};
+
+let STATION_METRICS = {};
+// Full 74-point (08:00-14:05, 5-min resolution) time series for every
+// property on all 66 stations — { timestamps: [...], stations: { id: {
+// universal: {prop: [...]}, typed: {...}, measured: {...} } } }. Not
+// consumed by any UI yet — available for whenever that work happens.
+let STATION_TELEMETRY = null;
+
+let PROPERTY_CATEGORIES = {};
+let PROPERTY_LABELS = {};
+let PROPERTY_RANGES = {};
+let STATION_FULL_PROPERTIES = {};
+
+let LINE_SPARKLINES = {};
+
+let STATION_SPARKLINES = {};
+
+
+const STATION_TYPE_LABELS = {
+  INTAKE: 'Intake', STABILIZATION: 'Stabilization', REFINEMENT: 'Refinement',
+  INSPECTION: 'Inspection', BUFFER: 'Buffer', OUTPUT: 'Output',
+  BULK_INTAKE: 'Bulk Intake', POWER_CHARGE: 'Power Charge', SHAPING: 'Shaping', TRANSFER: 'Transfer',
+};
+
+const HIGHLIGHT_FIELD_LABELS = {
+  input_quality_score: 'Input quality', batch_variability: 'Batch variability',
+  stability_score: 'Stability', oscillation_index: 'Oscillation',
+  yield_rate: 'Yield', consistency_index: 'Consistency',
+  inspection_pass_rate: 'Pass rate', first_pass_yield: 'First-pass yield',
+  buffer_level: 'Buffer level', saturation_risk_index: 'Saturation risk',
+  output_quality_score: 'Output quality', on_time_output_rate: 'On-time rate',
+  material_availability: 'Material availability', supply_variability: 'Supply variability',
+  charge_rate: 'Charge rate', system_stress: 'System stress',
+  defect_rate: 'Defect rate', blocking_time: 'Blocking time', starvation_time: 'Starvation time',
+};
+
+// Raw nextgen-workbook property names -> readable labels, for captioning
+// each real station's sparkline with what it's actually plotting.
+const SPARKLINE_PROPERTY_LABELS = {
+  ThroughputRate: 'Throughput', RejectRatePct: 'Reject Rate', PurityPct: 'Purity',
+  BufferLevelPct: 'Buffer Level', ChargePV: 'Charge Rate', TransferRate: 'Transfer Rate',
+  PressurePV: 'Pressure',
+};
+
+// Line-click detail panel — line rollups (throughput, OEE, WIP, bottleneck,
+// health index, flow efficiency, instability) plus a per-station breakdown
+// using each station's own type-specific highlights. Stations with no real
+// telemetry (52 of 66 in this dataset) show a "baseline" tag rather than
+// silently passing off a generated healthy guess as measured fact.
+//
+// Sparkline: only ever fed a REAL sampled time series — never used on the
+// 52 baseline stations, since there's no real trend to show for those.
+//
+// Where no sparkline exists, LineDetail shows a "Normal Operation" badge in
+// its place. That label is a deliberate demo simplification — what it
+// actually means is "no real telemetry exists for this station, so a
+// plausible healthy value was generated," not "we measured this and
+// confirmed it's fine." Worth surfacing that distinction if anyone asks a
+// follow-up question, even though the badge itself stays calm/simple.
+function MiniSparkline({ values, type = 'line', color, width = 100, height = 26 }) {
+  const data = values.map((v, i) => ({ x: i, y: v }));
+  const lineColor = color || '#9096a3';
+  const firstLastColor = color || '#9096a3';
+  return (
+    <Sparkline
+      dataSource={data}
+      argumentField="x"
+      valueField="y"
+      type={type}
+      lineColor={lineColor}
+      {...(color ? { pointColor: color } : {})}
+      firstLastColor={firstLastColor}
+      winColor="#3fa66c"
+      lossColor="#d64545"
+      showMinMax={true}
+      maxColor="#e0a336"
+      minColor="#e0a336"
+      width={width}
+      height={height}
+    />
+  );
+}
+
+// Genuinely responsive width: measures its own container via
+// ResizeObserver and passes the real pixel width down to MiniSparkline
+// explicitly, every time it changes. Height stays fixed (that's not what
+// was asked to move) — only width is ever measured and re-passed.
+function ResponsiveSparkline({ values, height = 26, color }) {
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(100);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        if (w > 0) setWidth(w);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="op-statkpi-spark-inner">
+      <MiniSparkline values={values} width={Math.max(1, Math.round(width))} height={height} color={color} />
+    </div>
+  );
+}
+
+// Value-first, label-second — the opposite emphasis of a bullet graph.
+// Built for exactly the case a bullet handles badly: station-level KPIs
+// that cluster tightly (95-100%) and read as identical-looking full bars
+// rather than showing any real variation. The number itself carries the
+// information here; the label just says what it is.
+function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal }) {
+  const hasRange = min != null && max != null && typeof value === 'number' && max > min;
+  const pct = hasRange ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;
+
+  // Observed range: the real min/max the sparkline has actually shown —
+  // not a fabricated threshold, just "here's where this has actually
+  // moved" shaded onto the same scale as the current-value marker.
+  let observed = null;
+  if (hasRange && sparkline && sparkline.length > 1) {
+    const obsMin = Math.min(...sparkline);
+    const obsMax = Math.max(...sparkline);
+    const left = Math.max(0, Math.min(100, ((obsMin - min) / (max - min)) * 100));
+    const right = Math.max(0, Math.min(100, ((obsMax - min) / (max - min)) * 100));
+    if (right > left) observed = { left, width: right - left };
+  }
+
+  const labelEl = <div className="op-statkpi-label">{label}</div>;
+  const valueEl = <div className="op-statkpi-value">{value}</div>;
+
+  if (horizontal) {
+    // Compact row: vertical indicator | name+value stack | sparkline.
+    // Height is driven entirely by the name+value column — deliberately
+    // short, trading the scale-endpoint labels for density.
+    return (
+      <div className="op-statkpi op-statkpi--row">
+        {hasRange && (
+          <div className="op-statkpi-vtrack">
+            {observed && (
+              <div className="op-statkpi-vtrack-observed" style={{ bottom: `${observed.left}%`, height: `${observed.width}%` }} />
+            )}
+            <div className="op-statkpi-vtrack-marker" style={{ bottom: `${pct}%` }} />
+          </div>
+        )}
+        <div className="op-statkpi-info">
+          {labelFirst ? labelEl : valueEl}
+          {labelFirst && valueEl}
+          {!labelFirst && labelEl}
+        </div>
+        {sparkline && (
+          <div className="op-statkpi-spark">
+            <ResponsiveSparkline values={sparkline} height={60} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="op-statkpi">
+      {labelFirst ? labelEl : valueEl}
+      {labelFirst && valueEl}
+      {hasRange && (
+        <>
+          <div className="op-statkpi-track">
+            {observed && (
+              <div className="op-statkpi-track-observed" style={{ left: `${observed.left}%`, width: `${observed.width}%` }} />
+            )}
+            <div className="op-statkpi-track-marker" style={{ left: `${pct}%` }} />
+          </div>
+          <div className="op-statkpi-track-labels">
+            <span>{min}</span>
+            <span>{max}</span>
+          </div>
+        </>
+      )}
+      {sparkline && (
+        <div className="op-statkpi-spark">
+          <MiniSparkline values={sparkline} width={160} />
+        </div>
+      )}
+      {!labelFirst && labelEl}
+    </div>
+  );
+}
+
+function LineDetail({ line, label, onClose }) {
+  const rollup = LINE_ROLLUPS[line];
+  if (!rollup) return null;
+  const stationEntries = Object.keys(STATION_METRICS)
+    .filter(sid => sid.startsWith(`${line}_`))
+    .map(sid => [sid, STATION_METRICS[sid]]);
+
+  return (
+    <div className="op-linedetail">
+      <div className="op-linedetail-header">
+        <span className="op-linedetail-title">Line Detail — {label}</span>
+        <button className="op-linedetail-close" onClick={onClose} title="Close">✕</button>
+      </div>
+      <div className="op-linedetail-rollup-row">
+        <StatTile label="Throughput" value={`${rollup.line_throughput}${rollup.line_target_rate ? ` / ${rollup.line_target_rate}` : ''}/min`} />
+        {LINE_SPARKLINES[line] && LINE_SPARKLINES[line].length > 2 && (
+          <div className="op-linedetail-stat">
+            <span className="op-linedetail-stat-label">Throughput trend</span>
+            <MiniSparkline values={LINE_SPARKLINES[line]} />
+          </div>
+        )}
+        <StatTile label="OEE" value={`${rollup.line_oee}%`} />
+        <StatTile label="Flow Efficiency" value={`${rollup.flow_efficiency}%`} />
+        <StatTile label="Health Index" value={rollup.system_health_index} />
+        <StatTile label="Instability" value={rollup.instability_index} />
+        <StatTile label="Total WIP" value={rollup.total_wip} />
+        <StatTile label="Bottleneck" value={STATION_TYPE_LABELS[rollup.bottleneck_station] || rollup.bottleneck_station} />
+      </div>
+      <div className="op-linedetail-stations">
+        {stationEntries.map(([sid, s]) => {
+          const spark = STATION_SPARKLINES[sid];
+          const hasSpark = spark && spark.values.length > 2;
+          return (
+            <div key={sid} className="op-linedetail-station">
+              <div className="op-linedetail-station-top">
+                <span className="op-linedetail-station-type">{STATION_TYPE_LABELS[s.stationType]}</span>
+              </div>
+              <div className="op-linedetail-station-kpis">
+                <StatTile label="Throughput" value={`${s.throughput}/min`} />
+                <StatTile label="OEE" value={`${s.oee}%`} />
+                {s.highlights.map(h => (
+                  <StatTile key={h.label} label={HIGHLIGHT_FIELD_LABELS[h.label] || h.label} value={h.value} />
+                ))}
+              </div>
+              {hasSpark ? (
+                <div className="op-linedetail-station-spark">
+                  <div className="op-linedetail-station-spark-label">
+                    {SPARKLINE_PROPERTY_LABELS[spark.property] || spark.property} trend
+                  </div>
+                  <MiniSparkline values={spark.values} color="#fbbf24" />
+                </div>
+              ) : (
+                <div className="op-linedetail-station-normal">
+                  <span className="op-linedetail-station-normal-dot" />
+                  Normal Operation
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function IssueMap({ onSelectIssue, selectedDetailLine, onCloseDetailLine }) {
   const lookup = useMemo(buildIssueLookup, []);
+  const lineLabel = selectedDetailLine
+    ? (selectedDetailLine.startsWith('AUR') ? 'Aurelia · A' : 'Ferrum · F') + selectedDetailLine.slice(-1)
+    : null;
 
   return (
     <div className="op-issuemap-content">
-      <div className="op-issuemap-legend">
-        <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: ISSUEMAP_CLEAN_COLOR }} />Clean</span>
-        <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.low }} />Low</span>
-        <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.medium }} />Medium</span>
-        <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.high }} />High</span>
-      </div>
-      <div className="op-issuemap-body">
-        <IssueMapGrid title="Aurelia" lines={AURELIA_LINES} stations={AURELIA_STATIONS} lookup={lookup} onSelectIssue={onSelectIssue} />
-        <IssueMapGrid title="Ferrum" lines={FERRUM_LINES} stations={FERRUM_STATIONS} lookup={lookup} onSelectIssue={onSelectIssue} />
-      </div>
+      {selectedDetailLine ? (
+        <LineDetail line={selectedDetailLine} label={lineLabel} onClose={onCloseDetailLine} />
+      ) : (
+        <>
+          <div className="op-issuemap-section-label">Issue Map</div>
+          <div className="op-issuemap-legend">
+            <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: ISSUEMAP_CLEAN_COLOR }} />Clean</span>
+            <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.low }} />Low</span>
+            <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.medium }} />Medium</span>
+            <span className="op-issuemap-legend-item"><span className="op-issuemap-legend-dot" style={{ background: SEVERITY_COLORS.high }} />High</span>
+          </div>
+          <div className="op-issuemap-body">
+            <IssueMapGrid title="Aurelia" lines={AURELIA_LINES} stations={AURELIA_STATIONS} lookup={lookup} onSelectIssue={onSelectIssue} />
+            <IssueMapGrid title="Ferrum" lines={FERRUM_LINES} stations={FERRUM_STATIONS} lookup={lookup} onSelectIssue={onSelectIssue} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -1025,7 +1243,7 @@ function AttentionPanel({ selectedId, onSelect }) {
   const [groupBy, setGroupBy] = useState('severity');
   const [sortBy, setSortBy] = useState('time');
   const [pinnedIds, setPinnedIds] = useState([]);
-  const [collapsedGroups, setCollapsedGroups] = useState(['low']);
+  const [collapsedGroups, setCollapsedGroups] = useState(['medium', 'low']);
 
   const togglePin = (id) => {
     setPinnedIds(prev => (prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]));
@@ -1147,8 +1365,46 @@ function AttentionPanel({ selectedId, onSelect }) {
 // group/sort controls yet — tasks don't have severity/asset to group by).
 // ─────────────────────────────────────────────────────────────────────────────
 
+function WorkCard({ item, selected, onSelect, onToggleDone }) {
+  const margin = computeMarginMinutes(item);
+  const marginText = item.done ? null : formatMargin(margin);
+  return (
+    <div
+      className={`op-work-item${item.done ? ' op-work-item--done' : ''}${selected ? ' op-work-item--selected' : ''}`}
+      onClick={() => onSelect(item.id)}
+    >
+      <div className="op-work-item-top">
+        <input
+          type="checkbox"
+          checked={item.done}
+          onClick={e => e.stopPropagation()}
+          onChange={() => onToggleDone(item.id)}
+        />
+        <span className="op-work-text">{item.text}</span>
+        <span className="op-work-priority-dot" style={{ background: WORK_PRIORITY_COLORS[item.priority] }} title={WORK_PRIORITY_LABELS[item.priority]} />
+      </div>
+      <div className="op-work-item-bottom">
+        <span className={`op-work-source-badge op-work-source-badge--${item.sourceType}`}>
+          {WORK_SOURCE_TYPE_LABELS[item.sourceType]}
+        </span>
+        {item.assignedRole && <span className="op-work-role">{item.assignedRole}</span>}
+        {marginText && (
+          <span className="op-work-margin" style={{ color: marginColor(margin) }}>{marginText}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function WorkListPanel({ items, selectedId, onSelect, onToggleDone, onAdd }) {
   const [draft, setDraft] = useState('');
+  const [groupBy, setGroupBy] = useState('none');
+  const [sortBy, setSortBy] = useState('margin');
+
+  const groups = useMemo(() => {
+    const sorted = sortWorkItems(items, sortBy);
+    return groupWorkItems(sorted, groupBy);
+  }, [items, groupBy, sortBy]);
 
   const submit = () => {
     const text = draft.trim();
@@ -1160,21 +1416,48 @@ function WorkListPanel({ items, selectedId, onSelect, onToggleDone, onAdd }) {
   return (
     <div className="op-panel op-attention-panel">
       <div className="op-zone-label">Work</div>
+
+      <div className="op-attention-controls">
+        <div className="op-control">
+          <span className="op-control-label">Group by</span>
+          <SelectBox
+            dataSource={WORK_GROUP_BY_OPTIONS}
+            valueExpr="value"
+            displayExpr="label"
+            value={groupBy}
+            onValueChanged={e => setGroupBy(e.value)}
+            stylingMode="outlined"
+            width={110}
+            height={24}
+          />
+        </div>
+        <div className="op-control">
+          <span className="op-control-label">Sort by</span>
+          <SelectBox
+            dataSource={WORK_SORT_BY_OPTIONS}
+            valueExpr="value"
+            displayExpr="label"
+            value={sortBy}
+            onValueChanged={e => setSortBy(e.value)}
+            stylingMode="outlined"
+            width={110}
+            height={24}
+          />
+        </div>
+      </div>
+
       <div className="op-work-list">
-        {items.map(w => (
-          <div
-            key={w.id}
-            className={`op-work-item${w.done ? ' op-work-item--done' : ''}${selectedId === w.id ? ' op-work-item--selected' : ''}`}
-            onClick={() => onSelect(w.id)}
-          >
-            <input
-              type="checkbox"
-              checked={w.done}
-              onClick={e => e.stopPropagation()}
-              onChange={() => onToggleDone(w.id)}
-            />
-            <span className="op-work-text">{w.text}</span>
-            {w.source === 'ai' && <AiPill />}
+        {groups.map(group => (
+          <div key={group.key}>
+            {group.label && (
+              <div className="op-attention-group-header">
+                {group.label}
+                <span className="op-group-count-badge">{group.items.length}</span>
+              </div>
+            )}
+            {group.items.map(w => (
+              <WorkCard key={w.id} item={w} selected={selectedId === w.id} onSelect={onSelect} onToggleDone={onToggleDone} />
+            ))}
           </div>
         ))}
       </div>
@@ -1196,9 +1479,7 @@ function WorkListPanel({ items, selectedId, onSelect, onToggleDone, onAdd }) {
 // Investigate — detail for the selected Attention item
 // ─────────────────────────────────────────────────────────────────────────────
 
-function InvestigatePanel({ item, onCreateWorkItem }) {
-  const [evidenceView, setEvidenceView] = useState('line');
-
+function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView }) {
   if (!item) {
     return (
       <div className="op-panel op-investigate-panel">
@@ -1225,17 +1506,35 @@ function InvestigatePanel({ item, onCreateWorkItem }) {
 
       <div className="op-investigate-toprow">
         <div className="op-dash-ministat-row">
-          <div className="op-dash-ministat" style={{ color: CONFIDENCE_COLORS[d.confidenceLevel] }} title={d.confidence}>
-            <ConfidenceIcon filled={CONFIDENCE_BARS[d.confidenceLevel]} />
-            <span>{CONFIDENCE_LABELS[d.confidenceLevel]}</span>
+          <div className="op-dash-ministat" style={{ color: CONFIDENCE_COLORS[d.confidenceLevel] }}>
+            <div className="op-dash-ministat-top">
+              <span className="op-dash-ministat-icon"><ConfidenceIcon filled={CONFIDENCE_BARS[d.confidenceLevel]} /></span>
+              <div className="op-dash-ministat-textblock">
+                <span className="op-dash-ministat-category">Confidence</span>
+                <span className="op-dash-ministat-value">{CONFIDENCE_LABELS[d.confidenceLevel]}</span>
+              </div>
+            </div>
+            <div className="op-dash-ministat-detail">{d.confidence}</div>
           </div>
-          <div className="op-dash-ministat" style={{ color: RISK_COLORS[d.riskLevel] }} title={d.risk}>
-            {d.riskLevel === 'none' ? <ShieldCheckIcon /> : <RiskAlertIcon />}
-            <span>{RISK_LABELS[d.riskLevel]}</span>
+          <div className="op-dash-ministat" style={{ color: RISK_COLORS[d.riskLevel] }}>
+            <div className="op-dash-ministat-top">
+              <span className="op-dash-ministat-icon">{d.riskLevel === 'none' ? <ShieldCheckIcon /> : <RiskAlertIcon />}</span>
+              <div className="op-dash-ministat-textblock">
+                <span className="op-dash-ministat-category">Risk</span>
+                <span className="op-dash-ministat-value">{RISK_LABELS[d.riskLevel]}</span>
+              </div>
+            </div>
+            <div className="op-dash-ministat-detail">{d.risk}</div>
           </div>
-          <div className="op-dash-ministat" style={{ color: OUTCOME_COLORS[d.outcomeStatus] }} title={d.expectedOutcome !== '—' ? d.expectedOutcome : 'No outcome defined'}>
-            {d.outcomeStatus === 'recovering' ? <TrendUpIcon /> : <DashIcon />}
-            <span>{OUTCOME_LABELS[d.outcomeStatus]}</span>
+          <div className="op-dash-ministat" style={{ color: OUTCOME_COLORS[d.outcomeStatus] }}>
+            <div className="op-dash-ministat-top">
+              <span className="op-dash-ministat-icon">{d.outcomeStatus === 'recovering' ? <TrendUpIcon /> : d.outcomeStatus === 'resolved' ? <ShieldCheckIcon /> : <DashIcon />}</span>
+              <div className="op-dash-ministat-textblock">
+                <span className="op-dash-ministat-category">Outcome</span>
+                <span className="op-dash-ministat-value">{OUTCOME_LABELS[d.outcomeStatus]}</span>
+              </div>
+            </div>
+            <div className="op-dash-ministat-detail">{d.expectedOutcome !== '—' ? d.expectedOutcome : 'No outcome defined'}</div>
           </div>
         </div>
         <button className="op-btn op-btn--primary" onClick={() => onCreateWorkItem(item)}>
@@ -1278,6 +1577,9 @@ function InvestigatePanel({ item, onCreateWorkItem }) {
             {evidenceView === 'table' && (
               <EvidenceTable evidencePoints={d.evidencePoints} />
             )}
+            {evidenceView === 'hmi' && (
+              <HmiPropertiesListing asset={item.asset} evidencePoints={d.evidencePoints} />
+            )}
           </div>
         </div>
 
@@ -1299,33 +1601,20 @@ function InvestigatePanel({ item, onCreateWorkItem }) {
           </div>
         </div>
 
-        <div className="op-dashboard-card op-dashboard-card--similar">
-          <div className="op-dashboard-card-title"><AiPill />Similar</div>
-          <div className="op-dashboard-card-body">
-            {d.relatedOccurrences.length > 0 ? (
-              d.relatedOccurrences.map((occ, i) => (
-                <div key={i} className="op-dash-text op-dash-text--clamp2">{occ.summary}</div>
-              ))
-            ) : (
-              <div className="op-dash-text op-dash-text--muted">No matching pattern found.</div>
-            )}
-          </div>
-        </div>
-
-        <div className="op-dashboard-card op-dashboard-card--otherrecent">
-          <div className="op-dashboard-card-title"><AiPill />Other recent</div>
-          <div className="op-dashboard-card-body">
-            <div className="op-dash-text op-dash-text--clamp2">{d.whatChangedSummary}</div>
-            <VerticalTimeline
-              maxItems={2}
-              items={d.whatChanged.map(c => ({
-                time: c.time,
-                primary: c.description,
-                secondary: c.source,
-                highlighted: c.related,
-                color: '#0078d4',
-              }))}
-            />
+        <div className="op-dashboard-card op-dashboard-card--similarrecent">
+          <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+            <div className="op-dash-subsection">
+              <div className="op-dash-subsection-label"><AiPill />Similar</div>
+              {d.relatedOccurrences.length > 0 ? (
+                <div className="op-dash-text op-dash-text--clamp2">{d.relatedOccurrences[0].summary}</div>
+              ) : (
+                <div className="op-dash-text op-dash-text--muted">No matching pattern found.</div>
+              )}
+            </div>
+            <div className="op-dash-subsection">
+              <div className="op-dash-subsection-label"><AiPill />Other recent</div>
+              <div className="op-dash-text op-dash-text--clamp2">{d.whatChangedSummary}</div>
+            </div>
           </div>
         </div>
 
@@ -1356,13 +1645,18 @@ function TaskDetailPanel({ item, onToggleDone }) {
     );
   }
 
+  const margin = computeMarginMinutes(item);
+  const marginText = !item.done ? formatMargin(margin) : null;
+  const createdText = formatCreatedAt(item.createdAt);
+
   return (
     <div className="op-panel op-investigate-panel">
       <div className="op-zone-label">Investigate</div>
 
       <div className="op-investigate-header">
+        <span className="op-work-priority-dot" style={{ background: WORK_PRIORITY_COLORS[item.priority] }} />
         <div>
-          <div className="op-investigate-asset">{item.source === 'ai' ? 'AI-created task' : 'Task'}</div>
+          <div className="op-investigate-asset">{item.assetLabel || (item.source === 'ai' ? 'AI-created task' : 'Task')}</div>
           <div className="op-investigate-signal">{item.text}</div>
         </div>
       </div>
@@ -1373,14 +1667,57 @@ function TaskDetailPanel({ item, onToggleDone }) {
           <div className="op-chain-value">{item.description || 'No additional description.'}</div>
         </div>
         <div className="op-chain-row">
-          <div className="op-chain-label">Created</div>
-          <div className="op-chain-value">{formatCreatedAt(item.createdAt)}</div>
+          <div className="op-chain-label">Type</div>
+          <div className="op-chain-value">
+            {item.workType || 'General'} · {WORK_PRIORITY_LABELS[item.priority]}
+          </div>
         </div>
+        <div className="op-chain-row">
+          <div className="op-chain-label">Source</div>
+          <div className="op-chain-value">
+            {WORK_SOURCE_TYPE_LABELS[item.sourceType] || 'Planned'}
+            {item.sourceLabel ? ` — ${item.sourceLabel}` : ''}
+          </div>
+        </div>
+        {item.assignedRole && (
+          <div className="op-chain-row">
+            <div className="op-chain-label">Assigned to</div>
+            <div className="op-chain-value">{item.assignedRole}</div>
+          </div>
+        )}
+        {item.dueAt && (
+          <div className="op-chain-row">
+            <div className="op-chain-label">Due</div>
+            <div className="op-chain-value">
+              {formatCreatedAt(item.dueAt)}
+              {marginText && <span style={{ color: marginColor(margin), fontWeight: 700 }}> · {marginText}</span>}
+            </div>
+          </div>
+        )}
+        {createdText && (
+          <div className="op-chain-row">
+            <div className="op-chain-label">Created</div>
+            <div className="op-chain-value">{createdText}</div>
+          </div>
+        )}
         <div className="op-chain-row">
           <div className="op-chain-label">Status</div>
           <div className="op-chain-value">{item.done ? 'Done' : 'Not done'}</div>
         </div>
       </div>
+
+      {item.dependencies && (
+        <div className="op-investigate-chain op-work-dependencies">
+          <div className="op-chain-label" style={{ marginBottom: 4 }}>Dependencies</div>
+          {item.dependencies.map((dep, i) => (
+            <div key={i} className={`op-dependency-row${dep.done ? ' op-dependency-row--done' : ''}`}>
+              <span className="op-dependency-check">{dep.done ? '✓' : '○'}</span>
+              <span>{dep.label}</span>
+            </div>
+          ))}
+          {item.progressNote && <div className="op-dash-text op-dash-text--muted" style={{ marginTop: 6 }}>{item.progressNote}</div>}
+        </div>
+      )}
 
       <div className="op-investigate-actions">
         <button className="op-btn op-btn--primary" onClick={() => onToggleDone(item.id)}>
@@ -1627,7 +1964,10 @@ function AiChatPanel() {
 //   - Work: not-yet-done items the AI created (source: 'ai')
 // ─────────────────────────────────────────────────────────────────────────────
 
-const NEW_ATTENTION_THRESHOLD_MINUTES = 15;
+// 30 min, not 15 — the nextgen dataset spans a full 8-hour shift rather
+// than a 2-hour window, so "recent" needs a wider bar for this badge to
+// mean anything (at 15 min, nothing in the new data would ever qualify).
+const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 
 function AttentionRailIcon() {
   return (
@@ -1737,11 +2077,125 @@ function RightRail({ mode, hidden, onIconClick, hasUnread }) {
 // Main workspace
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Data loading — all the per-asset/per-scenario data that used to be
+// hardcoded directly in this file now lives in /public/data/refinery/*.json,
+// fetched once on mount. The module-level `let`s above (ATTENTION_ITEMS,
+// STATION_METRICS, etc.) start empty and get populated here before
+// OperatorWorkspaceInner — which does all the normal rendering work and
+// references these by name exactly as before — ever mounts. Structured as
+// an outer/inner pair rather than an early-return inside one component,
+// since Inner has many hooks of its own and conditionally skipping them
+// would violate the Rules of Hooks.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const REFINERY_DATA_FILES = [
+  ['ATTENTION_ITEMS', '/data/refinery/attention-items.json'],
+  ['INITIAL_WORK_ITEMS', '/data/refinery/work-items.json'],
+  ['LINE_STATUS', '/data/refinery/line-status.json'],
+  ['OPERATING_CONTEXT_BY_LINE', '/data/refinery/operating-context.json'],
+  ['LINE_ROLLUPS', '/data/refinery/line-rollups.json'],
+  ['STATION_METRICS', '/data/refinery/station-metrics.json'],
+  ['STATION_TELEMETRY', '/data/refinery/station-telemetry.json'],
+  ['LINE_SPARKLINES', '/data/refinery/line-sparklines.json'],
+  ['STATION_SPARKLINES', '/data/refinery/station-sparklines.json'],
+  ['PROPERTY_CATEGORIES', '/data/refinery/property-categories.json'],
+  ['PROPERTY_LABELS', '/data/refinery/property-labels.json'],
+  ['PROPERTY_RANGES', '/data/refinery/property-ranges.json'],
+  ['STATION_FULL_PROPERTIES', '/data/refinery/station-full-properties.json'],
+];
+
+// Work items carry real Date objects elsewhere in the app (margin math,
+// formatting) — JSON can only carry the ISO strings they were exported as,
+// so they get parsed back into Dates here, once, right after fetch.
+function parseWorkItemDates(items) {
+  return items.map(item => ({
+    ...item,
+    plannedStart: item.plannedStart ? new Date(item.plannedStart) : null,
+    dueAt: item.dueAt ? new Date(item.dueAt) : null,
+    completedAt: item.completedAt ? new Date(item.completedAt) : null,
+    createdAt: item.createdAt ? new Date(item.createdAt) : null,
+  }));
+}
+
+function assignRefineryData(name, value) {
+  switch (name) {
+    case 'ATTENTION_ITEMS': ATTENTION_ITEMS = value; break;
+    case 'INITIAL_WORK_ITEMS': INITIAL_WORK_ITEMS = parseWorkItemDates(value); break;
+    case 'LINE_STATUS': LINE_STATUS = value; break;
+    case 'OPERATING_CONTEXT_BY_LINE': OPERATING_CONTEXT_BY_LINE = value; break;
+    case 'LINE_ROLLUPS': LINE_ROLLUPS = value; break;
+    case 'STATION_METRICS': STATION_METRICS = value; break;
+    case 'STATION_TELEMETRY': STATION_TELEMETRY = value; break;
+    case 'LINE_SPARKLINES': LINE_SPARKLINES = value; break;
+    case 'STATION_SPARKLINES': STATION_SPARKLINES = value; break;
+    case 'PROPERTY_CATEGORIES': PROPERTY_CATEGORIES = value; break;
+    case 'PROPERTY_LABELS': PROPERTY_LABELS = value; break;
+    case 'PROPERTY_RANGES': PROPERTY_RANGES = value; break;
+    case 'STATION_FULL_PROPERTIES': STATION_FULL_PROPERTIES = value; break;
+    default: break;
+  }
+}
+
 export default function OperatorWorkspace() {
+  const [dataState, setDataState] = useState({ loaded: false, error: null });
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      REFINERY_DATA_FILES.map(([, url]) =>
+        fetch(url).then(r => {
+          if (!r.ok) throw new Error(`${url} — ${r.status}`);
+          return r.json();
+        })
+      )
+    )
+      .then(results => {
+        if (cancelled) return;
+        REFINERY_DATA_FILES.forEach(([name], i) => assignRefineryData(name, results[i]));
+        setDataState({ loaded: true, error: null });
+      })
+      .catch(err => {
+        if (!cancelled) setDataState({ loaded: false, error: err.message });
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (dataState.error) {
+    return (
+      <div className="op-workspace-loading op-workspace-loading--error">
+        Couldn't load operator data ({dataState.error}). Check that the /data/refinery/*.json files are present in the public folder.
+      </div>
+    );
+  }
+  if (!dataState.loaded) {
+    return <div className="op-workspace-loading">Loading operator data…</div>;
+  }
+
+  return <OperatorWorkspaceInner />;
+}
+
+function OperatorWorkspaceInner() {
   const [railMode, setRailMode] = useState('attention'); // 'attention' | 'work' — drives both the list and detail slots
-  const [leftPanelHidden, setLeftPanelHidden] = useState(true);
+  const [leftPanelHidden, setLeftPanelHidden] = useState(false);
   const [issueMapExpanded, setIssueMapExpanded] = useState(false);
-  const [selectedAttentionId, setSelectedAttentionId] = useState(ATTENTION_ITEMS[0].id);
+  const [selectedDetailLine, setSelectedDetailLine] = useState(null);
+  const nowSectionRef = useRef(null);
+  const [nowSectionBottom, setNowSectionBottom] = useState(160);
+  useEffect(() => {
+    function measure() {
+      if (nowSectionRef.current) {
+        setNowSectionBottom(nowSectionRef.current.getBoundingClientRect().bottom);
+      }
+    }
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+  const [selectedAttentionId, setSelectedAttentionId] = useState(
+    (ATTENTION_ITEMS.find(i => i.attentionState === 'investigate') || ATTENTION_ITEMS[0]).id
+  );
+  const [evidenceView, setEvidenceView] = useState('line');
   const [workItems, setWorkItems] = useState(INITIAL_WORK_ITEMS);
   const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0].id);
 
@@ -1804,8 +2258,18 @@ export default function OperatorWorkspace() {
         id: `wk-${Date.now()}`,
         text: attentionItem.detail.recommendation,
         description: `Created from Attention: ${attentionItem.signal} (${attentionItem.asset})`,
+        assetLabel: attentionItem.asset,
+        workType: 'INVESTIGATION',
+        priority: attentionItem.severity === 'high' ? 'urgent' : attentionItem.severity === 'medium' ? 'important' : 'routine',
+        sourceType: 'situation',
+        sourceLabel: `From: ${attentionItem.signal}`,
         source: 'ai',
+        assignedRole: 'Operator',
+        plannedStart: null,
+        dueAt: null,
+        estimatedDurationMinutes: null,
         done: false,
+        completedAt: null,
         createdAt: new Date(),
       },
       ...prev,
@@ -1813,12 +2277,17 @@ export default function OperatorWorkspace() {
   };
 
   const handleToggleWorkItem = (id) => {
-    setWorkItems(prev => prev.map(w => (w.id === id ? { ...w, done: !w.done } : w)));
+    setWorkItems(prev => prev.map(w => (w.id === id ? { ...w, done: !w.done, completedAt: !w.done ? new Date() : null } : w)));
   };
 
   const handleAddWorkItem = (text) => {
     const id = `wk-${Date.now()}`;
-    setWorkItems(prev => [{ id, text, description: '', source: 'operator', done: false, createdAt: new Date() }, ...prev]);
+    setWorkItems(prev => [{
+      id, text, description: '', assetLabel: null, workType: 'GENERAL', priority: 'routine',
+      sourceType: 'planned', sourceLabel: null, source: 'operator', assignedRole: 'Operator',
+      plannedStart: null, dueAt: null, estimatedDurationMinutes: null,
+      done: false, completedAt: null, createdAt: new Date(),
+    }, ...prev]);
     setSelectedWorkItemId(id);
   };
 
@@ -1840,12 +2309,25 @@ export default function OperatorWorkspace() {
         </div>
       )}
 
-      <div className="op-now-section">
-        <NowStrip />
+      <div className="op-now-section" ref={nowSectionRef}>
+        <NowStrip
+          selectedLine={selectedDetailLine}
+          onSelectLine={(lineId) => {
+            if (selectedDetailLine === lineId) {
+              setSelectedDetailLine(null);
+            } else {
+              setSelectedDetailLine(lineId);
+              setIssueMapExpanded(true);
+            }
+          }}
+        />
         <IssueMapOverlay
           expanded={issueMapExpanded}
           onToggle={() => setIssueMapExpanded(e => !e)}
           onSelectIssue={handleSelectIssueFromMap}
+          selectedDetailLine={selectedDetailLine}
+          onCloseDetailLine={() => setSelectedDetailLine(null)}
+          topOffset={nowSectionBottom}
         />
       </div>
 
@@ -1876,7 +2358,7 @@ export default function OperatorWorkspace() {
           )}
           <SplitterItem resizable={true}>
             {railMode === 'attention' ? (
-              <InvestigatePanel key={selectedAttentionId} item={selectedItem} onCreateWorkItem={handleCreateWorkItem} />
+              <InvestigatePanel item={selectedItem} onCreateWorkItem={handleCreateWorkItem} evidenceView={evidenceView} setEvidenceView={setEvidenceView} />
             ) : (
               <TaskDetailPanel key={selectedWorkItemId} item={selectedWorkItem} onToggleDone={handleToggleWorkItem} />
             )}

@@ -1,0 +1,1020 @@
+[
+  {
+    "id": "WSIT01",
+    "severity": "medium",
+    "asset": "Meridian · T02 · Coagulation",
+    "line": "Meridian · T02",
+    "signal": "Coagulant dose drifted off jar-test target, since corrected",
+    "aiInterpretation": "Pump output drifted ~15% low over two hours; settled water turbidity was trending up before correction.",
+    "since": "Resolved 2h 35m ago",
+    "sinceMinutes": 155,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "Coagulant dose on T02 drifted from 18.1 to 15.4 mg/L between 09:40 and 11:30, without a corresponding jar-test change.",
+      "observed": "Coagulant pump output declined gradually; no operator setpoint change logged in the same window.",
+      "derived": "Settled water turbidity downstream began rising within 40 minutes of the dose drop — consistent with underdosing, not a raw water change.",
+      "inferred": "Pump wear or a partially fouled injection point is the leading theory — confirmed by inspection and corrected.",
+      "recommendation": "Recalibrate the coagulant feed pump and confirm dose against a fresh jar test before returning to automatic control.",
+      "evidence": [
+        18.1,
+        17.6,
+        16.9,
+        16.2,
+        15.6,
+        15.4,
+        17.8,
+        18
+      ],
+      "evidencePoints": [
+        {
+          "time": "09:40",
+          "value": "18.1 mg/L",
+          "label": "Baseline"
+        },
+        {
+          "time": "10:05",
+          "value": "17.6 mg/L",
+          "label": ""
+        },
+        {
+          "time": "10:30",
+          "value": "16.9 mg/L",
+          "label": "Drift begins"
+        },
+        {
+          "time": "10:55",
+          "value": "16.2 mg/L",
+          "label": ""
+        },
+        {
+          "time": "11:15",
+          "value": "15.6 mg/L",
+          "label": "Lowest point"
+        },
+        {
+          "time": "11:30",
+          "value": "15.4 mg/L",
+          "label": "Pump inspected"
+        },
+        {
+          "time": "11:45",
+          "value": "17.8 mg/L",
+          "label": "Recalibrated"
+        },
+        {
+          "time": "12:00",
+          "value": "18.0 mg/L",
+          "label": "Back to target"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "Coagulant feed pump was recalibrated at 11:38 after inspection found early signs of diaphragm wear.",
+      "whatChanged": [
+        {
+          "time": "11:32",
+          "source": "Operator Action",
+          "description": "Coagulant pump inspection started.",
+          "related": true
+        },
+        {
+          "time": "11:38",
+          "source": "Maintenance",
+          "description": "Pump recalibrated; dose restored.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed by inspection",
+      "confidenceLevel": "high",
+      "risk": "Low — caught before filtered water turbidity was affected",
+      "riskLevel": "low",
+      "expectedOutcome": "Coagulant dose restored to jar-test target",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT02",
+    "severity": "medium",
+    "asset": "Meridian · T04 · Sedimentation",
+    "line": "Meridian · T04",
+    "signal": "Sludge blanket rose toward the weir, desludging caught it up",
+    "aiInterpretation": "Blanket climbed for over an hour as desludging fell behind normal frequency; corrected before any carryover risk.",
+    "since": "Resolved 1h 45m ago",
+    "sinceMinutes": 105,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "Sludge blanket level on T04 rose from 33% to 58% of basin depth between 10:20 and 12:10, while the desludge cycle ran less frequently than its normal interval.",
+      "observed": "Blanket level trending up steadily; desludge cycle frequency below the typical rate for current raw water loading.",
+      "derived": "The rise rate tracks almost linearly with the missed desludge cycles — a scheduling gap, not a sudden solids loading event.",
+      "inferred": "Desludge cycle timer was not adjusted after a raw water turbidity increase earlier in the shift — corrected manually.",
+      "recommendation": "Run an extra desludge cycle and re-check the auto-cycle timer logic against current raw water turbidity.",
+      "evidence": [
+        33.2,
+        38.6,
+        44.1,
+        49.8,
+        55.2,
+        58,
+        44.3,
+        35.1
+      ],
+      "evidencePoints": [
+        {
+          "time": "10:20",
+          "value": "33.2%",
+          "label": "Baseline"
+        },
+        {
+          "time": "10:45",
+          "value": "38.6%",
+          "label": ""
+        },
+        {
+          "time": "11:10",
+          "value": "44.1%",
+          "label": ""
+        },
+        {
+          "time": "11:35",
+          "value": "49.8%",
+          "label": ""
+        },
+        {
+          "time": "12:00",
+          "value": "55.2%",
+          "label": "Approaching threshold"
+        },
+        {
+          "time": "12:10",
+          "value": "58.0%",
+          "label": "Manual desludge triggered"
+        },
+        {
+          "time": "12:25",
+          "value": "44.3%",
+          "label": "Draining"
+        },
+        {
+          "time": "12:40",
+          "value": "35.1%",
+          "label": "Back to normal"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "An extra manual desludge cycle at 12:10 reversed the rise within 30 minutes.",
+      "whatChanged": [
+        {
+          "time": "12:10",
+          "source": "Operator Action",
+          "description": "Manual desludge cycle triggered.",
+          "related": true
+        },
+        {
+          "time": "12:12",
+          "source": "Maintenance",
+          "description": "Auto-cycle timer flagged for review.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed — blanket responded immediately to the extra cycle",
+      "confidenceLevel": "high",
+      "risk": "Low — resolved well before weir overflow risk",
+      "riskLevel": "low",
+      "expectedOutcome": "Blanket level returned to normal operating range",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT03",
+    "severity": "medium",
+    "asset": "Meridian · T01 · Filtration",
+    "line": "Meridian · T01",
+    "signal": "Filter headloss climbing, run time shortening",
+    "aiInterpretation": "Headloss has risen steadily since shift start with no matching turbidity spike — media fouling, not an upstream upset.",
+    "since": "5h 35m ago",
+    "sinceMinutes": 335,
+    "attentionState": "investigate",
+    "detail": {
+      "signal": "Headloss on T01's filter has climbed from 2.6 to 4.4 ft since 08:30, with run time between backwashes shortening from a typical 48 hours toward roughly 30.",
+      "observed": "Headloss rising at a steady rate; filter effluent turbidity remains within spec throughout.",
+      "derived": "Because effluent quality hasn't degraded, this reads as physical media fouling accumulating, not a process upset that would show up in turbidity first.",
+      "inferred": "Progressive media fouling — most likely mudball formation or media loss reducing effective bed depth, pending the next scheduled bed inspection.",
+      "recommendation": "Schedule a filter bed inspection before the next backwash; consider an early backwash if headloss approaches the 6 ft alarm point.",
+      "evidence": [
+        2.6,
+        2.9,
+        3.2,
+        3.5,
+        3.8,
+        4,
+        4.2,
+        4.4
+      ],
+      "evidencePoints": [
+        {
+          "time": "08:30",
+          "value": "2.6 ft",
+          "label": "Baseline"
+        },
+        {
+          "time": "09:41",
+          "value": "2.9 ft",
+          "label": ""
+        },
+        {
+          "time": "10:31",
+          "value": "3.2 ft",
+          "label": ""
+        },
+        {
+          "time": "11:22",
+          "value": "3.5 ft",
+          "label": ""
+        },
+        {
+          "time": "12:13",
+          "value": "3.8 ft",
+          "label": ""
+        },
+        {
+          "time": "13:04",
+          "value": "4.0 ft",
+          "label": ""
+        },
+        {
+          "time": "13:35",
+          "value": "4.2 ft",
+          "label": ""
+        },
+        {
+          "time": "14:05",
+          "value": "4.4 ft",
+          "label": "Current"
+        }
+      ],
+      "relatedOccurrences": [
+        {
+          "date": "Ruled out",
+          "summary": "Raw water turbidity increase considered and rejected — intake readings have been stable all shift."
+        }
+      ],
+      "whatChangedSummary": "No triggering event identified yet — the rise has been gradual since the start of the shift.",
+      "whatChanged": [],
+      "confidence": "Likely, pending bed inspection",
+      "confidenceLevel": "medium",
+      "risk": "Medium — approaching a shortened backwash cycle if the trend continues",
+      "riskLevel": "medium",
+      "expectedOutcome": "Bed inspection scheduled for next available window",
+      "outcomeStatus": "none"
+    }
+  },
+  {
+    "id": "WSIT04",
+    "severity": "low",
+    "asset": "Meridian · T05 · Sedimentation",
+    "line": "Meridian · T05",
+    "signal": "Settled water turbidity sensor drift, confirmed against grab sample",
+    "aiInterpretation": "Sensor read erratically for nearly an hour while a manual grab sample stayed flat — a measurement fault, not a real turbidity event.",
+    "since": "Resolved 2h 55m ago",
+    "sinceMinutes": 175,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "The settled-water turbidimeter on T05 swung between 1.8 and 4.6 NTU from 09:35, while a manual grab sample taken at 10:20 read a steady 2.0 NTU.",
+      "observed": "Turbidity signal varies rapidly in both directions; manual grab sample and downstream filter performance both remain steady.",
+      "derived": "Filter effluent never responded to the swings — a real 4.6 NTU settled-water event would show up there within the hydraulic residence time.",
+      "inferred": "Instrument fouling or a loose sample line connection, not a real process swing — confirmed by cleaning and recalibrating the sensor.",
+      "recommendation": "Validate the instrument against a grab sample on this schedule going forward; flag for cleaning during next PM cycle.",
+      "evidence": [
+        2,
+        1.9,
+        3.4,
+        4.6,
+        2.1,
+        2,
+        1.9,
+        2
+      ],
+      "evidencePoints": [
+        {
+          "time": "09:20",
+          "value": "2.0 NTU",
+          "label": "Baseline"
+        },
+        {
+          "time": "09:35",
+          "value": "1.9 NTU",
+          "label": ""
+        },
+        {
+          "time": "09:50",
+          "value": "3.4 NTU",
+          "label": "Signal noise begins"
+        },
+        {
+          "time": "10:05",
+          "value": "4.6 NTU",
+          "label": "Peak noise"
+        },
+        {
+          "time": "10:20",
+          "value": "2.1 NTU",
+          "label": "Grab sample: 2.0 NTU confirmed"
+        },
+        {
+          "time": "10:35",
+          "value": "2.0 NTU",
+          "label": "Sensor cleaned"
+        },
+        {
+          "time": "10:50",
+          "value": "1.9 NTU",
+          "label": ""
+        },
+        {
+          "time": "11:05",
+          "value": "2.0 NTU",
+          "label": "Steady"
+        }
+      ],
+      "relatedOccurrences": [
+        {
+          "date": "Ruled out",
+          "summary": "True settled-water turbidity event considered and rejected — filter effluent never moved."
+        }
+      ],
+      "whatChangedSummary": "A grab sample at 10:20 confirmed the mismatch, and the sensor was cleaned shortly after.",
+      "whatChanged": [
+        {
+          "time": "10:20",
+          "source": "Field Check",
+          "description": "Grab sample taken, compared to sensor.",
+          "related": true
+        },
+        {
+          "time": "10:32",
+          "source": "Maintenance",
+          "description": "Sensor cleaned and recalibrated.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed by grab sample",
+      "confidenceLevel": "high",
+      "risk": "Low — measurement-only, no real process risk",
+      "riskLevel": "low",
+      "expectedOutcome": "Sensor agreement with grab sample restored",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT05",
+    "severity": "high",
+    "asset": "Meridian · T03 · Intake",
+    "line": "Meridian · T03",
+    "signal": "Storm event raw water turbidity shock, absorbed without a filtered-water impact",
+    "aiInterpretation": "Raw water turbidity spiked sharply during a storm cell; coagulant dose was increased in response and no downstream exceedance occurred.",
+    "since": "Resolved 1h 25m ago",
+    "sinceMinutes": 85,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "Raw water turbidity on the T03 intake spiked from a baseline of 9 NTU to 68 NTU between 10:30 and 12:40, coinciding with a recorded storm cell over the watershed.",
+      "observed": "Raw turbidity rose sharply; coagulant dose was manually increased partway through the event.",
+      "derived": "The turbidity rise and dose increase are tightly correlated in time, and settled/filtered water never exceeded spec — the response kept pace with the shock.",
+      "inferred": "A storm-driven raw water quality shock, successfully absorbed by an early coagulant dose increase — consistent with known seasonal storm response patterns.",
+      "recommendation": "Log this event for the seasonal storm-response playbook; no further action needed this shift.",
+      "evidence": [
+        9.2,
+        14.8,
+        31.5,
+        52.3,
+        68.1,
+        54.2,
+        28.6,
+        11.4
+      ],
+      "evidencePoints": [
+        {
+          "time": "10:30",
+          "value": "9.2 NTU",
+          "label": "Baseline"
+        },
+        {
+          "time": "10:55",
+          "value": "14.8 NTU",
+          "label": "Storm arriving"
+        },
+        {
+          "time": "11:20",
+          "value": "31.5 NTU",
+          "label": ""
+        },
+        {
+          "time": "11:45",
+          "value": "52.3 NTU",
+          "label": "Dose increased"
+        },
+        {
+          "time": "12:00",
+          "value": "68.1 NTU",
+          "label": "Peak"
+        },
+        {
+          "time": "12:15",
+          "value": "54.2 NTU",
+          "label": "Receding"
+        },
+        {
+          "time": "12:30",
+          "value": "28.6 NTU",
+          "label": ""
+        },
+        {
+          "time": "12:40",
+          "value": "11.4 NTU",
+          "label": "Back to baseline"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "Coagulant dose was manually increased at 11:48 in response to the rising raw water turbidity.",
+      "whatChanged": [
+        {
+          "time": "10:52",
+          "source": "Event",
+          "description": "Storm cell recorded over watershed.",
+          "related": true
+        },
+        {
+          "time": "11:48",
+          "source": "Operator Action",
+          "description": "Coagulant dose increased in response.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed — dose response tracked the raw water signal closely",
+      "confidenceLevel": "high",
+      "risk": "High while active — real risk of a filtered-water exceedance if the response had lagged",
+      "riskLevel": "high",
+      "expectedOutcome": "Raw water and coagulant dose both returned to baseline",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT06",
+    "severity": "medium",
+    "asset": "Meridian · T06 · Filtration",
+    "line": "Meridian · T06",
+    "signal": "Filter backwashing more often than its normal cycle",
+    "aiInterpretation": "Backwash frequency has roughly doubled since late morning — each cycle looks routine alone, the pattern is what matters.",
+    "since": "3h 5m ago",
+    "sinceMinutes": 185,
+    "attentionState": "investigate",
+    "detail": {
+      "signal": "T06 has backwashed 5 times since 11:00, roughly twice its typical rate for this time of day, though headloss and effluent turbidity both recover fully after each cycle.",
+      "observed": "Backwash frequency elevated; each individual cycle completes normally with full recovery.",
+      "derived": "No single backwash looks abnormal — the significance is in the accumulated frequency, not any one event.",
+      "inferred": "Possible early media degradation or a slightly undersized run-time setpoint for current raw water conditions — not yet confirmed.",
+      "recommendation": "Monitor through end of shift; if frequency continues, schedule a media condition check on this filter specifically.",
+      "evidence": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "evidencePoints": [
+        {
+          "time": "11:05",
+          "value": "Backwash #1",
+          "label": ""
+        },
+        {
+          "time": "11:52",
+          "value": "Backwash #2",
+          "label": ""
+        },
+        {
+          "time": "12:38",
+          "value": "Backwash #3",
+          "label": "Frequency rising"
+        },
+        {
+          "time": "13:20",
+          "value": "Backwash #4",
+          "label": ""
+        },
+        {
+          "time": "14:02",
+          "value": "Backwash #5",
+          "label": "Current"
+        }
+      ],
+      "relatedOccurrences": [
+        {
+          "date": "Meridian · T01 · Filtration — Filter Media Fouling",
+          "summary": "Same plant, different train — worth checking whether both filters share a raw water or media-age factor."
+        }
+      ],
+      "whatChangedSummary": "No single triggering change — frequency has been elevated since about 11:00 without one clear cause yet.",
+      "whatChanged": [],
+      "confidence": "Likely, not yet confirmed",
+      "confidenceLevel": "medium",
+      "risk": "Medium — increased backwash water usage and reduced net production if it continues",
+      "riskLevel": "medium",
+      "expectedOutcome": "Still active as of the latest cycle",
+      "outcomeStatus": "none"
+    }
+  },
+  {
+    "id": "WSIT07",
+    "severity": "low",
+    "asset": "Meridian · T02 · Disinfection",
+    "line": "Meridian · T02",
+    "signal": "Contact basin maintenance underway, CT margin narrowing",
+    "aiInterpretation": "Planned baffle maintenance has reduced usable contact time; CT is still above the regulatory minimum but with a smaller margin than usual.",
+    "since": "1h 5m ago",
+    "sinceMinutes": 65,
+    "attentionState": "act",
+    "detail": {
+      "signal": "Planned contact basin baffle maintenance on T02 since 13:00 has reduced effective contact time from 35 to 29 minutes, bringing the actual CT value to 128 against a required minimum of 120.",
+      "observed": "Contact time reduced during planned maintenance; chlorine residual unchanged.",
+      "derived": "CT is calculated directly from residual and contact time — the margin narrowed because contact time dropped, not because dosing changed.",
+      "inferred": "Expected consequence of planned maintenance, not a fault — but the margin is real and worth tracking until the basin returns to full configuration.",
+      "recommendation": "Monitor CT each 15-minute cycle until baffle maintenance completes; increase residual slightly if the margin narrows further.",
+      "evidence": [
+        145,
+        142,
+        138,
+        133,
+        130,
+        128
+      ],
+      "evidencePoints": [
+        {
+          "time": "13:00",
+          "value": "145",
+          "label": "Maintenance begins"
+        },
+        {
+          "time": "13:15",
+          "value": "142",
+          "label": ""
+        },
+        {
+          "time": "13:30",
+          "value": "138",
+          "label": ""
+        },
+        {
+          "time": "13:45",
+          "value": "133",
+          "label": ""
+        },
+        {
+          "time": "14:00",
+          "value": "130",
+          "label": ""
+        },
+        {
+          "time": "14:05",
+          "value": "128",
+          "label": "Current — still above 120 minimum"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "Planned baffle maintenance is the direct, known cause of the narrowing margin.",
+      "whatChanged": [
+        {
+          "time": "13:00",
+          "source": "Maintenance",
+          "description": "Contact basin baffle maintenance started.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed — CT drop matches the maintenance window exactly",
+      "confidenceLevel": "high",
+      "risk": "Low today, but margin is genuinely thinner than normal",
+      "riskLevel": "low",
+      "expectedOutcome": "CT expected to recover once baffle maintenance completes",
+      "outcomeStatus": "recovering"
+    }
+  },
+  {
+    "id": "WSIT08",
+    "severity": "high",
+    "asset": "Confluence · T03 · Aeration",
+    "line": "Confluence · T03",
+    "signal": "Blower underperformance dropped dissolved oxygen, since corrected",
+    "aiInterpretation": "DO fell well below the nitrification-support range for over two hours before a blower fault was found and corrected.",
+    "since": "Resolved 3h 20m ago",
+    "sinceMinutes": 200,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "Dissolved oxygen in T03's aeration basin fell from 2.3 to 0.6 mg/L between 08:20 and 10:45, well below the level needed to reliably support nitrification.",
+      "observed": "DO declining steadily; blower air flow reading below its normal setpoint for the same period.",
+      "derived": "The DO decline tracks the air flow shortfall closely — this points at the blower itself, not an oxygen demand spike from the incoming flow.",
+      "inferred": "A partially fouled blower filter was restricting air flow — confirmed on inspection and cleared.",
+      "recommendation": "Clear the blower intake filter and confirm air flow recovers; monitor DO closely for the next two hours.",
+      "evidence": [
+        2.3,
+        1.9,
+        1.5,
+        1.1,
+        0.8,
+        0.6,
+        1.8,
+        2.2
+      ],
+      "evidencePoints": [
+        {
+          "time": "08:20",
+          "value": "2.3 mg/L",
+          "label": "Baseline"
+        },
+        {
+          "time": "08:55",
+          "value": "1.9 mg/L",
+          "label": ""
+        },
+        {
+          "time": "09:30",
+          "value": "1.5 mg/L",
+          "label": ""
+        },
+        {
+          "time": "10:05",
+          "value": "1.1 mg/L",
+          "label": ""
+        },
+        {
+          "time": "10:25",
+          "value": "0.8 mg/L",
+          "label": ""
+        },
+        {
+          "time": "10:45",
+          "value": "0.6 mg/L",
+          "label": "Lowest — blower inspected"
+        },
+        {
+          "time": "11:05",
+          "value": "1.8 mg/L",
+          "label": "Filter cleared"
+        },
+        {
+          "time": "11:25",
+          "value": "2.2 mg/L",
+          "label": "Back to normal"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "Blower intake filter was found fouled and cleared at 10:52, and DO recovered within 30 minutes.",
+      "whatChanged": [
+        {
+          "time": "10:48",
+          "source": "Maintenance",
+          "description": "Blower inspection started.",
+          "related": true
+        },
+        {
+          "time": "10:52",
+          "source": "Maintenance",
+          "description": "Intake filter cleared; air flow restored.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed by inspection",
+      "confidenceLevel": "high",
+      "risk": "High while active — sustained low DO risks incomplete nitrification",
+      "riskLevel": "high",
+      "expectedOutcome": "Dissolved oxygen returned to the normal operating range",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT09",
+    "severity": "medium",
+    "asset": "Confluence · T01 · Secondary Clarifier",
+    "line": "Confluence · T01",
+    "signal": "Sludge settleability worsening — SVI trending up",
+    "aiInterpretation": "Sludge volume index has been climbing since early shift, a classic early sign of bulking that raises TSS carryover risk if left unaddressed.",
+    "since": "5h 5m ago",
+    "sinceMinutes": 305,
+    "attentionState": "investigate",
+    "detail": {
+      "signal": "Sludge volume index (SVI) on T01's secondary clarifier has risen from 95 to 142 mL/g since 09:00, while clarifier torque and RAS rate have both stayed within normal range.",
+      "observed": "SVI climbing steadily; no corresponding change in RAS rate or clarifier mechanical load.",
+      "derived": "A rising SVI without a RAS or loading change points at the biology itself — a shift in the microbial population, not an equipment or flow issue.",
+      "inferred": "Early-stage filamentous bulking is the leading theory, consistent with the gradual, biology-driven pattern — not yet confirmed by a microscopic exam.",
+      "recommendation": "Pull a mixed liquor sample for microscopic exam; consider a small RAS rate increase if SVI continues climbing past 150.",
+      "evidence": [
+        95,
+        103,
+        112,
+        121,
+        130,
+        136,
+        140,
+        142
+      ],
+      "evidencePoints": [
+        {
+          "time": "09:00",
+          "value": "95 mL/g",
+          "label": "Baseline"
+        },
+        {
+          "time": "09:48",
+          "value": "103 mL/g",
+          "label": ""
+        },
+        {
+          "time": "10:36",
+          "value": "112 mL/g",
+          "label": ""
+        },
+        {
+          "time": "11:24",
+          "value": "121 mL/g",
+          "label": ""
+        },
+        {
+          "time": "12:12",
+          "value": "130 mL/g",
+          "label": ""
+        },
+        {
+          "time": "13:00",
+          "value": "136 mL/g",
+          "label": ""
+        },
+        {
+          "time": "13:32",
+          "value": "140 mL/g",
+          "label": ""
+        },
+        {
+          "time": "14:05",
+          "value": "142 mL/g",
+          "label": "Current"
+        }
+      ],
+      "relatedOccurrences": [
+        {
+          "date": "Confluence · T02 · Aeration — RAS Rate Drift",
+          "summary": "Same plant, adjacent process — worth checking whether the two are related."
+        }
+      ],
+      "whatChangedSummary": "No triggering event identified — the SVI rise has been gradual and biology-driven all shift.",
+      "whatChanged": [],
+      "confidence": "Likely, pending microscopic exam",
+      "confidenceLevel": "medium",
+      "risk": "Medium — real risk of TSS carryover if bulking progresses further",
+      "riskLevel": "medium",
+      "expectedOutcome": "Still active as of the latest reading",
+      "outcomeStatus": "none"
+    }
+  },
+  {
+    "id": "WSIT10",
+    "severity": "high",
+    "asset": "Confluence · T05 · Primary Clarifier",
+    "line": "Confluence · T05",
+    "signal": "Clarifier mechanism fault during a peak flow period, cleared",
+    "aiInterpretation": "The rake mechanism stalled during a peak flow window, briefly risking a TSS exceedance before being restarted.",
+    "since": "Resolved 2h 0m ago",
+    "sinceMinutes": 120,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "T05's primary clarifier rake mechanism stalled at 10:20, during the morning peak flow period, with TSS removal falling from 61% to 38% before the mechanism was restarted at 10:33.",
+      "observed": "Rake mechanism torque dropped to zero; TSS removal efficiency declined within minutes.",
+      "derived": "The timing lines up exactly with known peak-flow mechanism stress — a common trigger for this specific failure mode in primary clarifiers.",
+      "inferred": "Mechanical overload during peak flow — confirmed by inspection, restarted without further damage.",
+      "recommendation": "Log for the peak-flow maintenance review; inspect drive chain tension before the next peak flow period.",
+      "evidence": [
+        61,
+        58,
+        52,
+        45,
+        38,
+        52,
+        59,
+        61
+      ],
+      "evidencePoints": [
+        {
+          "time": "10:15",
+          "value": "61%",
+          "label": "Baseline"
+        },
+        {
+          "time": "10:20",
+          "value": "58%",
+          "label": "Mechanism stalled"
+        },
+        {
+          "time": "10:23",
+          "value": "52%",
+          "label": ""
+        },
+        {
+          "time": "10:28",
+          "value": "45%",
+          "label": ""
+        },
+        {
+          "time": "10:33",
+          "value": "38%",
+          "label": "Lowest — restarted"
+        },
+        {
+          "time": "10:38",
+          "value": "52%",
+          "label": "Recovering"
+        },
+        {
+          "time": "10:45",
+          "value": "59%",
+          "label": ""
+        },
+        {
+          "time": "10:55",
+          "value": "61%",
+          "label": "Back to baseline"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "The rake mechanism was manually restarted at 10:33 after a brief inspection found no damage.",
+      "whatChanged": [
+        {
+          "time": "10:20",
+          "source": "Alarm",
+          "description": "Rake mechanism torque loss detected.",
+          "related": true
+        },
+        {
+          "time": "10:33",
+          "source": "Operator Action",
+          "description": "Mechanism restarted after inspection.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed by inspection",
+      "confidenceLevel": "high",
+      "risk": "High while active — real TSS permit exceedance risk during peak flow",
+      "riskLevel": "high",
+      "expectedOutcome": "TSS removal returned to baseline",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT11",
+    "severity": "medium",
+    "asset": "Confluence · T02 · Aeration",
+    "line": "Confluence · T02",
+    "signal": "RAS rate drifted out of balance with F:M ratio, corrected",
+    "aiInterpretation": "Return activated sludge rate ran below the level the current food-to-microorganism ratio called for, since corrected.",
+    "since": "Resolved 1h 55m ago",
+    "sinceMinutes": 115,
+    "attentionState": "watch",
+    "detail": {
+      "signal": "RAS rate on T02 held near 38% from 10:30 while incoming BOD loading rose, pushing the F:M ratio above its normal 0.28 target toward 0.35 before RAS was adjusted at 12:05.",
+      "observed": "RAS rate flat while incoming load increased; F:M ratio climbed as a direct mathematical consequence.",
+      "derived": "RAS rate and incoming load are the only two inputs to F:M — the imbalance traces cleanly to RAS not being adjusted as load rose.",
+      "inferred": "RAS setpoint was not updated when incoming load shifted earlier in the shift — corrected manually.",
+      "recommendation": "Adjust RAS rate to track incoming load more responsively; review the auto-adjustment logic if available.",
+      "evidence": [
+        0.28,
+        0.3,
+        0.32,
+        0.34,
+        0.35,
+        0.31,
+        0.28
+      ],
+      "evidencePoints": [
+        {
+          "time": "10:30",
+          "value": "0.28",
+          "label": "Baseline"
+        },
+        {
+          "time": "11:00",
+          "value": "0.30",
+          "label": ""
+        },
+        {
+          "time": "11:30",
+          "value": "0.32",
+          "label": ""
+        },
+        {
+          "time": "12:00",
+          "value": "0.34",
+          "label": "Near threshold"
+        },
+        {
+          "time": "12:05",
+          "value": "0.35",
+          "label": "RAS adjusted"
+        },
+        {
+          "time": "12:20",
+          "value": "0.31",
+          "label": "Recovering"
+        },
+        {
+          "time": "12:40",
+          "value": "0.28",
+          "label": "Back to target"
+        }
+      ],
+      "relatedOccurrences": [
+        {
+          "date": "Confluence · T01 · Secondary Clarifier — Sludge Bulking",
+          "summary": "Same plant, adjacent process — worth checking whether the two are related."
+        }
+      ],
+      "whatChangedSummary": "RAS rate was manually increased at 12:05 once the F:M drift was noticed.",
+      "whatChanged": [
+        {
+          "time": "12:05",
+          "source": "Operator Action",
+          "description": "RAS rate increased to match current loading.",
+          "related": true
+        }
+      ],
+      "confidence": "Confirmed — F:M responded immediately to the RAS change",
+      "confidenceLevel": "high",
+      "risk": "Medium while active — sustained high F:M risks poor settling and effluent quality",
+      "riskLevel": "medium",
+      "expectedOutcome": "F:M ratio returned to target range",
+      "outcomeStatus": "resolved"
+    }
+  },
+  {
+    "id": "WSIT12",
+    "severity": "low",
+    "asset": "Confluence · T04 · Disinfection",
+    "line": "Confluence · T04",
+    "signal": "DMR deadline approaching with effluent quality borderline",
+    "aiInterpretation": "Today's discharge monitoring report is due soon, and fecal coliform risk has been running close to the reporting threshold for the past hour.",
+    "since": "55m ago",
+    "sinceMinutes": 55,
+    "attentionState": "act",
+    "detail": {
+      "signal": "Effluent fecal coliform risk index on T04 has held between 12 and 15 (against a threshold of 20) since 13:10, and today's Discharge Monitoring Report is due to the state within 24 hours of shift end.",
+      "observed": "Fecal coliform risk elevated but within threshold; chlorine residual and CT both nominal.",
+      "derived": "The risk index has been stable, not worsening — this reads as a genuinely borderline period, not a developing failure.",
+      "inferred": "Likely tied to a slightly higher influent load this shift — nothing has been confirmed as a fault.",
+      "recommendation": "Confirm final effluent sample before end of shift and ensure the DMR is filed within the 24-hour window regardless of outcome.",
+      "evidence": [
+        10,
+        11,
+        13,
+        14,
+        15,
+        13,
+        12
+      ],
+      "evidencePoints": [
+        {
+          "time": "13:10",
+          "value": "10",
+          "label": "Baseline"
+        },
+        {
+          "time": "13:25",
+          "value": "11",
+          "label": ""
+        },
+        {
+          "time": "13:40",
+          "value": "13",
+          "label": ""
+        },
+        {
+          "time": "13:55",
+          "value": "14",
+          "label": ""
+        },
+        {
+          "time": "14:00",
+          "value": "15",
+          "label": "Highest, still under 20 threshold"
+        },
+        {
+          "time": "14:05",
+          "value": "12",
+          "label": "Current"
+        }
+      ],
+      "relatedOccurrences": [],
+      "whatChangedSummary": "No fault identified — this is a monitoring and deadline-tracking item, not a corrective-action item.",
+      "whatChanged": [],
+      "confidence": "Confirmed — within compliance, being tracked proactively",
+      "confidenceLevel": "high",
+      "risk": "Low on water quality, but a missed DMR filing carries real regulatory consequences",
+      "riskLevel": "low",
+      "expectedOutcome": "Final sample and DMR filing expected before deadline",
+      "outcomeStatus": "none"
+    }
+  }
+]

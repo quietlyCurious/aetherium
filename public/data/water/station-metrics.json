@@ -1,0 +1,1388 @@
+{
+  "MER_T01_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.153,
+    "targetRate": 4.2,
+    "oee": 97.61,
+    "wip": 5.0,
+    "queueLength": 1.8,
+    "scrapRate": 0.171,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 6.882
+      },
+      {
+        "label": "algae_risk_index",
+        "value": 14.225
+      }
+    ]
+  },
+  "MER_T01_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.123,
+    "targetRate": 4.2,
+    "oee": 95.99,
+    "wip": 4.2,
+    "queueLength": 2.2,
+    "scrapRate": 0.407,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 17.021
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 92.819
+      }
+    ]
+  },
+  "MER_T01_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.158,
+    "targetRate": 4.2,
+    "oee": 97.57,
+    "wip": 4.6,
+    "queueLength": 0.9,
+    "scrapRate": 0.673,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 86.906
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 10.018
+      }
+    ]
+  },
+  "MER_T01_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.122,
+    "targetRate": 4.2,
+    "oee": 95.69,
+    "wip": 6.3,
+    "queueLength": 2.5,
+    "scrapRate": 0.554,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 1.683
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 32.103
+      }
+    ]
+  },
+  "MER_T01_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.077,
+    "targetRate": 4.2,
+    "oee": 95.44,
+    "wip": 6.5,
+    "queueLength": 1.6,
+    "scrapRate": 0.387,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.08
+      },
+      {
+        "label": "headloss_ft",
+        "value": 4.4
+      }
+    ]
+  },
+  "MER_T01_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.187,
+    "targetRate": 4.2,
+    "oee": 97.8,
+    "wip": 6.5,
+    "queueLength": 2.4,
+    "scrapRate": 0.325,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.14
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 146.134
+      }
+    ]
+  },
+  "MER_T02_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.189,
+    "targetRate": 4.2,
+    "oee": 98.72,
+    "wip": 5.3,
+    "queueLength": 1.1,
+    "scrapRate": 0.452,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 10.084
+      },
+      {
+        "label": "algae_risk_index",
+        "value": 8.133
+      }
+    ]
+  },
+  "MER_T02_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.058,
+    "targetRate": 4.2,
+    "oee": 94.45,
+    "wip": 6.3,
+    "queueLength": 0.3,
+    "scrapRate": 0.2,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 18.0
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 87.092
+      }
+    ]
+  },
+  "MER_T02_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.187,
+    "targetRate": 4.2,
+    "oee": 97.86,
+    "wip": 5.6,
+    "queueLength": 1.2,
+    "scrapRate": 0.37,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 74.257
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 11.589
+      }
+    ]
+  },
+  "MER_T02_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.16,
+    "targetRate": 4.2,
+    "oee": 96.01,
+    "wip": 10.9,
+    "queueLength": 1.8,
+    "scrapRate": 0.229,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 2.465
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 40.771
+      }
+    ]
+  },
+  "MER_T02_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.077,
+    "targetRate": 4.2,
+    "oee": 95.58,
+    "wip": 7.5,
+    "queueLength": 3.5,
+    "scrapRate": 0.613,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.056
+      },
+      {
+        "label": "headloss_ft",
+        "value": 3.318
+      }
+    ]
+  },
+  "MER_T02_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.196,
+    "targetRate": 4.2,
+    "oee": 98.86,
+    "wip": 5.3,
+    "queueLength": 2.5,
+    "scrapRate": 0.328,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.036
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 128.0
+      }
+    ]
+  },
+  "MER_T03_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.123,
+    "targetRate": 4.2,
+    "oee": 97.29,
+    "wip": 7.9,
+    "queueLength": 2.4,
+    "scrapRate": 0.259,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 11.4
+      },
+      {
+        "label": "algae_risk_index",
+        "value": 7.163
+      }
+    ]
+  },
+  "MER_T03_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.19,
+    "targetRate": 4.2,
+    "oee": 98.39,
+    "wip": 5.7,
+    "queueLength": 2.8,
+    "scrapRate": 0.833,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 17.013
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 86.859
+      }
+    ]
+  },
+  "MER_T03_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.168,
+    "targetRate": 4.2,
+    "oee": 97.98,
+    "wip": 5.3,
+    "queueLength": 0.6,
+    "scrapRate": 0.571,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 82.414
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 2.833
+      }
+    ]
+  },
+  "MER_T03_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.034,
+    "targetRate": 4.2,
+    "oee": 93.01,
+    "wip": 4.2,
+    "queueLength": 2.7,
+    "scrapRate": 0.731,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 2.568
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 37.588
+      }
+    ]
+  },
+  "MER_T03_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.087,
+    "targetRate": 4.2,
+    "oee": 95.46,
+    "wip": 5.6,
+    "queueLength": 4.2,
+    "scrapRate": 0.313,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.111
+      },
+      {
+        "label": "headloss_ft",
+        "value": 2.972
+      }
+    ]
+  },
+  "MER_T03_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.188,
+    "targetRate": 4.2,
+    "oee": 98.68,
+    "wip": 4.3,
+    "queueLength": 1.8,
+    "scrapRate": 0.793,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.264
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 136.153
+      }
+    ]
+  },
+  "MER_T04_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.129,
+    "targetRate": 4.2,
+    "oee": 97.24,
+    "wip": 5.9,
+    "queueLength": 2.9,
+    "scrapRate": 0.365,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 10.617
+      },
+      {
+        "label": "algae_risk_index",
+        "value": -1.424
+      }
+    ]
+  },
+  "MER_T04_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.167,
+    "targetRate": 4.2,
+    "oee": 97.09,
+    "wip": 6.8,
+    "queueLength": 1.8,
+    "scrapRate": 0.38,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 14.854
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 90.225
+      }
+    ]
+  },
+  "MER_T04_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.162,
+    "targetRate": 4.2,
+    "oee": 98.12,
+    "wip": 4.1,
+    "queueLength": 1.0,
+    "scrapRate": 0.72,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 78.968
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 8.911
+      }
+    ]
+  },
+  "MER_T04_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.125,
+    "targetRate": 4.2,
+    "oee": 96.3,
+    "wip": 6.2,
+    "queueLength": 2.0,
+    "scrapRate": 0.771,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 2.169
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 35.1
+      }
+    ]
+  },
+  "MER_T04_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.103,
+    "targetRate": 4.2,
+    "oee": 96.19,
+    "wip": 4.3,
+    "queueLength": 2.1,
+    "scrapRate": 0.507,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.07
+      },
+      {
+        "label": "headloss_ft",
+        "value": 2.893
+      }
+    ]
+  },
+  "MER_T04_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.147,
+    "targetRate": 4.2,
+    "oee": 97.87,
+    "wip": 2.7,
+    "queueLength": 1.4,
+    "scrapRate": 0.411,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.363
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 142.852
+      }
+    ]
+  },
+  "MER_T05_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.162,
+    "targetRate": 4.2,
+    "oee": 98.14,
+    "wip": 7.3,
+    "queueLength": 0.9,
+    "scrapRate": 0.282,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 9.021
+      },
+      {
+        "label": "algae_risk_index",
+        "value": 10.015
+      }
+    ]
+  },
+  "MER_T05_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.139,
+    "targetRate": 4.2,
+    "oee": 96.75,
+    "wip": 6.4,
+    "queueLength": 1.4,
+    "scrapRate": 0.42,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 18.025
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 89.962
+      }
+    ]
+  },
+  "MER_T05_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.121,
+    "targetRate": 4.2,
+    "oee": 97.18,
+    "wip": 5.8,
+    "queueLength": 2.6,
+    "scrapRate": 0.263,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 80.089
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 15.979
+      }
+    ]
+  },
+  "MER_T05_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.048,
+    "targetRate": 4.2,
+    "oee": 93.92,
+    "wip": 3.6,
+    "queueLength": 2.5,
+    "scrapRate": 0.564,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 2.0
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 37.957
+      }
+    ]
+  },
+  "MER_T05_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.102,
+    "targetRate": 4.2,
+    "oee": 95.27,
+    "wip": 5.9,
+    "queueLength": 1.9,
+    "scrapRate": 0.406,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.089
+      },
+      {
+        "label": "headloss_ft",
+        "value": 3.065
+      }
+    ]
+  },
+  "MER_T05_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.107,
+    "targetRate": 4.2,
+    "oee": 96.57,
+    "wip": 3.9,
+    "queueLength": 1.8,
+    "scrapRate": 0.853,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.148
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 145.817
+      }
+    ]
+  },
+  "MER_T06_INTAKE": {
+    "stationType": "INTAKE",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.091,
+    "targetRate": 4.2,
+    "oee": 96.46,
+    "wip": 7.1,
+    "queueLength": 2.1,
+    "scrapRate": 0.61,
+    "highlights": [
+      {
+        "label": "raw_water_turbidity_ntu",
+        "value": 6.121
+      },
+      {
+        "label": "algae_risk_index",
+        "value": 2.822
+      }
+    ]
+  },
+  "MER_T06_COAGULATION": {
+    "stationType": "COAGULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.116,
+    "targetRate": 4.2,
+    "oee": 95.22,
+    "wip": 4.8,
+    "queueLength": 1.9,
+    "scrapRate": 0.464,
+    "highlights": [
+      {
+        "label": "coagulant_dose_mg_l",
+        "value": 17.933
+      },
+      {
+        "label": "floc_formation_index",
+        "value": 83.38
+      }
+    ]
+  },
+  "MER_T06_FLOCCULATION": {
+    "stationType": "FLOCCULATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.144,
+    "targetRate": 4.2,
+    "oee": 97.49,
+    "wip": 5.9,
+    "queueLength": 2.4,
+    "scrapRate": 0.879,
+    "highlights": [
+      {
+        "label": "floc_size_index",
+        "value": 81.966
+      },
+      {
+        "label": "floc_carryover_risk",
+        "value": 4.224
+      }
+    ]
+  },
+  "MER_T06_SEDIMENTATION": {
+    "stationType": "SEDIMENTATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.038,
+    "targetRate": 4.2,
+    "oee": 93.71,
+    "wip": 5.3,
+    "queueLength": 2.8,
+    "scrapRate": 0.139,
+    "highlights": [
+      {
+        "label": "settled_water_turbidity_ntu",
+        "value": 2.585
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 34.22
+      }
+    ]
+  },
+  "MER_T06_FILTRATION": {
+    "stationType": "FILTRATION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.131,
+    "targetRate": 4.2,
+    "oee": 96.81,
+    "wip": 8.4,
+    "queueLength": 1.6,
+    "scrapRate": 0.486,
+    "highlights": [
+      {
+        "label": "filter_effluent_turbidity_ntu",
+        "value": 0.073
+      },
+      {
+        "label": "headloss_ft",
+        "value": 4.544
+      }
+    ]
+  },
+  "MER_T06_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Meridian",
+    "throughput": 4.194,
+    "targetRate": 4.2,
+    "oee": 98.54,
+    "wip": 7.5,
+    "queueLength": 2.9,
+    "scrapRate": 0.377,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 1.148
+      },
+      {
+        "label": "ct_value_actual",
+        "value": 158.844
+      }
+    ]
+  },
+  "CON_T01_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.733,
+    "targetRate": 5.8,
+    "oee": 97.41,
+    "wip": 7.5,
+    "queueLength": 2.1,
+    "scrapRate": 0.888,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 92.486
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 11.053
+      }
+    ]
+  },
+  "CON_T01_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.614,
+    "targetRate": 5.8,
+    "oee": 94.52,
+    "wip": 7.2,
+    "queueLength": 2.0,
+    "scrapRate": 0.405,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 56.562
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 29.309
+      }
+    ]
+  },
+  "CON_T01_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.575,
+    "targetRate": 5.8,
+    "oee": 92.8,
+    "wip": 7.5,
+    "queueLength": 0.8,
+    "scrapRate": 0.138,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.658
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.298
+      }
+    ]
+  },
+  "CON_T01_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.53,
+    "targetRate": 5.8,
+    "oee": 92.55,
+    "wip": 4.9,
+    "queueLength": 3.0,
+    "scrapRate": 0.472,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 86.558
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 142.0
+      }
+    ]
+  },
+  "CON_T01_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.768,
+    "targetRate": 5.8,
+    "oee": 98.62,
+    "wip": 4.4,
+    "queueLength": 0.3,
+    "scrapRate": 0.202,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.63
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 14.373
+      }
+    ]
+  },
+  "CON_T02_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.794,
+    "targetRate": 5.8,
+    "oee": 98.08,
+    "wip": 7.6,
+    "queueLength": 2.2,
+    "scrapRate": 0.472,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 92.745
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 13.195
+      }
+    ]
+  },
+  "CON_T02_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.546,
+    "targetRate": 5.8,
+    "oee": 93.25,
+    "wip": 4.4,
+    "queueLength": 2.2,
+    "scrapRate": 0.347,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 60.319
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 39.632
+      }
+    ]
+  },
+  "CON_T02_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.651,
+    "targetRate": 5.8,
+    "oee": 94.46,
+    "wip": 6.9,
+    "queueLength": 2.9,
+    "scrapRate": 0.786,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.137
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.28
+      }
+    ]
+  },
+  "CON_T02_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.581,
+    "targetRate": 5.8,
+    "oee": 92.36,
+    "wip": 6.7,
+    "queueLength": 0.1,
+    "scrapRate": 0.588,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 87.223
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 106.748
+      }
+    ]
+  },
+  "CON_T02_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.725,
+    "targetRate": 5.8,
+    "oee": 97.48,
+    "wip": 6.3,
+    "queueLength": 2.1,
+    "scrapRate": 0.346,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.641
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 16.155
+      }
+    ]
+  },
+  "CON_T03_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.746,
+    "targetRate": 5.8,
+    "oee": 97.11,
+    "wip": 5.8,
+    "queueLength": 2.5,
+    "scrapRate": 0.907,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 90.728
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 16.242
+      }
+    ]
+  },
+  "CON_T03_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.494,
+    "targetRate": 5.8,
+    "oee": 91.58,
+    "wip": 3.3,
+    "queueLength": 1.7,
+    "scrapRate": 0.5,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 58.234
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 27.39
+      }
+    ]
+  },
+  "CON_T03_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.718,
+    "targetRate": 5.8,
+    "oee": 95.3,
+    "wip": 6.8,
+    "queueLength": 2.3,
+    "scrapRate": 0.575,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.2
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.265
+      }
+    ]
+  },
+  "CON_T03_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.581,
+    "targetRate": 5.8,
+    "oee": 93.35,
+    "wip": 7.7,
+    "queueLength": 2.6,
+    "scrapRate": 0.564,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 90.379
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 114.119
+      }
+    ]
+  },
+  "CON_T03_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.789,
+    "targetRate": 5.8,
+    "oee": 98.66,
+    "wip": 5.2,
+    "queueLength": 1.2,
+    "scrapRate": 0.564,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.491
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 9.711
+      }
+    ]
+  },
+  "CON_T04_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.683,
+    "targetRate": 5.8,
+    "oee": 96.04,
+    "wip": 8.2,
+    "queueLength": 2.9,
+    "scrapRate": 0.457,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 88.206
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 7.192
+      }
+    ]
+  },
+  "CON_T04_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.629,
+    "targetRate": 5.8,
+    "oee": 94.46,
+    "wip": 1.3,
+    "queueLength": 3.2,
+    "scrapRate": 0.442,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 57.21
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 24.131
+      }
+    ]
+  },
+  "CON_T04_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.628,
+    "targetRate": 5.8,
+    "oee": 93.43,
+    "wip": 6.1,
+    "queueLength": 2.3,
+    "scrapRate": 0.398,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.858
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.245
+      }
+    ]
+  },
+  "CON_T04_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.558,
+    "targetRate": 5.8,
+    "oee": 92.89,
+    "wip": 6.2,
+    "queueLength": 2.1,
+    "scrapRate": 0.641,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 83.626
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 128.342
+      }
+    ]
+  },
+  "CON_T04_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.747,
+    "targetRate": 5.8,
+    "oee": 98.44,
+    "wip": 7.9,
+    "queueLength": 1.7,
+    "scrapRate": 0.485,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.688
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 12.0
+      }
+    ]
+  },
+  "CON_T05_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.792,
+    "targetRate": 5.8,
+    "oee": 98.05,
+    "wip": 4.2,
+    "queueLength": 2.1,
+    "scrapRate": 0.353,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 92.147
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 8.571
+      }
+    ]
+  },
+  "CON_T05_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.692,
+    "targetRate": 5.8,
+    "oee": 94.85,
+    "wip": 9.2,
+    "queueLength": 2.0,
+    "scrapRate": 0.551,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 61.0
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 31.62
+      }
+    ]
+  },
+  "CON_T05_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.649,
+    "targetRate": 5.8,
+    "oee": 94.3,
+    "wip": 5.8,
+    "queueLength": 2.0,
+    "scrapRate": 0.293,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.229
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.285
+      }
+    ]
+  },
+  "CON_T05_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.664,
+    "targetRate": 5.8,
+    "oee": 94.1,
+    "wip": 5.1,
+    "queueLength": 2.3,
+    "scrapRate": 0.641,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 88.473
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 108.202
+      }
+    ]
+  },
+  "CON_T05_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.77,
+    "targetRate": 5.8,
+    "oee": 98.47,
+    "wip": 4.8,
+    "queueLength": 1.6,
+    "scrapRate": 0.761,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.666
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 5.697
+      }
+    ]
+  },
+  "CON_T06_PRELIMINARY": {
+    "stationType": "PRELIMINARY",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.686,
+    "targetRate": 5.8,
+    "oee": 95.85,
+    "wip": 6.0,
+    "queueLength": 2.5,
+    "scrapRate": 0.324,
+    "highlights": [
+      {
+        "label": "grit_removal_efficiency_pct",
+        "value": 89.368
+      },
+      {
+        "label": "influent_flow_variability",
+        "value": 10.934
+      }
+    ]
+  },
+  "CON_T06_PRIMARYCLARIFIER": {
+    "stationType": "PRIMARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.618,
+    "targetRate": 5.8,
+    "oee": 94.37,
+    "wip": 7.4,
+    "queueLength": 3.0,
+    "scrapRate": 0.325,
+    "highlights": [
+      {
+        "label": "primary_tss_removal_pct",
+        "value": 56.366
+      },
+      {
+        "label": "sludge_blanket_level_pct",
+        "value": 23.564
+      }
+    ]
+  },
+  "CON_T06_AERATION": {
+    "stationType": "AERATION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.702,
+    "targetRate": 5.8,
+    "oee": 94.57,
+    "wip": 5.3,
+    "queueLength": 0,
+    "scrapRate": 0.313,
+    "highlights": [
+      {
+        "label": "dissolved_oxygen_mg_l",
+        "value": 2.301
+      },
+      {
+        "label": "food_to_microorganism_ratio",
+        "value": 0.282
+      }
+    ]
+  },
+  "CON_T06_SECONDARYCLARIFIER": {
+    "stationType": "SECONDARY_CLARIFIER",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.62,
+    "targetRate": 5.8,
+    "oee": 93.63,
+    "wip": 7.5,
+    "queueLength": 2.1,
+    "scrapRate": 0.638,
+    "highlights": [
+      {
+        "label": "secondary_tss_removal_pct",
+        "value": 84.627
+      },
+      {
+        "label": "sludge_settleability_svi",
+        "value": 115.539
+      }
+    ]
+  },
+  "CON_T06_DISINFECTION": {
+    "stationType": "DISINFECTION",
+    "isReal": false,
+    "plant": "Confluence",
+    "throughput": 5.752,
+    "targetRate": 5.8,
+    "oee": 97.96,
+    "wip": 7.3,
+    "queueLength": 0.8,
+    "scrapRate": 0.556,
+    "highlights": [
+      {
+        "label": "chlorine_residual_mg_l",
+        "value": 0.562
+      },
+      {
+        "label": "effluent_fecal_coliform_risk",
+        "value": 7.671
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "AURELIA_A1": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "AURELIA_A2": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "AURELIA_A3": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "AURELIA_A4": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "AURELIA_A5": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "AURELIA_A6": {
+    "mode": "STEADY",
+    "product": "Product A"
+  },
+  "FERRUM_F1": {
+    "mode": "STEADY",
+    "product": "Product B"
+  },
+  "FERRUM_F2": {
+    "mode": "STEADY",
+    "product": "Product B"
+  },
+  "FERRUM_F3": {
+    "mode": "STEADY",
+    "product": "Product B"
+  },
+  "FERRUM_F4": {
+    "mode": "CHANGEOVER",
+    "product": "Product A → Product C"
+  },
+  "FERRUM_F5": {
+    "mode": "STEADY",
+    "product": "Product B"
+  },
+  "FERRUM_F6": {
+    "mode": "STEADY",
+    "product": "Product B"
+  }
+}
