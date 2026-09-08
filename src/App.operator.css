@@ -459,7 +459,7 @@
 
 .op-statkpi-vtrack {
   position: relative;
-  width: 4px;
+  width: 8px;
   align-self: stretch;
   min-height: 60px;
   background: #3a4152;
@@ -579,6 +579,33 @@
   line-height: 1.2;
 }
 
+.op-hmiprops-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.op-statkpi--text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+}
+
+.op-statkpi--indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+}
+
+.op-statkpi--indicator .op-statkpi-vtrack {
+  align-self: center;
+}
+
 .op-hmiprops {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -594,6 +621,30 @@
   padding: 8px 10px;
 }
 
+.op-hmiprops-single {
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+
+.op-hmiprops-single--space .op-hmiprops-group {
+  margin-bottom: 20px;
+}
+
+.op-hmiprops-single--space .op-hmiprops-group:last-child {
+  margin-bottom: 0;
+}
+
+.op-hmiprops-group-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
 .op-hmiprops-card-title {
   font-size: 10.5px;
   font-weight: 700;
@@ -607,6 +658,68 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.op-hmiprops--text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.op-hmiprops--text .op-hmiprops-card {
+  flex: 0 0 auto;
+  min-width: 150px;
+}
+
+.op-hmiprops--indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.op-hmiprops--indicator .op-hmiprops-card {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 300px; /* 4 fixed-60px indicator tiles + gaps + padding — a 5th wraps to a new row within the card */
+  min-width: 150px;
+}
+
+.op-hmiprops-kpis--text {
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 124px; /* exactly two rows worth of items + gap — a third wraps to a new column */
+  gap: 8px;
+}
+
+/* Three-class specificity needed to beat the pre-existing
+   .op-hmiprops .op-statkpi { width: 100% } rule, which otherwise forces
+   every tile to full width regardless of mode. */
+.op-hmiprops--text .op-hmiprops-kpis--text .op-statkpi--text {
+  width: auto;
+  min-width: 76px;
+  height: 58px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding-right: 10px;
+}
+
+.op-hmiprops-kpis--indicator {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
 }
 
 .op-hmiprops .op-statkpi {
@@ -750,6 +863,39 @@
 
 .op-attention-panel {
   background: #fff;
+}
+
+.op-now-tree-panel {
+  background: #fff;
+}
+
+.op-now-tree-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.op-now-detail-empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.op-now-detail-placeholder-note {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.op-now-asset-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.op-now-asset-kpi-card {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .op-investigate-panel {
@@ -1267,6 +1413,13 @@
 
 .op-dashboard-card-body--scrollable {
   overflow-y: auto;
+}
+
+.op-hmiprops-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .op-dash-chart-toggle {

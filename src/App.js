@@ -442,6 +442,12 @@ function AetheriumEditor() {
   const [coordMode, setCoordMode] = useState('reposition');
   const [currentView, setCurrentView] = useState('screens'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator'
   const [menuOpen, setMenuOpen] = useState(false);
+  const AVAILABLE_MODELS = [
+    { id: 'refinery', label: 'Refinery' },
+    { id: 'water', label: 'Water / Wastewater' },
+  ];
+  const [selectedModel, setSelectedModel] = useState('refinery');
+  const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [selectedWidgetName, setSelectedWidgetName] = useState(null);
   // Breakpoint / device preview
   const [activeDeviceId, setActiveDeviceId] = useState('responsive');
@@ -1415,6 +1421,7 @@ function AetheriumEditor() {
             </div>
           )}
         </div>
+        <div className="app-titlebar-right-cluster">
         {currentView !== 'operator' && (
           <button
             onClick={() => {
@@ -1499,11 +1506,49 @@ function AetheriumEditor() {
             </button>
           );
         })()}
+        <div
+          className="app-titlebar-model-switcher"
+          ref={modelMenuRef => {
+            if (modelMenuRef) {
+              modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
+            }
+          }}
+        >
+          <div
+            className="app-titlebar-model-trigger"
+            onClick={() => setModelMenuOpen(o => !o)}
+            title="Switch model"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="3.5" r="2.2" stroke="white" strokeWidth="1.4" />
+              <path d="M10 5.7V9M10 9H4M10 9H16M4 9V11.5M16 9V11.5" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
+              <circle cx="4" cy="14" r="2.2" stroke="white" strokeWidth="1.4" />
+              <circle cx="16" cy="14" r="2.2" stroke="white" strokeWidth="1.4" />
+            </svg>
+            <span className="app-titlebar-model-label">
+              {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.label}
+            </span>
+          </div>
+          {modelMenuOpen && (
+            <div className="app-titlebar-dropdown app-titlebar-dropdown--right">
+              {AVAILABLE_MODELS.map(m => (
+                <div
+                  key={m.id}
+                  className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
+                  onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
+                >
+                  {m.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <div className="app-titlebar-profile" title="Profile">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
             <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
           </svg>
+        </div>
         </div>
       </div>
 
@@ -1610,7 +1655,7 @@ function AetheriumEditor() {
           </div>
 
         ) : currentView === 'operator' ? (
-          <OperatorWorkspace />
+          <OperatorWorkspace selectedModel={selectedModel} />
 
         ) : (
           <Splitter orientation="horizontal" style={{ height: '100%' }}>

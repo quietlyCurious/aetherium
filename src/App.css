@@ -23,6 +23,12 @@
   letter-spacing: 0.04em;
 }
 
+.app-titlebar-right-cluster {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
 .app-titlebar-profile {
   cursor: pointer;
   opacity: 0.8;
@@ -1133,6 +1139,39 @@
   font-style: italic;
   white-space: nowrap;
   padding: 0 4px;
+}
+
+.app-titlebar-model-switcher {
+  position: relative;
+  margin-right: 16px;
+}
+
+.app-titlebar-model-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.app-titlebar-model-trigger:hover {
+  opacity: 1;
+  background: rgba(255,255,255,0.08);
+}
+
+.app-titlebar-model-label {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.app-titlebar-dropdown--right {
+  left: auto;
+  right: 0;
 }
 
 .app-titlebar-menu {

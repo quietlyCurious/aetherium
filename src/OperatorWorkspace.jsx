@@ -37,6 +37,8 @@ import RangeSelector, {
   Series as RsSeries, Behavior as RsBehavior, Aggregation as RsAggregation,
 } from 'devextreme-react/range-selector';
 import Sparkline from 'devextreme-react/sparkline';
+import HierarchyTree from './HierarchyTree';
+import { ASSET_DATA, ASSET_MAP } from './assetData';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock data — "Now" (line status strip)
@@ -419,6 +421,28 @@ const EVIDENCE_VIEW_ITEMS = [
   { text: 'KPIs', value: 'hmi' },
 ];
 
+const KPI_VIEW_MODE_ITEMS = [
+  { text: 'All', value: 'all' },
+  { text: 'Text', value: 'text' },
+  { text: 'Indicator', value: 'indicator' },
+  { text: 'Spark', value: 'spark' },
+];
+
+// Selecting a tier shows that tier plus everything more important than it —
+// picking P1 shows only P1; picking P3 shows P3, P2, and P1 (everything).
+const TIER_FILTER_ITEMS = [
+  { text: 'P1', value: 'P1' },
+  { text: 'P2', value: 'P2' },
+  { text: 'P3', value: 'P3' },
+];
+const TIER_RANK = { P1: 1, P2: 2, P3: 3 };
+
+const GROUPING_MODE_ITEMS = [
+  { text: 'Box', value: 'box' },
+  { text: 'Space', value: 'space' },
+  { text: 'None', value: 'none' },
+];
+
 function CandlestickChart({ evidence, evidencePoints, color }) {
   const data = buildCandlestickData(evidence, evidencePoints);
   return (
@@ -460,6 +484,140 @@ function attentionAssetToStationId(asset) {
   return `${prefix}_L${num}_${stationSuffix}`;
 }
 
+// ASSET_DATA (the real, shared asset model — e.g. "AURELIA_A1_INTAKE")
+// and STATION_METRICS/STATION_TELEMETRY (this operator view's own data,
+// e.g. "AUR_L01_INTAKE") use genuinely different ID conventions for the
+// exact same stations. This converts the former to the latter by walking
+// up to the station's line and refinery ancestors, rather than routing
+// through a display string the way attentionAssetToStationId does.
+function assetDataIdToStationId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'station') return null;
+  const line = CURRENT_ASSET_MAP[asset.parentId];
+  const refinery = line ? CURRENT_ASSET_MAP[line.parentId] : null;
+  if (!line || !refinery) return null;
+  const prefix = refinery.id.slice(0, 3);
+  const num = line.name.replace(/\D/g, '').padStart(2, '0');
+  const stationSuffix = asset.name.replace(/\s+/g, '').toUpperCase();
+  return `${prefix}_L${num}_${stationSuffix}`;
+}
+
+// Same conversion, one level up — ASSET_DATA's "AURELIA_A1" to
+// LINE_ROLLUPS' own "AUR_L01".
+function assetDataIdToLineId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'line') return null;
+  const refinery = CURRENT_ASSET_MAP[asset.parentId];
+  if (!refinery) return null;
+  const prefix = refinery.id.slice(0, 3);
+  const num = asset.name.replace(/\D/g, '').padStart(2, '0');
+  return `${prefix}_L${num}`;
+}
+
+// The single entry point for "what properties does this asset have" —
+// works for any node in the shared hierarchy, regardless of level. It
+// tries each known dataset in turn; each conversion function above already
+// returns null by itself when the id isn't actually that level, so trying
+// all of them here is safe and requires no level check of its own. The
+// caller passes an assetId and gets back whatever's available (or isn't)
+// — it never needs to know or branch on whether that id is a station, a
+// line, or anything else.
+// ASSET_DATA's refinery id ("AURELIA") already matches REFINERY_ROLLUPS'
+// own key directly — no prefix/number translation needed, unlike stations
+// and lines.
+function assetDataIdToRefineryId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'refinery') return null;
+  return asset.id;
+}
+
+function resolveRefineryAssetProperties(assetId) {
+  const stationId = assetDataIdToStationId(assetId);
+  if (stationId && STATION_FULL_PROPERTIES[stationId]) {
+    return { properties: STATION_FULL_PROPERTIES[stationId], sparklineSource: { type: 'station', id: stationId } };
+  }
+  const lineId = assetDataIdToLineId(assetId);
+  if (lineId && LINE_ROLLUPS[lineId]) {
+    return { properties: LINE_ROLLUPS[lineId], sparklineSource: { type: 'line', id: lineId } };
+  }
+  const refineryId = assetDataIdToRefineryId(assetId);
+  if (refineryId && REFINERY_ROLLUPS[refineryId]) {
+    return { properties: REFINERY_ROLLUPS[refineryId], sparklineSource: { type: 'refinery', id: refineryId } };
+  }
+  // No other dataset exists — genuinely nothing to return, not a
+  // fabricated aggregation.
+  return { properties: null, sparklineSource: null };
+}
+
+// Water's own conversions — a different id scheme (plant name is already
+// abbreviated to 3 letters, train name is already "T01" with no letter
+// prefix to strip) and a 4th level (equipment) refinery doesn't have.
+function waterAssetDataIdToStageId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'stage') return null;
+  const train = CURRENT_ASSET_MAP[asset.parentId];
+  const plant = train ? CURRENT_ASSET_MAP[train.parentId] : null;
+  if (!train || !plant) return null;
+  const prefix = plant.id.slice(0, 3);
+  const stageSuffix = asset.assetType.replace(/_/g, '').toUpperCase();
+  return `${prefix}_${train.name}_${stageSuffix}`;
+}
+
+function waterAssetDataIdToTrainId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'train') return null;
+  const plant = CURRENT_ASSET_MAP[asset.parentId];
+  if (!plant) return null;
+  const prefix = plant.id.slice(0, 3);
+  // line-rollups.json uses this plant-name-plus-abbreviated-id format
+  return `${plant.id}_${prefix}_${asset.name}`;
+}
+
+function waterAssetDataIdToPlantId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'plant') return null;
+  return asset.id;
+}
+
+// Equipment-metrics.json is keyed by the exact same id ASSET_DATA already
+// uses for equipment nodes — no translation needed, unlike every other level.
+function waterAssetDataIdToEquipmentId(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset || asset.assetLevel !== 'equipment') return null;
+  return asset.id;
+}
+
+function resolveWaterAssetProperties(assetId) {
+  const stageId = waterAssetDataIdToStageId(assetId);
+  if (stageId && STATION_FULL_PROPERTIES[stageId]) {
+    return { properties: STATION_FULL_PROPERTIES[stageId], sparklineSource: { type: 'station', id: stageId } };
+  }
+  const trainId = waterAssetDataIdToTrainId(assetId);
+  if (trainId && LINE_ROLLUPS[trainId]) {
+    return { properties: LINE_ROLLUPS[trainId], sparklineSource: { type: 'line', id: trainId } };
+  }
+  const equipmentId = waterAssetDataIdToEquipmentId(assetId);
+  if (equipmentId && EQUIPMENT_METRICS[equipmentId]) {
+    return { properties: EQUIPMENT_METRICS[equipmentId], sparklineSource: { type: 'equipment', id: equipmentId } };
+  }
+  const plantId = waterAssetDataIdToPlantId(assetId);
+  if (plantId && REFINERY_ROLLUPS[plantId]) {
+    return { properties: REFINERY_ROLLUPS[plantId], sparklineSource: { type: 'refinery', id: plantId } };
+  }
+  // No dataset exists at this or any level for this asset — genuinely
+  // nothing to return, not a fabricated aggregation.
+  return { properties: null, sparklineSource: null };
+}
+
+// The single entry point for "what properties does this asset have" —
+// works for any node in the active hierarchy, regardless of level OR
+// which model is currently selected. The caller passes an assetId and
+// gets back whatever's available (or isn't) — it never needs to know or
+// branch on the asset's level, or on which model is active.
+function resolveAssetProperties(assetId) {
+  return CURRENT_MODEL === 'water' ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
+}
+
 const HMI_CATEGORY_ORDER = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition'];
 
 function timeToMinutes(t) {
@@ -469,10 +627,28 @@ function timeToMinutes(t) {
 
 // Full property series lives in STATION_TELEMETRY under either typed or
 // measured — checked in that order since a property never appears in both.
-function getPropertySeries(stationId, propKey) {
-  const station = STATION_TELEMETRY && STATION_TELEMETRY.stations && STATION_TELEMETRY.stations[stationId];
-  if (!station) return null;
-  return (station.typed && station.typed[propKey]) || (station.measured && station.measured[propKey]) || null;
+// Generalized across all three levels — dispatches on source.type rather
+// than assuming station-only, the way the original single-level lookup did.
+function getPropertySeriesForSource(source, propKey) {
+  if (!source) return null;
+  if (source.type === 'station') {
+    const station = STATION_TELEMETRY && STATION_TELEMETRY.stations && STATION_TELEMETRY.stations[source.id];
+    if (!station) return null;
+    return (station.typed && station.typed[propKey]) || (station.measured && station.measured[propKey]) || null;
+  }
+  if (source.type === 'line') {
+    const line = LINE_TELEMETRY && LINE_TELEMETRY.lines && LINE_TELEMETRY.lines[source.id];
+    return (line && line[propKey]) || null;
+  }
+  if (source.type === 'refinery') {
+    const refinery = REFINERY_TELEMETRY && REFINERY_TELEMETRY.refineries && REFINERY_TELEMETRY.refineries[source.id];
+    return (refinery && refinery[propKey]) || null;
+  }
+  if (source.type === 'equipment') {
+    const equipment = EQUIPMENT_TELEMETRY && EQUIPMENT_TELEMETRY.equipment && EQUIPMENT_TELEMETRY.equipment[source.id];
+    return (equipment && equipment[propKey]) || null;
+  }
+  return null;
 }
 
 // Clips a full series down to [startTime, endTime] using STATION_TELEMETRY's
@@ -500,12 +676,16 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
 // already covers) — grouped by property type rather than dumped as one
 // long list, same visual language as Line Detail's stat tiles.
-function HmiPropertiesListing({ asset, evidencePoints }) {
-  const stationId = attentionAssetToStationId(asset);
-  const props = stationId ? STATION_FULL_PROPERTIES[stationId] : null;
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints }) {
+  const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
+  const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
+  const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
+  const [kpiViewMode, setKpiViewMode] = useState('all');
+  const [tierFilter, setTierFilter] = useState('P3');
+  const [groupingMode, setGroupingMode] = useState('box');
 
   if (!props) {
-    return <div className="op-dash-text op-dash-text--muted">No station-level properties for this item.</div>;
+    return <div className="op-dash-text op-dash-text--muted">No properties available for this item.</div>;
   }
 
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
@@ -513,40 +693,98 @@ function HmiPropertiesListing({ asset, evidencePoints }) {
 
   const grouped = {};
   Object.entries(props).forEach(([key, value]) => {
+    const tier = PROPERTY_TIERS[key] || 'P3';
+    if (TIER_RANK[tier] > TIER_RANK[tierFilter]) return; // below the selected threshold — hidden
     const category = PROPERTY_CATEGORIES[key] || 'Other';
     if (!grouped[category]) grouped[category] = [];
     grouped[category].push({ key, label: PROPERTY_LABELS[key] || key, value });
   });
-  const categories = HMI_CATEGORY_ORDER.filter(c => grouped[c]);
+  const orderedKnown = HMI_CATEGORY_ORDER.filter(c => grouped[c]);
+  const unknownExtra = Object.keys(grouped).filter(c => !HMI_CATEGORY_ORDER.includes(c));
+  const categories = [...orderedKnown, ...unknownExtra];
+
+  const kpisClass = `op-hmiprops-kpis${kpiViewMode === 'text' ? ' op-hmiprops-kpis--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops-kpis--indicator' : ''}`;
+
+  const renderTile = p => {
+    const range = PROPERTY_RANGES[p.key];
+    const fullSeries = effectiveSparklineSource ? getPropertySeriesForSource(effectiveSparklineSource, p.key) : null;
+    const sparkline = (fullSeries && rangeStart && rangeEnd)
+      ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd)
+      : null;
+    return (
+      <StatTile
+        key={p.key}
+        label={p.label}
+        value={p.value}
+        min={range ? range[0] : undefined}
+        max={range ? range[1] : undefined}
+        sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+        horizontal
+        labelFirst
+        viewMode={kpiViewMode}
+      />
+    );
+  };
 
   return (
-    <div className="op-hmiprops">
-      {categories.map(cat => (
-        <div key={cat} className="op-hmiprops-card">
-          <div className="op-hmiprops-card-title">{cat}</div>
-          <div className="op-hmiprops-kpis">
-            {grouped[cat].map(p => {
-              const range = PROPERTY_RANGES[p.key];
-              const fullSeries = stationId ? getPropertySeries(stationId, p.key) : null;
-              const sparkline = (fullSeries && rangeStart && rangeEnd)
-                ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd)
-                : null;
-              return (
-                <StatTile
-                  key={p.key}
-                  label={p.label}
-                  value={p.value}
-                  min={range ? range[0] : undefined}
-                  max={range ? range[1] : undefined}
-                  sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
-                  horizontal
-                  labelFirst
-                />
-              );
-            })}
+    <div className="op-hmiprops-wrap">
+      <div className="op-hmiprops-toolbar">
+        <ButtonGroup
+          items={KPI_VIEW_MODE_ITEMS}
+          keyExpr="value"
+          selectedItemKeys={[kpiViewMode]}
+          onItemClick={e => setKpiViewMode(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        />
+        <ButtonGroup
+          items={TIER_FILTER_ITEMS}
+          keyExpr="value"
+          selectedItemKeys={[tierFilter]}
+          onItemClick={e => setTierFilter(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        />
+        <ButtonGroup
+          items={GROUPING_MODE_ITEMS}
+          keyExpr="value"
+          selectedItemKeys={[groupingMode]}
+          onItemClick={e => setGroupingMode(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        />
+      </div>
+      {categories.length === 0 ? (
+        <div className="op-dash-text op-dash-text--muted">No {tierFilter} properties for this asset.</div>
+      ) : groupingMode === 'box' ? (
+        <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
+          {categories.map(cat => (
+            <div key={cat} className="op-hmiprops-card">
+              <div className="op-hmiprops-card-title">{cat}</div>
+              <div className={kpisClass}>
+                {grouped[cat].map(renderTile)}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : groupingMode === 'none' ? (
+        <div className="op-hmiprops-single op-hmiprops-single--none">
+          <div className={kpisClass}>
+            {categories.flatMap(cat => grouped[cat]).map(renderTile)}
           </div>
         </div>
-      ))}
+      ) : (
+        <div className="op-hmiprops-single op-hmiprops-single--space">
+          {categories.map(cat => (
+            <div key={cat} className="op-hmiprops-group">
+              <div className="op-hmiprops-group-title">{cat}</div>
+              <div className={kpisClass}>
+                {grouped[cat].map(renderTile)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -912,6 +1150,7 @@ const OPERATING_MODE_COLORS = {
 let OPERATING_CONTEXT_BY_LINE = {};
 
 let LINE_ROLLUPS = {};
+let REFINERY_ROLLUPS = {};
 
 let STATION_METRICS = {};
 // Full 74-point (08:00-14:05, 5-min resolution) time series for every
@@ -919,11 +1158,24 @@ let STATION_METRICS = {};
 // universal: {prop: [...]}, typed: {...}, measured: {...} } } }. Not
 // consumed by any UI yet — available for whenever that work happens.
 let STATION_TELEMETRY = null;
+let LINE_TELEMETRY = null;
+let REFINERY_TELEMETRY = null;
 
 let PROPERTY_CATEGORIES = {};
 let PROPERTY_LABELS = {};
 let PROPERTY_RANGES = {};
+let PROPERTY_TIERS = {};
 let STATION_FULL_PROPERTIES = {};
+let CURRENT_MODEL = 'refinery';
+// Refinery's hierarchy is a static import; water's is fetched at runtime.
+// These two always point at whichever one is active, so the rest of the
+// code (the Now tree, the resolver) never needs to know which model is
+// selected — it just reads "the current hierarchy."
+let CURRENT_ASSET_DATA = ASSET_DATA;
+let CURRENT_ASSET_MAP = ASSET_MAP;
+let WATER_ASSET_DATA = [];
+let EQUIPMENT_METRICS = {};
+let EQUIPMENT_TELEMETRY = null;
 
 let LINE_SPARKLINES = {};
 
@@ -1028,7 +1280,7 @@ function ResponsiveSparkline({ values, height = 26, color }) {
 // that cluster tightly (95-100%) and read as identical-looking full bars
 // rather than showing any real variation. The number itself carries the
 // information here; the label just says what it is.
-function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal }) {
+function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode = 'all' }) {
   const hasRange = min != null && max != null && typeof value === 'number' && max > min;
   const pct = hasRange ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;
 
@@ -1047,20 +1299,46 @@ function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal })
   const labelEl = <div className="op-statkpi-label">{label}</div>;
   const valueEl = <div className="op-statkpi-value">{value}</div>;
 
+  const vtrackEl = hasRange && (
+    <div className="op-statkpi-vtrack">
+      {observed && (
+        <div className="op-statkpi-vtrack-observed" style={{ bottom: `${observed.left}%`, height: `${observed.width}%` }} />
+      )}
+      <div className="op-statkpi-vtrack-marker" style={{ bottom: `${pct}%` }} />
+    </div>
+  );
+
   if (horizontal) {
-    // Compact row: vertical indicator | name+value stack | sparkline.
-    // Height is driven entirely by the name+value column — deliberately
-    // short, trading the scale-endpoint labels for density.
+    // Text — value over label only, no indicator, no sparkline. The
+    // plainest possible reading of the number.
+    if (viewMode === 'text') {
+      return (
+        <div className="op-statkpi op-statkpi--text">
+          {valueEl}
+          {labelEl}
+        </div>
+      );
+    }
+
+    // Indicator — label on top, the same vertical track used elsewhere,
+    // value underneath. A vertical card rather than a row.
+    if (viewMode === 'indicator') {
+      return (
+        <div className="op-statkpi op-statkpi--indicator">
+          {vtrackEl}
+          {valueEl}
+          {labelEl}
+        </div>
+      );
+    }
+
+    // Spark — identical to the default row, just without the track.
+    // "All" (the default) and "Spark" share this same row layout, differing
+    // only in whether the indicator renders.
+    const showTrack = viewMode !== 'spark';
     return (
       <div className="op-statkpi op-statkpi--row">
-        {hasRange && (
-          <div className="op-statkpi-vtrack">
-            {observed && (
-              <div className="op-statkpi-vtrack-observed" style={{ bottom: `${observed.left}%`, height: `${observed.width}%` }} />
-            )}
-            <div className="op-statkpi-vtrack-marker" style={{ bottom: `${pct}%` }} />
-          </div>
-        )}
+        {showTrack && vtrackEl}
         <div className="op-statkpi-info">
           {labelFirst ? labelEl : valueEl}
           {labelFirst && valueEl}
@@ -1234,6 +1512,62 @@ function AttentionCard({ item, selected, pinned, onSelect, onTogglePin }) {
       <div className="op-attention-recommendation">
         <AiPill />
         <span className="op-attention-recommendation-text">{item.detail.recommendation}</span>
+      </div>
+    </div>
+  );
+}
+
+// Left panel for the new Now work area — the real asset hierarchy
+// (ASSET_DATA), not a separate operator-only copy of it, via the same
+// HierarchyTree component the Data tab already uses elsewhere in the app.
+function NowAssetTreePanel({ selectedId, onSelect }) {
+  return (
+    <div className="op-panel op-now-tree-panel">
+      <div className="op-zone-label">Now</div>
+      <div className="op-now-tree-wrap">
+        <HierarchyTree
+          dataSource={CURRENT_ASSET_DATA}
+          displayExpr="name"
+          itemRender={NowAssetTreeItemTemplate}
+          selectedId={selectedId}
+          onSelect={onSelect}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Center placeholder — proves selection is wired end-to-end (name, type,
+// and level all come from the real selected node) ahead of the actual
+// per-asset view engine, which is separate, larger work.
+function NowAssetDetail({ assetId }) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+
+  if (!asset) {
+    return (
+      <div className="op-panel op-investigate-panel op-now-detail-empty">
+        <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>
+      </div>
+    );
+  }
+
+  // No single narrative/event window here (unlike Investigate) — show the
+  // full available trend instead of slicing to nothing.
+  const fullRangeEvidencePoints = STATION_TELEMETRY && STATION_TELEMETRY.timestamps.length
+    ? [{ time: STATION_TELEMETRY.timestamps[0] }, { time: STATION_TELEMETRY.timestamps[STATION_TELEMETRY.timestamps.length - 1] }]
+    : [];
+
+  const { properties, sparklineSource } = resolveAssetProperties(assetId);
+
+  return (
+    <div className="op-panel op-investigate-panel op-now-asset-detail">
+      <div className="op-now-asset-detail-title">{asset.name}</div>
+      <div className="op-dashboard-card op-now-asset-kpi-card">
+        {properties ? (
+          <HmiPropertiesListing properties={properties} sparklineSource={sparklineSource} evidencePoints={fullRangeEvidencePoints} />
+        ) : (
+          <div className="op-dash-text op-dash-text--muted">No properties available yet for this asset.</div>
+        )}
       </div>
     </div>
   );
@@ -1969,6 +2303,32 @@ function AiChatPanel() {
 // mean anything (at 15 min, nothing in the new data would ever qualify).
 const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 
+// A live-reading gauge — distinct from Attention's bell and Work's
+// checklist, and consistent with this app's own recurring gauge/indicator
+// visual language.
+function NowRailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12.5a6 6 0 0 1 12 0" />
+      <path d="M8 12.5 11 8" />
+      <circle cx="8" cy="12.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Mirrors App.js's own AssetTreeItemTemplate (not exported from there, so
+// copied rather than restructuring that file for one shared helper) —
+// keeps the asset row's look identical to the existing Data tab hierarchy
+// browser: name plus a small type badge.
+function NowAssetTreeItemTemplate(item) {
+  return (
+    <div className="tree-item">
+      <span className="tree-item-name">{item.name}</span>
+      <span className="tree-item-badge">{item.assetType}</span>
+    </div>
+  );
+}
+
 function AttentionRailIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -1982,6 +2342,7 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount }) {
   const [expanded, setExpanded] = useState(false);
 
   const items = [
+    { id: 'now', label: 'Now', Icon: NowRailIcon, count: 0 },
     { id: 'attention', label: 'Attention', Icon: AttentionRailIcon, count: attentionCount },
     { id: 'work', label: 'Work', Icon: WorkTabIcon, count: workCount },
   ];
@@ -2095,15 +2456,70 @@ const REFINERY_DATA_FILES = [
   ['LINE_STATUS', '/data/refinery/line-status.json'],
   ['OPERATING_CONTEXT_BY_LINE', '/data/refinery/operating-context.json'],
   ['LINE_ROLLUPS', '/data/refinery/line-rollups.json'],
+  ['REFINERY_ROLLUPS', '/data/refinery/refinery-rollups.json'],
   ['STATION_METRICS', '/data/refinery/station-metrics.json'],
   ['STATION_TELEMETRY', '/data/refinery/station-telemetry.json'],
+  ['LINE_TELEMETRY', '/data/refinery/line-telemetry.json'],
+  ['REFINERY_TELEMETRY', '/data/refinery/refinery-telemetry.json'],
   ['LINE_SPARKLINES', '/data/refinery/line-sparklines.json'],
   ['STATION_SPARKLINES', '/data/refinery/station-sparklines.json'],
   ['PROPERTY_CATEGORIES', '/data/refinery/property-categories.json'],
   ['PROPERTY_LABELS', '/data/refinery/property-labels.json'],
   ['PROPERTY_RANGES', '/data/refinery/property-ranges.json'],
+  ['PROPERTY_TIERS', '/data/refinery/property-tiers.json'],
   ['STATION_FULL_PROPERTIES', '/data/refinery/station-full-properties.json'],
 ];
+
+// Water doesn't have line-telemetry/refinery-telemetry equivalents yet
+// (no train- or plant-level sparklines — a known, discussed gap, not an
+// oversight here) but does have two roles refinery doesn't: its own
+// hierarchy (fetched at runtime rather than statically imported) and
+// equipment-level metrics, the new 4th hierarchy level.
+const WATER_DATA_FILES = [
+  ['ATTENTION_ITEMS', '/data/water/attention-items.json'],
+  ['INITIAL_WORK_ITEMS', '/data/water/work-items.json'],
+  ['LINE_STATUS', '/data/water/line-status.json'],
+  ['OPERATING_CONTEXT_BY_LINE', '/data/water/operating-context.json'],
+  ['LINE_ROLLUPS', '/data/water/line-rollups.json'],
+  ['REFINERY_ROLLUPS', '/data/water/plant-rollups.json'],
+  ['STATION_METRICS', '/data/water/station-metrics.json'],
+  ['STATION_TELEMETRY', '/data/water/station-telemetry.json'],
+  ['LINE_TELEMETRY', '/data/water/line-telemetry.json'],
+  ['REFINERY_TELEMETRY', '/data/water/plant-telemetry.json'],
+  ['STATION_SPARKLINES', '/data/water/station-sparklines.json'],
+  ['PROPERTY_CATEGORIES', '/data/water/property-categories.json'],
+  ['PROPERTY_LABELS', '/data/water/property-labels.json'],
+  ['PROPERTY_RANGES', '/data/water/property-ranges.json'],
+  ['PROPERTY_TIERS', '/data/water/property-tiers.json'],
+  ['STATION_FULL_PROPERTIES', '/data/water/station-full-properties.json'],
+  ['WATER_ASSET_DATA', '/data/water/water-asset-data.json'],
+  ['EQUIPMENT_METRICS', '/data/water/equipment-metrics.json'],
+  ['EQUIPMENT_TELEMETRY', '/data/water/equipment-telemetry.json'],
+];
+
+function getDataFilesForModel(model) {
+  return model === 'water' ? WATER_DATA_FILES : REFINERY_DATA_FILES;
+}
+
+// Roles that exist in one model but not the other — reset to an empty
+// state before every fetch cycle so switching models never leaves the
+// PREVIOUS model's data lingering in a role the new one doesn't populate
+// (e.g. water briefly showing refinery's stale line-level telemetry).
+function resetModelVaryingData() {
+  REFINERY_ROLLUPS = {};
+  LINE_TELEMETRY = null;
+  REFINERY_TELEMETRY = null;
+  LINE_SPARKLINES = {};
+  EQUIPMENT_METRICS = {};
+  EQUIPMENT_TELEMETRY = null;
+  WATER_ASSET_DATA = [];
+}
+
+function buildAssetMapFromArray(arr) {
+  const map = {};
+  arr.forEach(a => { map[a.id] = a; });
+  return map;
+}
 
 // Work items carry real Date objects elsewhere in the app (margin math,
 // formatting) — JSON can only carry the ISO strings they were exported as,
@@ -2118,32 +2534,41 @@ function parseWorkItemDates(items) {
   }));
 }
 
-function assignRefineryData(name, value) {
+function assignModelData(name, value) {
   switch (name) {
     case 'ATTENTION_ITEMS': ATTENTION_ITEMS = value; break;
     case 'INITIAL_WORK_ITEMS': INITIAL_WORK_ITEMS = parseWorkItemDates(value); break;
     case 'LINE_STATUS': LINE_STATUS = value; break;
     case 'OPERATING_CONTEXT_BY_LINE': OPERATING_CONTEXT_BY_LINE = value; break;
     case 'LINE_ROLLUPS': LINE_ROLLUPS = value; break;
+    case 'REFINERY_ROLLUPS': REFINERY_ROLLUPS = value; break;
     case 'STATION_METRICS': STATION_METRICS = value; break;
     case 'STATION_TELEMETRY': STATION_TELEMETRY = value; break;
+    case 'LINE_TELEMETRY': LINE_TELEMETRY = value; break;
+    case 'REFINERY_TELEMETRY': REFINERY_TELEMETRY = value; break;
     case 'LINE_SPARKLINES': LINE_SPARKLINES = value; break;
     case 'STATION_SPARKLINES': STATION_SPARKLINES = value; break;
     case 'PROPERTY_CATEGORIES': PROPERTY_CATEGORIES = value; break;
     case 'PROPERTY_LABELS': PROPERTY_LABELS = value; break;
     case 'PROPERTY_RANGES': PROPERTY_RANGES = value; break;
+    case 'PROPERTY_TIERS': PROPERTY_TIERS = value; break;
     case 'STATION_FULL_PROPERTIES': STATION_FULL_PROPERTIES = value; break;
+    case 'WATER_ASSET_DATA': WATER_ASSET_DATA = value; break;
+    case 'EQUIPMENT_METRICS': EQUIPMENT_METRICS = value; break;
+    case 'EQUIPMENT_TELEMETRY': EQUIPMENT_TELEMETRY = value; break;
     default: break;
   }
 }
 
-export default function OperatorWorkspace() {
-  const [dataState, setDataState] = useState({ loaded: false, error: null });
+export default function OperatorWorkspace({ selectedModel = 'refinery' }) {
+  const [dataState, setDataState] = useState({ loaded: false, error: null, loadedModel: null });
 
   useEffect(() => {
     let cancelled = false;
+    setDataState({ loaded: false, error: null, loadedModel: null });
+    const files = getDataFilesForModel(selectedModel);
     Promise.all(
-      REFINERY_DATA_FILES.map(([, url]) =>
+      files.map(([, url]) =>
         fetch(url).then(r => {
           if (!r.ok) throw new Error(`${url} — ${r.status}`);
           return r.json();
@@ -2152,27 +2577,43 @@ export default function OperatorWorkspace() {
     )
       .then(results => {
         if (cancelled) return;
-        REFINERY_DATA_FILES.forEach(([name], i) => assignRefineryData(name, results[i]));
-        setDataState({ loaded: true, error: null });
+        // Clear roles the OTHER model owns before assigning this model's
+        // data — otherwise switching to water would leave refinery's stale
+        // line/refinery telemetry sitting in those variables untouched.
+        resetModelVaryingData();
+        files.forEach(([name], i) => assignModelData(name, results[i]));
+        if (selectedModel === 'water') {
+          CURRENT_ASSET_DATA = WATER_ASSET_DATA;
+          CURRENT_ASSET_MAP = buildAssetMapFromArray(WATER_ASSET_DATA);
+        } else {
+          CURRENT_ASSET_DATA = ASSET_DATA;
+          CURRENT_ASSET_MAP = ASSET_MAP;
+        }
+        CURRENT_MODEL = selectedModel;
+        setDataState({ loaded: true, error: null, loadedModel: selectedModel });
       })
       .catch(err => {
-        if (!cancelled) setDataState({ loaded: false, error: err.message });
+        if (!cancelled) setDataState({ loaded: false, error: err.message, loadedModel: null });
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [selectedModel]);
 
   if (dataState.error) {
     return (
       <div className="op-workspace-loading op-workspace-loading--error">
-        Couldn't load operator data ({dataState.error}). Check that the /data/refinery/*.json files are present in the public folder.
+        Couldn't load operator data ({dataState.error}). Check that the /data/{selectedModel}/*.json files are present in the public folder.
       </div>
     );
   }
-  if (!dataState.loaded) {
+  if (!dataState.loaded || dataState.loadedModel !== selectedModel) {
     return <div className="op-workspace-loading">Loading operator data…</div>;
   }
 
-  return <OperatorWorkspaceInner />;
+  // key={selectedModel} forces a full remount on model switch — the inner
+  // component's own state (selected attention item, selected Now asset,
+  // etc.) is initialized from whichever model was loaded, and a stale
+  // selection pointing at an id from the other model would otherwise survive.
+  return <OperatorWorkspaceInner key={selectedModel} />;
 }
 
 function OperatorWorkspaceInner() {
@@ -2198,6 +2639,7 @@ function OperatorWorkspaceInner() {
   const [evidenceView, setEvidenceView] = useState('line');
   const [workItems, setWorkItems] = useState(INITIAL_WORK_ITEMS);
   const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0].id);
+  const [selectedNowAssetId, setSelectedNowAssetId] = useState(null);
 
   const [rightPanelMode, setRightPanelMode] = useState('chat'); // 'chat' | 'ai' — drives the right rail + right panel
   const [rightPanelHidden, setRightPanelHidden] = useState(true);
@@ -2343,7 +2785,9 @@ function OperatorWorkspaceInner() {
         <Splitter orientation="horizontal" style={{ flex: 1, minHeight: 0 }}>
           {!leftPanelHidden && (
             <SplitterItem size="320px" minSize="240px" resizable={true}>
-              {railMode === 'attention' ? (
+              {railMode === 'now' ? (
+                <NowAssetTreePanel selectedId={selectedNowAssetId} onSelect={setSelectedNowAssetId} />
+              ) : railMode === 'attention' ? (
                 <AttentionPanel selectedId={selectedAttentionId} onSelect={setSelectedAttentionId} />
               ) : (
                 <WorkListPanel
@@ -2357,7 +2801,9 @@ function OperatorWorkspaceInner() {
             </SplitterItem>
           )}
           <SplitterItem resizable={true}>
-            {railMode === 'attention' ? (
+            {railMode === 'now' ? (
+              <NowAssetDetail assetId={selectedNowAssetId} />
+            ) : railMode === 'attention' ? (
               <InvestigatePanel item={selectedItem} onCreateWorkItem={handleCreateWorkItem} evidenceView={evidenceView} setEvidenceView={setEvidenceView} />
             ) : (
               <TaskDetailPanel key={selectedWorkItemId} item={selectedWorkItem} onToggleDone={handleToggleWorkItem} />

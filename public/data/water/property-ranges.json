@@ -190,5 +190,165 @@
   "dechlorination_residual_mg_l": [
     0,
     0.15
+  ],
+  "vibration_mms": [
+    0,
+    6
+  ],
+  "bearing_temp_c": [
+    30,
+    90
+  ],
+  "motor_current_a": [
+    0,
+    20
+  ],
+  "process_motor_current_a": [
+    10,
+    45
+  ],
+  "discharge_pressure_psi": [
+    0,
+    50
+  ],
+  "blower_discharge_pressure_psi": [
+    4,
+    10
+  ],
+  "flow_rate_gpm": [
+    100,
+    500
+  ],
+  "dosing_flow_rate_gpm": [
+    0,
+    8
+  ],
+  "differential_pressure_psi": [
+    0,
+    5
+  ],
+  "rake_motor_torque_pct": [
+    0,
+    100
+  ],
+  "cleaning_cycles_per_hr": [
+    0,
+    8
+  ],
+  "backwash_cycles_per_day": [
+    0,
+    3
+  ],
+  "level_pct": [
+    40,
+    100
+  ],
+  "consumption_rate": [
+    0,
+    4
+  ],
+  "temperature_c": [
+    5,
+    35
+  ],
+  "rapid_mix_speed_rpm": [
+    40,
+    160
+  ],
+  "torque_pct": [
+    0,
+    100
+  ],
+  "travel_speed_pct": [
+    0,
+    100
+  ],
+  "cycle_time_min": [
+    5,
+    30
+  ],
+  "air_flow_scfm": [
+    500,
+    3000
+  ],
+  "discharge_temp_c": [
+    40,
+    100
+  ],
+  "backpressure_psi": [
+    0,
+    4
+  ],
+  "air_distribution_uniformity_pct": [
+    70,
+    100
+  ],
+  "residual_offset_mg_l": [
+    -0.5,
+    0.5
+  ],
+  "line_throughput": [
+    3,
+    7
+  ],
+  "line_target_rate": [
+    3,
+    7
+  ],
+  "line_oee": [
+    93,
+    100
+  ],
+  "line_availability": [
+    96,
+    100
+  ],
+  "line_quality_factor": [
+    97,
+    100
+  ],
+  "total_wip": [
+    15,
+    45
+  ],
+  "instability_index": [
+    0,
+    15
+  ],
+  "system_health_index": [
+    92,
+    100
+  ],
+  "flow_efficiency": [
+    95,
+    102
+  ],
+  "plant_throughput": [
+    15,
+    45
+  ],
+  "plant_target_rate": [
+    15,
+    45
+  ],
+  "plant_oee": [
+    90,
+    100
+  ],
+  "plant_availability": [
+    95,
+    100
+  ],
+  "plant_quality_factor": [
+    95,
+    100
+  ],
+  "plant_health_index": [
+    88,
+    100
+  ],
+  "plant_instability_index": [
+    0,
+    20
   ]
 }

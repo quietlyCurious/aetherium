@@ -1,0 +1,24 @@
+{
+  "MERIDIAN": {
+    "plant_throughput": 24.78,
+    "plant_target_rate": 25.2,
+    "plant_oee": 96.7,
+    "plant_availability": 99.11,
+    "plant_quality_factor": 99.21,
+    "plant_health_index": 96.7,
+    "plant_instability_index": 5.98,
+    "best_train": "MERIDIAN_MER_T04",
+    "worst_train": "MERIDIAN_MER_T05"
+  },
+  "CONFLUENCE": {
+    "plant_throughput": 34.01,
+    "plant_target_rate": 34.8,
+    "plant_oee": 95.3,
+    "plant_availability": 98.78,
+    "plant_quality_factor": 98.71,
+    "plant_health_index": 95.3,
+    "plant_instability_index": 7.61,
+    "best_train": "CONFLUENCE_CON_T05",
+    "worst_train": "CONFLUENCE_CON_T04"
+  }
+}
