@@ -621,28 +621,25 @@
   padding: 8px 10px;
 }
 
-.op-hmiprops-single {
+.op-hmiprops-singlebox {
   border: 1px solid #e5e5e5;
   border-radius: 3px;
   padding: 10px 12px;
   margin-top: 14px;
 }
 
-.op-hmiprops-single--space .op-hmiprops-group {
-  margin-bottom: 20px;
+.op-hmiprops-singlebox .op-hmiprops {
+  margin-top: 0; /* the box itself already carries the margin-top, avoid doubling it */
 }
 
-.op-hmiprops-single--space .op-hmiprops-group:last-child {
-  margin-bottom: 0;
+.op-hmiprops-card--noborder {
+  border: none;
+  border-radius: 0;
 }
 
-.op-hmiprops-group-title {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin-bottom: 8px;
+.op-hmiprops-card--noborder:not(:first-child) {
+  border-left: 1px solid #e5e5e5;
+  padding-left: 14px;
 }
 
 .op-hmiprops-card-title {

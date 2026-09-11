@@ -768,21 +768,23 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           ))}
         </div>
       ) : groupingMode === 'none' ? (
-        <div className="op-hmiprops-single op-hmiprops-single--none">
+        <div className="op-hmiprops-singlebox">
           <div className={kpisClass}>
             {categories.flatMap(cat => grouped[cat]).map(renderTile)}
           </div>
         </div>
       ) : (
-        <div className="op-hmiprops-single op-hmiprops-single--space">
-          {categories.map(cat => (
-            <div key={cat} className="op-hmiprops-group">
-              <div className="op-hmiprops-group-title">{cat}</div>
-              <div className={kpisClass}>
-                {grouped[cat].map(renderTile)}
+        <div className="op-hmiprops-singlebox">
+          <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
+            {categories.map(cat => (
+              <div key={cat} className="op-hmiprops-card op-hmiprops-card--noborder">
+                <div className="op-hmiprops-card-title">{cat}</div>
+                <div className={kpisClass}>
+                  {grouped[cat].map(renderTile)}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
