@@ -22,16 +22,25 @@
 // separate chat surface — this is the thing the brainstorm doc keeps
 // calling out as the actual differentiator vs. a traditional HMI+chatbot.
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
-import ButtonGroup from 'devextreme-react/button-group';
+import ButtonGroup, { Item as ButtonGroupItem } from 'devextreme-react/button-group';
+import { TabPanel } from 'devextreme-react';
+import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
+import DataListGrid from './DataListGrid';
+import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from './typeDisplayTemplatesStorage';
+import { loadNowSelection, saveNowSelection } from './nowSelectionStorage';
+import { loadTypePropertyConfigs, saveTypePropertyConfigs } from './typePropertyConfigsStorage';
+import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from './typeRelatedAssetConfigsStorage';
+import notify from 'devextreme/ui/notify';
 import {
   Chart, Series, Point, ArgumentAxis, ValueAxis,
   Grid as ChartGrid, Legend as ChartLegend, Tooltip as ChartTooltip,
   Export as ChartExport, CommonSeriesSettings, Aggregation,
 } from 'devextreme-react/chart';
+import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import RangeSelector, {
   Size as RsSize, Scale as RsScale, Chart as RsChart, ValueAxis as RsValueAxis,
   Series as RsSeries, Behavior as RsBehavior, Aggregation as RsAggregation,
@@ -422,10 +431,10 @@ const EVIDENCE_VIEW_ITEMS = [
 ];
 
 const KPI_VIEW_MODE_ITEMS = [
-  { text: 'All', value: 'all' },
   { text: 'Text', value: 'text' },
   { text: 'Indicator', value: 'indicator' },
   { text: 'Spark', value: 'spark' },
+  { text: 'All', value: 'all' },
 ];
 
 // Selecting a tier shows that tier plus everything more important than it —
@@ -436,6 +445,143 @@ const TIER_FILTER_ITEMS = [
   { text: 'P3', value: 'P3' },
 ];
 const TIER_RANK = { P1: 1, P2: 2, P3: 3 };
+
+// Icon components for the flow-control button groups below — 16px,
+// currentColor stroke, matching the convention already used elsewhere in
+// this file (NowRailIcon, VisibilityStateIcon, etc.) so they pick up the
+// button's active/inactive text color automatically.
+function ColumnFlowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="3" y1="4" x2="13" y2="4" />
+      <line x1="3" y1="8" x2="13" y2="8" />
+      <line x1="3" y1="12" x2="13" y2="12" />
+    </svg>
+  );
+}
+function RowFlowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="4" y1="3" x2="4" y2="13" />
+      <line x1="8" y1="3" x2="8" y2="13" />
+      <line x1="12" y1="3" x2="12" y2="13" />
+    </svg>
+  );
+}
+function WrapIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 5h7a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H6" />
+      <path d="M8.5 6.5 6 9l2.5 2.5" />
+    </svg>
+  );
+}
+function NoWrapIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="2" y1="8" x2="11" y2="8" />
+      <path d="M8.5 5.5 11 8l-2.5 2.5" />
+      <line x1="14" y1="4" x2="14" y2="12" />
+    </svg>
+  );
+}
+function DistributeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="2" y1="3" x2="2" y2="13" />
+      <line x1="8" y1="3" x2="8" y2="13" />
+      <line x1="14" y1="3" x2="14" y2="13" />
+    </svg>
+  );
+}
+function ClusterIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="3" y1="3" x2="3" y2="13" />
+      <line x1="6" y1="3" x2="6" y2="13" />
+      <line x1="9" y1="3" x2="9" y2="13" />
+    </svg>
+  );
+}
+// Filled circle = always, half-filled = sometimes — same family as
+// VisibilityStateIcon below, kept as separate small icons here since this
+// filter's third state ("All", show everything) is a different concept
+// from that component's third state ("Never") and needs a visually
+// distinct icon rather than reusing the plain outline circle.
+function AlwaysFilterIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <circle cx="8" cy="8" r="6" fill="currentColor" />
+    </svg>
+  );
+}
+function SometimesFilterIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <circle cx="8" cy="8" r="6" />
+      <path d="M8 2 A6 6 0 0 1 8 14 Z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function AllFilterIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <circle cx="5.5" cy="6" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
+      <circle cx="10.5" cy="6" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="10" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+// Shared item template for any ButtonGroup whose items carry an Icon field.
+function IconButtonGroupItem(item) {
+  return (
+    <div className="op-icon-btn-item">
+      {item.Icon && <item.Icon />}
+    </div>
+  );
+}
+
+// Used only in type-properties mode, in place of the P1/P2/P3 tier filter —
+// filters by the type's own always/sometimes/never visibility choices
+// instead of the global property tiers.
+const VISIBILITY_FILTER_ITEMS = [
+  { text: 'Always', value: 'always', Icon: AlwaysFilterIcon },
+  { text: 'Sometimes', value: 'sometimes', Icon: SometimesFilterIcon },
+  { text: 'All', value: 'all', Icon: AllFilterIcon },
+];
+// Same three states as VISIBILITY_FILTER_ITEMS, presented as a 3-position
+// slider instead of a button group — each step is inclusive of the ones to
+// its left (Always < Always+Sometimes < everything).
+const TIER_FILTER_SLIDER_VALUES = ['always', 'sometimes', 'all'];
+// Shared by both the permanent end labels (which only ever render at min
+// and max) and the tooltip that follows the handle (which shows all three
+// positions) — both use the same min/more/max wording.
+const TIER_FILTER_SLIDER_LABELS = { 0: 'min', 1: 'more', 2: 'max' };
+const formatTierFilterSliderLabel = (v) => TIER_FILTER_SLIDER_LABELS[v] ?? '';
+
+// Used only in type-properties mode — controls flex-direction/flex-wrap on
+// the container holding all the properties as a whole. Each property's own
+// internal layout (label/value/track/sparkline arrangement) is untouched by
+// these; that's governed entirely by StatTile's own classes.
+const FLOW_DIRECTION_ITEMS = [
+  { text: 'Column', value: 'column', Icon: ColumnFlowIcon },
+  { text: 'Row', value: 'row', Icon: RowFlowIcon },
+];
+const FLOW_WRAP_ITEMS = [
+  { text: 'Wrap', value: 'wrap', Icon: WrapIcon },
+  { text: 'No Wrap', value: 'nowrap', Icon: NoWrapIcon },
+];
+
+// Controls align-content — how multiple wrapped lines (rows or columns,
+// depending on flowDirection) are distributed along the cross axis once
+// there's more than one. 'stretch' spreads/stretches lines to fill the
+// available space; 'flex-start' clusters them together, leaving any extra
+// space at the end instead.
+const ALIGN_CONTENT_ITEMS = [
+  { text: 'Distribute', value: 'stretch', Icon: DistributeIcon },
+  { text: 'Cluster', value: 'flex-start', Icon: ClusterIcon },
+];
 
 const GROUPING_MODE_ITEMS = [
   { text: 'Box', value: 'box' },
@@ -614,8 +760,53 @@ function resolveWaterAssetProperties(assetId) {
 // which model is currently selected. The caller passes an assetId and
 // gets back whatever's available (or isn't) — it never needs to know or
 // branch on the asset's level, or on which model is active.
+// Human-readable label from a slugified assetType, e.g. "raw_water_pump" ->
+// "Raw Water Pump". Deriving this from the type itself (rather than
+// grabbing an instance's own `name` field) matters because that field is
+// sometimes generic — a station's name literally IS its type, like "Intake"
+// — but sometimes instance-specific, like a line's name being "A1", not
+// "Line". De-slugifying the type works correctly either way.
+function deslugifyType(assetType) {
+  return assetType
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+const TYPE_LEVEL_LABELS = {
+  refinery: 'Refinery', line: 'Line', station: 'Station',
+  plant: 'Plant', train: 'Train', stage: 'Stage', equipment: 'Equipment',
+};
+
+// Builds a flat, alphabetically-sorted list of every distinct
+// (assetLevel, assetType) combination found in the asset hierarchy. Each
+// entry carries the id of one real, representative asset of that type —
+// resolveAssetProperties already works given any real asset id, so
+// viewing "a type's properties" is just resolving its representative
+// instance, no separate type-specific resolver needed.
+function buildTypeList(assetData) {
+  const seen = new Map();
+  assetData.forEach(a => {
+    const key = `${a.assetLevel}::${a.assetType}`;
+    if (!seen.has(key)) {
+      seen.set(key, {
+        id: `TYPE_${a.assetLevel}_${a.assetType}`,
+        name: deslugifyType(a.assetType),
+        level: TYPE_LEVEL_LABELS[a.assetLevel] || a.assetLevel,
+        exampleAssetId: a.id,
+      });
+    }
+  });
+  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const TYPE_LIST_COLUMNS = [
+  { dataField: 'name', caption: 'Name', minWidth: 120 },
+  { dataField: 'level', caption: 'Level', width: 90 },
+];
+
 function resolveAssetProperties(assetId) {
-  return CURRENT_MODEL === 'water' ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
+  return (CURRENT_MODEL === 'water' || CURRENT_MODEL === 'wastewater') ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
 }
 
 const HMI_CATEGORY_ORDER = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition'];
@@ -676,13 +867,36 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
 // already covers) — grouped by property type rather than dumped as one
 // long list, same visual language as Line Detail's stat tiles.
-function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints }) {
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef }) {
   const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
   const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
   const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
-  const [kpiViewMode, setKpiViewMode] = useState('all');
-  const [tierFilter, setTierFilter] = useState('P3');
-  const [groupingMode, setGroupingMode] = useState('box');
+  const savedTemplate = typeVisibilityMode ? typeDisplayTemplates?.[typeId] : null;
+  const [kpiViewMode, setKpiViewMode] = useState(savedTemplate?.viewMode ?? 'text');
+  const [tierFilter, setTierFilter] = useState(typeVisibilityMode ? 'all' : 'P3');
+  const [groupingMode, setGroupingMode] = useState(typeVisibilityMode ? 'none' : 'box');
+  const [flowDirection, setFlowDirection] = useState(savedTemplate?.flowDirection ?? 'row');
+  const [flowWrap, setFlowWrap] = useState(savedTemplate?.flowWrap ?? 'wrap');
+  const [alignContent, setAlignContent] = useState(savedTemplate?.alignContent ?? 'flex-start');
+
+  // The "Visual" column in the sibling properties table needs to know the
+  // current view mode, but that state lives here, not there — report it up
+  // whenever it changes rather than lifting ownership of the state itself
+  // (which would also affect the non-type-mode uses of this component).
+  useEffect(() => {
+    onViewModeChange?.(kpiViewMode);
+  }, [kpiViewMode]);
+
+  // Registers "save the current draft" into the shared ref the global
+  // title-bar Save button ultimately calls — kept in sync with the same
+  // logic the in-panel Save Template button already uses. Cleared on
+  // unmount (switching types remounts this component via NowTypeDetail's
+  // key) so a stale handler for the previous type can't linger.
+  useEffect(() => {
+    if (!typeVisibilityMode || !activeSaveHandlerRef) return undefined;
+    activeSaveHandlerRef.current = () => onSaveTypeDisplayTemplate?.(typeId, { viewMode: kpiViewMode, flowDirection, flowWrap, alignContent });
+    return () => { activeSaveHandlerRef.current = null; };
+  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent]);
 
   if (!props) {
     return <div className="op-dash-text op-dash-text--muted">No properties available for this item.</div>;
@@ -693,8 +907,17 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
 
   const grouped = {};
   Object.entries(props).forEach(([key, value]) => {
-    const tier = PROPERTY_TIERS[key] || 'P3';
-    if (TIER_RANK[tier] > TIER_RANK[tierFilter]) return; // below the selected threshold — hidden
+    if (typeVisibilityMode) {
+      const overrides = typePropertyConfigs?.[typeId] || {};
+      const visibility = overrides[key] || 'always';
+      const visible = tierFilter === 'all'
+        || (tierFilter === 'sometimes' && (visibility === 'always' || visibility === 'sometimes'))
+        || (tierFilter === 'always' && visibility === 'always');
+      if (!visible) return;
+    } else {
+      const tier = PROPERTY_TIERS[key] || 'P3';
+      if (TIER_RANK[tier] > TIER_RANK[tierFilter]) return; // below the selected threshold — hidden
+    }
     const category = PROPERTY_CATEGORIES[key] || 'Other';
     if (!grouped[category]) grouped[category] = [];
     grouped[category].push({ key, label: PROPERTY_LABELS[key] || key, value });
@@ -726,36 +949,106 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
     );
   };
 
+  // Applied unconditionally whenever type-properties mode is active,
+  // regardless of which flowDirection/flowWrap combination is selected —
+  // general flexbox rules (flex-direction, flex-wrap) then determine the
+  // actual layout based on real available space, rather than any
+  // combination-specific styling.
+  const typeFlowActive = typeVisibilityMode;
+
   return (
-    <div className="op-hmiprops-wrap">
+    <div className={`op-hmiprops-wrap${typeFlowActive ? ' op-hmiprops-wrap--typeflow' : ''}`}>
       <div className="op-hmiprops-toolbar">
-        <ButtonGroup
-          items={KPI_VIEW_MODE_ITEMS}
-          keyExpr="value"
-          selectedItemKeys={[kpiViewMode]}
-          onItemClick={e => setKpiViewMode(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        />
-        <ButtonGroup
-          items={TIER_FILTER_ITEMS}
-          keyExpr="value"
-          selectedItemKeys={[tierFilter]}
-          onItemClick={e => setTierFilter(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        />
-        <ButtonGroup
-          items={GROUPING_MODE_ITEMS}
-          keyExpr="value"
-          selectedItemKeys={[groupingMode]}
-          onItemClick={e => setGroupingMode(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        />
+        {typeVisibilityMode ? (
+          <>
+            <div className="op-tierfilter-slider-wrap" style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+              <Slider
+                min={0}
+                max={2}
+                step={1}
+                value={TIER_FILTER_SLIDER_VALUES.indexOf(tierFilter)}
+                onValueChanged={e => setTierFilter(TIER_FILTER_SLIDER_VALUES[e.value] ?? 'all')}
+                className="op-tierfilter-slider"
+                style={{ width: '100%' }}
+              >
+                <SliderLabel visible format={formatTierFilterSliderLabel} position="bottom" />
+              </Slider>
+            </div>
+            <ButtonGroup
+              items={KPI_VIEW_MODE_ITEMS}
+              keyExpr="value"
+              selectedItemKeys={[kpiViewMode]}
+              onItemClick={e => setKpiViewMode(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            />
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[flowDirection]}
+              onItemClick={e => setFlowDirection(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {FLOW_DIRECTION_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[flowWrap]}
+              onItemClick={e => setFlowWrap(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {FLOW_WRAP_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[alignContent]}
+              onItemClick={e => setAlignContent(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {ALIGN_CONTENT_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+          </>
+        ) : (
+          <>
+            <ButtonGroup
+              items={KPI_VIEW_MODE_ITEMS}
+              keyExpr="value"
+              selectedItemKeys={[kpiViewMode]}
+              onItemClick={e => setKpiViewMode(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            />
+            <ButtonGroup
+              items={TIER_FILTER_ITEMS}
+              keyExpr="value"
+              selectedItemKeys={[tierFilter]}
+              onItemClick={e => setTierFilter(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            />
+            <ButtonGroup
+              items={GROUPING_MODE_ITEMS}
+              keyExpr="value"
+              selectedItemKeys={[groupingMode]}
+              onItemClick={e => setGroupingMode(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            />
+          </>
+        )}
       </div>
       {categories.length === 0 ? (
-        <div className="op-dash-text op-dash-text--muted">No {tierFilter} properties for this asset.</div>
+        <div className="op-dash-text op-dash-text--muted">
+          {typeVisibilityMode ? `No properties marked "${tierFilter}"` : `No ${tierFilter} properties for this asset.`}
+        </div>
       ) : groupingMode === 'box' ? (
         <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
           {categories.map(cat => (
@@ -768,8 +1061,11 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           ))}
         </div>
       ) : groupingMode === 'none' ? (
-        <div className="op-hmiprops-singlebox">
-          <div className={kpisClass}>
+        <div className={`op-hmiprops-singlebox${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}${typeFlowActive ? ' op-hmiprops-singlebox--typeflow' : ''}`}>
+          <div
+            className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-hmiprops-kpis--flowrow' : ''}${typeFlowActive ? ' op-hmiprops-kpis--typeflow' : ''}`}
+            style={typeVisibilityMode ? { flexDirection: flowDirection, flexWrap: flowWrap, alignContent } : undefined}
+          >
             {categories.flatMap(cat => grouped[cat]).map(renderTile)}
           </div>
         </div>
@@ -1176,6 +1472,11 @@ let CURRENT_MODEL = 'refinery';
 let CURRENT_ASSET_DATA = ASSET_DATA;
 let CURRENT_ASSET_MAP = ASSET_MAP;
 let WATER_ASSET_DATA = [];
+// Asset-to-asset edges: { sourceAssetId, targetAssetId, relationshipType,
+// label, layer }. Same variable name loaded from a different file per
+// model, same pattern as STATION_METRICS etc. — no "CURRENT_" prefix
+// needed since assignModelData already refreshes it on every model switch.
+let ASSET_RELATIONSHIPS = [];
 let EQUIPMENT_METRICS = {};
 let EQUIPMENT_TELEMETRY = null;
 
@@ -1522,35 +1823,90 @@ function AttentionCard({ item, selected, pinned, onSelect, onTogglePin }) {
 // Left panel for the new Now work area — the real asset hierarchy
 // (ASSET_DATA), not a separate operator-only copy of it, via the same
 // HierarchyTree component the Data tab already uses elsewhere in the app.
-function NowAssetTreePanel({ selectedId, onSelect }) {
+const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing, onSelectThing, typeList }, ref) {
+  const typesGridRef = useRef(null);
+  useImperativeHandle(ref, () => ({
+    updateDimensions: () => typesGridRef.current?.instance()?.updateDimensions(),
+  }));
+
   return (
     <div className="op-panel op-now-tree-panel">
       <div className="op-zone-label">Now</div>
       <div className="op-now-tree-wrap">
-        <HierarchyTree
-          dataSource={CURRENT_ASSET_DATA}
-          displayExpr="name"
-          itemRender={NowAssetTreeItemTemplate}
-          selectedId={selectedId}
-          onSelect={onSelect}
-        />
+        <TabPanel height="100%" animationEnabled={false} swipeEnabled={false}>
+          <TabPanelItem title="Types">
+            <div className="left-panel-tab-content op-now-tree-tab-content">
+              <DataListGrid
+                ref={typesGridRef}
+                items={typeList}
+                columns={TYPE_LIST_COLUMNS}
+                selectedId={selectedThing?.kind === 'type' ? selectedThing.id : null}
+                onSelect={id => onSelectThing(id ? { kind: 'type', id } : null)}
+                noDataText="No types found."
+                searchEnabled={false}
+              />
+            </div>
+          </TabPanelItem>
+          <TabPanelItem title="Assets">
+            <div className="left-panel-tab-content op-now-tree-tab-content">
+              <HierarchyTree
+                dataSource={CURRENT_ASSET_DATA}
+                displayExpr="name"
+                itemRender={NowAssetTreeItemTemplate}
+                selectedId={selectedThing?.kind === 'asset' ? selectedThing.id : null}
+                onSelect={id => onSelectThing({ kind: 'asset', id })}
+              />
+            </div>
+          </TabPanelItem>
+        </TabPanel>
       </div>
     </div>
   );
-}
+});
 
 // Center placeholder — proves selection is wired end-to-end (name, type,
 // and level all come from the real selected node) ahead of the actual
 // per-asset view engine, which is separate, larger work.
-function NowAssetDetail({ assetId }) {
-  const asset = CURRENT_ASSET_MAP[assetId];
+function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef }) {
+  // Which tab (Properties / Related Assets) is active — lives here rather
+  // than inside NowTypeDetail, since NowTypeDetail remounts fresh (via its
+  // key={selectedThing.id}) every time a different type is selected, but
+  // NowAssetDetail itself doesn't. Without this living up here, the
+  // TabPanel would silently reset to its first tab on every type switch.
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
 
-  if (!asset) {
+  if (!selectedThing) {
     return (
       <div className="op-panel op-investigate-panel op-now-detail-empty">
         <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>
       </div>
     );
+  }
+
+  let title, assetIdForProperties;
+
+  if (selectedThing.kind === 'type') {
+    const typeEntry = typeList.find(t => t.id === selectedThing.id);
+    if (!typeEntry) {
+      return (
+        <div className="op-panel op-investigate-panel op-now-detail-empty">
+          <div className="op-now-detail-placeholder-note">Select a type from the list to view it.</div>
+        </div>
+      );
+    }
+    title = typeEntry.name;
+    assetIdForProperties = typeEntry.exampleAssetId;
+  } else {
+    const asset = CURRENT_ASSET_MAP[selectedThing.id];
+    if (!asset) {
+      return (
+        <div className="op-panel op-investigate-panel op-now-detail-empty">
+          <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>
+        </div>
+      );
+    }
+    title = asset.name;
+    assetIdForProperties = selectedThing.id;
   }
 
   // No single narrative/event window here (unlike Investigate) — show the
@@ -1559,17 +1915,495 @@ function NowAssetDetail({ assetId }) {
     ? [{ time: STATION_TELEMETRY.timestamps[0] }, { time: STATION_TELEMETRY.timestamps[STATION_TELEMETRY.timestamps.length - 1] }]
     : [];
 
-  const { properties, sparklineSource } = resolveAssetProperties(assetId);
+  const { properties, sparklineSource } = resolveAssetProperties(assetIdForProperties);
+
+  if (selectedThing.kind === 'type') {
+    return (
+      <NowTypeDetail
+        key={selectedThing.id}
+        title={title}
+        typeId={selectedThing.id}
+        typeList={typeList}
+        properties={properties}
+        sparklineSource={sparklineSource}
+        evidencePoints={fullRangeEvidencePoints}
+        typePropertyConfigs={typePropertyConfigs}
+        setTypePropertyConfigs={setTypePropertyConfigs}
+        typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+        setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
+        typeDisplayTemplates={typeDisplayTemplates}
+        onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
+        activeSaveHandlerRef={activeSaveHandlerRef}
+        activeTabIndex={activeTabIndex}
+        onActiveTabIndexChange={setActiveTabIndex}
+      />
+    );
+  }
 
   return (
     <div className="op-panel op-investigate-panel op-now-asset-detail">
-      <div className="op-now-asset-detail-title">{asset.name}</div>
+      <div className="op-now-asset-detail-title">{title}</div>
       <div className="op-dashboard-card op-now-asset-kpi-card">
         {properties ? (
           <HmiPropertiesListing properties={properties} sparklineSource={sparklineSource} evidencePoints={fullRangeEvidencePoints} />
         ) : (
           <div className="op-dash-text op-dash-text--muted">No properties available yet for this asset.</div>
         )}
+      </div>
+    </div>
+  );
+}
+
+const VISIBILITY_CYCLE = { always: 'sometimes', sometimes: 'never', never: 'always' };
+// Related Assets tab uses a deliberately simpler 2-state toggle — no
+// "sometimes". Reuses VISIBILITY_LABEL ('Always'/'Never' are already in
+// there) and VisibilityStateIcon (its 'sometimes' branch just never
+// matches here, so the same icon component works unmodified).
+const RELATED_ASSET_VISIBILITY_CYCLE = { always: 'never', never: 'always' };
+const VISIBILITY_LABEL = { always: 'Always', sometimes: 'Sometimes', never: 'Never' };
+
+// Filled circle = always, half-filled = sometimes, outline only = never —
+// click cycles through the three. currentColor stroke matches the other
+// inline icons in this file (NowRailIcon etc.), so it inherits text color.
+function VisibilityStateIcon({ visibility }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <circle cx="8" cy="8" r="6" />
+      {visibility === 'always' && <circle cx="8" cy="8" r="6" fill="currentColor" stroke="none" />}
+      {visibility === 'sometimes' && <path d="M8 2 A6 6 0 0 1 8 14 Z" fill="currentColor" stroke="none" />}
+    </svg>
+  );
+}
+
+// Returns the current visibility ('always'/'sometimes'/'never') for every
+// property of a type — explicit overrides where a user has actually
+// changed one, 'always' by default otherwise. Nothing is written to state
+// until a user actually changes something.
+function getPropertyVisibilityForType(typeId, properties, typePropertyConfigs) {
+  const overrides = typePropertyConfigs[typeId] || {};
+  return Object.keys(properties || {}).map(key => ({
+    key,
+    label: PROPERTY_LABELS[key] || key,
+    visibility: overrides[key] || 'always',
+  }));
+}
+
+const RELATIONSHIP_TYPE_LABELS = { feeds_into: 'Feeds into' };
+const RELATIONSHIP_LAYER_LABELS = {
+  process_flow: 'Process Flow',
+  chemical_dosing: 'Chemical Dosing',
+  backwash: 'Backwash',
+  air_flow: 'Air Flow',
+};
+
+// label is null for most edges — falls back to relationshipType, plus the
+// layer in parentheses when there's more than one kind of connection
+// ("Feeds into (Backwash)" vs "Feeds into (Process Flow)"), since
+// relationshipType alone is "feeds_into" for nearly every edge regardless
+// of layer.
+function formatRelationshipName(edge) {
+  if (edge.label) return edge.label;
+  const typeLabel = RELATIONSHIP_TYPE_LABELS[edge.relationshipType] || edge.relationshipType;
+  const layerLabel = RELATIONSHIP_LAYER_LABELS[edge.layer];
+  return layerLabel ? `${typeLabel} (${layerLabel})` : typeLabel;
+}
+
+// Finds every asset-relationship edge touching any real asset of the given
+// type (as source or target), resolves the OTHER end of each edge to its
+// own type, and collapses duplicates — e.g. six "Raw Water Pump" instances
+// all feeding the same downstream type collapse to a single row, since the
+// table is type-to-type, not instance-to-instance. The arrow in
+// relationshipLabel shows direction: this type -> other, or other -> this
+// type.
+function getRelatedAssetsForType(typeId, typeList) {
+  const typeEntry = typeList.find(t => t.id === typeId);
+  const exampleAsset = typeEntry && CURRENT_ASSET_MAP[typeEntry.exampleAssetId];
+  // TEMPORARY DEBUG LOGGING — remove once the water/wastewater empty-table
+  // issue is diagnosed. Reveals exactly what this function sees at the
+  // moment a type is selected, which we can't observe from outside.
+  console.log('[DEBUG related-assets]', {
+    currentModel: CURRENT_MODEL,
+    typeId,
+    typeEntryFound: !!typeEntry,
+    exampleAssetId: typeEntry?.exampleAssetId,
+    exampleAssetFound: !!exampleAsset,
+    exampleAssetLevel: exampleAsset?.assetLevel,
+    exampleAssetType: exampleAsset?.assetType,
+    assetRelationshipsCount: (ASSET_RELATIONSHIPS || []).length,
+    currentAssetDataCount: (CURRENT_ASSET_DATA || []).length,
+  });
+  if (!exampleAsset) return [];
+  const sameTypeAssetIds = new Set(
+    CURRENT_ASSET_DATA
+      .filter(a => a.assetLevel === exampleAsset.assetLevel && a.assetType === exampleAsset.assetType)
+      .map(a => a.id)
+  );
+
+  const rowsByKey = new Map();
+  (ASSET_RELATIONSHIPS || []).forEach(edge => {
+    const sourceIsSelf = sameTypeAssetIds.has(edge.sourceAssetId);
+    const targetIsSelf = sameTypeAssetIds.has(edge.targetAssetId);
+    if (!sourceIsSelf && !targetIsSelf) return;
+    // A same-type-to-same-type edge (rare) counts as outgoing, matching
+    // the source side.
+    const direction = sourceIsSelf ? 'out' : 'in';
+    const otherAssetId = sourceIsSelf ? edge.targetAssetId : edge.sourceAssetId;
+    const otherAsset = CURRENT_ASSET_MAP[otherAssetId];
+    if (!otherAsset) return;
+    const relatedTypeId = `TYPE_${otherAsset.assetLevel}_${otherAsset.assetType}`;
+    const key = `${direction}::${relatedTypeId}::${edge.relationshipType}::${edge.layer}::${edge.label || ''}`;
+    if (rowsByKey.has(key)) return;
+    rowsByKey.set(key, {
+      key,
+      relatedTypeId,
+      relatedTypeName: deslugifyType(otherAsset.assetType),
+      relatedTypeExampleAssetId: otherAsset.id,
+      relationshipLabel: `${direction === 'out' ? '→' : '←'} ${formatRelationshipName(edge)}`,
+    });
+  });
+
+  // TEMPORARY DEBUG LOGGING — remove alongside the one above.
+  console.log('[DEBUG related-assets] result', {
+    sameTypeAssetIdsCount: sameTypeAssetIds.size,
+    sameTypeAssetIdsSample: [...sameTypeAssetIds].slice(0, 3),
+    rowsFound: rowsByKey.size,
+  });
+
+  return [...rowsByKey.values()].sort((a, b) => a.relatedTypeName.localeCompare(b.relatedTypeName));
+}
+
+// Shown only for type selections — Properties (a list of this type's
+// properties, each with an always/sometimes/never visibility choice,
+// sharing the space with the same KPI visualization used everywhere else)
+// and Children (not yet built — see note in the tab itself).
+// 2-position slider for related-asset density: min shows only assets
+// marked "always" in the left table, max shows every related asset
+// regardless of its own marking. Same concept as the properties tab's
+// 3-position tier slider, one fewer stop since there's no "sometimes"
+// state here.
+const RELATED_ASSET_DENSITY_VALUES = ['always', 'all'];
+const RELATED_ASSET_DENSITY_LABELS = { 0: 'min', 1: 'max' };
+const formatRelatedAssetDensityLabel = (v) => RELATED_ASSET_DENSITY_LABELS[v] ?? '';
+
+// Renders every related-asset row as its own box of property tiles,
+// filtered by the density slider and arranged via the same
+// row/column + wrap + cluster/distribute controls already used for
+// individual property tiles in HmiPropertiesListing — here they govern
+// how the boxes themselves flow, not what's inside them. Each box shows
+// only P1 ("headline") properties, so this stays a genuine preview rather
+// than every related asset's full property list.
+function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs }) {
+  const [densityFilter, setDensityFilter] = useState('always');
+  const [flowDirection, setFlowDirection] = useState('row');
+  const [flowWrap, setFlowWrap] = useState('wrap');
+  const [alignContent, setAlignContent] = useState('flex-start');
+
+  const visibleRows = relatedAssetRows.filter(r => densityFilter === 'all' || r.visibility === 'always');
+  const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
+  const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;
+
+  return (
+    <div className="op-related-assets-preview">
+      <div className="op-hmiprops-toolbar">
+        <div className="op-tierfilter-slider-wrap" style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+          <Slider
+            min={0}
+            max={1}
+            step={1}
+            value={RELATED_ASSET_DENSITY_VALUES.indexOf(densityFilter)}
+            onValueChanged={e => setDensityFilter(RELATED_ASSET_DENSITY_VALUES[e.value] ?? 'all')}
+            className="op-tierfilter-slider"
+            style={{ width: '100%' }}
+          >
+            <SliderLabel visible format={formatRelatedAssetDensityLabel} position="bottom" />
+          </Slider>
+        </div>
+        <ButtonGroup
+          keyExpr="value"
+          selectedItemKeys={[flowDirection]}
+          onItemClick={e => setFlowDirection(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        >
+          {FLOW_DIRECTION_ITEMS.map(item => (
+            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+          ))}
+        </ButtonGroup>
+        <ButtonGroup
+          keyExpr="value"
+          selectedItemKeys={[flowWrap]}
+          onItemClick={e => setFlowWrap(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        >
+          {FLOW_WRAP_ITEMS.map(item => (
+            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+          ))}
+        </ButtonGroup>
+        <ButtonGroup
+          keyExpr="value"
+          selectedItemKeys={[alignContent]}
+          onItemClick={e => setAlignContent(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        >
+          {ALIGN_CONTENT_ITEMS.map(item => (
+            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+          ))}
+        </ButtonGroup>
+      </div>
+      {visibleRows.length === 0 ? (
+        <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
+      ) : (
+        <div className="op-related-assets-box-flow" style={{ flexDirection: flowDirection, flexWrap: flowWrap, alignContent }}>
+          {visibleRows.map(row => {
+            const resolved = resolveAssetProperties(row.relatedTypeExampleAssetId);
+            const properties = resolved?.properties;
+            const sparklineSource = resolved?.sparklineSource;
+            if (!properties) return null;
+            // Each box uses that related type's own saved display template
+            // (the same one set via the Properties tab's Save Template
+            // button) rather than one shared setting for every box — a
+            // pump the user configured as Indicator, a valve as Text, and
+            // a tank as All each render according to their own choice.
+            // Falls back to the same defaults HmiPropertiesListing itself
+            // uses for a type that's never been explicitly saved.
+            const template = typeDisplayTemplates?.[row.relatedTypeId];
+            const boxViewMode = template?.viewMode ?? 'text';
+            const boxFlowDirection = template?.flowDirection ?? 'row';
+            const boxFlowWrap = template?.flowWrap ?? 'wrap';
+            const boxAlignContent = template?.alignContent ?? 'flex-start';
+            // Shows the properties this type has actually been configured
+            // as "always" visible via the Properties tab's own visibility
+            // toggle (typePropertyConfigs) — not the data-driven P1/P2/P3
+            // tier, which is a fixed classification independent of what
+            // the user has customized for this specific type. A property
+            // with no explicit override defaults to "always" too, matching
+            // getPropertyVisibilityForType's own default elsewhere.
+            const visibilityRows = getPropertyVisibilityForType(row.relatedTypeId, properties, typePropertyConfigs);
+            const alwaysEntries = visibilityRows
+              .filter(p => p.visibility === 'always')
+              .map(p => [p.key, properties[p.key]]);
+            const entriesToShow = alwaysEntries.length ? alwaysEntries : Object.entries(properties);
+            const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
+            return (
+              <div key={row.key} className="op-related-asset-box">
+                <div className="op-hmiprops-card-title">{row.relatedTypeName}</div>
+                <div
+                  className={boxKpisClass}
+                  style={{ flexDirection: boxFlowDirection, flexWrap: boxFlowWrap, alignContent: boxAlignContent }}
+                >
+                  {entriesToShow.map(([key, value]) => {
+                    const range = PROPERTY_RANGES[key];
+                    const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+                    const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
+                    return (
+                      <StatTile
+                        key={key}
+                        label={PROPERTY_LABELS[key] || key}
+                        value={value}
+                        min={range ? range[0] : undefined}
+                        max={range ? range[1] : undefined}
+                        sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+                        horizontal
+                        labelFirst
+                        viewMode={boxViewMode}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NowTypeDetail({ title, typeId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange }) {
+  // Mirrors HmiPropertiesListing's current view mode, purely for display in
+  // the "Visual" column below — that state actually lives inside
+  // HmiPropertiesListing (a sibling, not a parent/child of this table), and
+  // is reported up via onDisplayStateChange whenever it changes.
+  const [rightPanelViewMode, setRightPanelViewMode] = useState(typeDisplayTemplates?.[typeId]?.viewMode ?? 'all');
+
+  // DevExtreme's DataGrid does not automatically recalculate column widths
+  // when its container is resized via a Splitter drag (this is a documented
+  // requirement, not a bug) — without this, dragging the splitter narrower
+  // can leave columns at their previous (wider) computed size, overflowing
+  // past the visible area. rAF-throttled per DevExtreme's own guidance,
+  // since onResize can fire many times per drag.
+  const propsGridRef = useRef(null);
+  const propsSplitterResizeFrame = useRef(null);
+  const handlePropsSplitterResize = () => {
+    cancelAnimationFrame(propsSplitterResizeFrame.current);
+    propsSplitterResizeFrame.current = requestAnimationFrame(() => {
+      propsGridRef.current?.instance()?.updateDimensions();
+    });
+  };
+  // Same fix, applied proactively to the Related Assets tab's own splitter
+  // rather than waiting for the same resize issue to resurface there too.
+  const relatedGridRef = useRef(null);
+  const relatedSplitterResizeFrame = useRef(null);
+  const handleRelatedSplitterResize = () => {
+    cancelAnimationFrame(relatedSplitterResizeFrame.current);
+    relatedSplitterResizeFrame.current = requestAnimationFrame(() => {
+      relatedGridRef.current?.instance()?.updateDimensions();
+    });
+  };
+
+  if (!properties) {
+    return (
+      <div className="op-panel op-investigate-panel op-now-asset-detail">
+        <div className="op-now-asset-detail-title">{title}</div>
+        <div className="op-dashboard-card op-now-asset-kpi-card">
+          <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>
+        </div>
+      </div>
+    );
+  }
+
+  const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
+
+  const propertyRows = getPropertyVisibilityForType(typeId, properties, typePropertyConfigs)
+    .map(row => ({ ...row, visualMode: visualModeLabel }));
+
+  const handleVisibilityChange = (key, visibility) => {
+    setTypePropertyConfigs(prev => ({
+      ...prev,
+      [typeId]: { ...(prev[typeId] || {}), [key]: visibility },
+    }));
+  };
+
+  const propertyColumns = [
+    { dataField: 'label', caption: 'Property', minWidth: 100 },
+    {
+      dataField: 'visibility',
+      caption: 'Visibility',
+      width: 90,
+      alignment: 'center',
+      cellRender: (cellInfo) => (
+        <button
+          className="op-visibility-cycle-btn"
+          title={VISIBILITY_LABEL[cellInfo.data.visibility]}
+          onClick={() => handleVisibilityChange(cellInfo.data.key, VISIBILITY_CYCLE[cellInfo.data.visibility])}
+        >
+          <VisibilityStateIcon visibility={cellInfo.data.visibility} />
+        </button>
+      ),
+    },
+    {
+      dataField: 'visualMode',
+      caption: 'Visual',
+      width: 90,
+    },
+  ];
+
+  // Related Assets tab — every asset-relationship edge touching this type,
+  // collapsed to one row per (related type, relationship) pair, with a
+  // simpler always/never visibility toggle than the properties table above.
+  const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
+  const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+    ...row,
+    visibility: relatedAssetOverrides[row.key] || 'always',
+  }));
+
+  const handleRelatedAssetVisibilityChange = (key, visibility) => {
+    setTypeRelatedAssetConfigs(prev => ({
+      ...prev,
+      [typeId]: { ...(prev[typeId] || {}), [key]: visibility },
+    }));
+  };
+
+  const relatedAssetColumns = [
+    { dataField: 'relatedTypeName', caption: 'Asset', minWidth: 100 },
+    { dataField: 'relationshipLabel', caption: 'Relationship', minWidth: 100 },
+    {
+      dataField: 'visibility',
+      caption: 'Visibility',
+      width: 90,
+      alignment: 'center',
+      cellRender: (cellInfo) => (
+        <button
+          className="op-visibility-cycle-btn"
+          title={VISIBILITY_LABEL[cellInfo.data.visibility]}
+          onClick={() => handleRelatedAssetVisibilityChange(cellInfo.data.key, RELATED_ASSET_VISIBILITY_CYCLE[cellInfo.data.visibility])}
+        >
+          <VisibilityStateIcon visibility={cellInfo.data.visibility} />
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <div className="op-panel op-investigate-panel op-now-asset-detail">
+      <div className="op-now-type-tabs">
+        <TabPanel
+          height="100%"
+          animationEnabled={false}
+          swipeEnabled={false}
+          selectedIndex={activeTabIndex}
+          onSelectionChanged={e => onActiveTabIndexChange(e.component.option('selectedIndex'))}
+        >
+          <TabPanelItem title="Properties">
+            <Splitter orientation="horizontal" style={{ height: '100%' }} onResize={handlePropsSplitterResize}>
+              <SplitterItem size="45%" minSize="220px" resizable={true}>
+                <div className="op-now-type-props-list">
+                  <DataListGrid
+                    ref={propsGridRef}
+                    items={propertyRows}
+                    columns={propertyColumns}
+                    keyExpr="key"
+                    selectedId={null}
+                    onSelect={() => {}}
+                    searchEnabled={false}
+                    noDataText="No properties for this type."
+                  />
+                </div>
+              </SplitterItem>
+              <SplitterItem resizable={true}>
+                <div className="op-dashboard-card op-now-type-kpi-card">
+                  <HmiPropertiesListing
+                    properties={properties}
+                    sparklineSource={sparklineSource}
+                    evidencePoints={evidencePoints}
+                    typeVisibilityMode
+                    typeId={typeId}
+                    typePropertyConfigs={typePropertyConfigs}
+                    typeDisplayTemplates={typeDisplayTemplates}
+                    onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
+                    activeSaveHandlerRef={activeSaveHandlerRef}
+                    onViewModeChange={setRightPanelViewMode}
+                  />
+                </div>
+              </SplitterItem>
+            </Splitter>
+          </TabPanelItem>
+          <TabPanelItem title="Related Assets">
+            <Splitter orientation="horizontal" style={{ height: '100%' }} onResize={handleRelatedSplitterResize}>
+              <SplitterItem size="45%" minSize="220px" resizable={true}>
+                <div className="op-now-type-props-list">
+                  <DataListGrid
+                    ref={relatedGridRef}
+                    items={relatedAssetRows}
+                    columns={relatedAssetColumns}
+                    keyExpr="key"
+                    selectedId={null}
+                    onSelect={() => {}}
+                    searchEnabled={false}
+                    noDataText="No related assets for this type."
+                  />
+                </div>
+              </SplitterItem>
+              <SplitterItem resizable={true}>
+                <div className="op-dashboard-card op-now-type-kpi-card">
+                  <RelatedAssetsPreview relatedAssetRows={relatedAssetRows} evidencePoints={evidencePoints} typeDisplayTemplates={typeDisplayTemplates} typePropertyConfigs={typePropertyConfigs} />
+                </div>
+              </SplitterItem>
+            </Splitter>
+          </TabPanelItem>
+        </TabPanel>
       </div>
     </div>
   );
@@ -2340,14 +3174,17 @@ function AttentionRailIcon() {
   );
 }
 
-function NavRail({ mode, hidden, onIconClick, attentionCount, workCount }) {
+function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operatorPersona }) {
   const [expanded, setExpanded] = useState(false);
 
-  const items = [
+  const allItems = [
     { id: 'now', label: 'Now', Icon: NowRailIcon, count: 0 },
     { id: 'attention', label: 'Attention', Icon: AttentionRailIcon, count: attentionCount },
     { id: 'work', label: 'Work', Icon: WorkTabIcon, count: workCount },
   ];
+  const items = operatorPersona === 'configurator'
+    ? allItems.filter(item => item.id === 'now')
+    : allItems.filter(item => item.id !== 'now');
 
   return (
     <div className={`op-nav-rail${expanded ? ' op-nav-rail--expanded' : ''}`}>
@@ -2470,13 +3307,13 @@ const REFINERY_DATA_FILES = [
   ['PROPERTY_RANGES', '/data/refinery/property-ranges.json'],
   ['PROPERTY_TIERS', '/data/refinery/property-tiers.json'],
   ['STATION_FULL_PROPERTIES', '/data/refinery/station-full-properties.json'],
+  ['ASSET_RELATIONSHIPS', '/data/refinery/asset-relationships.json'],
 ];
 
-// Water doesn't have line-telemetry/refinery-telemetry equivalents yet
-// (no train- or plant-level sparklines — a known, discussed gap, not an
-// oversight here) but does have two roles refinery doesn't: its own
-// hierarchy (fetched at runtime rather than statically imported) and
-// equipment-level metrics, the new 4th hierarchy level.
+// Water and wastewater are structurally identical (plant/train/stage/
+// equipment, same 4-level shape) but are two separate models with their
+// own asset hierarchy and data — Meridian (drinking water) and Confluence
+// (wastewater) used to share one "water" model/folder; they're now split.
 const WATER_DATA_FILES = [
   ['ATTENTION_ITEMS', '/data/water/attention-items.json'],
   ['INITIAL_WORK_ITEMS', '/data/water/work-items.json'],
@@ -2497,10 +3334,36 @@ const WATER_DATA_FILES = [
   ['WATER_ASSET_DATA', '/data/water/water-asset-data.json'],
   ['EQUIPMENT_METRICS', '/data/water/equipment-metrics.json'],
   ['EQUIPMENT_TELEMETRY', '/data/water/equipment-telemetry.json'],
+  ['ASSET_RELATIONSHIPS', '/data/water/asset-relationships.json'],
+];
+
+const WASTEWATER_DATA_FILES = [
+  ['ATTENTION_ITEMS', '/data/wastewater/attention-items.json'],
+  ['INITIAL_WORK_ITEMS', '/data/wastewater/work-items.json'],
+  ['LINE_STATUS', '/data/wastewater/line-status.json'],
+  ['OPERATING_CONTEXT_BY_LINE', '/data/wastewater/operating-context.json'],
+  ['LINE_ROLLUPS', '/data/wastewater/line-rollups.json'],
+  ['REFINERY_ROLLUPS', '/data/wastewater/plant-rollups.json'],
+  ['STATION_METRICS', '/data/wastewater/station-metrics.json'],
+  ['STATION_TELEMETRY', '/data/wastewater/station-telemetry.json'],
+  ['LINE_TELEMETRY', '/data/wastewater/line-telemetry.json'],
+  ['REFINERY_TELEMETRY', '/data/wastewater/plant-telemetry.json'],
+  ['STATION_SPARKLINES', '/data/wastewater/station-sparklines.json'],
+  ['PROPERTY_CATEGORIES', '/data/wastewater/property-categories.json'],
+  ['PROPERTY_LABELS', '/data/wastewater/property-labels.json'],
+  ['PROPERTY_RANGES', '/data/wastewater/property-ranges.json'],
+  ['PROPERTY_TIERS', '/data/wastewater/property-tiers.json'],
+  ['STATION_FULL_PROPERTIES', '/data/wastewater/station-full-properties.json'],
+  ['WATER_ASSET_DATA', '/data/wastewater/water-asset-data.json'],
+  ['EQUIPMENT_METRICS', '/data/wastewater/equipment-metrics.json'],
+  ['EQUIPMENT_TELEMETRY', '/data/wastewater/equipment-telemetry.json'],
+  ['ASSET_RELATIONSHIPS', '/data/wastewater/asset-relationships.json'],
 ];
 
 function getDataFilesForModel(model) {
-  return model === 'water' ? WATER_DATA_FILES : REFINERY_DATA_FILES;
+  if (model === 'water') return WATER_DATA_FILES;
+  if (model === 'wastewater') return WASTEWATER_DATA_FILES;
+  return REFINERY_DATA_FILES;
 }
 
 // Roles that exist in one model but not the other — reset to an empty
@@ -2558,12 +3421,22 @@ function assignModelData(name, value) {
     case 'WATER_ASSET_DATA': WATER_ASSET_DATA = value; break;
     case 'EQUIPMENT_METRICS': EQUIPMENT_METRICS = value; break;
     case 'EQUIPMENT_TELEMETRY': EQUIPMENT_TELEMETRY = value; break;
+    case 'ASSET_RELATIONSHIPS': ASSET_RELATIONSHIPS = value; break;
     default: break;
   }
 }
 
-export default function OperatorWorkspace({ selectedModel = 'refinery' }) {
+const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange }, ref) {
   const [dataState, setDataState] = useState({ loaded: false, error: null, loadedModel: null });
+  // Holds whatever "save the current thing" function the deepest-nested
+  // relevant component last registered (currently: NowTypeDetail's type
+  // display template save) — a ref rather than state since updating it
+  // shouldn't itself trigger a re-render here.
+  const activeSaveHandlerRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    save: () => activeSaveHandlerRef.current?.(),
+  }), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -2584,7 +3457,7 @@ export default function OperatorWorkspace({ selectedModel = 'refinery' }) {
         // line/refinery telemetry sitting in those variables untouched.
         resetModelVaryingData();
         files.forEach(([name], i) => assignModelData(name, results[i]));
-        if (selectedModel === 'water') {
+        if (selectedModel === 'water' || selectedModel === 'wastewater') {
           CURRENT_ASSET_DATA = WATER_ASSET_DATA;
           CURRENT_ASSET_MAP = buildAssetMapFromArray(WATER_ASSET_DATA);
         } else {
@@ -2611,15 +3484,26 @@ export default function OperatorWorkspace({ selectedModel = 'refinery' }) {
     return <div className="op-workspace-loading">Loading operator data…</div>;
   }
 
-  // key={selectedModel} forces a full remount on model switch — the inner
-  // component's own state (selected attention item, selected Now asset,
-  // etc.) is initialized from whichever model was loaded, and a stale
-  // selection pointing at an id from the other model would otherwise survive.
-  return <OperatorWorkspaceInner key={selectedModel} />;
-}
+  // key includes both selectedModel and operatorPersona — either one changing
+  // forces a full remount. The inner component's own state (selected
+  // attention item, selected Now asset, railMode's default, etc.) is
+  // initialized based on which model/persona is active, and a stale
+  // selection (an id from the other model, or a railMode hidden under the
+  // new persona) would otherwise survive.
+  return (
+    <OperatorWorkspaceInner
+      key={`${selectedModel}-${operatorPersona}`}
+      operatorPersona={operatorPersona}
+      activeSaveHandlerRef={activeSaveHandlerRef}
+      onSaveAvailabilityChange={onSaveAvailabilityChange}
+    />
+  );
+});
 
-function OperatorWorkspaceInner() {
-  const [railMode, setRailMode] = useState('attention'); // 'attention' | 'work' — drives both the list and detail slots
+export default OperatorWorkspace;
+
+function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveAvailabilityChange }) {
+  const [railMode, setRailMode] = useState(operatorPersona === 'configurator' ? 'now' : 'attention'); // 'now' | 'attention' | 'work' — drives both the list and detail slots; default depends on which rail items this persona can see
   const [leftPanelHidden, setLeftPanelHidden] = useState(false);
   const [issueMapExpanded, setIssueMapExpanded] = useState(false);
   const [selectedDetailLine, setSelectedDetailLine] = useState(null);
@@ -2641,7 +3525,57 @@ function OperatorWorkspaceInner() {
   const [evidenceView, setEvidenceView] = useState('line');
   const [workItems, setWorkItems] = useState(INITIAL_WORK_ITEMS);
   const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0].id);
-  const [selectedNowAssetId, setSelectedNowAssetId] = useState(null);
+  const [selectedNowThing, setSelectedNowThing] = useState(() => loadNowSelection(CURRENT_MODEL));
+  useEffect(() => {
+    onSaveAvailabilityChange?.(selectedNowThing?.kind === 'type');
+  }, [selectedNowThing]);
+  useEffect(() => {
+    saveNowSelection(CURRENT_MODEL, selectedNowThing);
+  }, [selectedNowThing]);
+  // Same DevExtreme requirement as the properties-tab Splitter below — the
+  // Types tab's DataListGrid needs an explicit updateDimensions() call
+  // whenever this outer left/center/right Splitter is dragged, or its
+  // columns can be left oversized (or undersized) relative to the new
+  // panel width.
+  const nowTreePanelRef = useRef(null);
+  const outerSplitterResizeFrame = useRef(null);
+  const handleOuterSplitterResize = () => {
+    cancelAnimationFrame(outerSplitterResizeFrame.current);
+    outerSplitterResizeFrame.current = requestAnimationFrame(() => {
+      nowTreePanelRef.current?.updateDimensions?.();
+    });
+  };
+  // Per-type property visibility overrides (always/sometimes/never), keyed
+  // by type id then property key. Only holds an entry once a user actually
+  // changes a property's visibility for that type — otherwise the default
+  // ("always") is computed fresh each render, not stored. Persisted
+  // immediately on every change (no separate Save step, since the
+  // icon-cycling buttons that set these apply instantly).
+  const [typePropertyConfigs, setTypePropertyConfigs] = useState(() => loadTypePropertyConfigs());
+  useEffect(() => {
+    saveTypePropertyConfigs(typePropertyConfigs);
+  }, [typePropertyConfigs]);
+  // Per-type related-asset visibility overrides (always/never) for the
+  // Related Assets tab — same auto-save-on-change pattern as
+  // typePropertyConfigs above.
+  const [typeRelatedAssetConfigs, setTypeRelatedAssetConfigs] = useState(() => loadTypeRelatedAssetConfigs());
+  useEffect(() => {
+    saveTypeRelatedAssetConfigs(typeRelatedAssetConfigs);
+  }, [typeRelatedAssetConfigs]);
+  // Per-type display template (view mode, flow direction, wrap, align
+  // content) — persisted to localStorage explicitly via a Save action, not
+  // auto-saved on every click. Hydrated once on mount so it survives a
+  // page refresh.
+  const [typeDisplayTemplates, setTypeDisplayTemplates] = useState(() => loadTypeDisplayTemplates());
+  const handleSaveTypeDisplayTemplate = (typeId, template) => {
+    setTypeDisplayTemplates(prev => {
+      const next = { ...prev, [typeId]: template };
+      saveTypeDisplayTemplates(next);
+      return next;
+    });
+    notify('Template saved', 'success', 2000);
+  };
+  const nowTypeList = useMemo(() => buildTypeList(CURRENT_ASSET_DATA), []);
 
   const [rightPanelMode, setRightPanelMode] = useState('chat'); // 'chat' | 'ai' — drives the right rail + right panel
   const [rightPanelHidden, setRightPanelHidden] = useState(true);
@@ -2753,27 +3687,29 @@ function OperatorWorkspaceInner() {
         </div>
       )}
 
-      <div className="op-now-section" ref={nowSectionRef}>
-        <NowStrip
-          selectedLine={selectedDetailLine}
-          onSelectLine={(lineId) => {
-            if (selectedDetailLine === lineId) {
-              setSelectedDetailLine(null);
-            } else {
-              setSelectedDetailLine(lineId);
-              setIssueMapExpanded(true);
-            }
-          }}
-        />
-        <IssueMapOverlay
-          expanded={issueMapExpanded}
-          onToggle={() => setIssueMapExpanded(e => !e)}
-          onSelectIssue={handleSelectIssueFromMap}
-          selectedDetailLine={selectedDetailLine}
-          onCloseDetailLine={() => setSelectedDetailLine(null)}
-          topOffset={nowSectionBottom}
-        />
-      </div>
+      {operatorPersona !== 'configurator' && (
+        <div className="op-now-section" ref={nowSectionRef}>
+          <NowStrip
+            selectedLine={selectedDetailLine}
+            onSelectLine={(lineId) => {
+              if (selectedDetailLine === lineId) {
+                setSelectedDetailLine(null);
+              } else {
+                setSelectedDetailLine(lineId);
+                setIssueMapExpanded(true);
+              }
+            }}
+          />
+          <IssueMapOverlay
+            expanded={issueMapExpanded}
+            onToggle={() => setIssueMapExpanded(e => !e)}
+            onSelectIssue={handleSelectIssueFromMap}
+            selectedDetailLine={selectedDetailLine}
+            onCloseDetailLine={() => setSelectedDetailLine(null)}
+            topOffset={nowSectionBottom}
+          />
+        </div>
+      )}
 
       <div className="op-main-row">
         <NavRail
@@ -2782,13 +3718,14 @@ function OperatorWorkspaceInner() {
           onIconClick={handleLeftIconClick}
           attentionCount={newAttentionItems.length}
           workCount={newWorkItems.length}
+          operatorPersona={operatorPersona}
         />
 
-        <Splitter orientation="horizontal" style={{ flex: 1, minHeight: 0 }}>
+        <Splitter orientation="horizontal" style={{ flex: 1, minHeight: 0 }} onResize={handleOuterSplitterResize}>
           {!leftPanelHidden && (
             <SplitterItem size="320px" minSize="240px" resizable={true}>
               {railMode === 'now' ? (
-                <NowAssetTreePanel selectedId={selectedNowAssetId} onSelect={setSelectedNowAssetId} />
+                <NowAssetTreePanel ref={nowTreePanelRef} selectedThing={selectedNowThing} onSelectThing={setSelectedNowThing} typeList={nowTypeList} />
               ) : railMode === 'attention' ? (
                 <AttentionPanel selectedId={selectedAttentionId} onSelect={setSelectedAttentionId} />
               ) : (
@@ -2804,7 +3741,17 @@ function OperatorWorkspaceInner() {
           )}
           <SplitterItem resizable={true}>
             {railMode === 'now' ? (
-              <NowAssetDetail assetId={selectedNowAssetId} />
+              <NowAssetDetail
+                selectedThing={selectedNowThing}
+                typeList={nowTypeList}
+                typePropertyConfigs={typePropertyConfigs}
+                setTypePropertyConfigs={setTypePropertyConfigs}
+                typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
+                typeDisplayTemplates={typeDisplayTemplates}
+                onSaveTypeDisplayTemplate={handleSaveTypeDisplayTemplate}
+                activeSaveHandlerRef={activeSaveHandlerRef}
+              />
             ) : railMode === 'attention' ? (
               <InvestigatePanel item={selectedItem} onCreateWorkItem={handleCreateWorkItem} evidenceView={evidenceView} setEvidenceView={setEvidenceView} />
             ) : (

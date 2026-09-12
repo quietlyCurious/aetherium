@@ -1,0 +1,230 @@
+{
+  "sludge_blanket_level_pct": [
+    10,
+    65
+  ],
+  "chlorine_residual_mg_l": [
+    0.5,
+    1.8
+  ],
+  "ct_value_actual": [
+    100,
+    170
+  ],
+  "screenings_removal_rate_ft3_mg": [
+    3,
+    8
+  ],
+  "grit_removal_efficiency_pct": [
+    85,
+    98
+  ],
+  "influent_flow_variability": [
+    0,
+    25
+  ],
+  "odor_index": [
+    0,
+    35
+  ],
+  "primary_tss_removal_pct": [
+    40,
+    75
+  ],
+  "primary_bod_removal_pct": [
+    20,
+    45
+  ],
+  "scum_removal_rate": [
+    85,
+    100
+  ],
+  "surge_control_index": [
+    0,
+    25
+  ],
+  "dissolved_oxygen_mg_l": [
+    0,
+    4
+  ],
+  "mlss_mg_l": [
+    2200,
+    3400
+  ],
+  "blower_air_flow_scfm": [
+    3500,
+    4900
+  ],
+  "food_to_microorganism_ratio": [
+    0.15,
+    0.45
+  ],
+  "sludge_age_days": [
+    6,
+    13
+  ],
+  "secondary_tss_removal_pct": [
+    78,
+    96
+  ],
+  "sludge_settleability_svi": [
+    70,
+    160
+  ],
+  "ras_rate_pct": [
+    30,
+    60
+  ],
+  "clarifier_torque_pct": [
+    30,
+    80
+  ],
+  "effluent_fecal_coliform_risk": [
+    0,
+    25
+  ],
+  "dechlorination_residual_mg_l": [
+    0,
+    0.15
+  ],
+  "vibration_mms": [
+    0,
+    6
+  ],
+  "bearing_temp_c": [
+    30,
+    90
+  ],
+  "motor_current_a": [
+    0,
+    20
+  ],
+  "process_motor_current_a": [
+    10,
+    45
+  ],
+  "discharge_pressure_psi": [
+    0,
+    50
+  ],
+  "blower_discharge_pressure_psi": [
+    4,
+    10
+  ],
+  "flow_rate_gpm": [
+    100,
+    500
+  ],
+  "dosing_flow_rate_gpm": [
+    0,
+    8
+  ],
+  "differential_pressure_psi": [
+    0,
+    5
+  ],
+  "rake_motor_torque_pct": [
+    0,
+    100
+  ],
+  "cleaning_cycles_per_hr": [
+    0,
+    8
+  ],
+  "level_pct": [
+    40,
+    100
+  ],
+  "travel_speed_pct": [
+    0,
+    100
+  ],
+  "cycle_time_min": [
+    5,
+    30
+  ],
+  "air_flow_scfm": [
+    500,
+    3000
+  ],
+  "discharge_temp_c": [
+    40,
+    100
+  ],
+  "backpressure_psi": [
+    0,
+    4
+  ],
+  "air_distribution_uniformity_pct": [
+    70,
+    100
+  ],
+  "residual_offset_mg_l": [
+    -0.5,
+    0.5
+  ],
+  "line_throughput": [
+    3,
+    7
+  ],
+  "line_target_rate": [
+    3,
+    7
+  ],
+  "line_oee": [
+    93,
+    100
+  ],
+  "line_availability": [
+    96,
+    100
+  ],
+  "line_quality_factor": [
+    97,
+    100
+  ],
+  "total_wip": [
+    15,
+    45
+  ],
+  "instability_index": [
+    0,
+    15
+  ],
+  "system_health_index": [
+    92,
+    100
+  ],
+  "flow_efficiency": [
+    95,
+    102
+  ],
+  "plant_throughput": [
+    15,
+    45
+  ],
+  "plant_target_rate": [
+    15,
+    45
+  ],
+  "plant_oee": [
+    90,
+    100
+  ],
+  "plant_availability": [
+    95,
+    100
+  ],
+  "plant_quality_factor": [
+    95,
+    100
+  ],
+  "plant_health_index": [
+    88,
+    100
+  ],
+  "plant_instability_index": [
+    0,
+    20
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "CONFLUENCE_CON_T01",
+    "label": "Confluence \u00b7 T01",
+    "state": "attention",
+    "statusSinceMinutes": 305
+  },
+  {
+    "id": "CONFLUENCE_CON_T02",
+    "label": "Confluence \u00b7 T02",
+    "state": "running",
+    "statusSinceMinutes": 115
+  },
+  {
+    "id": "CONFLUENCE_CON_T03",
+    "label": "Confluence \u00b7 T03",
+    "state": "running",
+    "statusSinceMinutes": 200
+  },
+  {
+    "id": "CONFLUENCE_CON_T04",
+    "label": "Confluence \u00b7 T04",
+    "state": "attention",
+    "statusSinceMinutes": 55
+  },
+  {
+    "id": "CONFLUENCE_CON_T05",
+    "label": "Confluence \u00b7 T05",
+    "state": "running",
+    "statusSinceMinutes": 120
+  },
+  {
+    "id": "CONFLUENCE_CON_T06",
+    "label": "Confluence \u00b7 T06",
+    "state": "running",
+    "statusSinceMinutes": 365
+  }
+]

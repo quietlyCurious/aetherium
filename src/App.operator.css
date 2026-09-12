@@ -451,7 +451,8 @@
   gap: 1px;
 }
 
-.op-hmiprops .op-statkpi--row {
+.op-hmiprops .op-statkpi--row,
+.op-hmiprops-singlebox .op-statkpi--row {
   flex-direction: row;
   align-items: center;
   gap: 10px;
@@ -461,7 +462,7 @@
   position: relative;
   width: 8px;
   align-self: stretch;
-  min-height: 60px;
+  height: 60px;
   background: #3a4152;
   border-radius: 2px;
   flex-shrink: 0;
@@ -491,21 +492,25 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
-  width: 90px;
+  width: 110px;
+  height: 36px;
   min-width: 0;
   flex-shrink: 0;
   overflow-wrap: break-word;
 }
 
-.op-hmiprops .op-statkpi-vtrack {
+.op-hmiprops .op-statkpi-vtrack,
+.op-hmiprops-singlebox .op-statkpi-vtrack {
   background: #e5e5e5;
 }
 
-.op-hmiprops .op-statkpi-vtrack-observed {
+.op-hmiprops .op-statkpi-vtrack-observed,
+.op-hmiprops-singlebox .op-statkpi-vtrack-observed {
   background: #b8c2d9;
 }
 
-.op-hmiprops .op-statkpi-vtrack-marker {
+.op-hmiprops .op-statkpi-vtrack-marker,
+.op-hmiprops-singlebox .op-statkpi-vtrack-marker {
   border-left-color: #0078d4;
 }
 
@@ -555,10 +560,11 @@
 .op-statkpi-spark {
   margin: 2px 0;
   flex-shrink: 0;
+  height: 60px;
+  width: 120px;
 }
 
 .op-statkpi--row .op-statkpi-spark {
-  flex: 1;
   min-width: 0;
   height: 60px;
   margin: 0;
@@ -585,6 +591,30 @@
   min-height: 0;
 }
 
+/* Type-properties mode gets a real, bounded height/width cascading all the
+   way down to .op-hmiprops-kpis, applied the same way regardless of which
+   flowDirection/flowWrap combination is selected. This lets general
+   flexbox rules (flex-direction, flex-wrap) determine the actual layout
+   from real available space, rather than needing separate handling per
+   combination. Scoped to type-properties mode specifically — Box/Space
+   mode's own card-based layout is a different context and is untouched. */
+.op-hmiprops-wrap--typeflow {
+  height: 100%;
+}
+
+.op-hmiprops-singlebox--typeflow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.op-hmiprops-singlebox--typeflow .op-hmiprops-kpis--typeflow {
+  height: 100%;
+  width: 100%;
+}
+
 .op-statkpi--text {
   display: flex;
   flex-direction: column;
@@ -592,6 +622,11 @@
   justify-content: center;
   gap: 4px;
   padding: 10px 4px;
+  padding-right: 10px;
+  width: 120px;
+  height: 60px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .op-statkpi--indicator {
@@ -621,11 +656,31 @@
   padding: 8px 10px;
 }
 
+.op-visibility-cycle-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.op-visibility-cycle-btn:hover {
+  color: #0078d4;
+}
+
 .op-hmiprops-singlebox {
   border: 1px solid #e5e5e5;
   border-radius: 3px;
   padding: 10px 12px;
   margin-top: 14px;
+}
+
+.op-hmiprops-kpis--flowrow {
+  overflow-x: auto;
 }
 
 .op-hmiprops-singlebox .op-hmiprops {
@@ -684,21 +739,8 @@
 .op-hmiprops-kpis--text {
   flex-direction: column;
   flex-wrap: wrap;
-  align-content: flex-start;
   height: 124px; /* exactly two rows worth of items + gap — a third wraps to a new column */
   gap: 8px;
-}
-
-/* Three-class specificity needed to beat the pre-existing
-   .op-hmiprops .op-statkpi { width: 100% } rule, which otherwise forces
-   every tile to full width regardless of mode. */
-.op-hmiprops--text .op-hmiprops-kpis--text .op-statkpi--text {
-  width: auto;
-  min-width: 76px;
-  height: 58px;
-  box-sizing: border-box;
-  flex-shrink: 0;
-  padding-right: 10px;
 }
 
 .op-hmiprops-kpis--indicator {
@@ -707,49 +749,58 @@
   gap: 12px;
 }
 
-.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi--indicator {
+.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi--indicator,
+.op-hmiprops-singlebox .op-hmiprops-kpis--indicator .op-statkpi--indicator {
   width: 60px;
   flex-shrink: 0;
   align-items: center;
 }
 
-.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi-label {
+.op-hmiprops .op-hmiprops-kpis--indicator .op-statkpi-label,
+.op-hmiprops-singlebox .op-hmiprops-kpis--indicator .op-statkpi-label {
   max-width: 60px;
   text-align: center;
   white-space: normal;
 }
 
-.op-hmiprops .op-statkpi {
+.op-hmiprops .op-statkpi,
+.op-hmiprops-singlebox .op-statkpi {
   align-items: flex-start;
-  width: 100%;
   gap: 3px;
 }
 
-.op-hmiprops .op-statkpi-label {
+.op-hmiprops .op-statkpi-label,
+.op-hmiprops-singlebox .op-statkpi-label {
   text-align: left;
   font-size: 10px;
 }
 
 /* StatTile was built for the dark Now/Line-Detail pulldown — the value
    color needs to flip for legibility here, since the Investigate card
-   this renders in is light-themed. */
-.op-hmiprops .op-statkpi-value {
+   this renders in (and the type-properties singlebox layout) is
+   light-themed. */
+.op-hmiprops .op-statkpi-value,
+.op-hmiprops-singlebox .op-statkpi-value {
   color: #222;
 }
 
-.op-hmiprops .op-statkpi-track {
+.op-hmiprops .op-statkpi-track,
+.op-hmiprops-singlebox .op-statkpi-track {
   background: #e5e5e5;
 }
 
-.op-hmiprops .op-statkpi-track-observed {
+.op-hmiprops .op-statkpi-track-observed,
+.op-hmiprops-singlebox .op-statkpi-track-observed {
   background: #b8c2d9;
 }
 
-.op-hmiprops .op-statkpi-track-marker {
+.op-hmiprops .op-statkpi-track-marker,
+.op-hmiprops-singlebox .op-statkpi-track-marker {
   border-top-color: #0078d4;
 }
 
-.op-hmiprops .op-statkpi-track-labels {
+.op-hmiprops .op-statkpi-track-labels,
+.op-hmiprops-singlebox .op-statkpi-track-labels {
   color: #999;
 }
 
@@ -872,6 +923,15 @@
   overflow: auto;
 }
 
+/* Overrides the shared .left-panel-tab-content padding (used by many other
+   workspaces — Data Sources, Queries, etc.) specifically for the Now area's
+   Types/Assets tab content, so the types table lines up with the properties
+   table in the center pane. Scoped narrowly rather than changing the shared
+   rule itself. */
+.op-now-tree-tab-content {
+  padding: 0;
+}
+
 .op-now-detail-empty {
   align-items: center;
   justify-content: center;
@@ -893,6 +953,128 @@
 .op-now-asset-kpi-card {
   flex: 1;
   overflow-y: auto;
+}
+
+.op-now-type-tabs {
+  flex: 1;
+  min-height: 0;
+}
+
+.op-now-type-props-list {
+  height: 100%;
+}
+
+.op-now-type-kpi-card {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.op-related-assets-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* flex-direction/flex-wrap/align-content set inline from RelatedAssetsPreview's
+   own row/column, wrap, and cluster/distribute controls — same mechanism as
+   .op-hmiprops-kpis--typeflow uses for individual property tiles, just one
+   level up (boxes instead of tiles). */
+.op-related-assets-box-flow {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.op-related-asset-box {
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+
+.op-related-asset-box-kpis {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.op-related-asset-box-kpis--indicator {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.op-related-asset-box-kpis--indicator .op-statkpi--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.op-related-asset-box-kpis--indicator .op-statkpi-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
+}
+
+/* StatTile's base styling (color: #e4e6eb text, #3a4152 track background)
+   was built for the dark Now/Line-Detail pulldown — .op-hmiprops and
+   .op-hmiprops-singlebox already flip these for their own light-themed
+   contexts (see the comment above their versions of these rules); these
+   boxes need the identical flip, since they render the same StatTile
+   component but aren't nested inside either of those wrappers. Mirrors
+   those rules' values rather than sharing the selector, since this box
+   has its own border/padding/margin that .op-hmiprops-singlebox would
+   otherwise also carry in. */
+.op-related-asset-box .op-statkpi--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.op-related-asset-box .op-statkpi {
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.op-related-asset-box .op-statkpi-label {
+  text-align: left;
+  font-size: 10px;
+}
+
+.op-related-asset-box .op-statkpi-value {
+  color: #222;
+}
+
+.op-related-asset-box .op-statkpi-vtrack {
+  background: #e5e5e5;
+}
+
+.op-related-asset-box .op-statkpi-vtrack-observed {
+  background: #b8c2d9;
+}
+
+.op-related-asset-box .op-statkpi-vtrack-marker {
+  border-left-color: #0078d4;
+}
+
+.op-related-asset-box .op-statkpi-track {
+  background: #e5e5e5;
+}
+
+.op-related-asset-box .op-statkpi-track-observed {
+  background: #b8c2d9;
+}
+
+.op-related-asset-box .op-statkpi-track-marker {
+  border-top-color: #0078d4;
+}
+
+.op-related-asset-box .op-statkpi-track-labels {
+  color: #999;
 }
 
 .op-investigate-panel {
@@ -1422,6 +1604,32 @@
 .op-dash-chart-toggle {
   flex-shrink: 0;
   align-self: flex-start;
+}
+
+/* Always/Sometimes/All slider, replacing the button-group version in
+   type-properties mode. Needs headroom above (tooltip showing the current
+   state) and below (Always/All end labels) beyond the slider track itself,
+   plus enough horizontal room to actually be draggable. No tooltip above
+   the handle (removed to keep the control's height down), so only the
+   Always/All end labels below need headroom, not space above too. Also
+   set inline on the element itself in OperatorWorkspace.jsx as a
+   belt-and-suspenders measure so it can't collapse if this stylesheet
+   fails to load. */
+.op-tierfilter-slider-wrap {
+  flex-shrink: 0;
+  width: 220px;
+  padding: 4px 8px 20px;
+  box-sizing: border-box;
+}
+
+.op-tierfilter-slider {
+  width: 100%;
+}
+
+.op-icon-btn-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .op-evidence-table {

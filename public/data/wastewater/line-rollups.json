@@ -1,0 +1,74 @@
+{
+  "CONFLUENCE_CON_T01": {
+    "line_throughput": 5.644,
+    "line_target_rate": 5.8,
+    "line_oee": 95.18,
+    "line_availability": 98.94,
+    "line_quality_factor": 98.85,
+    "total_wip": 31.5,
+    "bottleneck_station": "SECONDARYCLARIFIER",
+    "instability_index": 7.33,
+    "system_health_index": 95.18,
+    "flow_efficiency": 98.94
+  },
+  "CONFLUENCE_CON_T02": {
+    "line_throughput": 5.659,
+    "line_target_rate": 5.8,
+    "line_oee": 95.13,
+    "line_availability": 98.79,
+    "line_quality_factor": 98.67,
+    "total_wip": 31.9,
+    "bottleneck_station": "SECONDARYCLARIFIER",
+    "instability_index": 6.83,
+    "system_health_index": 95.13,
+    "flow_efficiency": 98.79
+  },
+  "CONFLUENCE_CON_T03": {
+    "line_throughput": 5.666,
+    "line_target_rate": 5.8,
+    "line_oee": 95.2,
+    "line_availability": 98.71,
+    "line_quality_factor": 98.72,
+    "total_wip": 28.8,
+    "bottleneck_station": "PRIMARYCLARIFIER",
+    "instability_index": 7.61,
+    "system_health_index": 95.2,
+    "flow_efficiency": 98.71
+  },
+  "CONFLUENCE_CON_T04": {
+    "line_throughput": 5.649,
+    "line_target_rate": 5.8,
+    "line_oee": 95.05,
+    "line_availability": 98.89,
+    "line_quality_factor": 98.68,
+    "total_wip": 29.7,
+    "bottleneck_station": "SECONDARYCLARIFIER",
+    "instability_index": 6.02,
+    "system_health_index": 95.05,
+    "flow_efficiency": 98.89
+  },
+  "CONFLUENCE_CON_T05": {
+    "line_throughput": 5.713,
+    "line_target_rate": 5.8,
+    "line_oee": 95.95,
+    "line_availability": 98.66,
+    "line_quality_factor": 98.72,
+    "total_wip": 29.1,
+    "bottleneck_station": "SECONDARYCLARIFIER",
+    "instability_index": 5.71,
+    "system_health_index": 95.95,
+    "flow_efficiency": 98.66
+  },
+  "CONFLUENCE_CON_T06": {
+    "line_throughput": 5.676,
+    "line_target_rate": 5.8,
+    "line_oee": 95.28,
+    "line_availability": 98.69,
+    "line_quality_factor": 98.65,
+    "total_wip": 33.5,
+    "bottleneck_station": "SECONDARYCLARIFIER",
+    "instability_index": 4.56,
+    "system_health_index": 95.28,
+    "flow_efficiency": 98.69
+  }
+}

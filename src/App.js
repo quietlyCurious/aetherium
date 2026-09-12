@@ -38,6 +38,7 @@ import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage';
+import { loadOperatorNavigation, saveOperatorNavigation } from './operatorNavigationStorage';
 import ThemeWorkspace from './ThemeWorkspace';
 import OperatorWorkspace from './OperatorWorkspace';
 import DataListGrid from './DataListGrid';
@@ -282,6 +283,16 @@ function AetheriumEditor() {
     setMenuOpen(false);
   };
 
+  // Operator Interface and Configurator Interface both land on the same
+  // underlying workspace (currentView stays 'operator') — only the persona
+  // changes, which controls which rail items that workspace shows.
+  const handleNavigateOperatorPersona = (persona) => {
+    if (!confirmDiscardIfDirty()) return;
+    setCurrentView('operator');
+    setOperatorPersona(persona);
+    setMenuOpen(false);
+  };
+
   const handleCreatePage = () => {
     if (!confirmDiscardIfDirty()) return;
     const name = window.prompt('Name this screen:', `Screen ${pages.length + 1}`);
@@ -440,13 +451,17 @@ function AetheriumEditor() {
   const [focusMode, setFocusMode] = useState('follow');
   const [showGap, setShowGap] = useState(true);
   const [coordMode, setCoordMode] = useState('reposition');
-  const [currentView, setCurrentView] = useState('screens'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator'
+  const [currentView, setCurrentView] = useState(() => (
+    loadOperatorNavigation()?.currentView === 'operator' ? 'operator' : 'screens'
+  )); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator'
+  const [operatorPersona, setOperatorPersona] = useState(() => loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
   const [menuOpen, setMenuOpen] = useState(false);
   const AVAILABLE_MODELS = [
     { id: 'refinery', label: 'Refinery' },
-    { id: 'water', label: 'Water / Wastewater' },
+    { id: 'water', label: 'Water' },
+    { id: 'wastewater', label: 'Wastewater' },
   ];
-  const [selectedModel, setSelectedModel] = useState('refinery');
+  const [selectedModel, setSelectedModel] = useState(() => loadOperatorNavigation()?.selectedModel || 'refinery');
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [selectedWidgetName, setSelectedWidgetName] = useState(null);
   // Breakpoint / device preview
@@ -468,6 +483,12 @@ function AetheriumEditor() {
   const entitiesWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger entity-data save
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
+  const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
+  const [operatorSaveAvailable, setOperatorSaveAvailable] = useState(false); // whether a type is currently selected (Now area's Types tab) — mirrors the same static, per-context enablement pattern the other workspaces already use, not new dirty-tracking
+
+  React.useEffect(() => {
+    saveOperatorNavigation({ currentView, operatorPersona, selectedModel });
+  }, [currentView, operatorPersona, selectedModel]);
   const [queries,          setQueries]          = useState(() => loadQueries());  // Query definitions
   const [scripts,          setScripts]          = useState([]);  // Script definitions (Phase 3+)
   // Page-scoped and app-scoped instances (flat array, each tagged with pageId):
@@ -1413,10 +1434,16 @@ function AetheriumEditor() {
               </div>
               <div className="app-titlebar-dropdown-divider" />
               <div
-                className={`app-titlebar-dropdown-item${currentView === 'operator' ? ' active' : ''}`}
-                onClick={() => handleNavigate('operator')}
+                className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'operator' ? ' active' : ''}`}
+                onClick={() => handleNavigateOperatorPersona('operator')}
               >
                 Operator Interface
+              </div>
+              <div
+                className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'configurator' ? ' active' : ''}`}
+                onClick={() => handleNavigateOperatorPersona('configurator')}
+              >
+                Configurator Interface
               </div>
             </div>
           )}
@@ -1450,11 +1477,14 @@ function AetheriumEditor() {
           </button>
         )}
         {(() => {
-          // Launch/Save are both hidden entirely for 'operator' — this is a
-          // concept shell with no page/save concept of its own yet, and the
-          // person asked to have both controls hidden (not just disabled)
-          // for this view specifically.
-          if (currentView === 'operator') return null;
+          // Launch stays hidden entirely for 'operator' regardless of
+          // persona — this is a concept shell with no page/runtime-view
+          // concept of its own. Save now also renders for the configurator
+          // persona specifically, since that's where a type's display
+          // template gets saved; it stays hidden for the operator persona,
+          // matching the original "hidden, not just disabled" intent for
+          // personas that have nothing to save here.
+          if (currentView === 'operator' && operatorPersona !== 'configurator') return null;
 
           // Only 'screens' and 'entities' have a title-bar Save concept.
           // Everything else (widgets, theme, datasources, queries, scripts)
@@ -1462,22 +1492,30 @@ function AetheriumEditor() {
           // save at all — this used to silently fall through to the PAGE
           // save handler for all of those, which is how phantom pages named
           // after whatever was being tested on another screen got created.
-          const saveInfo = {
-            screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },
-            entities:     { enabled: true,  label: 'Save entity data' },
-            datasources:  { enabled: true,  label: 'Save this data source' },
-            queries:      { enabled: true,  label: 'Save this query' },
-            theme:        { enabled: false, label: 'Nothing to save on this screen' },
-            widgets:      { enabled: false, label: 'Nothing to save on this screen' },
-            scripts:      { enabled: false, label: 'Nothing to save on this screen' },
-            operator:     { enabled: false, label: 'Nothing to save on this screen' },
-          }[currentView] || { enabled: false, label: 'Nothing to save on this screen' };
+          const saveInfo = currentView === 'operator'
+            ? {
+                enabled: operatorSaveAvailable,
+                label: operatorSaveAvailable
+                  ? "Save this type's display template"
+                  : 'Select a type in the Now area to save its display template',
+              }
+            : {
+                screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },
+                entities:     { enabled: true,  label: 'Save entity data' },
+                datasources:  { enabled: true,  label: 'Save this data source' },
+                queries:      { enabled: true,  label: 'Save this query' },
+                theme:        { enabled: false, label: 'Nothing to save on this screen' },
+                widgets:      { enabled: false, label: 'Nothing to save on this screen' },
+                scripts:      { enabled: false, label: 'Nothing to save on this screen' },
+              }[currentView] || { enabled: false, label: 'Nothing to save on this screen' };
 
           return (
             <button
               onClick={() => {
                 if (!saveInfo.enabled) return;
-                if (currentView === 'entities') {
+                if (currentView === 'operator') {
+                  operatorWorkspaceRef.current?.save();
+                } else if (currentView === 'entities') {
                   entitiesWorkspaceRef.current?.save();
                 } else if (currentView === 'datasources') {
                   dataSourcesWorkspaceRef.current?.save();
@@ -1655,7 +1693,7 @@ function AetheriumEditor() {
           </div>
 
         ) : currentView === 'operator' ? (
-          <OperatorWorkspace selectedModel={selectedModel} />
+          <OperatorWorkspace ref={operatorWorkspaceRef} selectedModel={selectedModel} operatorPersona={operatorPersona} onSaveAvailabilityChange={setOperatorSaveAvailable} />
 
         ) : (
           <Splitter orientation="horizontal" style={{ height: '100%' }}>

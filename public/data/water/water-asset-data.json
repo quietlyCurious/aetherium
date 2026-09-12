@@ -24,14 +24,14 @@
     "id": "MERIDIAN_T01_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T01_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T01_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -45,21 +45,21 @@
     "id": "MERIDIAN_T01_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T01_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T01_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T01_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -73,14 +73,14 @@
     "id": "MERIDIAN_T01_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T01_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T01_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -94,14 +94,14 @@
     "id": "MERIDIAN_T01_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T01_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T01_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -115,14 +115,14 @@
     "id": "MERIDIAN_T01_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T01_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T01_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -136,21 +136,21 @@
     "id": "MERIDIAN_T01_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T01_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T01_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T01_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T01_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   },
   {
@@ -171,14 +171,14 @@
     "id": "MERIDIAN_T02_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T02_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T02_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -192,21 +192,21 @@
     "id": "MERIDIAN_T02_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T02_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T02_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T02_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -220,14 +220,14 @@
     "id": "MERIDIAN_T02_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T02_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T02_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -241,14 +241,14 @@
     "id": "MERIDIAN_T02_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T02_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T02_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -262,14 +262,14 @@
     "id": "MERIDIAN_T02_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T02_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T02_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -283,21 +283,21 @@
     "id": "MERIDIAN_T02_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T02_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T02_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T02_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T02_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   },
   {
@@ -318,14 +318,14 @@
     "id": "MERIDIAN_T03_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T03_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T03_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -339,21 +339,21 @@
     "id": "MERIDIAN_T03_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T03_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T03_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T03_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -367,14 +367,14 @@
     "id": "MERIDIAN_T03_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T03_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T03_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -388,14 +388,14 @@
     "id": "MERIDIAN_T03_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T03_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T03_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -409,14 +409,14 @@
     "id": "MERIDIAN_T03_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T03_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T03_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -430,21 +430,21 @@
     "id": "MERIDIAN_T03_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T03_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T03_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T03_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T03_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   },
   {
@@ -465,14 +465,14 @@
     "id": "MERIDIAN_T04_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T04_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T04_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -486,21 +486,21 @@
     "id": "MERIDIAN_T04_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T04_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T04_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T04_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -514,14 +514,14 @@
     "id": "MERIDIAN_T04_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T04_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T04_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -535,14 +535,14 @@
     "id": "MERIDIAN_T04_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T04_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T04_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -556,14 +556,14 @@
     "id": "MERIDIAN_T04_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T04_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T04_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -577,21 +577,21 @@
     "id": "MERIDIAN_T04_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T04_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T04_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T04_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T04_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   },
   {
@@ -612,14 +612,14 @@
     "id": "MERIDIAN_T05_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T05_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T05_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -633,21 +633,21 @@
     "id": "MERIDIAN_T05_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T05_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T05_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T05_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -661,14 +661,14 @@
     "id": "MERIDIAN_T05_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T05_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T05_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -682,14 +682,14 @@
     "id": "MERIDIAN_T05_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T05_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T05_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -703,14 +703,14 @@
     "id": "MERIDIAN_T05_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T05_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T05_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -724,21 +724,21 @@
     "id": "MERIDIAN_T05_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T05_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T05_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T05_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T05_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   },
   {
@@ -759,14 +759,14 @@
     "id": "MERIDIAN_T06_INTAKE_INTAKESCREEN",
     "parentId": "MERIDIAN_T06_INTAKE",
     "name": "Intake Screen",
-    "assetType": "equipment",
+    "assetType": "intake_screen",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_INTAKE_RAWWATERPUMP",
     "parentId": "MERIDIAN_T06_INTAKE",
     "name": "Raw Water Pump",
-    "assetType": "equipment",
+    "assetType": "raw_water_pump",
     "assetLevel": "equipment"
   },
   {
@@ -780,21 +780,21 @@
     "id": "MERIDIAN_T06_COAGULATION_COAGULANTSTORAGETANK",
     "parentId": "MERIDIAN_T06_COAGULATION",
     "name": "Coagulant Storage Tank",
-    "assetType": "equipment",
+    "assetType": "coagulant_storage_tank",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_COAGULATION_COAGULANTMETERINGPUMP",
     "parentId": "MERIDIAN_T06_COAGULATION",
     "name": "Coagulant Metering Pump",
-    "assetType": "equipment",
+    "assetType": "coagulant_metering_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_COAGULATION_RAPIDMIXBASIN",
     "parentId": "MERIDIAN_T06_COAGULATION",
     "name": "Rapid Mix Basin",
-    "assetType": "equipment",
+    "assetType": "rapid_mix_basin",
     "assetLevel": "equipment"
   },
   {
@@ -808,14 +808,14 @@
     "id": "MERIDIAN_T06_FLOCCULATION_FLOCCULATIONBASIN",
     "parentId": "MERIDIAN_T06_FLOCCULATION",
     "name": "Flocculation Basin",
-    "assetType": "equipment",
+    "assetType": "flocculation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_FLOCCULATION_PADDLEMIXER",
     "parentId": "MERIDIAN_T06_FLOCCULATION",
     "name": "Paddle Mixer",
-    "assetType": "equipment",
+    "assetType": "paddle_mixer",
     "assetLevel": "equipment"
   },
   {
@@ -829,14 +829,14 @@
     "id": "MERIDIAN_T06_SEDIMENTATION_SEDIMENTATIONBASIN",
     "parentId": "MERIDIAN_T06_SEDIMENTATION",
     "name": "Sedimentation Basin",
-    "assetType": "equipment",
+    "assetType": "sedimentation_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_SEDIMENTATION_SLUDGECOLLECTOR",
     "parentId": "MERIDIAN_T06_SEDIMENTATION",
     "name": "Sludge Collector",
-    "assetType": "equipment",
+    "assetType": "sludge_collector",
     "assetLevel": "equipment"
   },
   {
@@ -850,14 +850,14 @@
     "id": "MERIDIAN_T06_FILTRATION_FILTERBED",
     "parentId": "MERIDIAN_T06_FILTRATION",
     "name": "Filter Bed",
-    "assetType": "equipment",
+    "assetType": "filter_bed",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_FILTRATION_BACKWASHPUMP",
     "parentId": "MERIDIAN_T06_FILTRATION",
     "name": "Backwash Pump",
-    "assetType": "equipment",
+    "assetType": "backwash_pump",
     "assetLevel": "equipment"
   },
   {
@@ -871,910 +871,21 @@
     "id": "MERIDIAN_T06_DISINFECTION_CHLORINECONTACTBASIN",
     "parentId": "MERIDIAN_T06_DISINFECTION",
     "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
+    "assetType": "chlorine_contact_basin",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_DISINFECTION_CHLORINEFEEDPUMP",
     "parentId": "MERIDIAN_T06_DISINFECTION",
     "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
+    "assetType": "chlorine_feed_pump",
     "assetLevel": "equipment"
   },
   {
     "id": "MERIDIAN_T06_DISINFECTION_CHLORINESTORAGETANK",
     "parentId": "MERIDIAN_T06_DISINFECTION",
     "name": "Chlorine Storage Tank",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE",
-    "parentId": null,
-    "name": "Confluence",
-    "assetType": "plant",
-    "assetLevel": "plant"
-  },
-  {
-    "id": "CONFLUENCE_T01",
-    "parentId": "CONFLUENCE",
-    "name": "T01",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRELIMINARY",
-    "parentId": "CONFLUENCE_T01",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T01_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T01_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T01_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T01",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_AERATION",
-    "parentId": "CONFLUENCE_T01",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T01_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T01_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T01_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T01_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T01",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_DISINFECTION",
-    "parentId": "CONFLUENCE_T01",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T01_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T01_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T01_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T01_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T01_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02",
-    "parentId": "CONFLUENCE",
-    "name": "T02",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRELIMINARY",
-    "parentId": "CONFLUENCE_T02",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T02_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T02_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T02_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T02",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_AERATION",
-    "parentId": "CONFLUENCE_T02",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T02_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T02_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T02_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T02_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T02",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_DISINFECTION",
-    "parentId": "CONFLUENCE_T02",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T02_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T02_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T02_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T02_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T02_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03",
-    "parentId": "CONFLUENCE",
-    "name": "T03",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRELIMINARY",
-    "parentId": "CONFLUENCE_T03",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T03_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T03_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T03_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T03",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_AERATION",
-    "parentId": "CONFLUENCE_T03",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T03_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T03_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T03_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T03_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T03",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_DISINFECTION",
-    "parentId": "CONFLUENCE_T03",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T03_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T03_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T03_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T03_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T03_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04",
-    "parentId": "CONFLUENCE",
-    "name": "T04",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRELIMINARY",
-    "parentId": "CONFLUENCE_T04",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T04_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T04_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T04_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T04",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_AERATION",
-    "parentId": "CONFLUENCE_T04",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T04_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T04_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T04_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T04_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T04",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_DISINFECTION",
-    "parentId": "CONFLUENCE_T04",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T04_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T04_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T04_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T04_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T04_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05",
-    "parentId": "CONFLUENCE",
-    "name": "T05",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRELIMINARY",
-    "parentId": "CONFLUENCE_T05",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T05_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T05_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T05_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T05",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_AERATION",
-    "parentId": "CONFLUENCE_T05",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T05_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T05_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T05_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T05_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T05",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_DISINFECTION",
-    "parentId": "CONFLUENCE_T05",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T05_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T05_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T05_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T05_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T05_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06",
-    "parentId": "CONFLUENCE",
-    "name": "T06",
-    "assetType": "train",
-    "assetLevel": "train"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRELIMINARY",
-    "parentId": "CONFLUENCE_T06",
-    "name": "Preliminary",
-    "assetType": "preliminary",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRELIMINARY_BARSCREEN",
-    "parentId": "CONFLUENCE_T06_PRELIMINARY",
-    "name": "Bar Screen",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRELIMINARY_GRITCHAMBER",
-    "parentId": "CONFLUENCE_T06_PRELIMINARY",
-    "name": "Grit Chamber",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRELIMINARY_INFLUENTPUMP",
-    "parentId": "CONFLUENCE_T06_PRELIMINARY",
-    "name": "Influent Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T06",
-    "name": "Primary Clarifier",
-    "assetType": "primary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
-    "name": "Primary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_SCUMSKIMMER",
-    "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
-    "name": "Scum Skimmer",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_AERATION",
-    "parentId": "CONFLUENCE_T06",
-    "name": "Aeration",
-    "assetType": "aeration",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T06_AERATION_AERATIONBASIN",
-    "parentId": "CONFLUENCE_T06_AERATION",
-    "name": "Aeration Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_AERATION_BLOWER",
-    "parentId": "CONFLUENCE_T06_AERATION",
-    "name": "Blower",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_AERATION_DIFFUSERGRID",
-    "parentId": "CONFLUENCE_T06_AERATION",
-    "name": "Diffuser Grid",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
-    "parentId": "CONFLUENCE_T06",
-    "name": "Secondary Clarifier",
-    "assetType": "secondary_clarifier",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
-    "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
-    "name": "Secondary Clarifier Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_RASPUMP",
-    "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
-    "name": "RAS Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
-    "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
-    "name": "Sludge Collector",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_DISINFECTION",
-    "parentId": "CONFLUENCE_T06",
-    "name": "Disinfection",
-    "assetType": "disinfection",
-    "assetLevel": "stage"
-  },
-  {
-    "id": "CONFLUENCE_T06_DISINFECTION_CHLORINECONTACTBASIN",
-    "parentId": "CONFLUENCE_T06_DISINFECTION",
-    "name": "Chlorine Contact Basin",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_DISINFECTION_CHLORINEFEEDPUMP",
-    "parentId": "CONFLUENCE_T06_DISINFECTION",
-    "name": "Chlorine Feed Pump",
-    "assetType": "equipment",
-    "assetLevel": "equipment"
-  },
-  {
-    "id": "CONFLUENCE_T06_DISINFECTION_DECHLORINATIONSYSTEM",
-    "parentId": "CONFLUENCE_T06_DISINFECTION",
-    "name": "Dechlorination System",
-    "assetType": "equipment",
+    "assetType": "chlorine_storage_tank",
     "assetLevel": "equipment"
   }
 ]

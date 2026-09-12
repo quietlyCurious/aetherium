@@ -8,9 +8,9 @@
 // Aetherium's compact panel style rather than DevExtreme's default grid chrome.
 
 import React from 'react';
-import DataGrid, { Column, Selection, SearchPanel, Paging, Scrolling, Toolbar, Item as ToolbarItem } from 'devextreme-react/data-grid';
+import DataGrid, { Column, Selection, SearchPanel, Paging, Scrolling, Toolbar, Item as ToolbarItem, RowDragging } from 'devextreme-react/data-grid';
 
-export default function DataListGrid({
+const DataListGrid = React.forwardRef(function DataListGrid({
   items,
   columns,           // [{ dataField, caption, width?, minWidth?, cellRender?, calculateCellValue? }]
   keyExpr = 'id',
@@ -20,9 +20,22 @@ export default function DataListGrid({
   pageSize = 50,
   noDataText = 'No items yet.',
   toolbarExtra,       // optional React node — rendered anchored left, inline with the search box
-}) {
+  reorderable = false, // opt-in — enables drag-to-reorder rows via the built-in drag handle
+  onReorder,          // (newItemsArray) => void — called with the full items array in its new order
+}, ref) {
+  const handleReorder = (e) => {
+    const visibleRows = e.component.getVisibleRows();
+    const newItems = [...items];
+    const toIndex = newItems.findIndex(item => item[keyExpr] === visibleRows[e.toIndex].data[keyExpr]);
+    const fromIndex = newItems.findIndex(item => item[keyExpr] === e.itemData[keyExpr]);
+    newItems.splice(fromIndex, 1);
+    newItems.splice(toIndex, 0, e.itemData);
+    onReorder(newItems);
+  };
+
   return (
     <DataGrid
+      ref={ref}
       className="data-list-grid"
       dataSource={items}
       keyExpr={keyExpr}
@@ -39,6 +52,7 @@ export default function DataListGrid({
       onRowClick={(e) => onSelect(e.key)}
     >
       <Selection mode="single" />
+      {reorderable && <RowDragging allowReordering={true} onReorder={handleReorder} />}
       {searchEnabled && <SearchPanel visible width="auto" placeholder="Search…" />}
       {toolbarExtra && (
         <Toolbar>
@@ -61,4 +75,6 @@ export default function DataListGrid({
       ))}
     </DataGrid>
   );
-}
+});
+
+export default DataListGrid;

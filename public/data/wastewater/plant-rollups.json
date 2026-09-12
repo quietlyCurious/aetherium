@@ -1,0 +1,13 @@
+{
+  "CONFLUENCE": {
+    "plant_throughput": 34.01,
+    "plant_target_rate": 34.8,
+    "plant_oee": 95.3,
+    "plant_availability": 98.78,
+    "plant_quality_factor": 98.71,
+    "plant_health_index": 95.3,
+    "plant_instability_index": 7.61,
+    "best_train": "CONFLUENCE_CON_T05",
+    "worst_train": "CONFLUENCE_CON_T04"
+  }
+}
