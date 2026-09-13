@@ -451,9 +451,7 @@ function AetheriumEditor() {
   const [focusMode, setFocusMode] = useState('follow');
   const [showGap, setShowGap] = useState(true);
   const [coordMode, setCoordMode] = useState('reposition');
-  const [currentView, setCurrentView] = useState(() => (
-    loadOperatorNavigation()?.currentView === 'operator' ? 'operator' : 'screens'
-  )); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator'
+  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
   const [operatorPersona, setOperatorPersona] = useState(() => loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
   const [menuOpen, setMenuOpen] = useState(false);
   const AVAILABLE_MODELS = [
@@ -1389,6 +1387,11 @@ function AetheriumEditor() {
           </span>
           {menuOpen && (
             <div className="app-titlebar-dropdown">
+              {/* Screens/Widgets/Theme/Data Sources/Entities/Queries/Scripts
+                  hidden for now — see TODO.md ("Nav: page-builder areas").
+                  Operator/Configurator Interface are the only areas in
+                  active use right now; commented rather than removed so
+                  restoring the full menu later is a straightforward revert.
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'screens' ? ' active' : ''}`}
                 onClick={() => handleNavigate('screens')}
@@ -1433,6 +1436,7 @@ function AetheriumEditor() {
                 Scripts
               </div>
               <div className="app-titlebar-dropdown-divider" />
+              */}
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'operator' ? ' active' : ''}`}
                 onClick={() => handleNavigateOperatorPersona('operator')}

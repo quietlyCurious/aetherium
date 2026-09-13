@@ -635,6 +635,8 @@
   align-items: center;
   gap: 6px;
   padding: 8px 4px;
+  min-height: 60px;
+  box-sizing: border-box;
 }
 
 .op-statkpi--indicator .op-statkpi-vtrack {
@@ -989,11 +991,83 @@
   min-height: 0;
 }
 
+/* React Flow fills 100% of its parent, so this needs an explicit size —
+   matches .op-related-assets-box-flow's own flex:1/min-height:0 pattern
+   so both views fit the same flex-column parent (.op-related-assets-preview)
+   the same way. */
+.op-related-assets-diagram {
+  margin-top: 14px;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+/* Property manual-layout canvas — sits inside .op-hmiprops-singlebox--
+   typeflow, which already provides flex:1/min-height:0/height:100%, so
+   this just needs to actually fill that space. */
+.op-property-layout-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+.op-property-layout-canvas .react-flow {
+  background: #e8e8e8;
+}
+
+.op-property-layout-node {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+.op-related-assets-diagram .react-flow__node {
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+/* Without a width cap, a box with several "always"-visible properties and
+   flowWrap: wrap has nothing to actually wrap against — flex-wrap just
+   keeps extending in one direction instead of stacking into rows. This
+   caps diagram nodes at roughly two text-tiles wide so wrap does its job,
+   producing compact, boxier nodes instead of long strips. Scoped to the
+   diagram specifically — the Cards view's own boxes are unaffected. */
+.op-related-assets-diagram .op-related-asset-box {
+  max-width: 280px;
+}
+
+/* Light grey canvas, replacing the default white — Background's own
+   color prop only tints the dot pattern, not the canvas itself, so this
+   needs to be set separately. */
+.op-related-assets-diagram .react-flow {
+  background: #e8e8e8;
+}
+
+/* Default edges are a light #b1b1b7 — barely visible against a grey
+   canvas. Darker so relationships read clearly at a glance. Width is
+   controllable via the diagram toolbar (applied through defaultEdgeOptions
+   in RelatedAssetsDiagramInner), not hardcoded here. */
+.op-related-assets-diagram .react-flow__edge-path {
+  stroke: #5a5a5a;
+}
+
 .op-related-asset-box {
+  background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 3px;
   padding: 10px 12px;
   flex-shrink: 0;
+}
+
+/* Diagram view's center node — the type currently selected in the tree,
+   not a related asset — now shows its own properties identically to the
+   others, so this border is the only remaining way to tell it apart. */
+.op-related-asset-box--center {
+  border-color: #0078d4;
+  border-width: 2px;
 }
 
 .op-related-asset-box-kpis {
@@ -1597,6 +1671,7 @@
 .op-hmiprops-toolbar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   flex-shrink: 0;
 }

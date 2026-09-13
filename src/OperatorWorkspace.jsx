@@ -35,12 +35,34 @@ import { loadNowSelection, saveNowSelection } from './nowSelectionStorage';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from './typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from './typeRelatedAssetConfigsStorage';
 import notify from 'devextreme/ui/notify';
+import { confirm } from 'devextreme/ui/dialog';
+import Button from 'devextreme-react/button';
 import {
   Chart, Series, Point, ArgumentAxis, ValueAxis,
   Grid as ChartGrid, Legend as ChartLegend, Tooltip as ChartTooltip,
   Export as ChartExport, CommonSeriesSettings, Aggregation,
 } from 'devextreme-react/chart';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
+import ELK from 'elkjs/lib/elk.bundled.js';
+import {
+  ReactFlow,
+  ReactFlowProvider,
+  Background,
+  useNodesState,
+  useEdgesState,
+  useNodesInitialized,
+  useReactFlow,
+  useInternalNode,
+  Handle,
+  BaseEdge,
+  getBezierPath,
+  getSmoothStepPath,
+  getStraightPath,
+  ConnectionMode,
+  MarkerType,
+  Panel,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import RangeSelector, {
   Size as RsSize, Scale as RsScale, Chart as RsChart, ValueAxis as RsValueAxis,
   Series as RsSeries, Behavior as RsBehavior, Aggregation as RsAggregation,
@@ -503,6 +525,167 @@ function ClusterIcon() {
     </svg>
   );
 }
+function CardsLayoutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="1" y="4" width="4" height="8" rx="0.5" />
+      <rect x="6" y="4" width="4" height="8" rx="0.5" />
+      <rect x="11" y="4" width="4" height="8" rx="0.5" />
+    </svg>
+  );
+}
+function DiagramLayoutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="1" y="6" width="4" height="4" rx="0.5" />
+      <rect x="11" y="6" width="4" height="4" rx="0.5" />
+      <line x1="5" y1="8" x2="11" y2="8" />
+    </svg>
+  );
+}
+function OrthogonalRoutingIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <polyline points="2,4 9,4 9,12 14,12" />
+    </svg>
+  );
+}
+function PolylineRoutingIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <polyline points="2,4 7,10 14,4" />
+    </svg>
+  );
+}
+function AlignTopIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="1" y1="2" x2="15" y2="2" />
+      <rect x="3" y="4" width="3" height="5" />
+      <rect x="7" y="4" width="3" height="9" />
+      <rect x="11" y="4" width="3" height="3" />
+    </svg>
+  );
+}
+function AlignMiddleIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="1" y1="8" x2="15" y2="8" strokeDasharray="2,2" />
+      <rect x="3" y="5.5" width="3" height="5" />
+      <rect x="7" y="3.5" width="3" height="9" />
+      <rect x="11" y="6.5" width="3" height="3" />
+    </svg>
+  );
+}
+function AlignBottomIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="1" y1="14" x2="15" y2="14" />
+      <rect x="3" y="7" width="3" height="5" />
+      <rect x="7" y="3" width="3" height="9" />
+      <rect x="11" y="9" width="3" height="3" />
+    </svg>
+  );
+}
+function AlignLeftIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="2" y1="1" x2="2" y2="15" />
+      <rect x="4" y="3" width="5" height="3" />
+      <rect x="4" y="7" width="9" height="3" />
+      <rect x="4" y="11" width="3" height="3" />
+    </svg>
+  );
+}
+function AlignCenterHIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="8" y1="1" x2="8" y2="15" strokeDasharray="2,2" />
+      <rect x="5.5" y="3" width="5" height="3" />
+      <rect x="3.5" y="7" width="9" height="3" />
+      <rect x="6.5" y="11" width="3" height="3" />
+    </svg>
+  );
+}
+function AlignRightIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="14" y1="1" x2="14" y2="15" />
+      <rect x="7" y="3" width="5" height="3" />
+      <rect x="3" y="7" width="9" height="3" />
+      <rect x="9" y="11" width="3" height="3" />
+    </svg>
+  );
+}
+function DistributeHorizontalIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="1" y="4" width="3" height="8" />
+      <rect x="6.5" y="4" width="3" height="8" />
+      <rect x="12" y="4" width="3" height="8" />
+      <line x1="4" y1="8" x2="6.5" y2="8" strokeDasharray="1,1.5" />
+      <line x1="9.5" y1="8" x2="12" y2="8" strokeDasharray="1,1.5" />
+    </svg>
+  );
+}
+function DistributeVerticalIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="4" y="1" width="8" height="3" />
+      <rect x="4" y="6.5" width="8" height="3" />
+      <rect x="4" y="12" width="8" height="3" />
+      <line x1="8" y1="4" x2="8" y2="6.5" strokeDasharray="1,1.5" />
+      <line x1="8" y1="9.5" x2="8" y2="12" strokeDasharray="1,1.5" />
+    </svg>
+  );
+}
+function ArrowOnIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="2" y1="8" x2="11" y2="8" />
+      <polyline points="8,4 13,8 8,12" />
+    </svg>
+  );
+}
+function ArrowOffIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="2" y1="8" x2="14" y2="8" />
+    </svg>
+  );
+}
+function LabelOnIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="1" y1="12" x2="15" y2="12" />
+      <path d="M5 3 H10 L13 6 L10 9 H5 Z" />
+      <circle cx="7" cy="6" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function LabelOffIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <line x1="1" y1="8" x2="15" y2="8" />
+    </svg>
+  );
+}
+function ConnectionAnywhereIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="7" y="3" width="8" height="10" rx="0.5" />
+      <line x1="1" y1="14" x2="7" y2="9" />
+    </svg>
+  );
+}
+function ConnectionCenterIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="7" y="3" width="8" height="10" rx="0.5" />
+      <line x1="1" y1="8" x2="7" y2="8" />
+    </svg>
+  );
+}
 // Filled circle = always, half-filled = sometimes — same family as
 // VisibilityStateIcon below, kept as separate small icons here since this
 // filter's third state ("All", show everything) is a different concept
@@ -581,6 +764,74 @@ const FLOW_WRAP_ITEMS = [
 const ALIGN_CONTENT_ITEMS = [
   { text: 'Distribute', value: 'stretch', Icon: DistributeIcon },
   { text: 'Cluster', value: 'flex-start', Icon: ClusterIcon },
+];
+
+// Related Assets tab's own layout-mode toggle — 'cards' is the existing
+// box-flow view, 'diagram' is the new ELK + React Flow relational view.
+// More modes may be added later, hence a plain array rather than a
+// hardcoded pair of booleans.
+const RELATED_ASSETS_LAYOUT_MODE_ITEMS = [
+  { text: 'Cards', value: 'cards', Icon: CardsLayoutIcon },
+  { text: 'Diagram', value: 'diagram', Icon: DiagramLayoutIcon },
+];
+
+// Diagram view's scope toggle — 'focused' is the current type plus its
+// immediate related assets (small, oriented around one thing); 'model' is
+// every type-to-type relationship across the whole current model (bigger,
+// shows overall structure — better for comparing layout algorithms on
+// something with real shape). Text-based rather than icon-based, since
+// "focused vs. whole model" doesn't have an obvious simple glyph the way
+// row/column or wrap/nowrap do.
+const RELATED_ASSETS_GRAPH_SCOPE_ITEMS = [
+  { text: 'Focused', value: 'focused' },
+  { text: 'Model', value: 'model' },
+];
+
+// Every edge now always finds its own real closest side on a node
+// (previously "Free Ports"; "Fixed Sides" mode has been removed
+// entirely) — see RelatedAssetsFloatingEdge and the elk.portConstraints
+// option in getElkLayoutedElements. This toggle controls a separate
+// question: once that closest side is picked, does the line land at the
+// exact geometric point facing the other node (anywhere along that
+// side), or always snap to that side's midpoint? Purely a render-time
+// choice (see getFloatingEdgeParams/getSideCenterPoint) — doesn't affect
+// ELK's own layout either way.
+const RELATED_ASSETS_CONNECTION_POINT_ITEMS = [
+  { text: 'Anywhere', value: 'anywhere', Icon: ConnectionAnywhereIcon },
+  { text: 'Center', value: 'center', Icon: ConnectionCenterIcon },
+];
+
+// One-shot actions on the currently-selected nodes, not persistent
+// settings — these never show a "pressed" state (selectedItemKeys is
+// always empty), unlike every other ButtonGroup in this toolbar.
+const RELATED_ASSETS_ALIGN_VERTICAL_ITEMS = [
+  { text: 'Align Top', value: 'top', Icon: AlignTopIcon },
+  { text: 'Align Middle', value: 'middle', Icon: AlignMiddleIcon },
+  { text: 'Align Bottom', value: 'bottom', Icon: AlignBottomIcon },
+];
+const RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS = [
+  { text: 'Align Left', value: 'left', Icon: AlignLeftIcon },
+  { text: 'Align Center', value: 'center', Icon: AlignCenterHIcon },
+  { text: 'Align Right', value: 'right', Icon: AlignRightIcon },
+];
+const RELATED_ASSETS_DISTRIBUTE_ITEMS = [
+  { text: 'Distribute Horizontally', value: 'horizontal', Icon: DistributeHorizontalIcon },
+  { text: 'Distribute Vertically', value: 'vertical', Icon: DistributeVerticalIcon },
+];
+
+// Purely a render-time transform (see the useMemo in
+// RelatedAssetsDiagramInner) — doesn't affect ELK's layout at all.
+const RELATED_ASSETS_SHOW_ARROWHEADS_ITEMS = [
+  { text: 'Arrows On', value: 'shown', Icon: ArrowOnIcon },
+  { text: 'Arrows Off', value: 'hidden', Icon: ArrowOffIcon },
+];
+
+// Purely a render-time transform (see the useMemo in
+// RelatedAssetsDiagramInner) — doesn't affect ELK's layout at all, since
+// this implementation doesn't feed label information into ELK itself.
+const RELATED_ASSETS_SHOW_LABELS_ITEMS = [
+  { text: 'Labels On', value: 'shown', Icon: LabelOnIcon },
+  { text: 'Labels Off', value: 'hidden', Icon: LabelOffIcon },
 ];
 
 const GROUPING_MODE_ITEMS = [
@@ -878,6 +1129,20 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   const [flowDirection, setFlowDirection] = useState(savedTemplate?.flowDirection ?? 'row');
   const [flowWrap, setFlowWrap] = useState(savedTemplate?.flowWrap ?? 'wrap');
   const [alignContent, setAlignContent] = useState(savedTemplate?.alignContent ?? 'flex-start');
+  // 'auto': the flex preview above drives appearance, matching Cards/
+  // Diagram rendering everywhere this template is used. 'manual': the
+  // PropertyLayoutCanvas below takes over instead — same properties,
+  // freely positioned, no edges. Manual positions are part of the saved
+  // template itself (manualPositions below), so they apply everywhere
+  // the template is used, not just in this editor.
+  const [propertyLayoutMode, setPropertyLayoutMode] = useState(savedTemplate?.layoutMode ?? 'auto');
+  const [manualPositions, setManualPositions] = useState(savedTemplate?.manualPositions ?? {});
+  // Measures the flex preview's actual current tile positions at the
+  // moment of switching to manual, so nothing visually jumps — refs are
+  // populated by the flex preview's own render below, read once on
+  // switch rather than tracked continuously.
+  const flexTileRefs = useRef({});
+  const flexPreviewContainerRef = useRef(null);
 
   // The "Visual" column in the sibling properties table needs to know the
   // current view mode, but that state lives here, not there — report it up
@@ -894,13 +1159,50 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   // key) so a stale handler for the previous type can't linger.
   useEffect(() => {
     if (!typeVisibilityMode || !activeSaveHandlerRef) return undefined;
-    activeSaveHandlerRef.current = () => onSaveTypeDisplayTemplate?.(typeId, { viewMode: kpiViewMode, flowDirection, flowWrap, alignContent });
+    activeSaveHandlerRef.current = () => onSaveTypeDisplayTemplate?.(typeId, {
+      viewMode: kpiViewMode,
+      flowDirection,
+      flowWrap,
+      alignContent,
+      layoutMode: propertyLayoutMode,
+      manualPositions: propertyLayoutMode === 'manual' ? manualPositions : {},
+    });
     return () => { activeSaveHandlerRef.current = null; };
-  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent]);
+  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent, propertyLayoutMode, manualPositions]);
 
   if (!props) {
     return <div className="op-dash-text op-dash-text--muted">No properties available for this item.</div>;
   }
+
+  // Measures the flex preview's real current tile positions at the exact
+  // moment of switching, so entering manual mode never causes a visible
+  // jump — the alternative (everything starting stacked at the origin)
+  // is exactly what this avoids. Existing (possibly unsaved, from
+  // earlier in this same editing session) manual positions win over a
+  // fresh measurement for any property that already has one.
+  const handleSwitchToManualLayout = () => {
+    const measured = {};
+    const containerRect = flexPreviewContainerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      Object.entries(flexTileRefs.current).forEach(([key, el]) => {
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        measured[key] = { x: Math.round(rect.left - containerRect.left), y: Math.round(rect.top - containerRect.top) };
+      });
+    }
+    setManualPositions(current => ({ ...measured, ...current }));
+    setPropertyLayoutMode('manual');
+  };
+
+  const handleResetPropertyLayout = () => {
+    confirm(
+      'This will discard your manual property positions and return to the flex layout. Continue?',
+      'Reset to Flex Layout'
+    ).then(confirmed => {
+      if (!confirmed) return;
+      setPropertyLayoutMode('auto');
+    });
+  };
 
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
   const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;
@@ -928,26 +1230,29 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
 
   const kpisClass = `op-hmiprops-kpis${kpiViewMode === 'text' ? ' op-hmiprops-kpis--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops-kpis--indicator' : ''}`;
 
-  const renderTile = p => {
+  // Extracted so PropertyLayoutCanvas's tiles array (built below, for
+  // manual mode) computes the exact same range/sparkline props as the
+  // flex-rendering path — one source of truth for what a tile shows,
+  // regardless of which layout mode is currently active.
+  const buildTileProps = p => {
     const range = PROPERTY_RANGES[p.key];
     const fullSeries = effectiveSparklineSource ? getPropertySeriesForSource(effectiveSparklineSource, p.key) : null;
     const sparkline = (fullSeries && rangeStart && rangeEnd)
       ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd)
       : null;
-    return (
-      <StatTile
-        key={p.key}
-        label={p.label}
-        value={p.value}
-        min={range ? range[0] : undefined}
-        max={range ? range[1] : undefined}
-        sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
-        horizontal
-        labelFirst
-        viewMode={kpiViewMode}
-      />
-    );
+    return {
+      label: p.label,
+      value: p.value,
+      min: range ? range[0] : undefined,
+      max: range ? range[1] : undefined,
+      sparkline: sparkline && sparkline.length > 2 ? sparkline : null,
+      horizontal: true,
+      labelFirst: true,
+      viewMode: kpiViewMode,
+    };
   };
+
+  const renderTile = p => <StatTile key={p.key} {...buildTileProps(p)} />;
 
   // Applied unconditionally whenever type-properties mode is active,
   // regardless of which flowDirection/flowWrap combination is selected —
@@ -961,6 +1266,29 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       <div className="op-hmiprops-toolbar">
         {typeVisibilityMode ? (
           <>
+            {groupingMode === 'none' && (
+              <>
+                <span
+                  className="op-dash-text"
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: 12,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    background: propertyLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
+                    color: propertyLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
+                  }}
+                >
+                  {propertyLayoutMode === 'manual' ? 'Manual Layout' : 'Flex Layout'}
+                </span>
+                {propertyLayoutMode === 'manual' ? (
+                  <Button text="Reset to Flex Layout" onClick={handleResetPropertyLayout} stylingMode="outlined" />
+                ) : (
+                  <Button text="Switch to Manual Layout" onClick={handleSwitchToManualLayout} stylingMode="outlined" />
+                )}
+              </>
+            )}
             <div className="op-tierfilter-slider-wrap" style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
               <Slider
                 min={0}
@@ -981,6 +1309,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               onItemClick={e => setKpiViewMode(e.itemData.value)}
               stylingMode="outlined"
               className="op-dash-chart-toggle"
+              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
             />
             <ButtonGroup
               keyExpr="value"
@@ -988,6 +1317,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               onItemClick={e => setFlowDirection(e.itemData.value)}
               stylingMode="outlined"
               className="op-dash-chart-toggle"
+              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
             >
               {FLOW_DIRECTION_ITEMS.map(item => (
                 <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
@@ -999,6 +1329,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               onItemClick={e => setFlowWrap(e.itemData.value)}
               stylingMode="outlined"
               className="op-dash-chart-toggle"
+              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
             >
               {FLOW_WRAP_ITEMS.map(item => (
                 <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
@@ -1010,6 +1341,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               onItemClick={e => setAlignContent(e.itemData.value)}
               stylingMode="outlined"
               className="op-dash-chart-toggle"
+              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
             >
               {ALIGN_CONTENT_ITEMS.map(item => (
                 <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
@@ -1061,14 +1393,29 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           ))}
         </div>
       ) : groupingMode === 'none' ? (
-        <div className={`op-hmiprops-singlebox${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}${typeFlowActive ? ' op-hmiprops-singlebox--typeflow' : ''}`}>
-          <div
-            className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-hmiprops-kpis--flowrow' : ''}${typeFlowActive ? ' op-hmiprops-kpis--typeflow' : ''}`}
-            style={typeVisibilityMode ? { flexDirection: flowDirection, flexWrap: flowWrap, alignContent } : undefined}
-          >
-            {categories.flatMap(cat => grouped[cat]).map(renderTile)}
+        typeVisibilityMode && propertyLayoutMode === 'manual' ? (
+          <div className="op-hmiprops-singlebox op-hmiprops-singlebox--typeflow">
+            <PropertyLayoutCanvas
+              tiles={categories.flatMap(cat => grouped[cat]).map(p => ({ key: p.key, tileProps: buildTileProps(p) }))}
+              manualPositions={manualPositions}
+              onPositionsChange={setManualPositions}
+            />
           </div>
-        </div>
+        ) : (
+          <div className={`op-hmiprops-singlebox${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}${typeFlowActive ? ' op-hmiprops-singlebox--typeflow' : ''}`}>
+            <div
+              ref={flexPreviewContainerRef}
+              className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-hmiprops-kpis--flowrow' : ''}${typeFlowActive ? ' op-hmiprops-kpis--typeflow' : ''}`}
+              style={typeVisibilityMode ? { flexDirection: flowDirection, flexWrap: flowWrap, alignContent } : undefined}
+            >
+              {categories.flatMap(cat => grouped[cat]).map(p => (
+                <div key={p.key} ref={el => { flexTileRefs.current[p.key] = el; }}>
+                  <StatTile {...buildTileProps(p)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )
       ) : (
         <div className="op-hmiprops-singlebox">
           <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
@@ -1847,6 +2194,10 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
               />
             </div>
           </TabPanelItem>
+          {/* Assets tab hidden for now — see TODO.md ("Now area: Assets tab").
+              Types and Assets exist as concepts, but Assets isn't being
+              built out yet; commented rather than removed so the real
+              hierarchy wiring below is easy to restore later.
           <TabPanelItem title="Assets">
             <div className="left-panel-tab-content op-now-tree-tab-content">
               <HierarchyTree
@@ -1858,6 +2209,7 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
               />
             </div>
           </TabPanelItem>
+          */}
         </TabPanel>
       </div>
     </div>
@@ -2018,20 +2370,6 @@ function formatRelationshipName(edge) {
 function getRelatedAssetsForType(typeId, typeList) {
   const typeEntry = typeList.find(t => t.id === typeId);
   const exampleAsset = typeEntry && CURRENT_ASSET_MAP[typeEntry.exampleAssetId];
-  // TEMPORARY DEBUG LOGGING — remove once the water/wastewater empty-table
-  // issue is diagnosed. Reveals exactly what this function sees at the
-  // moment a type is selected, which we can't observe from outside.
-  console.log('[DEBUG related-assets]', {
-    currentModel: CURRENT_MODEL,
-    typeId,
-    typeEntryFound: !!typeEntry,
-    exampleAssetId: typeEntry?.exampleAssetId,
-    exampleAssetFound: !!exampleAsset,
-    exampleAssetLevel: exampleAsset?.assetLevel,
-    exampleAssetType: exampleAsset?.assetType,
-    assetRelationshipsCount: (ASSET_RELATIONSHIPS || []).length,
-    currentAssetDataCount: (CURRENT_ASSET_DATA || []).length,
-  });
   if (!exampleAsset) return [];
   const sameTypeAssetIds = new Set(
     CURRENT_ASSET_DATA
@@ -2058,24 +2396,781 @@ function getRelatedAssetsForType(typeId, typeList) {
       relatedTypeId,
       relatedTypeName: deslugifyType(otherAsset.assetType),
       relatedTypeExampleAssetId: otherAsset.id,
+      direction,
       relationshipLabel: `${direction === 'out' ? '→' : '←'} ${formatRelationshipName(edge)}`,
     });
   });
 
-  // TEMPORARY DEBUG LOGGING — remove alongside the one above.
-  console.log('[DEBUG related-assets] result', {
-    sameTypeAssetIdsCount: sameTypeAssetIds.size,
-    sameTypeAssetIdsSample: [...sameTypeAssetIds].slice(0, 3),
-    rowsFound: rowsByKey.size,
+  return [...rowsByKey.values()].sort((a, b) => a.relatedTypeName.localeCompare(b.relatedTypeName));
+}
+
+// Builds the full type-level relationship graph for the whole current
+// model — every type-to-type edge derived from ASSET_RELATIONSHIPS,
+// deduplicated the same way getRelatedAssetsForType dedupes one type's
+// neighbors, just without being scoped to a single type's own assets.
+// Used by the diagram's "Model" scope to show everything at once, rather
+// than one type and its immediate neighbors. Deliberately flow-only, not
+// mixing in containment (parentId) — a fundamentally different kind of
+// relationship that would need its own visual treatment (see the
+// docs/circuit-board-vision-notes.md note on this), not just folded in.
+function getAllTypeRelationshipsForModel(typeList) {
+  const edgesByKey = new Map();
+  const nodeTypeIds = new Set();
+  (ASSET_RELATIONSHIPS || []).forEach(edge => {
+    const sourceAsset = CURRENT_ASSET_MAP[edge.sourceAssetId];
+    const targetAsset = CURRENT_ASSET_MAP[edge.targetAssetId];
+    if (!sourceAsset || !targetAsset) return;
+    const sourceTypeId = `TYPE_${sourceAsset.assetLevel}_${sourceAsset.assetType}`;
+    const targetTypeId = `TYPE_${targetAsset.assetLevel}_${targetAsset.assetType}`;
+    nodeTypeIds.add(sourceTypeId);
+    nodeTypeIds.add(targetTypeId);
+    const key = `${sourceTypeId}::${targetTypeId}::${edge.relationshipType}::${edge.layer}::${edge.label || ''}`;
+    if (edgesByKey.has(key)) return;
+    edgesByKey.set(key, {
+      key,
+      sourceTypeId,
+      targetTypeId,
+      relationshipLabel: formatRelationshipName(edge),
+    });
   });
 
-  return [...rowsByKey.values()].sort((a, b) => a.relatedTypeName.localeCompare(b.relatedTypeName));
+  const nodes = [...nodeTypeIds]
+    .map(typeId => typeList.find(t => t.id === typeId))
+    .filter(Boolean)
+    .map(t => ({ typeId: t.id, typeName: t.name, exampleAssetId: t.exampleAssetId }));
+
+  return { nodes, edges: [...edgesByKey.values()] };
 }
 
 // Shown only for type selections — Properties (a list of this type's
 // properties, each with an always/sometimes/never visibility choice,
 // sharing the space with the same KPI visualization used everywhere else)
 // and Children (not yet built — see note in the tab itself).
+const elk = new ELK();
+// Algorithm choices offered in the diagram view's toolbar. 'disco' isn't
+// included since elkjs dropped it from this bundled build after 0.8.2
+// (confirmed directly — it throws "Layout algorithm 'disco' not found" on
+// this exact installed version); 'box'/'rectpacking' are rectangle-packing
+// algorithms rather than relationship-aware layouts, so left out as not a
+// good fit for a node-link diagram.
+const RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS = [
+  { value: 'layered', label: 'Layered' },
+  { value: 'mrtree', label: 'Tree' },
+  { value: 'radial', label: 'Radial' },
+  { value: 'force', label: 'Force' },
+  { value: 'stress', label: 'Stress' },
+];
+// Only 'layered' and 'mrtree' actually respect elk.direction — verified
+// directly by comparing DOWN vs RIGHT output for each algorithm; radial,
+// force, and stress produced byte-identical positions regardless, since
+// they're organic/physics-style layouts with no inherent "flow" direction.
+const RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS = new Set(['layered', 'mrtree']);
+const RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS = [
+  { text: 'Vertical', value: 'DOWN', Icon: ColumnFlowIcon },
+  { text: 'Horizontal', value: 'RIGHT', Icon: RowFlowIcon },
+];
+// Gates the edge routing and both spacing controls below — all three use
+// layered-specific ELK options. Verified directly: the other four
+// algorithms produced byte-identical output regardless of any of these
+// three settings, since each has its own internal routing/spacing logic
+// that doesn't use them at all.
+const RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS = new Set(['layered']);
+// Simplified to just the two ELK actually computes distinct bend-point
+// routing for (verified earlier: ORTHOGONAL gives hard right angles,
+// POLYLINE gives angled-but-straight segments — 'Default'/UNDEFINED and
+// SPLINES were dropped as unnecessary choices here).
+const RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS = [
+  { text: 'Orthogonal', value: 'ORTHOGONAL', Icon: OrthogonalRoutingIcon },
+  { text: 'Polyline', value: 'POLYLINE', Icon: PolylineRoutingIcon },
+];
+// Direct control over the two spacing settings that actually, always
+// govern compactness — replaced an earlier edge-node/edge-edge spacing
+// pair that turned out to be "floor" constraints only binding once they
+// exceeded these two values anyway (verified directly: bounds stayed
+// completely flat until the edge-spacing value exceeded 80, the
+// nodeNodeBetweenLayers value below), making them invisible at any
+// preset that made sense on their own. These two are direct, unconditional
+// constraints instead — every value tested here produced a real,
+// verified change in the laid-out bounds. Rendered as sliders (0-200,
+// verified safe including both at 0 simultaneously — no error, nodes
+// just pack as tight as their own sizes allow) rather than discrete
+// presets, for finer control across the range.
+// elk.spacing.nodeNode: general gap between nodes. Verified to
+// meaningfully affect layered, mrtree, and force; a smaller but still
+// real effect on radial; negligible on stress — shown for every
+// algorithm since it's a core (non-layered-specific) option.
+// elk.layered.spacing.nodeNodeBetweenLayers: gap specifically between
+// layers (columns/rows). Verified to affect only 'layered' — even
+// mrtree, also direction-aware, showed zero change — so this control is
+// scoped to 'layered' only, same as the other RELATED_ASSETS_DIAGRAM_
+// LAYERED_ONLY_CONTROLS.
+// Fallback only, for the rare case a node's real measured dimensions
+// aren't available for some reason — the normal path now uses each
+// node's actual rendered size (node.measured.width/height, via React
+// Flow's own measurement), not a fixed stub. See the hide → measure →
+// layout → reveal sequence in RelatedAssetsDiagramInner below.
+const RELATED_ASSETS_DIAGRAM_NODE_WIDTH = 160;
+const RELATED_ASSETS_DIAGRAM_NODE_HEIGHT = 50;
+
+// Runs nodes/edges through ELK's layered algorithm and returns them in
+// React Flow's shape (position: {x, y} instead of bare x/y fields).
+// Mirrors React Flow's own documented elkjs integration pattern exactly
+// (https://reactflow.dev/examples/layout/elkjs) — verified directly
+// against a real render, not just read. Each node's own width/height
+// (real measured dimensions, by the time this is called) are used as-is;
+// only falls back to the stub size above if a node genuinely has none.
+function getElkLayoutedElements(nodes, edges, layoutOptions) {
+  const { algorithm, direction, edgeRouting, nodeSpacing, layerSpacing, aspectRatio } = layoutOptions;
+  const isVertical = direction === 'DOWN';
+  const graph = {
+    id: 'root',
+    layoutOptions: {
+      'elk.algorithm': algorithm,
+      'elk.direction': direction,
+      // Direct, unconditional spacing controls — unlike the earlier
+      // edge-node/edge-edge spacing pair (removed), these two always
+      // affect the laid-out bounds, verified directly across a wide
+      // range of values on real graph data.
+      'elk.layered.spacing.nodeNodeBetweenLayers': String(layerSpacing),
+      'elk.spacing.nodeNode': String(nodeSpacing),
+      // elk.aspectRatio only reshapes the drawing (into multiple rows)
+      // when paired with wrapping.strategy — verified directly: without
+      // it, aspectRatio only ever has a binary "wrap once, all the way"
+      // effect; with MULTI_EDGE wrapping enabled, values from ~0.3
+      // (near-square) up through the graph's natural ratio produce a
+      // real, smooth range of shapes. Both are only respected by
+      // 'layered' — the other four algorithms produced byte-identical
+      // output regardless. Safe to always enable wrapping alongside a
+      // high aspectRatio value (like the default here) — verified this
+      // produces the exact same bounds as not setting either at all,
+      // since ELK only wraps when the natural shape doesn't already
+      // satisfy the requested ratio.
+      'elk.aspectRatio': String(aspectRatio),
+      'elk.layered.wrapping.strategy': 'MULTI_EDGE',
+      // Only 'layered' actually respects this — verified directly by
+      // comparing output across all five algorithms; the other four
+      // produced byte-identical results regardless, since each has its
+      // own internal routing logic that doesn't use this option at all.
+      // Passing it regardless is harmless (silently ignored elsewhere),
+      // but the toolbar only shows this control for 'layered' so the
+      // choice isn't misleading.
+      'elk.edgeRouting': edgeRouting,
+      // Every edge now finds its own real closest side on each node —
+      // "Fixed Sides" mode (one fixed slot per node regardless of where
+      // a given edge's other end actually was) has been removed
+      // entirely. Verified to run cleanly (no error) on all five
+      // algorithms. Pairs with the RelatedAssetsFloatingEdge component,
+      // which does the React Flow side of actually drawing to a real
+      // point on each node's border instead of one fixed Handle.
+      'elk.portConstraints': 'FREE',
+    },
+    children: nodes.map(n => ({
+      ...n,
+      // These two are no longer used for actual edge rendering —
+      // RelatedAssetsFloatingEdge always computes its own connection
+      // point now — but ELK's node input still expects some values here.
+      targetPosition: isVertical ? 'top' : 'left',
+      sourcePosition: isVertical ? 'bottom' : 'right',
+      width: n.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH,
+      height: n.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT,
+    })),
+    edges,
+  };
+  return elk.layout(graph).then(layoutedGraph => ({
+    nodes: layoutedGraph.children.map(n => ({ ...n, position: { x: n.x, y: n.y } })),
+    edges: layoutedGraph.edges,
+  }));
+}
+
+// "Free ports" support (letting an edge exit from whichever side of a
+// node is actually closest, rather than one fixed side for every edge)
+// needs two separate pieces: telling ELK it's allowed to think this way
+// (elk.portConstraints: FREE, set in getElkLayoutedElements) and actually
+// rendering an edge that connects to a real geometric point on each
+// node's border rather than one fixed Handle position. This second part
+// is what the functions below do — adapted from xyflow's own official
+// floating-edges example (reactflow.dev/examples/edges/floating-edges),
+// updated for React Flow v12's InternalNode shape (internals.
+// positionAbsolute, measured.width/height) rather than the older v9/v11
+// shape those docs were written against. Verified directly against three
+// geometric test cases (node to the right, node below, node diagonal)
+// before use — all three produced exactly the expected intersection
+// points and sides.
+
+// Returns the point where a straight line from intersectionNode's center
+// to targetNode's center crosses intersectionNode's own rectangular
+// border.
+function getNodeIntersection(intersectionNode, targetNode) {
+  const iw = intersectionNode.measured?.width ?? intersectionNode.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH;
+  const ih = intersectionNode.measured?.height ?? intersectionNode.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT;
+  const iPos = intersectionNode.internals.positionAbsolute;
+  const tw = targetNode.measured?.width ?? targetNode.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH;
+  const th = targetNode.measured?.height ?? targetNode.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT;
+  const tPos = targetNode.internals.positionAbsolute;
+
+  const w = iw / 2;
+  const h = ih / 2;
+  const x2 = iPos.x + w;
+  const y2 = iPos.y + h;
+  const x1 = tPos.x + tw / 2;
+  const y1 = tPos.y + th / 2;
+
+  const xx1 = (x1 - x2) / (2 * w) - (y1 - y2) / (2 * h);
+  const yy1 = (x1 - x2) / (2 * w) + (y1 - y2) / (2 * h);
+  const a = 1 / (Math.abs(xx1) + Math.abs(yy1));
+  const xx3 = a * xx1;
+  const yy3 = a * yy1;
+  return { x: w * (xx3 + yy3) + x2, y: h * (-xx3 + yy3) + y2 };
+}
+
+// Which side (for Handle-position purposes) a given intersection point
+// actually falls on, for a given node.
+function getFloatingEdgePosition(node, intersectionPoint) {
+  const nw = node.measured?.width ?? node.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH;
+  const nh = node.measured?.height ?? node.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT;
+  const nPos = node.internals.positionAbsolute;
+  const nx = Math.round(nPos.x);
+  const ny = Math.round(nPos.y);
+  const px = Math.round(intersectionPoint.x);
+  const py = Math.round(intersectionPoint.y);
+  if (px <= nx + 1) return 'left';
+  if (px >= nx + nw - 1) return 'right';
+  if (py <= ny + 1) return 'top';
+  if (py >= ny + nh - 1) return 'bottom';
+  return 'top';
+}
+
+// The point at the exact middle of one side of a node's border — used
+// for "Center" connection point mode. Side is determined the same way
+// as "Anywhere" mode (via the real intersection point below), so both
+// modes agree on *which* side is closest; they only differ in *where*
+// along that side the line actually lands.
+function getSideCenterPoint(node, side) {
+  const w = node.measured?.width ?? node.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH;
+  const h = node.measured?.height ?? node.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT;
+  const pos = node.internals.positionAbsolute;
+  if (side === 'left') return { x: pos.x, y: pos.y + h / 2 };
+  if (side === 'right') return { x: pos.x + w, y: pos.y + h / 2 };
+  if (side === 'top') return { x: pos.x + w / 2, y: pos.y };
+  return { x: pos.x + w / 2, y: pos.y + h }; // 'bottom'
+}
+
+// connectionPointMode: 'anywhere' uses the real geometric intersection
+// point (can land anywhere along the closest side); 'center' uses the
+// same closest-side determination but snaps the actual connection point
+// to that side's midpoint instead.
+function getFloatingEdgeParams(source, target, connectionPointMode) {
+  const sourceIntersectionPoint = getNodeIntersection(source, target);
+  const targetIntersectionPoint = getNodeIntersection(target, source);
+  const sourcePos = getFloatingEdgePosition(source, sourceIntersectionPoint);
+  const targetPos = getFloatingEdgePosition(target, targetIntersectionPoint);
+  const sourcePoint = connectionPointMode === 'center' ? getSideCenterPoint(source, sourcePos) : sourceIntersectionPoint;
+  const targetPoint = connectionPointMode === 'center' ? getSideCenterPoint(target, targetPos) : targetIntersectionPoint;
+  return {
+    sx: sourcePoint.x,
+    sy: sourcePoint.y,
+    tx: targetPoint.x,
+    ty: targetPoint.y,
+    sourcePos,
+    targetPos,
+  };
+}
+
+// Both helpers below operate on the full nodes array but only ever move
+// nodes where node.selected is true (React Flow's own selection state,
+// already tracked for free via onNodesChange/applyNodeChanges — no
+// extra wiring needed for multi-select, which is built in via shift+drag
+// or ctrl/cmd+click). Unselected nodes are returned unchanged. Verified
+// directly against a synthetic case with differently-sized nodes before
+// use: align correctly matches edges/centers of the selection's own
+// combined bounding box, and distribute produces genuinely equal gaps
+// while leaving the two extreme (first/last) nodes' outer edges in
+// place — only the nodes in between move.
+function getNodeBounds(n) {
+  const w = n.measured?.width ?? n.width ?? RELATED_ASSETS_DIAGRAM_NODE_WIDTH;
+  const h = n.measured?.height ?? n.height ?? RELATED_ASSETS_DIAGRAM_NODE_HEIGHT;
+  return { left: n.position.x, right: n.position.x + w, top: n.position.y, bottom: n.position.y + h, width: w, height: h };
+}
+
+function alignSelectedNodes(nodes, mode) {
+  const selected = nodes.filter(n => n.selected);
+  if (selected.length < 2) return null;
+  const bounds = new Map(selected.map(n => [n.id, getNodeBounds(n)]));
+  const tops = selected.map(n => bounds.get(n.id).top);
+  const bottoms = selected.map(n => bounds.get(n.id).bottom);
+  const lefts = selected.map(n => bounds.get(n.id).left);
+  const rights = selected.map(n => bounds.get(n.id).right);
+  let target;
+  if (mode === 'top') target = Math.min(...tops);
+  else if (mode === 'bottom') target = Math.max(...bottoms);
+  else if (mode === 'middle') target = (Math.min(...tops) + Math.max(...bottoms)) / 2;
+  else if (mode === 'left') target = Math.min(...lefts);
+  else if (mode === 'right') target = Math.max(...rights);
+  else if (mode === 'center') target = (Math.min(...lefts) + Math.max(...rights)) / 2;
+
+  return nodes.map(n => {
+    if (!n.selected) return n;
+    const b = bounds.get(n.id);
+    if (mode === 'top') return { ...n, position: { ...n.position, y: target } };
+    if (mode === 'bottom') return { ...n, position: { ...n.position, y: target - b.height } };
+    if (mode === 'middle') return { ...n, position: { ...n.position, y: target - b.height / 2 } };
+    if (mode === 'left') return { ...n, position: { ...n.position, x: target } };
+    if (mode === 'right') return { ...n, position: { ...n.position, x: target - b.width } };
+    return { ...n, position: { ...n.position, x: target - b.width / 2 } }; // 'center'
+  });
+}
+
+function distributeSelectedNodes(nodes, axis) {
+  const selected = nodes.filter(n => n.selected);
+  if (selected.length < 3) return null;
+  const bounds = new Map(selected.map(n => [n.id, getNodeBounds(n)]));
+  const posKey = axis === 'horizontal' ? 'left' : 'top';
+  const sizeKey = axis === 'horizontal' ? 'width' : 'height';
+  const sorted = [...selected].sort((a, b) => bounds.get(a.id)[posKey] - bounds.get(b.id)[posKey]);
+  const first = bounds.get(sorted[0].id);
+  const last = bounds.get(sorted[sorted.length - 1].id);
+  const totalSpan = (last[posKey] + last[sizeKey]) - first[posKey];
+  const totalSize = sorted.reduce((sum, n) => sum + bounds.get(n.id)[sizeKey], 0);
+  const gap = (totalSpan - totalSize) / (sorted.length - 1);
+
+  let cursor = first[posKey];
+  const newPos = new Map();
+  sorted.forEach(n => {
+    const b = bounds.get(n.id);
+    newPos.set(n.id, cursor);
+    cursor += b[sizeKey] + gap;
+  });
+
+  return nodes.map(n => {
+    if (!newPos.has(n.id)) return n;
+    return axis === 'horizontal'
+      ? { ...n, position: { ...n.position, x: newPos.get(n.id) } }
+      : { ...n, position: { ...n.position, y: newPos.get(n.id) } };
+  });
+}
+
+// Always used now — "Fixed Sides" mode (one fixed Handle position per
+// node regardless of where the other end of a given edge actually was)
+// has been removed; every edge now finds its own real closest side.
+// Computes its own path directly from real node geometry (via the
+// functions above) instead of a fixed Handle position, then draws it
+// using whichever path shape (curved/rounded angles/hard angles/
+// straight) is currently selected — data.edgeType carries that choice
+// through, since this bypasses React Flow's own defaultEdgeOptions-
+// driven type switching. data.connectionPointMode carries the
+// Anywhere/Center choice through the same way.
+function RelatedAssetsFloatingEdge({ id, source, target, markerEnd, style, label, data }) {
+  const sourceNode = useInternalNode(source);
+  const targetNode = useInternalNode(target);
+  if (!sourceNode || !targetNode) return null;
+
+  const { sx, sy, tx, ty, sourcePos, targetPos } = getFloatingEdgeParams(sourceNode, targetNode, data?.connectionPointMode);
+  const edgeType = data?.edgeType ?? 'default';
+  let path, labelX, labelY;
+  if (edgeType === 'straight') {
+    [path, labelX, labelY] = getStraightPath({ sourceX: sx, sourceY: sy, targetX: tx, targetY: ty });
+  } else if (edgeType === 'step') {
+    [path, labelX, labelY] = getSmoothStepPath({ sourceX: sx, sourceY: sy, sourcePosition: sourcePos, targetX: tx, targetY: ty, targetPosition: targetPos, borderRadius: 0 });
+  } else if (edgeType === 'smoothstep') {
+    [path, labelX, labelY] = getSmoothStepPath({ sourceX: sx, sourceY: sy, sourcePosition: sourcePos, targetX: tx, targetY: ty, targetPosition: targetPos });
+  } else {
+    [path, labelX, labelY] = getBezierPath({ sourceX: sx, sourceY: sy, sourcePosition: sourcePos, targetX: tx, targetY: ty, targetPosition: targetPos });
+  }
+
+  return <BaseEdge id={id} path={path} labelX={labelX} labelY={labelY} label={label} markerEnd={markerEnd} style={style} />;
+}
+// Defined once at module scope, same reasoning as RELATED_ASSETS_NODE_TYPES below.
+const RELATED_ASSETS_EDGE_TYPES = { floatingEdge: RelatedAssetsFloatingEdge };
+
+// React Flow's built-in default node type comes with handles already —
+// a custom type (needed here to reuse the Cards view's real property
+// rendering, via RelatedAssetBoxContent) must add its own explicitly, per
+// React Flow's own custom-node docs. Both a target and source handle are
+// always present regardless of whether this particular node happens to
+// use both in the current graph, since the same node reused elsewhere
+// might need the other one.
+function RelatedAssetDiagramNode({ data }) {
+  return (
+    <div className={`op-related-asset-box${data.isCenter ? ' op-related-asset-box--center' : ''}`}>
+      <Handle type="target" position={data.targetHandlePosition} />
+      <RelatedAssetBoxContent
+        relatedTypeId={data.relatedTypeId}
+        relatedTypeName={data.relatedTypeName}
+        relatedTypeExampleAssetId={data.relatedTypeExampleAssetId}
+        typeDisplayTemplates={data.typeDisplayTemplates}
+        typePropertyConfigs={data.typePropertyConfigs}
+        evidencePoints={data.evidencePoints}
+      />
+      <Handle type="source" position={data.sourceHandlePosition} />
+    </div>
+  );
+}
+// Defined once at module scope — React Flow warns (and can misbehave) if
+// nodeTypes is a fresh object on every render.
+const RELATED_ASSETS_NODE_TYPES = { relatedAssetNode: RelatedAssetDiagramNode };
+
+// Property-layout manual mode's own node type — one property tile per
+// node, positioned freely on the canvas. No Handle elements at all: unlike
+// RelatedAssetDiagramNode, this graph never has edges (properties don't
+// relate to each other the way types do), so there's nothing to connect.
+function PropertyLayoutNode({ data }) {
+  return (
+    <div className="op-property-layout-node">
+      <StatTile {...data.tileProps} />
+    </div>
+  );
+}
+const PROPERTY_LAYOUT_NODE_TYPES = { propertyLayoutNode: PropertyLayoutNode };
+
+// Related Assets tab's relational-diagram view — the current type plus its
+// related assets as a node-link diagram, auto-laid-out via ELK. Self-
+// contained ReactFlowProvider so this can be dropped in anywhere without
+// the caller needing to remember to wrap it.
+function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, graphScope, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode }) {
+  return (
+    <ReactFlowProvider>
+      <RelatedAssetsDiagramInner
+        currentTypeId={currentTypeId}
+        currentTypeName={currentTypeName}
+        currentTypeExampleAssetId={currentTypeExampleAssetId}
+        visibleRows={visibleRows}
+        typeList={typeList}
+        graphScope={graphScope}
+        typeDisplayTemplates={typeDisplayTemplates}
+        typePropertyConfigs={typePropertyConfigs}
+        evidencePoints={evidencePoints}
+        diagramAlgorithm={diagramAlgorithm}
+        diagramDirection={diagramDirection}
+        diagramEdgeRouting={diagramEdgeRouting}
+        diagramNodeSpacing={diagramNodeSpacing}
+        diagramLayerSpacing={diagramLayerSpacing}
+        diagramAspectRatio={diagramAspectRatio}
+        diagramShowLabels={diagramShowLabels}
+        diagramShowArrowheads={diagramShowArrowheads}
+        diagramConnectionPointMode={diagramConnectionPointMode}
+        diagramLayoutResetSignal={diagramLayoutResetSignal}
+        onManualEdit={onManualEdit}
+        setDiagramShowLabels={setDiagramShowLabels}
+        setDiagramShowArrowheads={setDiagramShowArrowheads}
+        setDiagramConnectionPointMode={setDiagramConnectionPointMode}
+      />
+    </ReactFlowProvider>
+  );
+}
+
+function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, graphScope, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode }) {
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  // NodePositionChange (dragging:false marks the drag settling) is a
+  // completely distinct change type from NodeDimensionChange (React
+  // Flow's own ResizeObserver-driven measurement) — verified against
+  // React Flow's own type reference before relying on this, so a node
+  // simply being measured can never be mistaken for the user moving it.
+  const handleNodesChange = (changes) => {
+    if (changes.some(c => c.type === 'position' && c.dragging === false)) {
+      onManualEdit();
+    }
+    onNodesChange(changes);
+  };
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const nodesInitialized = useNodesInitialized();
+  const { getNodes } = useReactFlow();
+  // Some ELK algorithms can't handle every graph shape — Radial's
+  // recursive tree-based traversal, for one, blows the call stack on a
+  // graph with a genuine cycle (verified directly: reproduced the exact
+  // crash calling elkjs's own radial algorithm on wastewater's real
+  // Model-scope graph, which has the RAS return-line cycle; layered,
+  // mrtree, force, and stress all handled the same graph fine). Rather
+  // than let that propagate into an uncaught rejection, this holds a
+  // message to show instead of a blank/broken canvas.
+  const [layoutError, setLayoutError] = useState(null);
+  // Bumped every time the underlying type/related-assets data changes,
+  // seeding a fresh, hidden, unpositioned generation of nodes. The layout
+  // effect below tracks a "signature" combining this generation with the
+  // current algorithm/direction choice, and only re-runs ELK when that
+  // combination actually changes — so switching layouts to compare them
+  // re-flows the existing (already-measured, already-visible) nodes
+  // straight to their new positions, rather than re-hiding everything and
+  // re-measuring from scratch each time.
+  const generationRef = useRef(0);
+  const laidOutSignatureRef = useRef(null);
+
+  const isVertical = diagramDirection === 'DOWN';
+  const targetHandlePosition = isVertical ? 'top' : 'left';
+  const sourceHandlePosition = isVertical ? 'bottom' : 'right';
+
+  // Pass 1: seed a fresh, hidden, unpositioned generation of nodes/edges
+  // whenever the underlying data changes. No width/height forced here —
+  // each node renders at its own natural, content-based size (title +
+  // StatTiles) so React Flow can measure the real thing, not a guess.
+  // 'focused' scope is the current type plus its immediate related
+  // assets; 'model' scope is every type-to-type relationship across the
+  // whole current model, with the currently-selected type (if it happens
+  // to appear) still marked isCenter for orientation in a bigger graph.
+  useEffect(() => {
+    generationRef.current += 1;
+    let rawNodes;
+    let rawEdges;
+
+    if (graphScope === 'model') {
+      const { nodes: modelNodes, edges: modelEdges } = getAllTypeRelationshipsForModel(typeList);
+      rawNodes = modelNodes.map(n => ({
+        id: n.typeId,
+        type: 'relatedAssetNode',
+        data: {
+          isCenter: n.typeId === currentTypeId,
+          relatedTypeId: n.typeId,
+          relatedTypeName: n.typeName,
+          relatedTypeExampleAssetId: n.exampleAssetId,
+          typeDisplayTemplates,
+          typePropertyConfigs,
+          evidencePoints,
+          targetHandlePosition,
+          sourceHandlePosition,
+        },
+        position: { x: 0, y: 0 },
+        style: { visibility: 'hidden' },
+      }));
+      rawEdges = modelEdges.map(e => ({
+        id: e.key,
+        source: e.sourceTypeId,
+        target: e.targetTypeId,
+        label: e.relationshipLabel,
+      }));
+    } else {
+      rawNodes = [
+        {
+          id: currentTypeId,
+          type: 'relatedAssetNode',
+          data: {
+            isCenter: true,
+            relatedTypeId: currentTypeId,
+            relatedTypeName: currentTypeName,
+            relatedTypeExampleAssetId: currentTypeExampleAssetId,
+            typeDisplayTemplates,
+            typePropertyConfigs,
+            evidencePoints,
+            targetHandlePosition,
+            sourceHandlePosition,
+          },
+          position: { x: 0, y: 0 },
+          style: { visibility: 'hidden' },
+        },
+        ...visibleRows.map(row => ({
+          id: row.relatedTypeId,
+          type: 'relatedAssetNode',
+          data: {
+            isCenter: false,
+            relatedTypeId: row.relatedTypeId,
+            relatedTypeName: row.relatedTypeName,
+            relatedTypeExampleAssetId: row.relatedTypeExampleAssetId,
+            typeDisplayTemplates,
+            typePropertyConfigs,
+            evidencePoints,
+            targetHandlePosition,
+            sourceHandlePosition,
+          },
+          position: { x: 0, y: 0 },
+          style: { visibility: 'hidden' },
+        })),
+      ];
+      // relationshipLabel already carries a →/← prefix for the cards
+      // view's own display — stripped here since the edge's source/target
+      // order conveys direction natively in a diagram, so keeping both
+      // would be redundant.
+      rawEdges = visibleRows.map(row => ({
+        id: row.key,
+        source: row.direction === 'out' ? currentTypeId : row.relatedTypeId,
+        target: row.direction === 'out' ? row.relatedTypeId : currentTypeId,
+        label: row.relationshipLabel.replace(/^[→←]\s*/, ''),
+      }));
+    }
+
+    setNodes(rawNodes);
+    setEdges(rawEdges);
+    // Deliberately NOT depending on diagramAlgorithm/diagramDirection/
+    // targetHandlePosition/sourceHandlePosition — changing just the
+    // layout choice is handled by the effect below, reusing these same
+    // nodes rather than re-seeding (and re-hiding) them.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graphScope, currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, typeDisplayTemplates, typePropertyConfigs, evidencePoints, setNodes, setEdges]);
+
+  // Layout effect: runs ELK and reveals the result whenever either (a) a
+  // fresh generation just got seeded above and needs its first layout, or
+  // (b) the algorithm/direction choice changed for the current
+  // generation. Case (a) needs nodesInitialized (nothing to measure yet);
+  // case (b) reuses each node's already-known measured size directly, so
+  // there's no hide/reveal flicker — nodes flow straight to their new
+  // positions. Avoids the "flash of nodes stacked in the corner, then
+  // jump to final position" issue documented in xyflow's own community
+  // discussions (xyflow/xyflow#2973) for any measurement-dependent
+  // layout on first paint.
+  useEffect(() => {
+    const signature = `${generationRef.current}::${diagramAlgorithm}::${diagramDirection}::${diagramEdgeRouting}::${diagramNodeSpacing}::${diagramLayerSpacing}::${diagramAspectRatio}::${diagramLayoutResetSignal}`;
+    if (laidOutSignatureRef.current === signature) return;
+    const currentNodes = getNodes();
+    const isFirstLayoutForThisGeneration = laidOutSignatureRef.current === null
+      || !laidOutSignatureRef.current.startsWith(`${generationRef.current}::`);
+    if (isFirstLayoutForThisGeneration && !nodesInitialized) return;
+    if (currentNodes.length === 0) return;
+    const sizedNodes = currentNodes.map(n => ({
+      ...n,
+      width: n.measured?.width ?? n.width,
+      height: n.measured?.height ?? n.height,
+      data: { ...n.data, targetHandlePosition, sourceHandlePosition },
+    }));
+    getElkLayoutedElements(sizedNodes, edges, {
+      algorithm: diagramAlgorithm,
+      direction: diagramDirection,
+      edgeRouting: diagramEdgeRouting,
+      nodeSpacing: diagramNodeSpacing,
+      layerSpacing: diagramLayerSpacing,
+      aspectRatio: diagramAspectRatio,
+    }).then(({ nodes: laidOutNodes, edges: laidOutEdges }) => {
+      // A newer generation (or a further layout-option change) may have
+      // started while this ELK call was in flight. Discard this stale
+      // result rather than overwriting newer data.
+      const currentSignature = `${generationRef.current}::${diagramAlgorithm}::${diagramDirection}::${diagramEdgeRouting}::${diagramNodeSpacing}::${diagramLayerSpacing}::${diagramAspectRatio}::${diagramLayoutResetSignal}`;
+      if (signature !== currentSignature) return;
+      laidOutSignatureRef.current = signature;
+      setLayoutError(null);
+      setNodes(laidOutNodes.map(n => ({ ...n, style: { visibility: 'visible' } })));
+      // Every edge now renders via RelatedAssetsFloatingEdge (computing
+      // its own path from real node geometry) rather than React Flow's
+      // defaultEdgeOptions-driven type — that component reads which
+      // path shape to use from data.edgeType. Edge type is fixed to
+      // 'step' (hard angles) throughout, no longer a choice.
+      // Label/arrowhead visibility and connection-point mode are applied
+      // separately below (displayedEdges) since none of them affect
+      // ELK's own layout — no need to re-run it for any of those.
+      setEdges(laidOutEdges.map(e => ({ ...e, type: 'floatingEdge', data: { ...e.data, edgeType: 'step' } })));
+    }).catch(err => {
+      // Radial's recursive traversal can't handle a graph with a genuine
+      // cycle (verified directly against elkjs itself) — rather than an
+      // uncaught rejection leaving a blank or stale canvas, surface this
+      // clearly and leave whatever was already visible in place.
+      laidOutSignatureRef.current = signature;
+      setLayoutError(`The ${RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.find(a => a.value === diagramAlgorithm)?.label ?? diagramAlgorithm} layout couldn't handle this graph (${err.message}). Try a different algorithm.`);
+    });
+  }, [nodesInitialized, edges, getNodes, setNodes, setEdges, diagramAlgorithm, diagramDirection, targetHandlePosition, sourceHandlePosition, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramLayoutResetSignal]);
+
+  // None of these three affect ELK's own layout at all — label and
+  // arrowhead visibility are pure rendering choices, and connection-
+  // point mode only changes where along the already-determined closest
+  // side RelatedAssetsFloatingEdge lands (see getFloatingEdgeParams) —
+  // so all three are applied here, at render time, rather than
+  // triggering a re-layout the way algorithm/spacing/etc. do above.
+  const displayedEdges = useMemo(
+    () => edges.map(e => ({
+      ...e,
+      label: diagramShowLabels === 'shown' ? e.label : undefined,
+      markerEnd: diagramShowArrowheads === 'shown' ? { type: MarkerType.ArrowClosed, color: '#5a5a5a' } : undefined,
+      data: { ...e.data, connectionPointMode: diagramConnectionPointMode },
+    })),
+    [edges, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode]
+  );
+
+  // Captures the current, actual on-screen arrangement (including any
+  // manual dragging) as plain JSON — node id/position/size and each
+  // edge's source/target — so it can be copied out and shared/analyzed
+  // outside the app, or eventually reloaded as a saved layout.
+  const handleCopyLayout = () => {
+    const layoutData = {
+      nodes: nodes.map(n => ({
+        id: n.id,
+        x: Math.round(n.position.x),
+        y: Math.round(n.position.y),
+        width: Math.round(n.measured?.width ?? n.width ?? 0),
+        height: Math.round(n.measured?.height ?? n.height ?? 0),
+      })),
+      edges: edges.map(e => ({ source: e.source, target: e.target })),
+    };
+    navigator.clipboard.writeText(JSON.stringify(layoutData, null, 2)).then(() => {
+      notify('Layout copied to clipboard', 'success', 2000);
+    }).catch(() => {
+      notify('Could not copy — clipboard access blocked', 'error', 3000);
+    });
+  };
+
+  const handleAlign = (mode) => {
+    const result = alignSelectedNodes(nodes, mode);
+    if (result === null) {
+      notify('Select at least 2 nodes to align (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    onManualEdit();
+    setNodes(result);
+  };
+
+  const handleDistribute = (axis) => {
+    const result = distributeSelectedNodes(nodes, axis);
+    if (result === null) {
+      notify('Select at least 3 nodes to distribute (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    onManualEdit();
+    setNodes(result);
+  };
+
+  return (
+    <div className="op-related-assets-diagram">
+      {layoutError && (
+        <div className="op-dash-text op-dash-text--muted" style={{ padding: 16 }}>{layoutError}</div>
+      )}
+      <ReactFlow
+        nodes={nodes}
+        edges={displayedEdges}
+        nodeTypes={RELATED_ASSETS_NODE_TYPES}
+        edgeTypes={RELATED_ASSETS_EDGE_TYPES}
+        onNodesChange={handleNodesChange}
+        onEdgesChange={onEdgesChange}
+        defaultEdgeOptions={{ type: 'step', style: { strokeWidth: 3 } }}
+        minZoom={0.05}
+        fitView
+      >
+        <Background color="#b0b0b0" />
+        <Panel position="top-left">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramConnectionPointMode]} onItemClick={e => setDiagramConnectionPointMode(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_CONNECTION_POINT_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowArrowheads]} onItemClick={e => setDiagramShowArrowheads(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_SHOW_ARROWHEADS_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowLabels]} onItemClick={e => setDiagramShowLabels(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_SHOW_LABELS_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleDistribute(e.itemData.value)} stylingMode="outlined">
+                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            </div>
+            <Button text="Copy Layout" onClick={handleCopyLayout} stylingMode="outlined" />
+          </div>
+        </Panel>
+      </ReactFlow>
+    </div>
+  );
+}
+
+
 // 2-position slider for related-asset density: min shows only assets
 // marked "always" in the left table, max shows every related asset
 // regardless of its own marking. Same concept as the properties tab's
@@ -2092,129 +3187,503 @@ const formatRelatedAssetDensityLabel = (v) => RELATED_ASSET_DENSITY_LABELS[v] ??
 // how the boxes themselves flow, not what's inside them. Each box shows
 // only P1 ("headline") properties, so this stays a genuine preview rather
 // than every related asset's full property list.
-function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs }) {
-  const [densityFilter, setDensityFilter] = useState('always');
-  const [flowDirection, setFlowDirection] = useState('row');
-  const [flowWrap, setFlowWrap] = useState('wrap');
-  const [alignContent, setAlignContent] = useState('flex-start');
+// Renders a related type's title plus its "always"-visible properties as
+// StatTiles, using that type's own saved display template — the single
+// source of truth for a related asset's content, shared by the Cards
+// view's boxes (wrapped in .op-related-asset-box) and the Diagram view's
+// custom node (wrapped differently, with Handles added around it).
+function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, evidencePoints }) {
+  const resolved = resolveAssetProperties(relatedTypeExampleAssetId);
+  const properties = resolved?.properties;
+  const sparklineSource = resolved?.sparklineSource;
+  if (!properties) return null;
 
-  const visibleRows = relatedAssetRows.filter(r => densityFilter === 'all' || r.visibility === 'always');
+  // Each box uses that related type's own saved display template (the
+  // same one set via the Properties tab's Save Template button) rather
+  // than one shared setting for every box — a pump the user configured as
+  // Indicator, a valve as Text, and a tank as All each render according
+  // to their own choice. Falls back to the same defaults
+  // HmiPropertiesListing itself uses for a type that's never been
+  // explicitly saved.
+  const template = typeDisplayTemplates?.[relatedTypeId];
+  const boxViewMode = template?.viewMode ?? 'text';
+  const boxFlowDirection = template?.flowDirection ?? 'row';
+  const boxFlowWrap = template?.flowWrap ?? 'wrap';
+  const boxAlignContent = template?.alignContent ?? 'flex-start';
+
+  // Shows the properties this type has actually been configured as
+  // "always" visible via the Properties tab's own visibility toggle
+  // (typePropertyConfigs) — not the data-driven P1/P2/P3 tier, which is a
+  // fixed classification independent of what the user has customized for
+  // this specific type. A property with no explicit override defaults to
+  // "always" too, matching getPropertyVisibilityForType's own default
+  // elsewhere.
+  const visibilityRows = getPropertyVisibilityForType(relatedTypeId, properties, typePropertyConfigs);
+  const alwaysEntries = visibilityRows
+    .filter(p => p.visibility === 'always')
+    .map(p => [p.key, properties[p.key]]);
+  const entriesToShow = alwaysEntries.length ? alwaysEntries : Object.entries(properties);
+  const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
+
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
   const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;
 
   return (
+    <>
+      <div className="op-hmiprops-card-title">{relatedTypeName}</div>
+      <div
+        className={boxKpisClass}
+        style={{ flexDirection: boxFlowDirection, flexWrap: boxFlowWrap, alignContent: boxAlignContent }}
+      >
+        {entriesToShow.map(([key, value]) => {
+          const range = PROPERTY_RANGES[key];
+          const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+          const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
+          return (
+            <StatTile
+              key={key}
+              label={PROPERTY_LABELS[key] || key}
+              value={value}
+              min={range ? range[0] : undefined}
+              max={range ? range[1] : undefined}
+              sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+              horizontal
+              labelFirst
+              viewMode={boxViewMode}
+            />
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// Property manual layout — no saved position yet (a property newly
+// revealed by a tier-filter change, or added after positions were last
+// saved) lands here: "stack in the corner," never an auto-placement
+// search, matching the no-reflow decision for this whole feature.
+const PROPERTY_LAYOUT_DEFAULT_POSITION = { x: 0, y: 0 };
+const PROPERTY_LAYOUT_GRID_SIZE = 20;
+// "Arrange in Grid" spacing — generous enough for the tallest tile type
+// (indicator, ~110-130px content) without overlap at default sizes.
+const PROPERTY_LAYOUT_ARRANGE_CELL_WIDTH = 150;
+const PROPERTY_LAYOUT_ARRANGE_CELL_HEIGHT = 140;
+const PROPERTY_LAYOUT_ARRANGE_COLUMNS = 4;
+
+// Manual property-layout canvas — one node per visible property, no
+// edges ever (properties don't relate to each other the way types do).
+// Self-contained ReactFlowProvider, same reasoning as RelatedAssetsDiagram.
+function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange }) {
+  return (
+    <ReactFlowProvider>
+      <PropertyLayoutCanvasInner tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} />
+    </ReactFlowProvider>
+  );
+}
+
+function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }) {
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    tiles.map(t => ({
+      id: t.key,
+      type: 'propertyLayoutNode',
+      position: manualPositions[t.key] ?? PROPERTY_LAYOUT_DEFAULT_POSITION,
+      data: { tileProps: t.tileProps },
+    }))
+  );
+
+  // Keeps the node set in sync when which properties are visible changes
+  // (tier filter, or a property's underlying value changing) without
+  // disturbing the working position of any property that stays visible.
+  // Deliberately keyed on tileKeysSignature (a plain string) rather than
+  // the tiles array itself — tiles is rebuilt fresh on every render of
+  // the parent (HmiPropertiesListing) regardless of whether the visible
+  // property set actually changed, so depending on the array reference
+  // directly caused this effect to re-fire every render, which in turn
+  // re-triggered the position-reporting effect below, which triggered
+  // the parent to re-render again — an infinite loop, caught directly
+  // via a real component test before this ever reached production.
+  // tiles itself is still read fresh inside the effect body (via closure)
+  // for its actual tileProps content, just not used as the trigger.
+  const tileKeysSignature = tiles.map(t => t.key).join('|');
+  useEffect(() => {
+    setNodes(current => {
+      const tileMap = new Map(tiles.map(t => [t.key, t]));
+      const kept = current
+        .filter(n => tileMap.has(n.id))
+        .map(n => ({ ...n, data: { tileProps: tileMap.get(n.id).tileProps } }));
+      const keptIds = new Set(kept.map(n => n.id));
+      const added = tiles
+        .filter(t => !keptIds.has(t.key))
+        .map(t => ({
+          id: t.key,
+          type: 'propertyLayoutNode',
+          position: manualPositions[t.key] ?? PROPERTY_LAYOUT_DEFAULT_POSITION,
+          data: { tileProps: t.tileProps },
+        }));
+      return [...kept, ...added];
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tileKeysSignature]);
+
+  // Reports the working position set up to the parent on every change —
+  // Save Template picks this up as part of its own payload when the user
+  // actually saves. This component only owns the live editing canvas,
+  // same separation as the diagram's own nodes state vs. Copy Layout.
+  useEffect(() => {
+    const positions = {};
+    nodes.forEach(n => { positions[n.id] = { x: Math.round(n.position.x), y: Math.round(n.position.y) }; });
+    onPositionsChange(positions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes]);
+
+  const handleAlign = (mode) => {
+    const result = alignSelectedNodes(nodes, mode);
+    if (result === null) {
+      notify('Select at least 2 properties to align (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    setNodes(result);
+  };
+
+  const handleDistribute = (axis) => {
+    const result = distributeSelectedNodes(nodes, axis);
+    if (result === null) {
+      notify('Select at least 3 properties to distribute (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    setNodes(result);
+  };
+
+  // One-shot convenience, not a persistent layout algorithm — just packs
+  // every currently-visible property into sequential grid cells in their
+  // current order. Free to build on top of Align/Distribute's existing
+  // node-shaped-array plumbing.
+  const handleArrangeGrid = () => {
+    setNodes(current => current.map((n, i) => ({
+      ...n,
+      position: {
+        x: (i % PROPERTY_LAYOUT_ARRANGE_COLUMNS) * PROPERTY_LAYOUT_ARRANGE_CELL_WIDTH,
+        y: Math.floor(i / PROPERTY_LAYOUT_ARRANGE_COLUMNS) * PROPERTY_LAYOUT_ARRANGE_CELL_HEIGHT,
+      },
+    })));
+  };
+
+  return (
+    <div className="op-property-layout-canvas">
+      <ReactFlow
+        nodes={nodes}
+        edges={[]}
+        nodeTypes={PROPERTY_LAYOUT_NODE_TYPES}
+        onNodesChange={onNodesChange}
+        snapToGrid
+        snapGrid={[PROPERTY_LAYOUT_GRID_SIZE, PROPERTY_LAYOUT_GRID_SIZE]}
+        minZoom={0.1}
+        fitView
+      >
+        <Background color="#b0b0b0" />
+        <Panel position="top-right">
+          <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
+            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
+              {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
+              {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleDistribute(e.itemData.value)} stylingMode="outlined">
+              {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <Button text="Arrange in Grid" onClick={handleArrangeGrid} stylingMode="outlined" />
+          </div>
+        </Panel>
+      </ReactFlow>
+    </div>
+  );
+}
+
+function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList }) {
+  const [densityFilter, setDensityFilter] = useState('always');
+  const [layoutMode, setLayoutMode] = useState('cards');
+  const [flowDirection, setFlowDirection] = useState('row');
+  const [flowWrap, setFlowWrap] = useState('wrap');
+  const [alignContent, setAlignContent] = useState('flex-start');
+  const [diagramAlgorithm, setDiagramAlgorithm] = useState('layered');
+  const [diagramDirection, setDiagramDirection] = useState('RIGHT');
+  const [diagramEdgeRouting, setDiagramEdgeRouting] = useState('ORTHOGONAL');
+  const [diagramNodeSpacing, setDiagramNodeSpacing] = useState(40);
+  const [diagramLayerSpacing, setDiagramLayerSpacing] = useState(80);
+  const [diagramAspectRatio, setDiagramAspectRatio] = useState(8);
+  const [diagramShowLabels, setDiagramShowLabels] = useState('hidden');
+  const [diagramShowArrowheads, setDiagramShowArrowheads] = useState('shown');
+  const [diagramConnectionPointMode, setDiagramConnectionPointMode] = useState('center');
+  // 'auto': layout-affecting controls are live, ELK drives node positions.
+  // 'manual': entered the instant the user drags a node or uses Align/
+  // Distribute (see onManualEdit below) — layout-affecting controls
+  // become disabled until the user explicitly confirms leaving manual
+  // mode via the Reset button, which increments layoutResetSignal to
+  // force a fresh ELK computation even if no other setting changed.
+  const [diagramLayoutMode, setDiagramLayoutMode] = useState('auto');
+  const [diagramLayoutResetSignal, setDiagramLayoutResetSignal] = useState(0);
+  const handleManualEdit = () => setDiagramLayoutMode('manual');
+  const handleConfirmResetToAuto = () => {
+    confirm(
+      `This will discard your manual positioning and re-run the ${RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.find(a => a.value === diagramAlgorithm)?.label ?? diagramAlgorithm} layout. Continue?`,
+      'Reset to Auto Layout'
+    ).then(confirmed => {
+      if (!confirmed) return;
+      setDiagramLayoutMode('auto');
+      setDiagramLayoutResetSignal(s => s + 1);
+    });
+  };
+  const [graphScope, setGraphScope] = useState('focused');
+
+  // Memoized so the diagram view (which re-runs ELK's layout whenever this
+  // array changes) doesn't recompute on every unrelated re-render — only
+  // when the underlying rows or the density filter actually change.
+  const visibleRows = useMemo(
+    () => relatedAssetRows.filter(r => densityFilter === 'all' || r.visibility === 'always'),
+    [relatedAssetRows, densityFilter]
+  );
+
+  return (
     <div className="op-related-assets-preview">
       <div className="op-hmiprops-toolbar">
-        <div className="op-tierfilter-slider-wrap" style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-          <Slider
-            min={0}
-            max={1}
-            step={1}
-            value={RELATED_ASSET_DENSITY_VALUES.indexOf(densityFilter)}
-            onValueChanged={e => setDensityFilter(RELATED_ASSET_DENSITY_VALUES[e.value] ?? 'all')}
-            className="op-tierfilter-slider"
-            style={{ width: '100%' }}
-          >
-            <SliderLabel visible format={formatRelatedAssetDensityLabel} position="bottom" />
-          </Slider>
-        </div>
+        {!(layoutMode === 'diagram' && graphScope === 'model') && (
+          <div className="op-tierfilter-slider-wrap" style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+            <Slider
+              min={0}
+              max={1}
+              step={1}
+              value={RELATED_ASSET_DENSITY_VALUES.indexOf(densityFilter)}
+              onValueChanged={e => setDensityFilter(RELATED_ASSET_DENSITY_VALUES[e.value] ?? 'all')}
+              className="op-tierfilter-slider"
+              style={{ width: '100%' }}
+            >
+              <SliderLabel visible format={formatRelatedAssetDensityLabel} position="bottom" />
+            </Slider>
+          </div>
+        )}
         <ButtonGroup
           keyExpr="value"
-          selectedItemKeys={[flowDirection]}
-          onItemClick={e => setFlowDirection(e.itemData.value)}
+          selectedItemKeys={[layoutMode]}
+          onItemClick={e => setLayoutMode(e.itemData.value)}
           stylingMode="outlined"
           className="op-dash-chart-toggle"
         >
-          {FLOW_DIRECTION_ITEMS.map(item => (
+          {RELATED_ASSETS_LAYOUT_MODE_ITEMS.map(item => (
             <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
           ))}
         </ButtonGroup>
-        <ButtonGroup
-          keyExpr="value"
-          selectedItemKeys={[flowWrap]}
-          onItemClick={e => setFlowWrap(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        >
-          {FLOW_WRAP_ITEMS.map(item => (
-            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-          ))}
-        </ButtonGroup>
-        <ButtonGroup
-          keyExpr="value"
-          selectedItemKeys={[alignContent]}
-          onItemClick={e => setAlignContent(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        >
-          {ALIGN_CONTENT_ITEMS.map(item => (
-            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-          ))}
-        </ButtonGroup>
+        {layoutMode === 'cards' && (
+          <>
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[flowDirection]}
+              onItemClick={e => setFlowDirection(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {FLOW_DIRECTION_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[flowWrap]}
+              onItemClick={e => setFlowWrap(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {FLOW_WRAP_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[alignContent]}
+              onItemClick={e => setAlignContent(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+            >
+              {ALIGN_CONTENT_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+              ))}
+            </ButtonGroup>
+          </>
+        )}
+        {layoutMode === 'diagram' && (
+          <>
+            <span
+              className="op-dash-text"
+              style={{
+                padding: '4px 10px',
+                borderRadius: 12,
+                fontSize: 11,
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                background: diagramLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
+                color: diagramLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
+              }}
+            >
+              {diagramLayoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout'}
+            </span>
+            {diagramLayoutMode === 'manual' && (
+              <Button text="Reset to Auto Layout" onClick={handleConfirmResetToAuto} stylingMode="outlined" />
+            )}
+            <ButtonGroup
+              keyExpr="value"
+              selectedItemKeys={[graphScope]}
+              onItemClick={e => setGraphScope(e.itemData.value)}
+              stylingMode="outlined"
+              className="op-dash-chart-toggle"
+              disabled={diagramLayoutMode === 'manual'}
+            >
+              {RELATED_ASSETS_GRAPH_SCOPE_ITEMS.map(item => (
+                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} />
+              ))}
+            </ButtonGroup>
+            <SelectBox
+              dataSource={RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS}
+              valueExpr="value"
+              displayExpr="label"
+              value={diagramAlgorithm}
+              onValueChanged={e => setDiagramAlgorithm(e.value)}
+              stylingMode="outlined"
+              width={110}
+              height={28}
+              disabled={diagramLayoutMode === 'manual'}
+            />
+            {RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS.has(diagramAlgorithm) && (
+              <ButtonGroup
+                keyExpr="value"
+                selectedItemKeys={[diagramDirection]}
+                onItemClick={e => setDiagramDirection(e.itemData.value)}
+                stylingMode="outlined"
+                className="op-dash-chart-toggle"
+                disabled={diagramLayoutMode === 'manual'}
+              >
+                {RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            )}
+            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+              <ButtonGroup
+                keyExpr="value"
+                selectedItemKeys={[diagramEdgeRouting]}
+                onItemClick={e => setDiagramEdgeRouting(e.itemData.value)}
+                stylingMode="outlined"
+                className="op-dash-chart-toggle"
+                disabled={diagramLayoutMode === 'manual'}
+              >
+                {RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            )}
+            <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+              <Slider
+                min={0}
+                max={200}
+                step={1}
+                value={diagramNodeSpacing}
+                onValueChanged={e => setDiagramNodeSpacing(e.value)}
+                valueChangeMode="onHandleRelease"
+                className="op-tierfilter-slider"
+                style={{ width: '100%' }}
+                disabled={diagramLayoutMode === 'manual'}
+              >
+                <SliderLabel visible format={v => `Nodes: ${v}`} position="bottom" />
+              </Slider>
+            </div>
+            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+              <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                <Slider
+                  min={0}
+                  max={200}
+                  step={1}
+                  value={diagramLayerSpacing}
+                  onValueChanged={e => setDiagramLayerSpacing(e.value)}
+                  valueChangeMode="onHandleRelease"
+                  className="op-tierfilter-slider"
+                  style={{ width: '100%' }}
+                  disabled={diagramLayoutMode === 'manual'}
+                >
+                  <SliderLabel visible format={v => `Layers: ${v}`} position="bottom" />
+                </Slider>
+              </div>
+            )}
+            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+              <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                <Slider
+                  min={0.2}
+                  max={8}
+                  step={0.1}
+                  value={diagramAspectRatio}
+                  onValueChanged={e => setDiagramAspectRatio(e.value)}
+                  valueChangeMode="onHandleRelease"
+                  className="op-tierfilter-slider"
+                  style={{ width: '100%' }}
+                  disabled={diagramLayoutMode === 'manual'}
+                >
+                  <SliderLabel visible format={v => `Ratio: ${v.toFixed(1)}`} position="bottom" />
+                </Slider>
+              </div>
+            )}
+          </>
+        )}
       </div>
-      {visibleRows.length === 0 ? (
+      {layoutMode === 'diagram' ? (
+        (graphScope === 'focused' && visibleRows.length === 0) ? (
+          <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
+        ) : (
+          <RelatedAssetsDiagram
+            currentTypeId={currentTypeId}
+            currentTypeName={currentTypeName}
+            currentTypeExampleAssetId={currentTypeExampleAssetId}
+            visibleRows={visibleRows}
+            typeList={typeList}
+            graphScope={graphScope}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            evidencePoints={evidencePoints}
+            diagramAlgorithm={diagramAlgorithm}
+            diagramDirection={diagramDirection}
+            diagramEdgeRouting={diagramEdgeRouting}
+            diagramNodeSpacing={diagramNodeSpacing}
+            diagramLayerSpacing={diagramLayerSpacing}
+            diagramAspectRatio={diagramAspectRatio}
+            diagramShowLabels={diagramShowLabels}
+            diagramShowArrowheads={diagramShowArrowheads}
+            diagramConnectionPointMode={diagramConnectionPointMode}
+            diagramLayoutResetSignal={diagramLayoutResetSignal}
+            onManualEdit={handleManualEdit}
+            setDiagramShowLabels={setDiagramShowLabels}
+            setDiagramShowArrowheads={setDiagramShowArrowheads}
+            setDiagramConnectionPointMode={setDiagramConnectionPointMode}
+          />
+        )
+      ) : visibleRows.length === 0 ? (
         <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
       ) : (
         <div className="op-related-assets-box-flow" style={{ flexDirection: flowDirection, flexWrap: flowWrap, alignContent }}>
-          {visibleRows.map(row => {
-            const resolved = resolveAssetProperties(row.relatedTypeExampleAssetId);
-            const properties = resolved?.properties;
-            const sparklineSource = resolved?.sparklineSource;
-            if (!properties) return null;
-            // Each box uses that related type's own saved display template
-            // (the same one set via the Properties tab's Save Template
-            // button) rather than one shared setting for every box — a
-            // pump the user configured as Indicator, a valve as Text, and
-            // a tank as All each render according to their own choice.
-            // Falls back to the same defaults HmiPropertiesListing itself
-            // uses for a type that's never been explicitly saved.
-            const template = typeDisplayTemplates?.[row.relatedTypeId];
-            const boxViewMode = template?.viewMode ?? 'text';
-            const boxFlowDirection = template?.flowDirection ?? 'row';
-            const boxFlowWrap = template?.flowWrap ?? 'wrap';
-            const boxAlignContent = template?.alignContent ?? 'flex-start';
-            // Shows the properties this type has actually been configured
-            // as "always" visible via the Properties tab's own visibility
-            // toggle (typePropertyConfigs) — not the data-driven P1/P2/P3
-            // tier, which is a fixed classification independent of what
-            // the user has customized for this specific type. A property
-            // with no explicit override defaults to "always" too, matching
-            // getPropertyVisibilityForType's own default elsewhere.
-            const visibilityRows = getPropertyVisibilityForType(row.relatedTypeId, properties, typePropertyConfigs);
-            const alwaysEntries = visibilityRows
-              .filter(p => p.visibility === 'always')
-              .map(p => [p.key, properties[p.key]]);
-            const entriesToShow = alwaysEntries.length ? alwaysEntries : Object.entries(properties);
-            const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
-            return (
-              <div key={row.key} className="op-related-asset-box">
-                <div className="op-hmiprops-card-title">{row.relatedTypeName}</div>
-                <div
-                  className={boxKpisClass}
-                  style={{ flexDirection: boxFlowDirection, flexWrap: boxFlowWrap, alignContent: boxAlignContent }}
-                >
-                  {entriesToShow.map(([key, value]) => {
-                    const range = PROPERTY_RANGES[key];
-                    const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
-                    const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
-                    return (
-                      <StatTile
-                        key={key}
-                        label={PROPERTY_LABELS[key] || key}
-                        value={value}
-                        min={range ? range[0] : undefined}
-                        max={range ? range[1] : undefined}
-                        sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
-                        horizontal
-                        labelFirst
-                        viewMode={boxViewMode}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+          {visibleRows.map(row => (
+            <div key={row.key} className="op-related-asset-box">
+              <RelatedAssetBoxContent
+                relatedTypeId={row.relatedTypeId}
+                relatedTypeName={row.relatedTypeName}
+                relatedTypeExampleAssetId={row.relatedTypeExampleAssetId}
+                typeDisplayTemplates={typeDisplayTemplates}
+                typePropertyConfigs={typePropertyConfigs}
+                evidencePoints={evidencePoints}
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -2398,7 +3867,7 @@ function NowTypeDetail({ title, typeId, typeList, properties, sparklineSource, e
               </SplitterItem>
               <SplitterItem resizable={true}>
                 <div className="op-dashboard-card op-now-type-kpi-card">
-                  <RelatedAssetsPreview relatedAssetRows={relatedAssetRows} evidencePoints={evidencePoints} typeDisplayTemplates={typeDisplayTemplates} typePropertyConfigs={typePropertyConfigs} />
+                  <RelatedAssetsPreview relatedAssetRows={relatedAssetRows} evidencePoints={evidencePoints} typeDisplayTemplates={typeDisplayTemplates} typePropertyConfigs={typePropertyConfigs} currentTypeId={typeId} currentTypeName={title} currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId} typeList={typeList} />
                 </div>
               </SplitterItem>
             </Splitter>
