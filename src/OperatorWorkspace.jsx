@@ -22,7 +22,9 @@
 // separate chat surface — this is the thing the brainstorm doc keeps
 // calling out as the actual differentiator vs. a traditional HMI+chatbot.
 
-import React, { useState, useMemo, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle, useSyncExternalStore } from 'react';
+import { Popover } from 'devextreme-react/popover';
+import { CheckBox } from 'devextreme-react/check-box';
 import { Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
@@ -495,6 +497,312 @@ const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i => i.valu
 // the two can't drift apart.
 function resolvePropertyViewMode(propertyViewModes, key, defaultViewMode) {
   return propertyViewModes?.[key] ?? defaultViewMode;
+}
+
+// Per-property visuals merge property by property, asset over type —
+// unlike the rest of the display template (viewMode, flow, manual
+// layout), which is still all-or-nothing. An asset stores only the
+// properties it has explicitly set itself; every other property keeps
+// following its type's per-property choice, even after the asset saves a
+// template of its own, and even if the type's choice changes later. A
+// property set at neither level falls back to the effective template's
+// viewMode (the asset's own if it has a template, else its type's). So
+// the full precedence for one property is:
+//   asset's own choice > type's choice > effective default viewMode.
+// Same shape as property visibility, which has always merged this way.
+function mergePropertyViewModes(typeTemplate, assetTemplate) {
+  return { ...(typeTemplate?.propertyViewModes || {}), ...(assetTemplate?.propertyViewModes || {}) };
+}
+
+// ─── Asset customizations: which assets differ from their type ─────────
+//
+// "Customized" deliberately means "renders differently from its type",
+// not merely "has asset-level entries stored". Saving an asset writes its
+// whole display template — layout fields copied straight from the type —
+// so an asset whose only change was one property's visual would otherwise
+// also read as having a customized layout. Comparing against the type
+// keeps the indicators honest. (Revert still clears every asset-level
+// entry, matching or not — see hasOwn below — so a reverted asset follows
+// all future type changes again.)
+
+// A display template's layout fields with the same defaults every
+// renderer uses, so "no template" and "a template holding the defaults"
+// compare equal. Manual positions only matter in manual mode.
+function normalizedLayout(template) {
+  const layoutMode = template?.layoutMode ?? 'auto';
+  return JSON.stringify({
+    viewMode: template?.viewMode ?? 'text',
+    flowDirection: template?.flowDirection ?? 'row',
+    flowWrap: template?.flowWrap ?? 'wrap',
+    alignContent: template?.alignContent ?? 'flex-start',
+    layoutMode,
+    manualPositions: layoutMode === 'manual' ? (template?.manualPositions ?? {}) : {},
+  });
+}
+
+function assetTypeIdOf(asset) {
+  return `TYPE_${asset.assetLevel}_${asset.assetType}`;
+}
+
+// "Aurelia › A1 › Buffer" — the full path, since sibling assets of the
+// same type (every line's Buffer) otherwise read identically in a list.
+function getAssetPathLabel(assetId) {
+  const names = [];
+  const seen = new Set();
+  let current = CURRENT_ASSET_MAP[assetId];
+  while (current && !seen.has(current.id)) {
+    seen.add(current.id);
+    names.unshift(current.name);
+    current = current.parentId != null ? CURRENT_ASSET_MAP[current.parentId] : null;
+  }
+  return names.length ? names.join(' › ') : assetId;
+}
+
+// One pass over the current model's assets. Returns:
+//   byAsset[assetId] = { typeId, layout, visuals: [keys], visibility: [keys],
+//                        related, differs, hasOwn, summary }
+//   byType[typeId] = [assetIds that differ]
+//   byTypeProperty[typeId][propertyKey] = [assetIds whose visual or
+//                        visibility for that one property differs]
+function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates }) {
+  const byAsset = {};
+  const byType = {};
+  const byTypeProperty = {};
+  const containsCustomized = {}; // ancestor asset id -> count of customized descendants
+  (CURRENT_ASSET_DATA || []).forEach(asset => {
+    const id = asset.id;
+    const assetTemplate = assetDisplayTemplates?.[id];
+    const ownVisibility = assetPropertyConfigs?.[id] || {};
+    const ownRelated = assetRelatedAssetConfigs?.[id] || {};
+    const ownRelatedTemplate = assetRelatedAssetsTemplates?.[id];
+    const hasOwn = !!assetTemplate || Object.keys(ownVisibility).length > 0 || Object.keys(ownRelated).length > 0 || !!ownRelatedTemplate;
+    if (!hasOwn) return;
+
+    const typeId = assetTypeIdOf(asset);
+    const typeTemplate = typeDisplayTemplates?.[typeId];
+    const layout = !!assetTemplate && normalizedLayout(assetTemplate) !== normalizedLayout(typeTemplate);
+    const typeDefaultView = typeTemplate?.viewMode ?? 'text';
+    const visuals = Object.entries(assetTemplate?.propertyViewModes || {})
+      .filter(([key, mode]) => mode !== (typeTemplate?.propertyViewModes?.[key] ?? typeDefaultView))
+      .map(([key]) => key);
+    const typeVisibility = typePropertyConfigs?.[typeId] || {};
+    const visibility = Object.entries(ownVisibility)
+      .filter(([key, v]) => v !== (typeVisibility[key] || 'always'))
+      .map(([key]) => key);
+    const typeRelated = typeRelatedAssetConfigs?.[typeId] || {};
+    const related = Object.entries(ownRelated).some(([key, v]) => v !== (typeRelated[key] || 'always'))
+      || (!!ownRelatedTemplate && JSON.stringify(ownRelatedTemplate) !== JSON.stringify(relatedAssetsTemplates?.[typeId] ?? null));
+    const differs = layout || visuals.length > 0 || visibility.length > 0 || related;
+
+    const summaryParts = [];
+    if (layout) summaryParts.push('layout');
+    if (visuals.length) summaryParts.push(`${visuals.length} property visual${visuals.length > 1 ? 's' : ''}`);
+    if (visibility.length) summaryParts.push(`${visibility.length} property visibilit${visibility.length > 1 ? 'ies' : 'y'}`);
+    if (related) summaryParts.push('related assets');
+    const propertyDetails = {};
+    new Set([...visuals, ...visibility]).forEach(key => {
+      propertyDetails[key] = describePropertyDifference(id, key, assetDisplayTemplates, assetPropertyConfigs);
+    });
+    byAsset[id] = { typeId, layout, visuals, visibility, related, differs, hasOwn, summary: summaryParts.join(', '), propertyDetails };
+
+    if (differs) {
+      (byType[typeId] = byType[typeId] || []).push(id);
+      const seen = new Set([id]);
+      let parentId = asset.parentId;
+      while (parentId != null && CURRENT_ASSET_MAP[parentId] && !seen.has(parentId)) {
+        seen.add(parentId);
+        containsCustomized[parentId] = (containsCustomized[parentId] || 0) + 1;
+        parentId = CURRENT_ASSET_MAP[parentId].parentId;
+      }
+      const perProperty = (byTypeProperty[typeId] = byTypeProperty[typeId] || {});
+      new Set([...visuals, ...visibility]).forEach(key => {
+        (perProperty[key] = perProperty[key] || []).push(id);
+      });
+    }
+  });
+  return { byAsset, byType, byTypeProperty, containsCustomized };
+}
+
+// A tiny module-level store for the result above, plus the actions that
+// act on it (revert, open an asset). Some consumers are DevExtreme item
+// and cell templates (the Assets tree's rows, the Types grid's cells),
+// whose render functions are handed to DevExtreme once and can't take
+// fresh props — so rather than thread this through ~6 components and
+// force those widgets to repaint, anything that needs it subscribes here.
+// OperatorWorkspaceInner is the only writer.
+const EMPTY_CUSTOMIZATIONS = { byAsset: {}, byType: {}, byTypeProperty: {}, containsCustomized: {}, actions: {} };
+const assetCustomizationStore = {
+  snapshot: EMPTY_CUSTOMIZATIONS,
+  listeners: new Set(),
+  set(next) {
+    this.snapshot = next;
+    this.listeners.forEach(listener => listener());
+  },
+  subscribe: listener => {
+    assetCustomizationStore.listeners.add(listener);
+    return () => assetCustomizationStore.listeners.delete(listener);
+  },
+  getSnapshot: () => assetCustomizationStore.snapshot,
+};
+function useAssetCustomizations() {
+  return useSyncExternalStore(assetCustomizationStore.subscribe, assetCustomizationStore.getSnapshot);
+}
+
+// Filled blue dot — the same "set on this asset" mark the Details panel's
+// Visual column uses, so the one visual language means "this asset
+// deviates from its type" everywhere it appears.
+// Parents get a lighter version of the same dot when something beneath
+// them is customized — the tree starts mostly collapsed, so without it a
+// customized asset two levels down would be invisible. (An asset can
+// carry both: it's customized itself and so is something under it; its
+// own solid dot wins.)
+function AssetCustomizedDot({ assetId }) {
+  const { byAsset, containsCustomized } = useAssetCustomizations();
+  const info = byAsset[assetId];
+  if (info?.differs) return <span className="op-customized-dot" title={`Customized: ${info.summary}`} />;
+  const below = containsCustomized[assetId];
+  if (below) return <span className="op-customized-dot op-customized-dot--contains" title={`${below} customized asset${below > 1 ? 's' : ''} inside`} />;
+  return null;
+}
+
+// Types list: how many of this type's assets differ from it.
+function TypeCustomizedCount({ typeId }) {
+  const { byType } = useAssetCustomizations();
+  const count = byType[typeId]?.length ?? 0;
+  if (!count) return null;
+  return <span className="op-customized-count" title={`${count} asset${count > 1 ? 's' : ''} customized`}>{count}</span>;
+}
+
+// Checklist popover shared by both batch reverts — "which of this type's
+// assets should go back to the type" (whole assets) and "which assets
+// should drop their own setting for this one property". Everything starts
+// checked, since the common case is "all of them"; unchecking is there
+// for the exceptions. Rows open the asset on click, so the list doubles as
+// the answer to "which assets are customized?".
+function AssetRevertPopover({ target, visible, onHide, title, rows, revertLabel, confirmText, onRevert, onOpenAsset }) {
+  const [checked, setChecked] = useState(() => new Set(rows.map(r => r.id)));
+  const rowIdsSignature = rows.map(r => r.id).join('|');
+  useEffect(() => {
+    // New list (reopened on a different property/type, or a revert
+    // elsewhere changed who's customized) — start fully checked again.
+    setChecked(new Set(rows.map(r => r.id)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rowIdsSignature, visible]);
+
+  const selectedIds = rows.map(r => r.id).filter(id => checked.has(id));
+  const toggle = id => setChecked(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
+  const handleRevert = () => {
+    confirm(confirmText(selectedIds.length), 'Revert to type').then(ok => {
+      if (!ok) return;
+      onRevert(selectedIds);
+      onHide();
+    });
+  };
+
+  return (
+    <Popover
+      target={target}
+      visible={visible && !!target}
+      onHiding={onHide}
+      hideOnOutsideClick
+      position="bottom"
+      width={320}
+      showTitle
+      title={title}
+      showCloseButton
+      wrapperAttr={{ class: 'op-revert-popover' }}
+    >
+      <div className="op-revert-list">
+        {rows.length === 0 ? (
+          <div className="op-dash-text op-dash-text--muted">Nothing to revert.</div>
+        ) : rows.map(row => (
+          <div key={row.id} className="op-revert-row">
+            <CheckBox value={checked.has(row.id)} onValueChanged={e => { if (e.event) toggle(row.id); }} />
+            <button type="button" className="op-revert-row-text" onClick={() => { onOpenAsset?.(row.id); onHide(); }} title="Open this asset">
+              <span className="op-revert-row-label">{row.label}</span>
+              {row.detail && <span className="op-revert-row-detail">{row.detail}</span>}
+            </button>
+          </div>
+        ))}
+      </div>
+      <div className="op-revert-footer">
+        <Button text={revertLabel(selectedIds.length)} type="default" stylingMode="contained" disabled={!selectedIds.length} onClick={handleRevert} />
+      </div>
+    </Popover>
+  );
+}
+
+// Title-row controls in the center preview.
+//  - Asset: a "Customized" chip (hover lists what differs) and a Revert to
+//    type button. The button shows whenever the asset has ANY stored
+//    entries, even ones that currently match — reverting those still
+//    matters, since a stored match stops following later type changes.
+//  - Type: "N customized" — opens the checklist of those assets, to jump
+//    to one or revert several at once.
+function CustomizationTitleControls({ entityId, isAssetEntity }) {
+  const { byAsset, byType, actions } = useAssetCustomizations();
+  const [popoverTarget, setPopoverTarget] = useState(null);
+
+  if (isAssetEntity) {
+    const info = byAsset[entityId];
+    if (!info?.hasOwn) return null;
+    const handleRevert = () => {
+      const what = info.differs
+        ? `Its own settings (${info.summary}) will be discarded.`
+        : 'Its stored settings currently match the type, but they stop it from following future type changes.';
+      confirm(`Revert this asset to its type's settings? ${what} This can't be undone.`, 'Revert to type').then(ok => {
+        if (ok) actions.revertAssetsToType?.([entityId]);
+      });
+    };
+    return (
+      <span className="op-title-customization">
+        {info.differs && (
+          <span className="op-customized-chip" title={`Customized: ${info.summary}`}>
+            <span className="op-customized-dot" />Customized
+          </span>
+        )}
+        <button type="button" className="op-title-link-btn" onClick={handleRevert}>Revert to type</button>
+      </span>
+    );
+  }
+
+  const ids = byType[entityId] || [];
+  if (!ids.length) return null;
+  const rows = ids.map(id => ({ id, label: getAssetPathLabel(id), detail: byAsset[id]?.summary }));
+  return (
+    <span className="op-title-customization">
+      <button type="button" className="op-customized-chip op-customized-chip--button" onClick={e => setPopoverTarget(e.currentTarget)}>
+        <span className="op-customized-dot" />{ids.length} customized asset{ids.length > 1 ? 's' : ''} ▾
+      </button>
+      <AssetRevertPopover
+        target={popoverTarget}
+        visible={!!popoverTarget}
+        onHide={() => setPopoverTarget(null)}
+        title="Customized assets"
+        rows={rows}
+        revertLabel={n => `Revert ${n} to type`}
+        confirmText={n => `Revert ${n} asset${n > 1 ? 's' : ''} completely to this type's settings? All of their own settings will be discarded. This can't be undone.`}
+        onRevert={selectedIds => actions.revertAssetsToType?.(selectedIds)}
+        onOpenAsset={actions.openAsset}
+      />
+    </span>
+  );
+}
+
+// Details panel, type view: "N" next to a property that some of this
+// type's assets set differently (visual and/or visibility), opening the
+// same checklist scoped to just that property.
+function describePropertyDifference(assetId, propertyKey, assetDisplayTemplates, assetPropertyConfigs) {
+  const parts = [];
+  const visual = assetDisplayTemplates?.[assetId]?.propertyViewModes?.[propertyKey];
+  if (visual) parts.push(`Visual: ${KPI_VIEW_MODE_ITEMS.find(i => i.value === visual)?.text ?? visual}`);
+  const vis = assetPropertyConfigs?.[assetId]?.[propertyKey];
+  if (vis) parts.push(`Show: ${VISIBILITY_LABEL[vis] ?? vis}`);
+  return parts.join(' · ');
 }
 
 // Selecting a tier shows that tier plus everything more important than it —
@@ -1195,7 +1503,18 @@ function buildTypeList(assetData) {
 }
 
 const TYPE_LIST_COLUMNS = [
-  { dataField: 'name', caption: 'Name', minWidth: 120 },
+  {
+    dataField: 'name',
+    caption: 'Name',
+    minWidth: 120,
+    // Count of this type's customized assets, when there are any.
+    cellRender: cellInfo => (
+      <span className="op-type-name-cell">
+        <span className="op-type-name-text">{cellInfo.data.name}</span>
+        <TypeCustomizedCount typeId={cellInfo.data.id} />
+      </span>
+    ),
+  },
   { dataField: 'level', caption: 'Level', width: 90 },
 ];
 
@@ -1289,12 +1608,18 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // visual map and shares the same selected property, and it's a sibling of
 // this component, not a child. Undefined everywhere else this renders
 // (Investigate, Line Detail), which then behaves exactly as before.
-function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, selectedPropertyKey, onSelectProperty }) {
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty }) {
   const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
   const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
   const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
   const savedTemplate = typeVisibilityMode ? typeDisplayTemplates?.[typeId] : null;
   const [kpiViewMode, setKpiViewMode] = useState(savedTemplate?.viewMode ?? 'text');
+  // What actually renders: this entity's own per-property choices over
+  // whatever it inherits (its type's, when this is an asset — see
+  // mergePropertyViewModes). Only the entity's own map is ever saved.
+  const effectivePropertyViewModes = inheritedPropertyViewModes
+    ? { ...inheritedPropertyViewModes, ...(propertyViewModes || {}) }
+    : propertyViewModes;
   const [tierFilter, setTierFilter] = useState(typeVisibilityMode ? 'all' : 'P3');
   const [groupingMode, setGroupingMode] = useState(typeVisibilityMode ? 'none' : 'box');
   const [flowDirection, setFlowDirection] = useState(savedTemplate?.flowDirection ?? 'row');
@@ -1338,9 +1663,10 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       alignContent,
       layoutMode: propertyLayoutMode,
       manualPositions: propertyLayoutMode === 'manual' ? manualPositions : {},
-      // Only explicit overrides are stored — a property with no entry
-      // follows viewMode above, so changing the default later still
-      // reaches every property that was never individually set.
+      // Only this entity's own explicit choices are stored — never the
+      // inherited ones (an asset's type's), and never a property left on
+      // Default/From type — so later changes to the default or to the
+      // type still reach every property this entity never set itself.
       propertyViewModes: propertyViewModes ?? {},
     });
     return () => { activeSaveHandlerRef.current = null; };
@@ -1420,7 +1746,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   // everything); with overrides, toolbar None + a few explicit visuals
   // shows just those few.
   const flatTiles = categories.flatMap(cat => grouped[cat]).filter(p => (
-    kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(propertyViewModes, p.key, kpiViewMode) !== 'none')
+    kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) !== 'none')
   ));
 
   // Extracted so PropertyLayoutCanvas's tiles array (built below, for
@@ -1446,7 +1772,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       // Per-property override wins over the toolbar's shared default —
       // type mode only; everywhere else propertyViewModes is undefined, so
       // this reduces to kpiViewMode exactly as before.
-      viewMode: typeVisibilityMode ? resolvePropertyViewMode(propertyViewModes, p.key, kpiViewMode) : kpiViewMode,
+      viewMode: typeVisibilityMode ? resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) : kpiViewMode,
     };
   };
 
@@ -2504,7 +2830,7 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
               <HierarchyTree
                 dataSource={CURRENT_ASSET_DATA}
                 displayExpr="name"
-                itemRender={NowAssetTreeItemTemplate}
+                itemRender={ConfiguratorAssetTreeItemTemplate}
                 selectedId={selectedThing?.kind === 'asset' ? selectedThing.id : null}
                 onSelect={id => onSelectThing({ kind: 'asset', id })}
               />
@@ -2642,7 +2968,7 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
 // Center preview for the Now area's own Assets tab, mirroring the type
 // side's NowTypeMainPreview exactly (same component, generalized) — full
 // per-asset visual-preference editing, not a placeholder.
-function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, assetDisplayTemplates, onSaveAssetDisplayTemplate, assetRelatedAssetsTemplates, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, propertyVisuals }) {
+function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, assetDisplayTemplates, onSaveAssetDisplayTemplate, assetRelatedAssetsTemplates, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, propertyVisuals, previewRevision = 0 }) {
   // Lifted up here (rather than local state inside NowTypeMainPreview,
   // which remounts on every type switch via its own key={selectedThing.id})
   // so the toolbar's open/closed state survives flipping between types —
@@ -2714,7 +3040,10 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
   // including this one's.
   return (
     <NowTypeMainPreview
-      key={selectedThing.id}
+      // previewRevision: bumped when this asset's saved settings are
+      // reverted, remounting the editors onto the type's settings (they
+      // only read their saved template on mount).
+      key={`${selectedThing.id}:${previewRevision}`}
       activeTabIndex={activeTabIndex}
       title={title}
       entityId={selectedThing.id}
@@ -3903,7 +4232,7 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   // unless some properties have their own explicit visual, in which case
   // None is just the default for the rest and those few still show.
   const boxViewMode = effectiveTemplate?.viewMode ?? 'text';
-  const boxPropertyViewModes = effectiveTemplate?.propertyViewModes ?? {};
+  const boxPropertyViewModes = mergePropertyViewModes(typeDisplayTemplates?.[relatedTypeId], assetDisplayTemplates?.[relatedTypeExampleAssetId]);
   if (boxViewMode === 'none' && !Object.values(boxPropertyViewModes).some(m => m && m !== 'none')) {
     return <>{titleElement}{gearElement}</>;
   }
@@ -5298,7 +5627,7 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
 // NowTypeMainPreview, in the center, as its own separate component now).
 // rightPanelViewMode/hiddenAssetIds are lifted state (OperatorWorkspaceInner),
 // read here for display/editing but actually driven by the center preview.
-function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange, propertyVisuals }) {
+function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange, propertyVisuals, typeDisplayTemplates }) {
   // DevExtreme's DataGrid does not automatically recalculate column widths
   // when its container is resized (documented requirement, not a bug) —
   // without this, a narrower Details panel can leave columns at their
@@ -5323,6 +5652,16 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   // was selected before can't leak into this one's first render (the
   // center preview re-seeds it from this entity's saved template on mount).
   const propertyViewModes = propertyVisuals?.entityId === entityId ? propertyVisuals.modes : {};
+  // An asset's type's per-property choices — what a row on Default
+  // actually resolves to when the type has set that property (see
+  // mergePropertyViewModes). Empty for a type, which has nothing above it.
+  const inheritedPropertyViewModes = isAssetEntity ? (typeDisplayTemplates?.[relationshipTypeId]?.propertyViewModes ?? {}) : {};
+  // Type view only: which of this type's assets set each property
+  // differently — the count badge beside a property's name, and the
+  // checklist it opens for reverting that one property on several assets.
+  const { byAsset: customizationsByAsset, byTypeProperty, actions: customizationActions } = useAssetCustomizations();
+  const customizedByProperty = (!isAssetEntity && byTypeProperty[entityId]) || {};
+  const [propertyPopover, setPropertyPopover] = useState(null); // { key, target }
 
   // Merged the same way RelatedAssetBoxContent's own fallback works: this
   // asset's own override wins per property when it has one, otherwise its
@@ -5331,7 +5670,12 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   // isolation.
   const rawPropertyRows = properties
     ? getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs)
-      .map(row => ({ ...row, visualMode: propertyViewModes[row.key] ?? PROPERTY_VIEW_MODE_DEFAULT }))
+      .map(row => ({
+        ...row,
+        visualMode: propertyViewModes[row.key] ?? PROPERTY_VIEW_MODE_DEFAULT,
+        inheritedVisual: inheritedPropertyViewModes[row.key] ?? null,
+        customizedCount: customizedByProperty[row.key]?.length ?? 0,
+      }))
     : [];
 
   // Only explicit overrides are kept in the map — choosing Default removes
@@ -5366,18 +5710,38 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   // rendering depends on; handlers are read through a ref so the columns
   // never close over stale state.
   const handlersRef = useRef({});
-  handlersRef.current = { handleVisualChange, handleVisibilityChange };
+  handlersRef.current = {
+    handleVisualChange,
+    handleVisibilityChange,
+    openPropertyPopover: (key, target) => setPropertyPopover({ key, target }),
+  };
   const rowsSignature = JSON.stringify(rawPropertyRows);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const propertyRows = useMemo(() => rawPropertyRows, [rowsSignature]);
 
   const propertyColumns = useMemo(() => {
-    const visualSelectItems = [
-      { text: `Default (${visualModeLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT },
-      ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
-    ];
+    const modeText = mode => KPI_VIEW_MODE_ITEMS.find(i => i.value === mode)?.text ?? mode;
     return [
-      { dataField: 'label', caption: 'Property', minWidth: 80 },
+      {
+        dataField: 'label',
+        caption: 'Property',
+        minWidth: 80,
+        cellRender: (cellInfo) => (
+          <span className="op-prop-name-cell">
+            <span className="op-prop-name-text" title={cellInfo.data.label}>{cellInfo.data.label}</span>
+            {cellInfo.data.customizedCount > 0 && (
+              <button
+                type="button"
+                className="op-customized-count op-customized-count--button"
+                title={`${cellInfo.data.customizedCount} asset${cellInfo.data.customizedCount > 1 ? 's' : ''} set this differently — click to review or revert`}
+                onClick={e => { e.stopPropagation(); handlersRef.current.openPropertyPopover(cellInfo.data.key, e.currentTarget); }}
+              >
+                {cellInfo.data.customizedCount}
+              </button>
+            )}
+          </span>
+        ),
+      },
       {
         dataField: 'visibility',
         // "Show" rather than "Visibility" — the new Visual dropdown needs
@@ -5404,14 +5768,33 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
         minWidth: 84,
         cellRender: (cellInfo) => {
           const overridden = cellInfo.data.visualMode !== PROPERTY_VIEW_MODE_DEFAULT;
+          // Three states per row: this entity's own choice (bold, filled
+          // dot); not set here but set by the asset's type ("From type",
+          // hollow dot — only possible on an asset); or set nowhere,
+          // following the toolbar's view mode (muted, no dot). The first
+          // list item always means "don't set it here", and its label says
+          // which of the latter two that falls back to.
+          const inherited = cellInfo.data.inheritedVisual;
+          const inheritLabel = inherited ? modeText(inherited) : visualModeLabel;
+          const visualSelectItems = [
+            { text: inherited ? `From type (${inheritLabel})` : `Default (${inheritLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT },
+            ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
+          ];
+          const stateClass = overridden ? ' op-prop-visual-select--override' : inherited ? ' op-prop-visual-select--inherited' : '';
+          const hint = overridden
+            ? 'Set for this property only'
+            : inherited
+              ? 'Set on this asset\'s type — changes there apply here too'
+              : 'Follows the view mode chosen in the preview toolbar';
           return (
             <SelectBox
-              className={`op-prop-visual-select${overridden ? ' op-prop-visual-select--override' : ''}`}
+              className={`op-prop-visual-select${stateClass}`}
               items={visualSelectItems}
-              // The closed field shows just the mode name (muted when it's
-              // the inherited default) to fit the narrow column; the open
-              // list spells out "Default (Text)" so the choice is explicit.
-              displayExpr={item => (item ? (item.value === PROPERTY_VIEW_MODE_DEFAULT ? visualModeLabel : item.text) : '')}
+              // The closed field shows just the mode name to fit the
+              // narrow column (styled by state, above); the open list
+              // spells out "Default (Text)" / "From type (Spark)" so the
+              // choice is explicit.
+              displayExpr={item => (item ? (item.value === PROPERTY_VIEW_MODE_DEFAULT ? inheritLabel : item.text) : '')}
               itemRender={item => item.text}
               valueExpr="value"
               value={cellInfo.data.visualMode}
@@ -5419,7 +5802,7 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
               stylingMode="underlined"
               showDropDownButton={false}
               dropDownOptions={{ width: 150 }}
-              hint={overridden ? 'Set for this property only' : 'Follows the view mode chosen in the preview toolbar'}
+              hint={hint}
             />
           );
         },
@@ -5514,6 +5897,28 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
           </TabPanelItem>
         )}
       </TabPanel>
+      {!isAssetEntity && propertyPopover && (() => {
+        const key = propertyPopover.key;
+        const label = PROPERTY_LABELS[key] || key;
+        const rows = (customizedByProperty[key] || []).map(id => ({
+          id,
+          label: getAssetPathLabel(id),
+          detail: customizationsByAsset[id]?.propertyDetails?.[key],
+        }));
+        return (
+          <AssetRevertPopover
+            target={propertyPopover.target}
+            visible
+            onHide={() => setPropertyPopover(null)}
+            title={label}
+            rows={rows}
+            revertLabel={n => `Revert ${label} on ${n}`}
+            confirmText={n => `Revert ${label} to this type's setting on ${n} asset${n > 1 ? 's' : ''}? Only this property changes; their other settings stay as they are.`}
+            onRevert={ids => customizationActions.revertPropertyToType?.(ids, key)}
+            onOpenAsset={customizationActions.openAsset}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -5527,12 +5932,17 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
   // Seeds the shared per-property visual draft from this entity's saved
   // template whenever a different entity gets selected — this component
   // remounts per selection (key={selectedThing.id}), so mount is exactly
-  // that moment. Same asset-over-type, whole-template fallback as the
-  // rest of the display template below: an asset with no template of its
-  // own starts from its type's per-property choices.
+  // that moment. The draft only ever holds this entity's OWN choices: for
+  // an asset, that's its own template's map and nothing from its type
+  // (no whole-template fallback here, unlike layout below) — its type's
+  // choices come in separately as the inherited layer, so they're shown
+  // but never copied into the asset's saved template.
   const savedPropertyViewModes = (isAssetEntity
-    ? (assetDisplayTemplates?.[entityId] ?? typeDisplayTemplates?.[relationshipTypeId])
+    ? assetDisplayTemplates?.[entityId]
     : typeDisplayTemplates?.[entityId])?.propertyViewModes ?? {};
+  const inheritedPropertyViewModes = isAssetEntity
+    ? (typeDisplayTemplates?.[relationshipTypeId]?.propertyViewModes ?? {})
+    : undefined;
   useEffect(() => {
     if (propertyVisuals && propertyVisuals.entityId !== entityId) {
       propertyVisuals.setModes(entityId, savedPropertyViewModes);
@@ -5552,6 +5962,7 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
         <CaretIcon expanded={toolbarExpanded} />
       </button>
       <span>{title}</span>
+      <CustomizationTitleControls entityId={entityId} isAssetEntity={isAssetEntity} />
     </div>
   );
 
@@ -5671,6 +6082,7 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
           onViewModeChange={onViewModeChange}
           showToolbar={toolbarExpanded}
           propertyViewModes={draftPropertyViewModes}
+          inheritedPropertyViewModes={inheritedPropertyViewModes}
           selectedPropertyKey={propertyVisuals?.selectedKey ?? null}
           onSelectProperty={propertyVisuals?.setSelectedKey}
         />
@@ -6677,6 +7089,21 @@ function VisualizationRailIcon() {
 // copied rather than restructuring that file for one shared helper) —
 // keeps the asset row's look identical to the existing Data tab hierarchy
 // browser: name plus a small type badge.
+// The Configurator's Now tree only — adds the customized-asset dot.
+// Operator's Assets tree keeps the plain template below: operators don't
+// configure anything, so the mark would only be noise there.
+function ConfiguratorAssetTreeItemTemplate(item) {
+  return (
+    <div className="tree-item">
+      <span className="tree-item-name">{item.name}</span>
+      <span className="op-tree-item-trailing">
+        <AssetCustomizedDot assetId={item.id} />
+        <span className="tree-item-badge">{item.assetType}</span>
+      </span>
+    </div>
+  );
+}
+
 function NowAssetTreeItemTemplate(item) {
   return (
     <div className="tree-item">
@@ -6781,6 +7208,7 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
                   activeTabIndex={activeTabIndex}
                   onActiveTabIndexChange={onActiveTabIndexChange}
                   propertyVisuals={propertyVisuals}
+                  typeDisplayTemplates={typeDisplayTemplates}
                 />
               );
             })()
@@ -6814,6 +7242,7 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
                   activeTabIndex={activeTabIndex}
                   onActiveTabIndexChange={onActiveTabIndexChange}
                   propertyVisuals={propertyVisuals}
+                  typeDisplayTemplates={typeDisplayTemplates}
                 />
               );
             })()
@@ -7284,7 +7713,19 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   const [assetDisplayTemplates, setAssetDisplayTemplates] = useState(() => loadAssetDisplayTemplates());
   const handleSaveAssetDisplayTemplate = (assetId, template) => {
     setAssetDisplayTemplates(prev => {
-      const next = { ...prev, [assetId]: template };
+      // Saving an asset whose layout is identical to its type's and which
+      // sets no per-property visuals of its own stores nothing (and clears
+      // any older entry), rather than a copy of the type's layout. A copy
+      // would look the same today but silently stop this asset from
+      // following later changes to its type — the same reason Revert to
+      // type removes the entry instead of overwriting it.
+      const asset = CURRENT_ASSET_MAP[assetId];
+      const typeTemplate = asset ? typeDisplayTemplates[assetTypeIdOf(asset)] : undefined;
+      const matchesType = asset
+        && Object.keys(template.propertyViewModes || {}).length === 0
+        && normalizedLayout(template) === normalizedLayout(typeTemplate);
+      const next = { ...prev };
+      if (matchesType) delete next[assetId]; else next[assetId] = template;
       saveAssetDisplayTemplates(next);
       return next;
     });
@@ -7430,6 +7871,105 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
       return next;
     });
   };
+
+  // Which assets differ from their type (tree dots, Types-list counts,
+  // title-row chips, per-property counts) — recomputed whenever any of the
+  // eight stores changes, and published to assetCustomizationStore along
+  // with the actions below. See computeAssetCustomizations.
+  const assetCustomizations = useMemo(() => computeAssetCustomizations({
+    typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates,
+    assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates,
+  }), [typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates]);
+
+  // Bumped whenever the selected asset's saved settings are reverted out
+  // from under its open preview. The preview's editors (view mode, flow,
+  // manual positions, Related Assets settings) only read their saved
+  // template once, on mount, so this is part of NowTypeMainPreview's key
+  // to remount it onto the type's settings — otherwise it would keep
+  // showing, and a later Save would re-save, what was just reverted.
+  const [nowPreviewRevision, setNowPreviewRevision] = useState(0);
+
+  const omitKeys = (obj, ids) => {
+    const next = { ...obj };
+    ids.forEach(id => { delete next[id]; });
+    return next;
+  };
+
+  // Whole-asset revert: drops every asset-level entry (display template,
+  // property visibilities, related-asset visibilities, related-assets
+  // template), so each asset follows its type completely again — including
+  // any future type changes. Immediate and persisted, like the visibility
+  // toggles, not staged for the title-bar Save: it's confirmed up front
+  // instead, and a revert that waited for Save would be easy to lose.
+  const revertAssetsToType = (assetIds) => {
+    if (!assetIds.length) return;
+    setAssetDisplayTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetDisplayTemplates(next); return next; });
+    setAssetRelatedAssetsTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetRelatedAssetsTemplates(next); return next; });
+    setAssetPropertyConfigs(prev => omitKeys(prev, assetIds));
+    setAssetRelatedAssetConfigs(prev => omitKeys(prev, assetIds));
+    if (selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id)) {
+      setPropertyVisualDraft({ entityId: selectedNowThing.id, modes: {} });
+      setNowPreviewRevision(r => r + 1);
+    }
+    notify(`Reverted ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''} to type`, 'success', 2000);
+  };
+
+  // One property, many assets: drops just that property's visibility and
+  // visual from each asset, leaving everything else each asset customized
+  // alone. The selected asset's unsaved draft loses the key too, so the
+  // Visual column and preview reflect it immediately without a remount.
+  const revertPropertyToType = (assetIds, propertyKey) => {
+    if (!assetIds.length) return;
+    setAssetPropertyConfigs(prev => {
+      const next = { ...prev };
+      assetIds.forEach(id => {
+        if (!next[id] || !(propertyKey in next[id])) return;
+        const { [propertyKey]: _removed, ...rest } = next[id];
+        if (Object.keys(rest).length) next[id] = rest; else delete next[id];
+      });
+      return next;
+    });
+    setAssetDisplayTemplates(prev => {
+      const next = { ...prev };
+      assetIds.forEach(id => {
+        const modes = next[id]?.propertyViewModes;
+        if (!modes || !(propertyKey in modes)) return;
+        const { [propertyKey]: _removed, ...rest } = modes;
+        next[id] = { ...next[id], propertyViewModes: rest };
+      });
+      saveAssetDisplayTemplates(next);
+      return next;
+    });
+    if (selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id)) {
+      setPropertyVisualDraft(prev => {
+        if (prev.entityId !== selectedNowThing.id || !(propertyKey in prev.modes)) return prev;
+        const { [propertyKey]: _removed, ...rest } = prev.modes;
+        return { entityId: prev.entityId, modes: rest };
+      });
+    }
+    notify(`Reverted ${PROPERTY_LABELS[propertyKey] || propertyKey} on ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''}`, 'success', 2000);
+  };
+
+  // Published only when the customizations themselves change, so the
+  // (many) subscribed tree rows don't re-render on every unrelated render
+  // of this component. The actions object is stable for the same reason;
+  // each action forwards through a ref to this render's closure, so
+  // callers always get the latest state.
+  const customizationActionsRef = useRef({});
+  customizationActionsRef.current = {
+    revertAssetsToType,
+    revertPropertyToType,
+    openAsset: (assetId) => handleSelectNowThing({ kind: 'asset', id: assetId }),
+  };
+  const customizationActions = useMemo(() => ({
+    revertAssetsToType: (...args) => customizationActionsRef.current.revertAssetsToType(...args),
+    revertPropertyToType: (...args) => customizationActionsRef.current.revertPropertyToType(...args),
+    openAsset: (...args) => customizationActionsRef.current.openAsset(...args),
+  }), []);
+  useEffect(() => {
+    assetCustomizationStore.set({ ...assetCustomizations, actions: customizationActions });
+  }, [assetCustomizations, customizationActions]);
+  useEffect(() => () => assetCustomizationStore.set(EMPTY_CUSTOMIZATIONS), []);
 
   const selectedItem = ATTENTION_ITEMS.find(i => i.id === selectedAttentionId) || null;
   const selectedWorkItem = workItems.find(w => w.id === selectedWorkItemId) || null;
@@ -7634,6 +8174,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 onSaveAllAssetsTemplate={handleSaveAllAssetsTemplate}
                 onTitleClick={handleNavigateToType}
                 propertyVisuals={propertyVisuals}
+                previewRevision={nowPreviewRevision}
               />
             ) : railMode === 'attention' ? (
               <InvestigatePanel
