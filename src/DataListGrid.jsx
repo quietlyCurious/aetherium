@@ -22,6 +22,7 @@ const DataListGrid = React.forwardRef(function DataListGrid({
   toolbarExtra,       // optional React node — rendered anchored left, inline with the search box
   reorderable = false, // opt-in — enables drag-to-reorder rows via the built-in drag handle
   onReorder,          // (newItemsArray) => void — called with the full items array in its new order
+  columnAutoWidth = true, // opt-out — false lets columns without a fixed width share the leftover space (ellipsis-truncated) instead of sizing to content, which can force a horizontal scrollbar in narrow panels
 }, ref) {
   const handleReorder = (e) => {
     const visibleRows = e.component.getVisibleRows();
@@ -45,7 +46,7 @@ const DataListGrid = React.forwardRef(function DataListGrid({
       showColumnLines={false}
       rowAlternationEnabled={false}
       hoverStateEnabled={true}
-      columnAutoWidth={true}
+      columnAutoWidth={columnAutoWidth}
       noDataText={noDataText}
       selectedRowKeys={selectedId != null ? [selectedId] : []}
       onSelectionChanged={(e) => onSelect(e.selectedRowKeys[0] ?? null)}

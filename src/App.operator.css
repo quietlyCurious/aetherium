@@ -2748,3 +2748,116 @@
   border: 1px solid #d5d5d5;
   border-radius: 3px;
 }
+
+/* ── Per-property visuals ─────────────────────────────────────────────
+   Indicator tiles used to get their fixed 60px width only from their
+   container's --indicator class, which only exists when EVERY tile is an
+   indicator. With per-property visuals one box can mix an indicator tile
+   in among text or spark tiles, so the sizing now keys off the tile's own
+   class instead (extra .op-statkpi for specificity over the generic
+   .op-hmiprops-singlebox .op-statkpi align-items rule). Identical values
+   to the container-scoped rules, so all-indicator boxes look the same. */
+.op-hmiprops .op-statkpi.op-statkpi--indicator,
+.op-hmiprops-singlebox .op-statkpi.op-statkpi--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* Asset boxes: width only — there, the generic .op-related-asset-box
+   .op-statkpi { align-items: flex-start } has always won over the
+   container-scoped center (same specificity, later in the file), so
+   matching that keeps existing boxes pixel-identical. */
+.op-related-asset-box .op-statkpi.op-statkpi--indicator {
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.op-hmiprops .op-statkpi--indicator .op-statkpi-label,
+.op-hmiprops-singlebox .op-statkpi--indicator .op-statkpi-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
+}
+
+/* No text-align here on purpose — inside asset boxes, the later
+   .op-related-asset-box .op-statkpi-label rule's left alignment has
+   always won over the container-scoped center, so this keeps that. */
+.op-related-asset-box .op-statkpi--indicator .op-statkpi-label {
+  max-width: 60px;
+  white-space: normal;
+}
+
+/* Clickable tile wrapper in the Configurator preview — clicking selects
+   the property's row in the Details panel. Outline rather than border so
+   selecting never shifts the layout by a pixel. */
+.op-prop-tile-select {
+  /* Hug the tile rather than stretch to the tallest tile in its flex
+     line — with mixed visuals (a tall indicator beside a short text
+     tile) the selection outline would otherwise be much larger than the
+     tile it marks. No visible effect on the tiles themselves. */
+  align-self: flex-start;
+  cursor: pointer;
+  border-radius: 3px;
+  outline: 2px solid transparent;
+  outline-offset: -2px; /* inside the tile — the flex container clips anything outside it */
+  transition: outline-color 0.12s;
+}
+
+.op-prop-tile-select:hover {
+  outline-color: #c7e0f4;
+}
+
+.op-prop-tile-select--selected,
+.op-prop-tile-select--selected:hover {
+  outline-color: #0078d4;
+}
+
+/* Same highlight on the manual canvas's node (border already exists
+   there, so just recolor it plus a matching ring). */
+.op-property-layout-node.op-prop-tile-select--selected {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+
+/* Details panel Visual column — compact underlined SelectBox that reads
+   as plain text until hovered. Default rows are muted; rows with their
+   own override are dark and marked with a small blue dot, so overrides
+   stand out at a glance down the column. */
+.op-prop-visual-select.dx-editor-underlined .dx-texteditor-input {
+  font-size: 12px;
+  padding-left: 8px;
+  color: #8a8f99;
+}
+
+.op-prop-visual-select.dx-editor-underlined::after {
+  border-bottom-color: transparent;
+}
+
+.op-prop-visual-select.dx-editor-underlined:hover::after,
+.op-prop-visual-select.dx-editor-underlined.dx-state-focused::after {
+  border-bottom-color: #c8c8c8;
+}
+
+.op-prop-visual-select--override.dx-editor-underlined .dx-texteditor-input {
+  color: #222;
+  font-weight: 600;
+}
+
+.op-prop-visual-select--override .dx-texteditor-input-container { position: relative; }
+
+.op-prop-visual-select--override .dx-texteditor-input-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: #0078d4;
+}
+
+.op-prop-visual-select .dx-texteditor-input {
+  cursor: pointer;
+}

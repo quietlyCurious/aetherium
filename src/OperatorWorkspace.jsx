@@ -444,6 +444,26 @@ const KPI_VIEW_MODE_ITEMS = [
   { text: 'All', value: 'all' },
 ];
 
+// Per-property visual overrides — the Details panel's Visual column. The
+// toolbar's view mode (KPI_VIEW_MODE_ITEMS above) stays the default for
+// every property without one of these. "None" is deliberately not offered
+// per property: hiding a single property is what the Visibility column
+// already does, and two separate ways to hide the same thing would just
+// be confusing. "None" as the toolbar default still works, though, and
+// reads naturally alongside overrides: "show nothing, except the
+// properties I've explicitly given a visual."
+const PROPERTY_VIEW_MODE_DEFAULT = 'default';
+const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i => i.value !== 'none');
+
+// The one place a single property's effective visual is decided —
+// explicit per-property override first, else the template's (or toolbar's)
+// shared default. Used by both HmiPropertiesListing (the Configurator's
+// editing preview) and RelatedAssetBoxContent (every read-only box), so
+// the two can't drift apart.
+function resolvePropertyViewMode(propertyViewModes, key, defaultViewMode) {
+  return propertyViewModes?.[key] ?? defaultViewMode;
+}
+
 // Selecting a tier shows that tier plus everything more important than it —
 // picking P1 shows only P1; picking P3 shows P3, P2, and P1 (everything).
 const TIER_FILTER_ITEMS = [
@@ -1179,7 +1199,13 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
 // already covers) — grouped by property type rather than dumped as one
 // long list, same visual language as Line Detail's stat tiles.
-function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar }) {
+// propertyViewModes/selectedPropertyKey/onSelectProperty are type-mode
+// only (the Configurator's editing preview) and owned by the caller, not
+// here: the Details panel's Visual column edits the same per-property
+// visual map and shares the same selected property, and it's a sibling of
+// this component, not a child. Undefined everywhere else this renders
+// (Investigate, Line Detail), which then behaves exactly as before.
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, selectedPropertyKey, onSelectProperty }) {
   const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
   const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
   const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
@@ -1228,9 +1254,21 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       alignContent,
       layoutMode: propertyLayoutMode,
       manualPositions: propertyLayoutMode === 'manual' ? manualPositions : {},
+      // Only explicit overrides are stored — a property with no entry
+      // follows viewMode above, so changing the default later still
+      // reaches every property that was never individually set.
+      propertyViewModes: propertyViewModes ?? {},
     });
     return () => { activeSaveHandlerRef.current = null; };
-  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent, propertyLayoutMode, manualPositions]);
+  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent, propertyLayoutMode, manualPositions, propertyViewModes]);
+
+  // Selecting a row in the Details panel scrolls its tile into view here
+  // (flex layout only — the manual canvas is freely pannable, so there's
+  // no single "into view" to scroll to; the highlight is enough there).
+  useEffect(() => {
+    if (!selectedPropertyKey) return;
+    flexTileRefs.current[selectedPropertyKey]?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [selectedPropertyKey]);
 
   if (!props) {
     return <div className="op-dash-text op-dash-text--muted">No properties available for this item.</div>;
@@ -1292,6 +1330,15 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
 
   const kpisClass = `op-hmiprops-kpis${kpiViewMode === 'text' ? ' op-hmiprops-kpis--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops-kpis--indicator' : ''}`;
 
+  // The single-box ("none" grouping) path's tiles, in category order —
+  // minus any whose effective visual is None. With no per-property
+  // overrides that's all-or-nothing, same as before (toolbar None hides
+  // everything); with overrides, toolbar None + a few explicit visuals
+  // shows just those few.
+  const flatTiles = categories.flatMap(cat => grouped[cat]).filter(p => (
+    kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(propertyViewModes, p.key, kpiViewMode) !== 'none')
+  ));
+
   // Extracted so PropertyLayoutCanvas's tiles array (built below, for
   // manual mode) computes the exact same range/sparkline props as the
   // flex-rendering path — one source of truth for what a tile shows,
@@ -1310,7 +1357,10 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       sparkline: sparkline && sparkline.length > 2 ? sparkline : null,
       horizontal: true,
       labelFirst: true,
-      viewMode: kpiViewMode,
+      // Per-property override wins over the toolbar's shared default —
+      // type mode only; everywhere else propertyViewModes is undefined, so
+      // this reduces to kpiViewMode exactly as before.
+      viewMode: typeVisibilityMode ? resolvePropertyViewMode(propertyViewModes, p.key, kpiViewMode) : kpiViewMode,
     };
   };
 
@@ -1491,7 +1541,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           ))}
         </div>
       ) : groupingMode === 'none' ? (
-        kpiViewMode === 'none' ? (
+        flatTiles.length === 0 ? (
           <div className="op-hmiprops-singlebox">
             <div className="op-dash-text op-dash-text--muted">No properties shown (view mode: None).</div>
           </div>
@@ -1499,9 +1549,10 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           <div className="op-hmiprops-singlebox op-hmiprops-singlebox--typeflow">
             <PropertyLayoutCanvas
               ref={propertyLayoutCanvasRef}
-              tiles={categories.flatMap(cat => grouped[cat]).map(p => ({ key: p.key, tileProps: buildTileProps(p) }))}
+              tiles={flatTiles.map(p => ({ key: p.key, tileProps: buildTileProps(p), selected: p.key === selectedPropertyKey }))}
               manualPositions={manualPositions}
               onPositionsChange={setManualPositions}
+              onSelectTile={onSelectProperty}
             />
           </div>
         ) : (
@@ -1511,8 +1562,13 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-hmiprops-kpis--flowrow' : ''}${typeFlowActive ? ' op-hmiprops-kpis--typeflow' : ''}`}
               style={typeVisibilityMode ? { flexDirection: flowDirection, flexWrap: flowWrap, alignContent } : undefined}
             >
-              {categories.flatMap(cat => grouped[cat]).map(p => (
-                <div key={p.key} ref={el => { flexTileRefs.current[p.key] = el; }}>
+              {flatTiles.map(p => (
+                <div
+                  key={p.key}
+                  ref={el => { flexTileRefs.current[p.key] = el; }}
+                  className={onSelectProperty ? `op-prop-tile-select${p.key === selectedPropertyKey ? ' op-prop-tile-select--selected' : ''}` : undefined}
+                  onClick={onSelectProperty ? () => onSelectProperty(p.key === selectedPropertyKey ? null : p.key) : undefined}
+                >
                   <StatTile {...buildTileProps(p)} />
                 </div>
               ))}
@@ -2446,7 +2502,7 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
 // Center preview for the Now area's own Assets tab, mirroring the type
 // side's NowTypeMainPreview exactly (same component, generalized) — full
 // per-asset visual-preference editing, not a placeholder.
-function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, assetDisplayTemplates, onSaveAssetDisplayTemplate, assetRelatedAssetsTemplates, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick }) {
+function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, assetDisplayTemplates, onSaveAssetDisplayTemplate, assetRelatedAssetsTemplates, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, propertyVisuals }) {
   // Lifted up here (rather than local state inside NowTypeMainPreview,
   // which remounts on every type switch via its own key={selectedThing.id})
   // so the toolbar's open/closed state survives flipping between types —
@@ -2549,6 +2605,7 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
       onTitleClick={onTitleClick}
       toolbarExpanded={toolbarExpanded}
       onToolbarExpandedChange={setToolbarExpanded}
+      propertyVisuals={propertyVisuals}
     />
   );
 }
@@ -3146,7 +3203,7 @@ const RELATED_ASSETS_NODE_TYPES = { relatedAssetNode: RelatedAssetDiagramNode };
 // relate to each other the way types do), so there's nothing to connect.
 function PropertyLayoutNode({ data }) {
   return (
-    <div className="op-property-layout-node">
+    <div className={`op-property-layout-node${data.selected ? ' op-prop-tile-select--selected' : ''}`}>
       <StatTile {...data.tileProps} />
     </div>
   );
@@ -3685,9 +3742,12 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   const effectiveTemplate = assetDisplayTemplates?.[relatedTypeExampleAssetId] ?? typeDisplayTemplates?.[relatedTypeId];
 
   // "None" — just the name, nothing else. Checked first, ahead of even
-  // resolving properties, since None's whole point is not needing them.
+  // resolving properties, since None's whole point is not needing them —
+  // unless some properties have their own explicit visual, in which case
+  // None is just the default for the rest and those few still show.
   const boxViewMode = effectiveTemplate?.viewMode ?? 'text';
-  if (boxViewMode === 'none') {
+  const boxPropertyViewModes = effectiveTemplate?.propertyViewModes ?? {};
+  if (boxViewMode === 'none' && !Object.values(boxPropertyViewModes).some(m => m && m !== 'none')) {
     return <>{titleElement}{gearElement}</>;
   }
 
@@ -3736,7 +3796,9 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   const alwaysEntries = visibilityRows
     .filter(p => p.visibility === 'always')
     .map(p => [p.key, properties[p.key]]);
-  const entriesToShow = alwaysEntries.length ? alwaysEntries : Object.entries(properties);
+  const tileViewMode = key => resolvePropertyViewMode(boxPropertyViewModes, key, boxViewMode);
+  const entriesToShow = (alwaysEntries.length ? alwaysEntries : Object.entries(properties))
+    .filter(([key]) => tileViewMode(key) !== 'none');
   const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
 
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
@@ -3763,7 +3825,7 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
         sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
         horizontal
         labelFirst
-        viewMode={boxViewMode}
+        viewMode={tileViewMode(key)}
       />
     );
   };
@@ -3790,7 +3852,9 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   // element of each tile's own stack, was the first thing to spill past
   // the container's too-short declared bottom edge.
   if (boxLayoutMode === 'manual') {
-    const tileSizeEstimate = STAT_TILE_SIZE_ESTIMATES[boxViewMode] || STAT_TILE_SIZE_ESTIMATES.text;
+    // Per tile now, since per-property visuals mean one box can mix a
+    // compact text tile with a wide spark row.
+    const tileSizeEstimate = key => STAT_TILE_SIZE_ESTIMATES[tileViewMode(key)] || STAT_TILE_SIZE_ESTIMATES.text;
     const positions = entriesToShow.map(([key]) => boxManualPositions[key] ?? { x: 0, y: 0 });
     // A tile's saved position can be negative — the Properties tab's own
     // editing canvas is an infinite, freely-pannable React Flow canvas, so
@@ -3803,8 +3867,8 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
     // their own border.
     const offsetX = Math.min(0, ...positions.map(p => p.x));
     const offsetY = Math.min(0, ...positions.map(p => p.y));
-    const containerWidth = Math.max(0, ...positions.map(p => p.x - offsetX)) + tileSizeEstimate.width;
-    const containerHeight = Math.max(0, ...positions.map(p => p.y - offsetY)) + tileSizeEstimate.height;
+    const containerWidth = Math.max(0, ...entriesToShow.map(([key], i) => positions[i].x - offsetX + tileSizeEstimate(key).width));
+    const containerHeight = Math.max(0, ...entriesToShow.map(([key], i) => positions[i].y - offsetY + tileSizeEstimate(key).height));
     return (
       <>
         {titleElement}
@@ -3852,21 +3916,21 @@ const PROPERTY_LAYOUT_ARRANGE_COLUMNS = 4;
 // Manual property-layout canvas — one node per visible property, no
 // edges ever (properties don't relate to each other the way types do).
 // Self-contained ReactFlowProvider, same reasoning as RelatedAssetsDiagram.
-const PropertyLayoutCanvas = forwardRef(function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange }, ref) {
+const PropertyLayoutCanvas = forwardRef(function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange, onSelectTile }, ref) {
   return (
     <ReactFlowProvider>
-      <PropertyLayoutCanvasInner ref={ref} tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} />
+      <PropertyLayoutCanvasInner ref={ref} tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} onSelectTile={onSelectTile} />
     </ReactFlowProvider>
   );
 });
 
-const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }, ref) {
+const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange, onSelectTile }, ref) {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     tiles.map(t => ({
       id: t.key,
       type: 'propertyLayoutNode',
       position: manualPositions[t.key] ?? PROPERTY_LAYOUT_DEFAULT_POSITION,
-      data: { tileProps: t.tileProps },
+      data: { tileProps: t.tileProps, selected: !!t.selected },
     }))
   );
 
@@ -3889,13 +3953,17 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
   // without this, toggling view mode while in manual mode silently did
   // nothing, since the keys themselves never changed so this effect
   // never re-ran and the already-built nodes kept their stale tileProps.
-  const tileKeysSignature = tiles.map(t => t.key).join('|') + '::' + (tiles[0]?.tileProps?.viewMode ?? '');
+  // Per-property visuals mean viewMode is no longer guaranteed shared
+  // across tiles, so it's now part of each tile's own signature entry
+  // (along with whether it's the Details panel's selected property) —
+  // still a plain string, so the no-infinite-loop reasoning above holds.
+  const tileKeysSignature = tiles.map(t => `${t.key}:${t.tileProps?.viewMode ?? ''}:${t.selected ? 1 : 0}`).join('|');
   useEffect(() => {
     setNodes(current => {
       const tileMap = new Map(tiles.map(t => [t.key, t]));
       const kept = current
         .filter(n => tileMap.has(n.id))
-        .map(n => ({ ...n, data: { tileProps: tileMap.get(n.id).tileProps } }));
+        .map(n => ({ ...n, data: { tileProps: tileMap.get(n.id).tileProps, selected: !!tileMap.get(n.id).selected } }));
       const keptIds = new Set(kept.map(n => n.id));
       const added = tiles
         .filter(t => !keptIds.has(t.key))
@@ -3903,7 +3971,7 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
           id: t.key,
           type: 'propertyLayoutNode',
           position: manualPositions[t.key] ?? PROPERTY_LAYOUT_DEFAULT_POSITION,
-          data: { tileProps: t.tileProps },
+          data: { tileProps: t.tileProps, selected: !!t.selected },
         }));
       return [...kept, ...added];
     });
@@ -3969,6 +4037,9 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
         edges={[]}
         nodeTypes={PROPERTY_LAYOUT_NODE_TYPES}
         onNodesChange={onNodesChange}
+        // A plain click (not a drag — React Flow only fires this when the
+        // node didn't move) selects the property in the Details panel.
+        onNodeClick={onSelectTile ? (_, node) => onSelectTile(node.id) : undefined}
         snapToGrid
         snapGrid={[PROPERTY_LAYOUT_GRID_SIZE, PROPERTY_LAYOUT_GRID_SIZE]}
         minZoom={0.1}
@@ -5068,7 +5139,7 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
 // NowTypeMainPreview, in the center, as its own separate component now).
 // rightPanelViewMode/hiddenAssetIds are lifted state (OperatorWorkspaceInner),
 // read here for display/editing but actually driven by the center preview.
-function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange }) {
+function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange, propertyVisuals }) {
   // DevExtreme's DataGrid does not automatically recalculate column widths
   // when its container is resized (documented requirement, not a bug) —
   // without this, a narrower Details panel can leave columns at their
@@ -5079,19 +5150,40 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   const propsGridRef = useRef(null);
   const relatedGridRef = useRef(null);
 
-  if (!properties) {
-    return <div className="op-dash-text op-dash-text--muted">No properties available yet for this {isAssetEntity ? 'asset' : 'type'}.</div>;
-  }
+  // Clicking a tile in the center preview selects its row here — scroll
+  // it into view too, since the grid alone only highlights (DataGrid's
+  // selectedRowKeys never scrolls on its own).
+  const selectedPropertyKey = propertyVisuals?.selectedKey ?? null;
+  useEffect(() => {
+    if (selectedPropertyKey == null) return;
+    propsGridRef.current?.instance()?.navigateToRow(selectedPropertyKey);
+  }, [selectedPropertyKey]);
 
   const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
+  // The draft is keyed by entity so a stale map left over from whatever
+  // was selected before can't leak into this one's first render (the
+  // center preview re-seeds it from this entity's saved template on mount).
+  const propertyViewModes = propertyVisuals?.entityId === entityId ? propertyVisuals.modes : {};
 
   // Merged the same way RelatedAssetBoxContent's own fallback works: this
   // asset's own override wins per property when it has one, otherwise its
   // type's, otherwise "always" — so the grid shown here always reflects
   // what would actually display, not just this asset's own overrides in
   // isolation.
-  const propertyRows = getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs)
-    .map(row => ({ ...row, visualMode: visualModeLabel }));
+  const rawPropertyRows = properties
+    ? getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs)
+      .map(row => ({ ...row, visualMode: propertyViewModes[row.key] ?? PROPERTY_VIEW_MODE_DEFAULT }))
+    : [];
+
+  // Only explicit overrides are kept in the map — choosing Default removes
+  // the entry rather than storing 'default', so the property goes back to
+  // following the toolbar's view mode.
+  const handleVisualChange = (key, mode) => {
+    const next = { ...propertyViewModes };
+    if (mode === PROPERTY_VIEW_MODE_DEFAULT || mode == null) delete next[key];
+    else next[key] = mode;
+    propertyVisuals?.setModes(entityId, next);
+  };
 
   const handleVisibilityChange = (key, visibility) => {
     const setConfigs = isAssetEntity ? setAssetPropertyConfigs : setTypePropertyConfigs;
@@ -5101,29 +5193,84 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
     }));
   };
 
-  const propertyColumns = [
-    { dataField: 'label', caption: 'Property', minWidth: 100 },
-    {
-      dataField: 'visibility',
-      caption: 'Visibility',
-      width: 90,
-      alignment: 'center',
-      cellRender: (cellInfo) => (
-        <button
-          className="op-visibility-cycle-btn"
-          title={VISIBILITY_LABEL[cellInfo.data.visibility]}
-          onClick={() => handleVisibilityChange(cellInfo.data.key, VISIBILITY_CYCLE[cellInfo.data.visibility])}
-        >
-          <VisibilityStateIcon visibility={cellInfo.data.visibility} />
-        </button>
-      ),
-    },
-    {
-      dataField: 'visualMode',
-      caption: 'Visual',
-      width: 90,
-    },
-  ];
+  // Stable rows/columns for the Properties grid. Previously both were
+  // rebuilt fresh every render, which was harmless while every cell was
+  // plain text — but DevExtreme's DataGrid repaints every cell whenever
+  // its dataSource or columns change by reference, and now that the
+  // Visual column holds a live SelectBox, that repaint remounts it and
+  // closes its dropdown. The row click that opens the dropdown also
+  // selects the row (and highlights its tile in the preview), which
+  // re-renders this component — so without this, the very first click
+  // on a Visual cell opened and instantly closed the list. Rows are
+  // stabilized by content (a cheap signature, since the inputs are
+  // rebuilt upstream every render), columns by the one value their
+  // rendering depends on; handlers are read through a ref so the columns
+  // never close over stale state.
+  const handlersRef = useRef({});
+  handlersRef.current = { handleVisualChange, handleVisibilityChange };
+  const rowsSignature = JSON.stringify(rawPropertyRows);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const propertyRows = useMemo(() => rawPropertyRows, [rowsSignature]);
+
+  const propertyColumns = useMemo(() => {
+    const visualSelectItems = [
+      { text: `Default (${visualModeLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT },
+      ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
+    ];
+    return [
+      { dataField: 'label', caption: 'Property', minWidth: 80 },
+      {
+        dataField: 'visibility',
+        // "Show" rather than "Visibility" — the new Visual dropdown needs
+        // the room, and at the panel's default 280px width the longer
+        // caption truncated to "VISIBILI…" while squeezing property names.
+        caption: 'Show',
+        width: 64,
+        minWidth: 64, // DataListGrid's default minWidth (80) would otherwise win over width
+        alignment: 'center',
+        cellRender: (cellInfo) => (
+          <button
+            className="op-visibility-cycle-btn"
+            title={VISIBILITY_LABEL[cellInfo.data.visibility]}
+            onClick={() => handlersRef.current.handleVisibilityChange(cellInfo.data.key, VISIBILITY_CYCLE[cellInfo.data.visibility])}
+          >
+            <VisibilityStateIcon visibility={cellInfo.data.visibility} />
+          </button>
+        ),
+      },
+      {
+        dataField: 'visualMode',
+        caption: 'Visual',
+        width: 84,
+        minWidth: 84,
+        cellRender: (cellInfo) => {
+          const overridden = cellInfo.data.visualMode !== PROPERTY_VIEW_MODE_DEFAULT;
+          return (
+            <SelectBox
+              className={`op-prop-visual-select${overridden ? ' op-prop-visual-select--override' : ''}`}
+              items={visualSelectItems}
+              // The closed field shows just the mode name (muted when it's
+              // the inherited default) to fit the narrow column; the open
+              // list spells out "Default (Text)" so the choice is explicit.
+              displayExpr={item => (item ? (item.value === PROPERTY_VIEW_MODE_DEFAULT ? visualModeLabel : item.text) : '')}
+              itemRender={item => item.text}
+              valueExpr="value"
+              value={cellInfo.data.visualMode}
+              onValueChanged={e => { if (e.event) handlersRef.current.handleVisualChange(cellInfo.data.key, e.value); }}
+              stylingMode="underlined"
+              showDropDownButton={false}
+              dropDownOptions={{ width: 150 }}
+              hint={overridden ? 'Set for this property only' : 'Follows the view mode chosen in the preview toolbar'}
+            />
+          );
+        },
+      },
+    ];
+  }, [visualModeLabel]);
+
+  if (!properties) {
+    return <div className="op-dash-text op-dash-text--muted">No properties available yet for this {isAssetEntity ? 'asset' : 'type'}.</div>;
+  }
 
   // Related Assets tab — every asset-relationship edge touching this
   // entity's own type, collapsed to one row per (related type,
@@ -5180,8 +5327,9 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
               items={propertyRows}
               columns={propertyColumns}
               keyExpr="key"
-              selectedId={null}
-              onSelect={() => {}}
+              selectedId={selectedPropertyKey}
+              onSelect={key => propertyVisuals?.setSelectedKey(key)}
+              columnAutoWidth={false}
               searchEnabled={false}
               noDataText={`No properties for this ${isAssetEntity ? 'asset' : 'type'}.`}
             />
@@ -5216,7 +5364,24 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
 // Persists across Details being hidden/shown: closing the Details panel
 // doesn't blank this out or reset it, it just keeps showing whichever
 // was last active.
-function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, relationshipTypeId, thisAssetExampleId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, typeRelatedAssetsTemplates, onSaveTypeDisplayTemplate, onSaveTypeRelatedAssetsTemplate, assetPropertyConfigs, assetRelatedAssetConfigs, assetDisplayTemplates, assetRelatedAssetsTemplates, onSaveAssetDisplayTemplate, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange }) {
+function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, relationshipTypeId, thisAssetExampleId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, typeRelatedAssetsTemplates, onSaveTypeDisplayTemplate, onSaveTypeRelatedAssetsTemplate, assetPropertyConfigs, assetRelatedAssetConfigs, assetDisplayTemplates, assetRelatedAssetsTemplates, onSaveAssetDisplayTemplate, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange, propertyVisuals }) {
+  // Seeds the shared per-property visual draft from this entity's saved
+  // template whenever a different entity gets selected — this component
+  // remounts per selection (key={selectedThing.id}), so mount is exactly
+  // that moment. Same asset-over-type, whole-template fallback as the
+  // rest of the display template below: an asset with no template of its
+  // own starts from its type's per-property choices.
+  const savedPropertyViewModes = (isAssetEntity
+    ? (assetDisplayTemplates?.[entityId] ?? typeDisplayTemplates?.[relationshipTypeId])
+    : typeDisplayTemplates?.[entityId])?.propertyViewModes ?? {};
+  useEffect(() => {
+    if (propertyVisuals && propertyVisuals.entityId !== entityId) {
+      propertyVisuals.setModes(entityId, savedPropertyViewModes);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entityId]);
+  const draftPropertyViewModes = propertyVisuals?.entityId === entityId ? propertyVisuals.modes : savedPropertyViewModes;
+
   const titleRow = (
     <div className="op-now-asset-detail-title op-now-asset-detail-title--with-caret">
       <button
@@ -5346,6 +5511,9 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
           activeSaveHandlerRef={activeSaveHandlerRef}
           onViewModeChange={onViewModeChange}
           showToolbar={toolbarExpanded}
+          propertyViewModes={draftPropertyViewModes}
+          selectedPropertyKey={propertyVisuals?.selectedKey ?? null}
+          onSelectProperty={propertyVisuals?.setSelectedKey}
         />
       </div>
     </div>
@@ -6414,7 +6582,7 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operato
 }
 
 
-function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility }) {
+function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, propertyVisuals }) {
   return (
     <div className="op-panel op-side-panel">
       <div className="op-side-tab-content">
@@ -6453,6 +6621,7 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
                   onToggleAssetVisibility={onToggleAssetVisibility}
                   activeTabIndex={activeTabIndex}
                   onActiveTabIndexChange={onActiveTabIndexChange}
+                  propertyVisuals={propertyVisuals}
                 />
               );
             })()
@@ -6485,6 +6654,7 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
                   onToggleAssetVisibility={onToggleAssetVisibility}
                   activeTabIndex={activeTabIndex}
                   onActiveTabIndexChange={onActiveTabIndexChange}
+                  propertyVisuals={propertyVisuals}
                 />
               );
             })()
@@ -7024,6 +7194,28 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // a parent/child of the list now that the two are split across panels),
   // reported up via onViewModeChange whenever it changes.
   const [rightPanelViewMode, setRightPanelViewMode] = useState('all');
+  // Per-property visual overrides (unsaved draft) and the currently
+  // selected property — both shared between the center preview (tiles)
+  // and the Details panel (Visual column / row selection), which are
+  // siblings, same reasoning as rightPanelViewMode above. The draft is
+  // tagged with the entity it belongs to, so neither side ever reads a
+  // map left over from a previous selection; the preview re-seeds it from
+  // the saved template whenever a new type/asset is selected, and the
+  // title-bar Save persists it as part of that display template.
+  const [propertyVisualDraft, setPropertyVisualDraft] = useState({ entityId: null, modes: {} });
+  const [selectedPropertyKey, setSelectedPropertyKey] = useState(null);
+  const propertyVisuals = {
+    entityId: propertyVisualDraft.entityId,
+    modes: propertyVisualDraft.modes,
+    setModes: (entityId, modes) => setPropertyVisualDraft({ entityId, modes }),
+    selectedKey: selectedPropertyKey,
+    setSelectedKey: setSelectedPropertyKey,
+  };
+  // A selected property belongs to the selected type/asset — drop it when
+  // that changes rather than highlighting a same-named property elsewhere.
+  useEffect(() => {
+    setSelectedPropertyKey(null);
+  }, [selectedNowThing?.kind, selectedNowThing?.id]);
   // All Assets' per-asset show/hide choice — shared between the visibility
   // tree (Details panel) and the diagram (center preview), same reasoning
   // as rightPanelViewMode above. Hydrated from the saved All Assets
@@ -7225,6 +7417,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 allAssetsTemplate={allAssetsTemplate}
                 onSaveAllAssetsTemplate={handleSaveAllAssetsTemplate}
                 onTitleClick={handleNavigateToType}
+                propertyVisuals={propertyVisuals}
               />
             ) : railMode === 'attention' ? (
               <InvestigatePanel
@@ -7296,6 +7489,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 rightPanelViewMode={rightPanelViewMode}
                 hiddenAssetIds={hiddenAssetIds}
                 onToggleAssetVisibility={handleToggleAssetVisibility}
+                propertyVisuals={propertyVisuals}
               />
             </SplitterItem>
           )}
