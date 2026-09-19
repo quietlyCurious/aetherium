@@ -22,7 +22,7 @@
 // separate chat surface — this is the thing the brainstorm doc keeps
 // calling out as the actual differentiator vs. a traditional HMI+chatbot.
 
-import React, { useState, useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle } from 'react';
 import { Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
@@ -31,6 +31,8 @@ import { TabPanel } from 'devextreme-react';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import DataListGrid from './DataListGrid';
 import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from './typeDisplayTemplatesStorage';
+import { loadRelatedAssetsTemplates, saveRelatedAssetsTemplates } from './relatedAssetsTemplatesStorage';
+import { loadAllAssetsTemplate, saveAllAssetsTemplate } from './allAssetsTemplateStorage';
 import { loadNowSelection, saveNowSelection } from './nowSelectionStorage';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from './typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from './typeRelatedAssetConfigsStorage';
@@ -419,40 +421,19 @@ function ComparisonLineChart({ evidence, evidencePoints, color }) {
   );
 }
 
-// The other chart-type option. Candlestick charts need open/high/low/close
-// per point, which this data doesn't actually have (it's one reading per
-// minute, not an aggregated period) — so this is a deliberate approximation
-// for evaluating the chart type, not a real OHLC series: open is the prior
-// reading, close is the current one, and high/low add a small synthetic
-// pad around whichever of the two is larger/smaller so the wicks render.
-function buildCandlestickData(evidence, evidencePoints) {
-  const data = [];
-  for (let i = 1; i < evidence.length; i++) {
-    const open = evidence[i - 1];
-    const close = evidence[i];
-    const hi = Math.max(open, close);
-    const lo = Math.min(open, close);
-    const pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.01 || 1;
-    data.push({
-      time: evidencePoints[i] ? evidencePoints[i].time : String(i),
-      open,
-      close,
-      high: hi + pad,
-      low: lo - pad,
-    });
-  }
-  return data;
-}
-
 const EVIDENCE_VIEW_ITEMS = [
-  { text: 'Line', value: 'line' },
-  { text: 'Candlestick', value: 'candlestick' },
-  { text: 'Timeline', value: 'timeline' },
-  { text: 'Table', value: 'table' },
-  { text: 'KPIs', value: 'hmi' },
+  { text: 'Trend', value: 'line' },
+  { text: 'Assets', value: 'relatedAssets' },
+  { text: 'AI', value: 'ai' },
+];
+
+const RELATED_ASSETS_SUBVIEW_ITEMS = [
+  { text: 'This Asset', value: 'thisAsset' },
+  { text: 'Related Assets', value: 'related' },
 ];
 
 const KPI_VIEW_MODE_ITEMS = [
+  { text: 'None', value: 'none' },
   { text: 'Text', value: 'text' },
   { text: 'Indicator', value: 'indicator' },
   { text: 'Spark', value: 'spark' },
@@ -470,7 +451,7 @@ const TIER_RANK = { P1: 1, P2: 2, P3: 3 };
 
 // Icon components for the flow-control button groups below — 16px,
 // currentColor stroke, matching the convention already used elsewhere in
-// this file (NowRailIcon, VisibilityStateIcon, etc.) so they pick up the
+// this file (VisualizationRailIcon, VisibilityStateIcon, etc.) so they pick up the
 // button's active/inactive text color automatically.
 function ColumnFlowIcon() {
   return (
@@ -522,6 +503,78 @@ function ClusterIcon() {
       <line x1="3" y1="3" x2="3" y2="13" />
       <line x1="6" y1="3" x2="6" y2="13" />
       <line x1="9" y1="3" x2="9" y2="13" />
+    </svg>
+  );
+}
+// Diagram algorithm icons — nodes as small filled circles, edges as thin
+// lines, each shape suggesting the algorithm's characteristic structure
+// (layered = rows connected top-to-bottom, tree = a branching hierarchy,
+// radial = a hub-and-spoke ring, force = an irregular organic cluster
+// with no clear center or hierarchy, unlike the other three).
+function LayeredAlgorithmIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+      <line x1="5" y1="3" x2="5" y2="8" />
+      <line x1="11" y1="3" x2="11" y2="8" />
+      <line x1="5" y1="8" x2="5" y2="13" />
+      <line x1="11" y1="8" x2="11" y2="13" />
+      <circle cx="5" cy="3" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="3" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="5" cy="8" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="8" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="5" cy="13" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="13" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function TreeAlgorithmIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+      <line x1="8" y1="3" x2="3" y2="9" />
+      <line x1="8" y1="3" x2="8" y2="9" />
+      <line x1="8" y1="3" x2="13" y2="9" />
+      <circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="3" cy="9" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="9" r="1.3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function RadialAlgorithmIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+      <line x1="8" y1="8" x2="8" y2="2.5" />
+      <line x1="8" y1="8" x2="13" y2="5.5" />
+      <line x1="8" y1="8" x2="13" y2="10.5" />
+      <line x1="8" y1="8" x2="8" y2="13.5" />
+      <line x1="8" y1="8" x2="3" y2="10.5" />
+      <line x1="8" y1="8" x2="3" y2="5.5" />
+      <circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="2.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="10.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="8" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="3" cy="10.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="3" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function ForceAlgorithmIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+      <line x1="2.5" y1="5" x2="7" y2="3" />
+      <line x1="7" y1="3" x2="11.5" y2="5.5" />
+      <line x1="2.5" y1="5" x2="6" y2="10" />
+      <line x1="11.5" y1="5.5" x2="13" y2="11" />
+      <line x1="6" y1="10" x2="9.5" y2="13" />
+      <line x1="13" y1="11" x2="9.5" y2="13" />
+      <line x1="6" y1="10" x2="11.5" y2="5.5" />
+      <circle cx="2.5" cy="5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="7" cy="3" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="11.5" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="10" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="11" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="9.5" cy="13" r="1.1" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -766,25 +819,13 @@ const ALIGN_CONTENT_ITEMS = [
   { text: 'Cluster', value: 'flex-start', Icon: ClusterIcon },
 ];
 
-// Related Assets tab's own layout-mode toggle — 'cards' is the existing
-// box-flow view, 'diagram' is the new ELK + React Flow relational view.
-// More modes may be added later, hence a plain array rather than a
-// hardcoded pair of booleans.
+// Related Assets tab's own layout-mode toggle — 'cards' is the flex
+// box-flow view (genuinely responsive, reflows on resize), 'diagram' is
+// the ELK + React Flow relational view (fixed pixel positions, edges
+// drawn). Two different renderers, not one axis with a toggle on top.
 const RELATED_ASSETS_LAYOUT_MODE_ITEMS = [
   { text: 'Cards', value: 'cards', Icon: CardsLayoutIcon },
   { text: 'Diagram', value: 'diagram', Icon: DiagramLayoutIcon },
-];
-
-// Diagram view's scope toggle — 'focused' is the current type plus its
-// immediate related assets (small, oriented around one thing); 'model' is
-// every type-to-type relationship across the whole current model (bigger,
-// shows overall structure — better for comparing layout algorithms on
-// something with real shape). Text-based rather than icon-based, since
-// "focused vs. whole model" doesn't have an obvious simple glyph the way
-// row/column or wrap/nowrap do.
-const RELATED_ASSETS_GRAPH_SCOPE_ITEMS = [
-  { text: 'Focused', value: 'focused' },
-  { text: 'Model', value: 'model' },
 ];
 
 // Every edge now always finds its own real closest side on a node
@@ -840,33 +881,6 @@ const GROUPING_MODE_ITEMS = [
   { text: 'None', value: 'none' },
 ];
 
-function CandlestickChart({ evidence, evidencePoints, color }) {
-  const data = buildCandlestickData(evidence, evidencePoints);
-  return (
-    <div className="op-evidence-chart-wrap">
-      <Chart dataSource={data} palette={[color]} height="100%">
-        <Series
-          type="candlestick"
-          argumentField="time"
-          openValueField="open"
-          highValueField="high"
-          lowValueField="low"
-          closeValueField="close"
-        />
-        <ArgumentAxis>
-          <ChartGrid visible={false} />
-        </ArgumentAxis>
-        <ValueAxis>
-          <ChartGrid visible={true} />
-        </ValueAxis>
-        <ChartLegend visible={false} />
-        <ChartTooltip enabled={true} />
-        <ChartExport enabled={false} />
-      </Chart>
-    </div>
-  );
-}
-
 // "Refinery · Line · Station" (how attention items name their asset) ->
 // the nextgen workbook's own station id format ("FER_L02_POWERCHARGE").
 // Only resolves for station-level assets — line-wide items (2-part asset
@@ -879,6 +893,45 @@ function attentionAssetToStationId(asset) {
   const num = line.slice(1).padStart(2, '0');
   const stationSuffix = station.replace(/\s+/g, '').toUpperCase();
   return `${prefix}_L${num}_${stationSuffix}`;
+}
+
+// Same "Refinery · Line · Station"-style asset naming as
+// attentionAssetToStationId above, but resolved against CURRENT_ASSET_DATA
+// directly (e.g. "CONFLUENCE_T03_AERATION", "FERRUM_F2_POWER_CHARGE")
+// rather than the refinery-specific STATION_METRICS convention that
+// attentionAssetToStationId targets: segments uppercased with
+// spaces→underscores, joined by underscores, then looked up directly.
+// This resolves for all three models — wastewater and water load theirs
+// from a fetched JSON file, while refinery's is the hardcoded ASSET_DATA
+// constant in assetData.js, but CURRENT_ASSET_DATA points to whichever
+// applies either way. Returns null only if an attention item's asset
+// string doesn't actually match any real asset id.
+function attentionAssetToAssetEntry(asset) {
+  const assetId = asset
+    .split(' · ')
+    .map(segment => segment.trim().toUpperCase().replace(/\s+/g, '_'))
+    .join('_');
+  return CURRENT_ASSET_DATA.find(a => a.id === assetId) || null;
+}
+
+function attentionAssetToTypeId(asset) {
+  const match = attentionAssetToAssetEntry(asset);
+  return match ? `TYPE_${match.assetLevel}_${match.assetType}` : null;
+}
+
+// Whether an attention item's own narrative window — its evidencePoints'
+// first to last reading, in "HH:MM" clock time, the same real window
+// shown on its own Trend/Timeline tabs — contains a given scrubbed time.
+// String comparison works directly since every timestamp here is
+// zero-padded "HH:MM" (lexicographic order matches chronological order).
+// Deliberately independent of the item's current/latest outcomeStatus —
+// an item already "resolved" as of now can still correctly show as
+// active when scrubbed back to a time within its own original window,
+// since it genuinely was active then.
+function isAttentionItemActiveAtTime(attentionItem, timeStr) {
+  const points = attentionItem?.detail?.evidencePoints;
+  if (!points || points.length === 0 || !timeStr) return false;
+  return timeStr >= points[0].time && timeStr <= points[points.length - 1].time;
 }
 
 // ASSET_DATA (the real, shared asset model — e.g. "AURELIA_A1_INTAKE")
@@ -1056,6 +1109,10 @@ const TYPE_LIST_COLUMNS = [
   { dataField: 'level', caption: 'Level', width: 90 },
 ];
 
+// See usage in RelatedAssetBoxContent below and the time-track scrubber in
+// InvestigatePanel's Related Assets tab, the only place this is provided.
+const TimeScrubContext = createContext(null);
+
 function resolveAssetProperties(assetId) {
   return (CURRENT_MODEL === 'water' || CURRENT_MODEL === 'wastewater') ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
 }
@@ -1118,7 +1175,7 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
 // already covers) — grouped by property type rather than dumped as one
 // long list, same visual language as Line Detail's stat tiles.
-function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef }) {
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar }) {
   const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
   const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
   const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
@@ -1137,6 +1194,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   // the template is used, not just in this editor.
   const [propertyLayoutMode, setPropertyLayoutMode] = useState(savedTemplate?.layoutMode ?? 'auto');
   const [manualPositions, setManualPositions] = useState(savedTemplate?.manualPositions ?? {});
+  const propertyLayoutCanvasRef = useRef(null);
   // Measures the flex preview's actual current tile positions at the
   // moment of switching to manual, so nothing visually jumps — refs are
   // populated by the flex preview's own render below, read once on
@@ -1155,7 +1213,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   // Registers "save the current draft" into the shared ref the global
   // title-bar Save button ultimately calls — kept in sync with the same
   // logic the in-panel Save Template button already uses. Cleared on
-  // unmount (switching types remounts this component via NowTypeDetail's
+  // unmount (switching types remounts this component via NowTypeMainPreview's
   // key) so a stale handler for the previous type can't linger.
   useEffect(() => {
     if (!typeVisibilityMode || !activeSaveHandlerRef) return undefined;
@@ -1263,92 +1321,128 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
 
   return (
     <div className={`op-hmiprops-wrap${typeFlowActive ? ' op-hmiprops-wrap--typeflow' : ''}`}>
-      <div className="op-hmiprops-toolbar">
-        {typeVisibilityMode ? (
-          <>
-            {groupingMode === 'none' && (
-              <>
-                <span
-                  className="op-dash-text"
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 12,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    whiteSpace: 'nowrap',
-                    background: propertyLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
-                    color: propertyLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
-                  }}
-                >
-                  {propertyLayoutMode === 'manual' ? 'Manual Layout' : 'Flex Layout'}
-                </span>
-                {propertyLayoutMode === 'manual' ? (
-                  <Button text="Reset to Flex Layout" onClick={handleResetPropertyLayout} stylingMode="outlined" />
-                ) : (
-                  <Button text="Switch to Manual Layout" onClick={handleSwitchToManualLayout} stylingMode="outlined" />
+      {typeVisibilityMode ? (
+        showToolbar && (
+          <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+            {/* Row 1: badge + reset/switch button anchored left, tier filter anchored right. */}
+            <div className="op-toolbar-row-1" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {groupingMode === 'none' && (
+                  <>
+                    <span
+                      className="op-dash-text"
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 12,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        whiteSpace: 'nowrap',
+                        background: propertyLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
+                        color: propertyLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
+                      }}
+                    >
+                      {propertyLayoutMode === 'manual' ? 'Manual Layout' : 'Flex Layout'}
+                    </span>
+                    {propertyLayoutMode === 'manual' ? (
+                      <Button text="Reset to Flex Layout" onClick={handleResetPropertyLayout} stylingMode="outlined" />
+                    ) : (
+                      <Button text="Switch to Manual Layout" onClick={handleSwitchToManualLayout} stylingMode="outlined" />
+                    )}
+                  </>
                 )}
-              </>
-            )}
-            <div className="op-tierfilter-slider-wrap" style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-              <Slider
-                min={0}
-                max={2}
-                step={1}
-                value={TIER_FILTER_SLIDER_VALUES.indexOf(tierFilter)}
-                onValueChanged={e => setTierFilter(TIER_FILTER_SLIDER_VALUES[e.value] ?? 'all')}
-                className="op-tierfilter-slider"
-                style={{ width: '100%' }}
-              >
-                <SliderLabel visible format={formatTierFilterSliderLabel} position="bottom" />
-              </Slider>
+              </div>
+              <div className="op-tierfilter-slider-wrap" style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                <Slider
+                  min={0}
+                  max={2}
+                  step={1}
+                  value={TIER_FILTER_SLIDER_VALUES.indexOf(tierFilter)}
+                  onValueChanged={e => setTierFilter(TIER_FILTER_SLIDER_VALUES[e.value] ?? 'all')}
+                  className="op-tierfilter-slider"
+                  style={{ width: '100%' }}
+                >
+                  <SliderLabel visible format={formatTierFilterSliderLabel} position="bottom" />
+                </Slider>
+              </div>
             </div>
-            <ButtonGroup
-              items={KPI_VIEW_MODE_ITEMS}
-              keyExpr="value"
-              selectedItemKeys={[kpiViewMode]}
-              onItemClick={e => setKpiViewMode(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
-            />
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[flowDirection]}
-              onItemClick={e => setFlowDirection(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
-            >
-              {FLOW_DIRECTION_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[flowWrap]}
-              onItemClick={e => setFlowWrap(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
-            >
-              {FLOW_WRAP_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[alignContent]}
-              onItemClick={e => setAlignContent(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-              disabled={groupingMode === 'none' && propertyLayoutMode === 'manual'}
-            >
-              {ALIGN_CONTENT_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-          </>
-        ) : (
+            {/* Row 2: viz-type (orthogonal to flex vs. manual, always
+                shown) plus the one mode-specific control set — flex's own
+                flow controls, or manual's own align/distribute/arrange —
+                never both, since they act on fundamentally different
+                things (flex CSS properties vs. actual node positions on
+                the canvas). */}
+            <div className="op-toolbar-row-2" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+              {groupingMode === 'none' && (
+                <ButtonGroup
+                  items={KPI_VIEW_MODE_ITEMS}
+                  keyExpr="value"
+                  selectedItemKeys={[kpiViewMode]}
+                  onItemClick={e => setKpiViewMode(e.itemData.value)}
+                  stylingMode="outlined"
+                  className="op-dash-chart-toggle"
+                />
+              )}
+              {groupingMode === 'none' && propertyLayoutMode === 'manual' ? (
+                <>
+                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                    {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                    {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                    {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                  <Button text="Arrange in Grid" onClick={() => propertyLayoutCanvasRef.current?.arrangeGrid()} stylingMode="outlined" />
+                </>
+              ) : groupingMode === 'none' && (
+                <>
+                  <ButtonGroup
+                    keyExpr="value"
+                    selectedItemKeys={[flowDirection]}
+                    onItemClick={e => setFlowDirection(e.itemData.value)}
+                    stylingMode="outlined"
+                    className="op-dash-chart-toggle"
+                  >
+                    {FLOW_DIRECTION_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                  <ButtonGroup
+                    keyExpr="value"
+                    selectedItemKeys={[flowWrap]}
+                    onItemClick={e => setFlowWrap(e.itemData.value)}
+                    stylingMode="outlined"
+                    className="op-dash-chart-toggle"
+                  >
+                    {FLOW_WRAP_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                  <ButtonGroup
+                    keyExpr="value"
+                    selectedItemKeys={[alignContent]}
+                    onItemClick={e => setAlignContent(e.itemData.value)}
+                    stylingMode="outlined"
+                    className="op-dash-chart-toggle"
+                  >
+                    {ALIGN_CONTENT_ITEMS.map(item => (
+                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                    ))}
+                  </ButtonGroup>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="op-hmiprops-toolbar">
           <>
             <ButtonGroup
               items={KPI_VIEW_MODE_ITEMS}
@@ -1375,8 +1469,8 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               className="op-dash-chart-toggle"
             />
           </>
-        )}
-      </div>
+        </div>
+      )}
       {categories.length === 0 ? (
         <div className="op-dash-text op-dash-text--muted">
           {typeVisibilityMode ? `No properties marked "${tierFilter}"` : `No ${tierFilter} properties for this asset.`}
@@ -1393,9 +1487,14 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
           ))}
         </div>
       ) : groupingMode === 'none' ? (
-        typeVisibilityMode && propertyLayoutMode === 'manual' ? (
+        kpiViewMode === 'none' ? (
+          <div className="op-hmiprops-singlebox">
+            <div className="op-dash-text op-dash-text--muted">No properties shown (view mode: None).</div>
+          </div>
+        ) : typeVisibilityMode && propertyLayoutMode === 'manual' ? (
           <div className="op-hmiprops-singlebox op-hmiprops-singlebox--typeflow">
             <PropertyLayoutCanvas
+              ref={propertyLayoutCanvasRef}
               tiles={categories.flatMap(cat => grouped[cat]).map(p => ({ key: p.key, tileProps: buildTileProps(p) }))}
               manualPositions={manualPositions}
               onPositionsChange={setManualPositions}
@@ -2216,16 +2315,131 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
   );
 });
 
+// Left panel for the new Operator-only Assets area — the real asset
+// hierarchy, same HierarchyTree/CURRENT_ASSET_DATA/item-template pattern
+// already prototyped (commented out) in NowAssetTreePanel above, just
+// used directly for navigation/selection here rather than nested inside
+// a Types/Assets tab switcher, since this area is assets-only.
+function OperatorAssetTreePanel({ selectedAssetId, onSelectAsset }) {
+  return (
+    <div className="op-panel op-now-tree-panel op-operator-asset-tree-panel">
+      <div className="op-zone-label">Assets</div>
+      <div className="op-now-tree-wrap">
+        <div className="left-panel-tab-content op-now-tree-tab-content">
+          <HierarchyTree
+            dataSource={CURRENT_ASSET_DATA}
+            displayExpr="name"
+            itemRender={NowAssetTreeItemTemplate}
+            selectedId={selectedAssetId}
+            onSelect={onSelectAsset}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Center panel for the new Operator-only Assets area — loads whichever
+// asset is selected in OperatorAssetTreePanel and shows it through the
+// same three visual playgrounds Visualization configures (Properties/
+// Related Assets/All Assets), entirely read-only: no toolbar, no
+// editing, no save. Properties reuses RelatedAssetBoxContent directly
+// (it already renders a given asset's own real values under its type's
+// saved template, flex or manual, with no canvas involved at all for
+// manual mode — just absolutely-positioned tiles); Related Assets and
+// All Assets reuse the same Cards/Diagram renderers Visualization uses,
+// just with readOnly set so their canvases can't be dragged.
+const ASSET_DETAIL_TAB_ITEMS = [
+  { text: 'Properties', value: 'properties' },
+  { text: 'Related Assets', value: 'related' },
+  { text: 'All Assets', value: 'all' },
+];
+function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, allAssetsTemplate, hiddenAssetIds, activeTab, onActiveTabChange, onTitleClick, onGearClick }) {
+  if (!selectedAssetId) {
+    return (
+      <div className="op-panel op-investigate-panel op-operator-asset-detail op-now-detail-empty">
+        <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>
+      </div>
+    );
+  }
+  const asset = CURRENT_ASSET_MAP[selectedAssetId];
+  if (!asset) return null;
+  const typeId = `TYPE_${asset.assetLevel}_${asset.assetType}`;
+  const typeEntry = typeList.find(t => t.id === typeId);
+  const typeName = typeEntry?.name ?? deslugifyType(asset.assetType);
+  // Same reasoning as NowAssetDetail's own fullRangeEvidencePoints below —
+  // no single narrative/event window here, show the full available trend.
+  const evidencePoints = STATION_TELEMETRY && STATION_TELEMETRY.timestamps.length
+    ? [{ time: STATION_TELEMETRY.timestamps[0] }, { time: STATION_TELEMETRY.timestamps[STATION_TELEMETRY.timestamps.length - 1] }]
+    : [];
+
+  return (
+    <div className="op-panel op-investigate-panel op-operator-asset-detail">
+      <div className="op-zone-label">{getAssetDisplayLabel(selectedAssetId)}</div>
+      <div style={{ padding: '10px 12px 0' }}>
+        <ButtonGroup
+          items={ASSET_DETAIL_TAB_ITEMS}
+          keyExpr="value"
+          selectedItemKeys={[activeTab]}
+          onItemClick={e => onActiveTabChange(e.itemData.value)}
+          stylingMode="outlined"
+        />
+      </div>
+      <div className="op-now-type-detail-main">
+        {activeTab === 'properties' && (
+          <div className={`op-hmiprops-singlebox${typeDisplayTemplates?.[typeId]?.layoutMode === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+            <RelatedAssetBoxContent
+              relatedTypeId={typeId}
+              relatedTypeName={typeName}
+              relatedTypeExampleAssetId={selectedAssetId}
+              typeDisplayTemplates={typeDisplayTemplates}
+              typePropertyConfigs={typePropertyConfigs}
+              evidencePoints={evidencePoints}
+              onTitleClick={onTitleClick}
+              onGearClick={onGearClick}
+            />
+          </div>
+        )}
+        {activeTab === 'related' && (
+          <ReadOnlyRelatedAssetsView
+            typeId={typeId}
+            typeList={typeList}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+            evidencePoints={evidencePoints}
+            savedTemplate={relatedAssetsTemplates[typeId]}
+            onTitleClick={onTitleClick}
+            onGearClick={onGearClick}
+          />
+        )}
+        {activeTab === 'all' && (
+          <ReadOnlyAllAssetsView
+            typeList={typeList}
+            hiddenAssetIds={hiddenAssetIds}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            evidencePoints={evidencePoints}
+            savedTemplate={allAssetsTemplate}
+            onTitleClick={onTitleClick}
+            onGearClick={onGearClick}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Center placeholder — proves selection is wired end-to-end (name, type,
 // and level all come from the real selected node) ahead of the actual
 // per-asset view engine, which is separate, larger work.
-function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef }) {
-  // Which tab (Properties / Related Assets) is active — lives here rather
-  // than inside NowTypeDetail, since NowTypeDetail remounts fresh (via its
-  // key={selectedThing.id}) every time a different type is selected, but
-  // NowAssetDetail itself doesn't. Without this living up here, the
-  // TabPanel would silently reset to its first tab on every type switch.
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick }) {
+  // Lifted up here (rather than local state inside NowTypeMainPreview,
+  // which remounts on every type switch via its own key={selectedThing.id})
+  // so the toolbar's open/closed state survives flipping between types —
+  // once the user opens it, it stays open. Still collapsed by default on
+  // first load, since this component's own state starts false either way.
+  const [toolbarExpanded, setToolbarExpanded] = useState(false);
 
   if (!selectedThing) {
     return (
@@ -2269,10 +2483,15 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
 
   const { properties, sparklineSource } = resolveAssetProperties(assetIdForProperties);
 
+  // Main preview area — the visual playground matching whichever Details-
+  // panel tab is active (Properties/Related Assets/All Assets). Editing
+  // the underlying config lists happens in the Details panel (right
+  // rail) instead of here — this is the "play with layout" half.
   if (selectedThing.kind === 'type') {
     return (
-      <NowTypeDetail
+      <NowTypeMainPreview
         key={selectedThing.id}
+        activeTabIndex={activeTabIndex}
         title={title}
         typeId={selectedThing.id}
         typeList={typeList}
@@ -2280,14 +2499,19 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
         sparklineSource={sparklineSource}
         evidencePoints={fullRangeEvidencePoints}
         typePropertyConfigs={typePropertyConfigs}
-        setTypePropertyConfigs={setTypePropertyConfigs}
         typeRelatedAssetConfigs={typeRelatedAssetConfigs}
-        setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
         typeDisplayTemplates={typeDisplayTemplates}
         onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
         activeSaveHandlerRef={activeSaveHandlerRef}
-        activeTabIndex={activeTabIndex}
-        onActiveTabIndexChange={setActiveTabIndex}
+        onViewModeChange={onViewModeChange}
+        hiddenAssetIds={hiddenAssetIds}
+        relatedAssetsTemplates={relatedAssetsTemplates}
+        onSaveRelatedAssetsTemplate={onSaveRelatedAssetsTemplate}
+        allAssetsTemplate={allAssetsTemplate}
+        onSaveAllAssetsTemplate={onSaveAllAssetsTemplate}
+        onTitleClick={onTitleClick}
+        toolbarExpanded={toolbarExpanded}
+        onToolbarExpandedChange={setToolbarExpanded}
       />
     );
   }
@@ -2316,7 +2540,7 @@ const VISIBILITY_LABEL = { always: 'Always', sometimes: 'Sometimes', never: 'Nev
 
 // Filled circle = always, half-filled = sometimes, outline only = never —
 // click cycles through the three. currentColor stroke matches the other
-// inline icons in this file (NowRailIcon etc.), so it inherits text color.
+// inline icons in this file (VisualizationRailIcon etc.), so it inherits text color.
 function VisibilityStateIcon({ visibility }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -2398,48 +2622,126 @@ function getRelatedAssetsForType(typeId, typeList) {
       relatedTypeExampleAssetId: otherAsset.id,
       direction,
       relationshipLabel: `${direction === 'out' ? '→' : '←'} ${formatRelationshipName(edge)}`,
+      isContainment: false,
+    });
+  });
+
+  // Containment (parentId-derived) — this type's own parent type, if its
+  // instances have one, and any child types (types whose instances'
+  // parentId points to an instance of this type). Deduped by type the
+  // same way the flow rows above are, since e.g. every train's parent is
+  // the same plant type. 'out' here means this type contains the other;
+  // 'in' means this type is contained by the other — same arrow
+  // convention as the flow rows, just for containment instead.
+  CURRENT_ASSET_DATA.forEach(a => {
+    if (!sameTypeAssetIds.has(a.id) || !a.parentId) return;
+    const parent = CURRENT_ASSET_MAP[a.parentId];
+    if (!parent) return;
+    const relatedTypeId = `TYPE_${parent.assetLevel}_${parent.assetType}`;
+    const key = `in::${relatedTypeId}::containment`;
+    if (rowsByKey.has(key)) return;
+    rowsByKey.set(key, {
+      key,
+      relatedTypeId,
+      relatedTypeName: deslugifyType(parent.assetType),
+      relatedTypeExampleAssetId: parent.id,
+      direction: 'in',
+      relationshipLabel: '← Contains',
+      isContainment: true,
+    });
+  });
+  CURRENT_ASSET_DATA.forEach(a => {
+    if (!a.parentId || !sameTypeAssetIds.has(a.parentId)) return;
+    const relatedTypeId = `TYPE_${a.assetLevel}_${a.assetType}`;
+    const key = `out::${relatedTypeId}::containment`;
+    if (rowsByKey.has(key)) return;
+    rowsByKey.set(key, {
+      key,
+      relatedTypeId,
+      relatedTypeName: deslugifyType(a.assetType),
+      relatedTypeExampleAssetId: a.id,
+      direction: 'out',
+      relationshipLabel: '→ Contains',
+      isContainment: true,
     });
   });
 
   return [...rowsByKey.values()].sort((a, b) => a.relatedTypeName.localeCompare(b.relatedTypeName));
 }
 
-// Builds the full type-level relationship graph for the whole current
-// model — every type-to-type edge derived from ASSET_RELATIONSHIPS,
-// deduplicated the same way getRelatedAssetsForType dedupes one type's
-// neighbors, just without being scoped to a single type's own assets.
-// Used by the diagram's "Model" scope to show everything at once, rather
-// than one type and its immediate neighbors. Deliberately flow-only, not
-// mixing in containment (parentId) — a fundamentally different kind of
-// relationship that would need its own visual treatment (see the
-// docs/circuit-board-vision-notes.md note on this), not just folded in.
-function getAllTypeRelationshipsForModel(typeList) {
-  const edgesByKey = new Map();
-  const nodeTypeIds = new Set();
-  (ASSET_RELATIONSHIPS || []).forEach(edge => {
-    const sourceAsset = CURRENT_ASSET_MAP[edge.sourceAssetId];
-    const targetAsset = CURRENT_ASSET_MAP[edge.targetAssetId];
-    if (!sourceAsset || !targetAsset) return;
-    const sourceTypeId = `TYPE_${sourceAsset.assetLevel}_${sourceAsset.assetType}`;
-    const targetTypeId = `TYPE_${targetAsset.assetLevel}_${targetAsset.assetType}`;
-    nodeTypeIds.add(sourceTypeId);
-    nodeTypeIds.add(targetTypeId);
-    const key = `${sourceTypeId}::${targetTypeId}::${edge.relationshipType}::${edge.layer}::${edge.label || ''}`;
-    if (edgesByKey.has(key)) return;
-    edgesByKey.set(key, {
-      key,
-      sourceTypeId,
-      targetTypeId,
-      relationshipLabel: formatRelationshipName(edge),
-    });
-  });
+// Every same-type sibling shares an identical asset.name (all six "Bar
+// Screen" instances are literally named "Bar Screen", distinguished only
+// by which train they belong to) — so a plain node label would be
+// ambiguous in a diagram showing every instance at once. This walks up
+// parentId to the nearest ancestor whose own parent is the root (the
+// train, for water/wastewater), and prepends its name — "T01 · Bar
+// Screen" — unless the asset itself already IS that top-level ancestor
+// (a train node) or the root itself (the plant), neither of which needs
+// disambiguating.
+function getTopLevelAncestor(assetId) {
+  let current = CURRENT_ASSET_MAP[assetId];
+  if (!current) return null;
+  while (current.parentId) {
+    const parent = CURRENT_ASSET_MAP[current.parentId];
+    if (!parent || !parent.parentId) return current;
+    current = parent;
+  }
+  return current;
+}
+function getAssetDisplayLabel(assetId) {
+  const asset = CURRENT_ASSET_MAP[assetId];
+  if (!asset) return assetId;
+  const topLevel = getTopLevelAncestor(assetId);
+  if (!topLevel || topLevel.id === asset.id) return asset.name;
+  return `${topLevel.name} · ${asset.name}`;
+}
 
-  const nodes = [...nodeTypeIds]
-    .map(typeId => typeList.find(t => t.id === typeId))
-    .filter(Boolean)
-    .map(t => ({ typeId: t.id, typeName: t.name, exampleAssetId: t.exampleAssetId }));
+// Asset-level counterpart to getAllTypeRelationshipsForModel above — one
+// node per real asset instance (127 for the wastewater model) rather than
+// one per type (21), so All Assets shows and lets the user toggle
+// visibility on the actual physical assets, not a type-level abstraction.
+// Flow edges come straight from ASSET_RELATIONSHIPS with no
+// deduplication needed, since it's already asset-to-asset. Containment
+// edges are derived here from parentId — every asset with a parent gets
+// a parent->child edge — giving container-level assets (plant/train/
+// stage) and the handful of equipment with no process-flow edge at all
+// (mixers, sludge collectors, scum skimmers — their relationship to
+// their vessel is containment, not flow) something to actually connect
+// to, rather than floating disconnected. Each edge carries isContainment
+// so the diagram can give the two kinds their own distinct visual
+// treatment, per docs/circuit-board-vision-notes.md's note that
+// containment shouldn't just be folded in indistinguishably from flow.
+// Containment edges (parent->child) get a visibly different treatment
+// from flow edges — lighter and dashed rather than the default solid
+// stroke — so the two relationship kinds read as distinct at a glance
+// rather than being folded into one undifferentiated line style.
+const CONTAINMENT_EDGE_STYLE = { stroke: '#bbb', strokeDasharray: '5 5' };
 
-  return { nodes, edges: [...edgesByKey.values()] };
+function getAllAssetRelationshipsForModel() {
+  const nodes = CURRENT_ASSET_DATA.map(a => ({
+    assetId: a.id,
+    assetName: getAssetDisplayLabel(a.id),
+    typeId: `TYPE_${a.assetLevel}_${a.assetType}`,
+  }));
+  const flowEdges = (ASSET_RELATIONSHIPS || [])
+    .filter(e => CURRENT_ASSET_MAP[e.sourceAssetId] && CURRENT_ASSET_MAP[e.targetAssetId])
+    .map(e => ({
+      key: `${e.sourceAssetId}::${e.targetAssetId}::${e.relationshipType}::${e.layer}::${e.label || ''}`,
+      sourceAssetId: e.sourceAssetId,
+      targetAssetId: e.targetAssetId,
+      relationshipLabel: formatRelationshipName(e),
+      isContainment: false,
+    }));
+  const containmentEdges = CURRENT_ASSET_DATA
+    .filter(a => a.parentId)
+    .map(a => ({
+      key: `containment::${a.parentId}::${a.id}`,
+      sourceAssetId: a.parentId,
+      targetAssetId: a.id,
+      relationshipLabel: 'Contains',
+      isContainment: true,
+    }));
+  return { nodes, edges: [...flowEdges, ...containmentEdges] };
 }
 
 // Shown only for type selections — Properties (a list of this type's
@@ -2454,11 +2756,10 @@ const elk = new ELK();
 // algorithms rather than relationship-aware layouts, so left out as not a
 // good fit for a node-link diagram.
 const RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS = [
-  { value: 'layered', label: 'Layered' },
-  { value: 'mrtree', label: 'Tree' },
-  { value: 'radial', label: 'Radial' },
-  { value: 'force', label: 'Force' },
-  { value: 'stress', label: 'Stress' },
+  { value: 'layered', label: 'Layered', text: 'Layered', Icon: LayeredAlgorithmIcon },
+  { value: 'mrtree', label: 'Tree', text: 'Tree', Icon: TreeAlgorithmIcon },
+  { value: 'radial', label: 'Radial', text: 'Radial', Icon: RadialAlgorithmIcon },
+  { value: 'force', label: 'Force', text: 'Force', Icon: ForceAlgorithmIcon },
 ];
 // Only 'layered' and 'mrtree' actually respect elk.direction — verified
 // directly by comparing DOWN vs RIGHT output for each algorithm; radial,
@@ -2790,8 +3091,9 @@ const RELATED_ASSETS_EDGE_TYPES = { floatingEdge: RelatedAssetsFloatingEdge };
 // use both in the current graph, since the same node reused elsewhere
 // might need the other one.
 function RelatedAssetDiagramNode({ data }) {
+  const isManual = data.typeDisplayTemplates?.[data.relatedTypeId]?.layoutMode === 'manual';
   return (
-    <div className={`op-related-asset-box${data.isCenter ? ' op-related-asset-box--center' : ''}`}>
+    <div className={`op-related-asset-box${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
       <Handle type="target" position={data.targetHandlePosition} />
       <RelatedAssetBoxContent
         relatedTypeId={data.relatedTypeId}
@@ -2800,6 +3102,8 @@ function RelatedAssetDiagramNode({ data }) {
         typeDisplayTemplates={data.typeDisplayTemplates}
         typePropertyConfigs={data.typePropertyConfigs}
         evidencePoints={data.evidencePoints}
+        onTitleClick={data.onTitleClick}
+        onGearClick={data.onGearClick}
       />
       <Handle type="source" position={data.sourceHandlePosition} />
     </div>
@@ -2822,20 +3126,36 @@ function PropertyLayoutNode({ data }) {
 }
 const PROPERTY_LAYOUT_NODE_TYPES = { propertyLayoutNode: PropertyLayoutNode };
 
+// Cards manual mode's own node type — one related-asset type box per
+// node, same no-edges reasoning as PropertyLayoutNode above (asset
+// cards don't relate to each other spatially the way Diagram's types
+// do — that's what Diagram itself is for).
+function CardsLayoutNode({ data }) {
+  const isManual = data.boxProps?.typeDisplayTemplates?.[data.boxProps?.relatedTypeId]?.layoutMode === 'manual';
+  return (
+    <div className={`op-related-asset-box op-property-layout-node${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
+      <RelatedAssetBoxContent {...data.boxProps} />
+    </div>
+  );
+}
+const CARDS_LAYOUT_NODE_TYPES = { cardsLayoutNode: CardsLayoutNode };
+
 // Related Assets tab's relational-diagram view — the current type plus its
 // related assets as a node-link diagram, auto-laid-out via ELK. Self-
 // contained ReactFlowProvider so this can be dropped in anywhere without
 // the caller needing to remember to wrap it.
-function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, graphScope, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode }) {
+const RelatedAssetsDiagram = forwardRef(function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
   return (
     <ReactFlowProvider>
       <RelatedAssetsDiagramInner
+        ref={ref}
         currentTypeId={currentTypeId}
         currentTypeName={currentTypeName}
         currentTypeExampleAssetId={currentTypeExampleAssetId}
         visibleRows={visibleRows}
         typeList={typeList}
-        graphScope={graphScope}
+        allTypesMode={allTypesMode}
+        hiddenAssetIds={hiddenAssetIds}
         typeDisplayTemplates={typeDisplayTemplates}
         typePropertyConfigs={typePropertyConfigs}
         evidencePoints={evidencePoints}
@@ -2853,12 +3173,17 @@ function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExamp
         setDiagramShowLabels={setDiagramShowLabels}
         setDiagramShowArrowheads={setDiagramShowArrowheads}
         setDiagramConnectionPointMode={setDiagramConnectionPointMode}
+        onPositionsChange={onPositionsChange}
+        savedManualPositions={savedManualPositions}
+        readOnly={readOnly}
+        onTitleClick={onTitleClick}
+        onGearClick={onGearClick}
       />
     </ReactFlowProvider>
   );
-}
+});
 
-function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, graphScope, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode }) {
+const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   // NodePositionChange (dragging:false marks the drag settling) is a
   // completely distinct change type from NodeDimensionChange (React
@@ -2893,6 +3218,10 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
   // re-measuring from scratch each time.
   const generationRef = useRef(0);
   const laidOutSignatureRef = useRef(null);
+  // Tracks whether savedManualPositions has already been applied this
+  // mount, so restoring a saved manual layout only happens once (on
+  // initial load) rather than fighting the user's own dragging afterward.
+  const appliedSavedPositionsRef = useRef(false);
 
   const isVertical = diagramDirection === 'DOWN';
   const targetHandlePosition = isVertical ? 'top' : 'left';
@@ -2902,40 +3231,50 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
   // whenever the underlying data changes. No width/height forced here —
   // each node renders at its own natural, content-based size (title +
   // StatTiles) so React Flow can measure the real thing, not a guess.
-  // 'focused' scope is the current type plus its immediate related
-  // assets; 'model' scope is every type-to-type relationship across the
-  // whole current model, with the currently-selected type (if it happens
-  // to appear) still marked isCenter for orientation in a bigger graph.
+  // Related Assets always uses the 'focused' shape below (current type
+  // plus its immediate related assets) — All Assets uses allTypesMode,
+  // every real asset instance across the whole current model (not a
+  // type-level abstraction), filtered by hiddenAssetIds, with every
+  // instance of the currently-selected type (if any appear and aren't
+  // themselves hidden) still marked isCenter for orientation in a bigger
+  // graph.
   useEffect(() => {
     generationRef.current += 1;
     let rawNodes;
     let rawEdges;
 
-    if (graphScope === 'model') {
-      const { nodes: modelNodes, edges: modelEdges } = getAllTypeRelationshipsForModel(typeList);
-      rawNodes = modelNodes.map(n => ({
-        id: n.typeId,
+    if (allTypesMode) {
+      const { nodes: modelNodes, edges: modelEdges } = getAllAssetRelationshipsForModel();
+      const visibleModelNodes = modelNodes.filter(n => !hiddenAssetIds?.has(n.assetId));
+      const visibleAssetIds = new Set(visibleModelNodes.map(n => n.assetId));
+      rawNodes = visibleModelNodes.map(n => ({
+        id: n.assetId,
         type: 'relatedAssetNode',
         data: {
           isCenter: n.typeId === currentTypeId,
           relatedTypeId: n.typeId,
-          relatedTypeName: n.typeName,
-          relatedTypeExampleAssetId: n.exampleAssetId,
+          relatedTypeName: n.assetName,
+          relatedTypeExampleAssetId: n.assetId,
           typeDisplayTemplates,
           typePropertyConfigs,
           evidencePoints,
           targetHandlePosition,
           sourceHandlePosition,
+          onTitleClick,
+          onGearClick,
         },
         position: { x: 0, y: 0 },
         style: { visibility: 'hidden' },
       }));
-      rawEdges = modelEdges.map(e => ({
-        id: e.key,
-        source: e.sourceTypeId,
-        target: e.targetTypeId,
-        label: e.relationshipLabel,
-      }));
+      rawEdges = modelEdges
+        .filter(e => visibleAssetIds.has(e.sourceAssetId) && visibleAssetIds.has(e.targetAssetId))
+        .map(e => ({
+          id: e.key,
+          source: e.sourceAssetId,
+          target: e.targetAssetId,
+          label: e.relationshipLabel,
+          style: e.isContainment ? CONTAINMENT_EDGE_STYLE : undefined,
+        }));
     } else {
       rawNodes = [
         {
@@ -2951,6 +3290,8 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
             evidencePoints,
             targetHandlePosition,
             sourceHandlePosition,
+            onTitleClick,
+            onGearClick,
           },
           position: { x: 0, y: 0 },
           style: { visibility: 'hidden' },
@@ -2968,6 +3309,8 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
             evidencePoints,
             targetHandlePosition,
             sourceHandlePosition,
+            onTitleClick,
+            onGearClick,
           },
           position: { x: 0, y: 0 },
           style: { visibility: 'hidden' },
@@ -2982,6 +3325,7 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
         source: row.direction === 'out' ? currentTypeId : row.relatedTypeId,
         target: row.direction === 'out' ? row.relatedTypeId : currentTypeId,
         label: row.relationshipLabel.replace(/^[→←]\s*/, ''),
+        style: row.isContainment ? CONTAINMENT_EDGE_STYLE : undefined,
       }));
     }
 
@@ -2992,7 +3336,7 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
     // layout choice is handled by the effect below, reusing these same
     // nodes rather than re-seeding (and re-hiding) them.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graphScope, currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, typeDisplayTemplates, typePropertyConfigs, evidencePoints, setNodes, setEdges]);
+  }, [allTypesMode, hiddenAssetIds, currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, typeDisplayTemplates, typePropertyConfigs, evidencePoints, setNodes, setEdges]);
 
   // Layout effect: runs ELK and reveals the result whenever either (a) a
   // fresh generation just got seeded above and needs its first layout, or
@@ -3033,7 +3377,17 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
       if (signature !== currentSignature) return;
       laidOutSignatureRef.current = signature;
       setLayoutError(null);
-      setNodes(laidOutNodes.map(n => ({ ...n, style: { visibility: 'visible' } })));
+      // width/height are stripped here — React Flow 12 uses those fields
+      // as literal inline styles pinning the node's rendered size, which
+      // is exactly what caused this component's content to spill outside
+      // its box: a related type's own properties template can switch to
+      // manual positioning (needing more room) at any time, completely
+      // independent of this diagram's own layout runs, so a node's size
+      // pinned to whatever ELK measured at the last layout pass goes
+      // stale the moment that happens. Without an explicit size, React
+      // Flow re-measures each node against its actual current content on
+      // every render instead.
+      setNodes(laidOutNodes.map(({ width, height, measured, ...n }) => ({ ...n, style: { visibility: 'visible' } })));
       // Every edge now renders via RelatedAssetsFloatingEdge (computing
       // its own path from real node geometry) rather than React Flow's
       // defaultEdgeOptions-driven type — that component reads which
@@ -3068,6 +3422,37 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
     })),
     [edges, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode]
   );
+
+  // Reports the current working position of every node up to the parent
+  // on every change, mirroring PropertyLayoutCanvasInner/CardsLayoutCanvasInner's
+  // own onPositionsChange — lets a Save action capture whatever manual
+  // arrangement currently exists, without this component needing to know
+  // anything about saving itself.
+  useEffect(() => {
+    if (!onPositionsChange) return;
+    const positions = {};
+    nodes.forEach(n => { positions[n.id] = { x: Math.round(n.position.x), y: Math.round(n.position.y) }; });
+    onPositionsChange(positions);
+  }, [nodes, onPositionsChange]);
+
+  // Restores a previously-saved manual layout once, right after the
+  // initial ELK auto-layout reveals the nodes — deliberately simple
+  // (accept one visible snap from auto to saved positions on load) rather
+  // than threading saved positions into the seeding effect itself, which
+  // would risk destabilizing the generation/signature tracking that
+  // effect already carefully manages. onManualEdit() then flips the
+  // parent's mode to match what's actually being shown.
+  useEffect(() => {
+    if (appliedSavedPositionsRef.current) return;
+    if (!savedManualPositions || Object.keys(savedManualPositions).length === 0) return;
+    if (nodes.length === 0 || nodes.some(n => n.style?.visibility === 'hidden')) return;
+    appliedSavedPositionsRef.current = true;
+    setNodes(current => current.map(n => (
+      savedManualPositions[n.id] ? { ...n, position: savedManualPositions[n.id] } : n
+    )));
+    onManualEdit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes, savedManualPositions]);
 
   // Captures the current, actual on-screen arrangement (including any
   // manual dragging) as plain JSON — node id/position/size and each
@@ -3111,6 +3496,15 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
     setNodes(result);
   };
 
+  // Align/Distribute moved to the parent toolbar (RelatedAssetsPreview's
+  // own manual-mode row, alongside the connection-point/arrow/label
+  // toggles, which already lived one level up as lifted state) — the
+  // parent needs a way to actually trigger these here.
+  useImperativeHandle(ref, () => ({
+    align: handleAlign,
+    distribute: handleDistribute,
+  }));
+
   return (
     <div className="op-related-assets-diagram">
       {layoutError && (
@@ -3126,50 +3520,41 @@ function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentType
         defaultEdgeOptions={{ type: 'step', style: { strokeWidth: 3 } }}
         minZoom={0.05}
         fitView
+        nodesDraggable={!readOnly}
+        nodesConnectable={false}
+        elementsSelectable={!readOnly}
       >
         <Background color="#b0b0b0" />
-        <Panel position="top-left">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramConnectionPointMode]} onItemClick={e => setDiagramConnectionPointMode(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_CONNECTION_POINT_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowArrowheads]} onItemClick={e => setDiagramShowArrowheads(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_SHOW_ARROWHEADS_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowLabels]} onItemClick={e => setDiagramShowLabels(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_SHOW_LABELS_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleDistribute(e.itemData.value)} stylingMode="outlined">
-                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-            </div>
-            <Button text="Copy Layout" onClick={handleCopyLayout} stylingMode="outlined" />
-          </div>
-        </Panel>
+        {!readOnly && (
+          <>
+            <Panel position="top-left">
+              <Button text="Copy Layout" onClick={handleCopyLayout} stylingMode="outlined" />
+            </Panel>
+            <Panel position="top-right">
+              <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
+                <ButtonGroup keyExpr="value" selectedItemKeys={[diagramConnectionPointMode]} onItemClick={e => setDiagramConnectionPointMode(e.itemData.value)} stylingMode="outlined">
+                  {RELATED_ASSETS_CONNECTION_POINT_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+                <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowArrowheads]} onItemClick={e => setDiagramShowArrowheads(e.itemData.value)} stylingMode="outlined">
+                  {RELATED_ASSETS_SHOW_ARROWHEADS_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+                <ButtonGroup keyExpr="value" selectedItemKeys={[diagramShowLabels]} onItemClick={e => setDiagramShowLabels(e.itemData.value)} stylingMode="outlined">
+                  {RELATED_ASSETS_SHOW_LABELS_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+              </div>
+            </Panel>
+          </>
+        )}
       </ReactFlow>
     </div>
   );
-}
-
+});
 
 // 2-position slider for related-asset density: min shows only assets
 // marked "always" in the left table, max shows every related asset
@@ -3192,11 +3577,94 @@ const formatRelatedAssetDensityLabel = (v) => RELATED_ASSET_DENSITY_LABELS[v] ??
 // source of truth for a related asset's content, shared by the Cards
 // view's boxes (wrapped in .op-related-asset-box) and the Diagram view's
 // custom node (wrapped differently, with Handles added around it).
-function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, evidencePoints }) {
+// Real measured StatTile dimensions vary substantially by view mode —
+// text tiles are a compact 120x60, indicator tiles stack a 60px vertical
+// gauge track above the value and label (real height ~114px), and
+// spark/all tiles run a sparkline alongside the value instead (real width
+// ~233-244px, height unchanged at ~60px since the sparkline sits beside
+// the text rather than below it). Each entry here is that real measurement
+// plus a generous safety margin, used only by RelatedAssetBoxContent's
+// manual-mode static bounding-box estimate below (never a live
+// measurement, since there's nothing to measure against in a static
+// render), so a saved manual layout's container is sized correctly for
+// whichever view mode the type is actually configured with.
+const STAT_TILE_SIZE_ESTIMATES = {
+  text: { width: 140, height: 80 },
+  indicator: { width: 140, height: 140 },
+  spark: { width: 260, height: 80 },
+  all: { width: 280, height: 80 },
+};
+
+function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, evidencePoints, onTitleClick, onGearClick }) {
+  // Only set when this box renders inside InvestigatePanel's Related
+  // Assets tab with its time-track scrubber active — null (the default,
+  // everywhere else this component is used) means no override, render the
+  // normal current/latest snapshot exactly as before.
+  const scrubTimeIndex = useContext(TimeScrubContext);
+
+  // Shared across all three render branches below (none/manual/auto) so
+  // the click wiring lives in one place. Present in every context this
+  // component renders in — the Properties tab's own single box included,
+  // where clicking just re-navigates to the same thing already open, a
+  // harmless no-op — since there's no reason to special-case "is this the
+  // thing I'm already viewing" when the result is identical either way.
+  const titleElement = (
+    <div
+      className={`op-hmiprops-card-title${onTitleClick ? ' op-hmiprops-card-title--clickable' : ''}${onGearClick ? ' op-hmiprops-card-title--with-gear' : ''}`}
+      onClick={onTitleClick ? () => onTitleClick({ relatedTypeId, relatedTypeExampleAssetId }) : undefined}
+    >
+      {relatedTypeName}
+    </div>
+  );
+  // The gear icon — Operator's Assets area only (onGearClick is never
+  // passed from Visualization's own call sites), jumping from an asset's
+  // real-values box straight to the config screen that shaped it:
+  // Visualization's Properties tab for that asset's type. Absolutely
+  // positioned against the outer box (op-related-asset-box/
+  // op-hmiprops-singlebox, both given position:relative for exactly this)
+  // rather than placed next to the title text, so it sits in the box's
+  // own corner regardless of how long that title is — stopPropagation so
+  // clicking it doesn't also fire the title's own onClick underneath, or
+  // bubble into a React Flow node click in the Diagram/Cards-manual
+  // contexts this box also renders inside.
+  const gearElement = onGearClick ? (
+    <button
+      type="button"
+      className="op-asset-box-gear"
+      title="Open properties template"
+      onClick={e => { e.stopPropagation(); onGearClick({ relatedTypeId }); }}
+    >
+      <GearIcon />
+    </button>
+  ) : null;
+
+  // "None" — just the name, nothing else. Checked first, ahead of even
+  // resolving properties, since None's whole point is not needing them.
+  const boxViewMode = typeDisplayTemplates?.[relatedTypeId]?.viewMode ?? 'text';
+  if (boxViewMode === 'none') {
+    return <>{titleElement}{gearElement}</>;
+  }
+
   const resolved = resolveAssetProperties(relatedTypeExampleAssetId);
-  const properties = resolved?.properties;
+  const staticProperties = resolved?.properties;
   const sparklineSource = resolved?.sparklineSource;
-  if (!properties) return null;
+  if (!staticProperties) return null;
+
+  // When a time-track scrub is active, show each property's own reading at
+  // that instant instead of the current/latest snapshot — pulled from the
+  // exact same per-property series the sparklines already use, so this is
+  // real historical data, not a simulated/interpolated stand-in. A
+  // property with no series at that source (shouldn't normally happen —
+  // the snapshot and series datasets share the same key set — but not
+  // guaranteed for every model/source combination) keeps its static value
+  // rather than disappearing.
+  const properties = scrubTimeIndex == null ? staticProperties : Object.fromEntries(
+    Object.entries(staticProperties).map(([key, staticValue]) => {
+      const series = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+      const scrubbedValue = series?.[scrubTimeIndex];
+      return [key, typeof scrubbedValue === 'number' ? scrubbedValue : staticValue];
+    })
+  );
 
   // Each box uses that related type's own saved display template (the
   // same one set via the Properties tab's Save Template button) rather
@@ -3206,7 +3674,6 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   // HmiPropertiesListing itself uses for a type that's never been
   // explicitly saved.
   const template = typeDisplayTemplates?.[relatedTypeId];
-  const boxViewMode = template?.viewMode ?? 'text';
   const boxFlowDirection = template?.flowDirection ?? 'row';
   const boxFlowWrap = template?.flowWrap ?? 'wrap';
   const boxAlignContent = template?.alignContent ?? 'flex-start';
@@ -3228,31 +3695,96 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
   const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;
 
+  const boxLayoutMode = template?.layoutMode ?? 'auto';
+  const boxManualPositions = template?.manualPositions ?? {};
+
+  // Shared between both render paths below so the range/sparkline lookup
+  // logic isn't duplicated — this was previously inline only in the flex
+  // path, which is exactly how the manual-mode bug happened in the first
+  // place (a second render path added later with no shared home for this).
+  const renderStatTile = ([key, value]) => {
+    const range = PROPERTY_RANGES[key];
+    const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+    const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
+    return (
+      <StatTile
+        key={key}
+        label={PROPERTY_LABELS[key] || key}
+        value={value}
+        min={range ? range[0] : undefined}
+        max={range ? range[1] : undefined}
+        sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+        horizontal
+        labelFirst
+        viewMode={boxViewMode}
+      />
+    );
+  };
+
+  // Manual layout — the bug this fixes: this component previously always
+  // rendered the flex path below regardless of what was actually saved,
+  // so a type's own manually-arranged properties (set and saved via the
+  // Properties tab) never showed up anywhere this component is used
+  // (Related Assets Cards/Diagram, All Assets diagram) — only inside the
+  // Properties tab's own editor. Read-only here (no dragging) — just
+  // placing each tile at its saved position. Unpositioned entries (newly
+  // visible since the layout was last saved) stack in the corner, same
+  // convention as PropertyLayoutCanvas's own default. Container grows to
+  // fit the furthest-positioned tile, with a fixed per-tile size estimate
+  // since there's no live measurement in a static render like this —
+  // generous enough that overflow (safety net, not the expected case)
+  // stays visible rather than clipping. The estimate itself must vary by
+  // view mode — text tiles are a compact 120x60, but indicator tiles stack
+  // a 60px vertical gauge track above the value and label (real height
+  // ~114px), and spark/all tiles run a sparkline alongside the value
+  // instead (real width ~233-244px) — a single fixed estimate sized for
+  // text tiles alone measurably undersized indicator tiles specifically,
+  // which is exactly the reported bug: the label, being the bottom-most
+  // element of each tile's own stack, was the first thing to spill past
+  // the container's too-short declared bottom edge.
+  if (boxLayoutMode === 'manual') {
+    const tileSizeEstimate = STAT_TILE_SIZE_ESTIMATES[boxViewMode] || STAT_TILE_SIZE_ESTIMATES.text;
+    const positions = entriesToShow.map(([key]) => boxManualPositions[key] ?? { x: 0, y: 0 });
+    // A tile's saved position can be negative — the Properties tab's own
+    // editing canvas is an infinite, freely-pannable React Flow canvas, so
+    // a tile dragged left of or above the origin saves a negative x/y just
+    // fine there. This static render has no panning of its own, so
+    // without shifting every tile by however far negative the most-
+    // negative one is, that tile would render to the left of/above the
+    // container's own (0,0) origin — visually outside the box entirely,
+    // which is exactly what was seen: manual boxes with tiles escaping
+    // their own border.
+    const offsetX = Math.min(0, ...positions.map(p => p.x));
+    const offsetY = Math.min(0, ...positions.map(p => p.y));
+    const containerWidth = Math.max(0, ...positions.map(p => p.x - offsetX)) + tileSizeEstimate.width;
+    const containerHeight = Math.max(0, ...positions.map(p => p.y - offsetY)) + tileSizeEstimate.height;
+    return (
+      <>
+        {titleElement}
+        {gearElement}
+        <div style={{ position: 'relative', width: containerWidth, height: containerHeight, overflow: 'visible' }}>
+          {entriesToShow.map(([key, value]) => {
+            const pos = boxManualPositions[key] ?? { x: 0, y: 0 };
+            return (
+              <div key={key} style={{ position: 'absolute', left: pos.x - offsetX, top: pos.y - offsetY }}>
+                {renderStatTile([key, value])}
+              </div>
+            );
+          })}
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      <div className="op-hmiprops-card-title">{relatedTypeName}</div>
+      {titleElement}
+      {gearElement}
       <div
         className={boxKpisClass}
         style={{ flexDirection: boxFlowDirection, flexWrap: boxFlowWrap, alignContent: boxAlignContent }}
       >
-        {entriesToShow.map(([key, value]) => {
-          const range = PROPERTY_RANGES[key];
-          const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
-          const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
-          return (
-            <StatTile
-              key={key}
-              label={PROPERTY_LABELS[key] || key}
-              value={value}
-              min={range ? range[0] : undefined}
-              max={range ? range[1] : undefined}
-              sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
-              horizontal
-              labelFirst
-              viewMode={boxViewMode}
-            />
-          );
-        })}
+        {entriesToShow.map(renderStatTile)}
       </div>
     </>
   );
@@ -3273,15 +3805,15 @@ const PROPERTY_LAYOUT_ARRANGE_COLUMNS = 4;
 // Manual property-layout canvas — one node per visible property, no
 // edges ever (properties don't relate to each other the way types do).
 // Self-contained ReactFlowProvider, same reasoning as RelatedAssetsDiagram.
-function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange }) {
+const PropertyLayoutCanvas = forwardRef(function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange }, ref) {
   return (
     <ReactFlowProvider>
-      <PropertyLayoutCanvasInner tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} />
+      <PropertyLayoutCanvasInner ref={ref} tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} />
     </ReactFlowProvider>
   );
-}
+});
 
-function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }) {
+const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }, ref) {
   const [nodes, setNodes, onNodesChange] = useNodesState(
     tiles.map(t => ({
       id: t.key,
@@ -3304,7 +3836,13 @@ function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }
   // via a real component test before this ever reached production.
   // tiles itself is still read fresh inside the effect body (via closure)
   // for its actual tileProps content, just not used as the trigger.
-  const tileKeysSignature = tiles.map(t => t.key).join('|');
+  // viewMode is appended here too — it's shared across every tile (all
+  // pull it from the same kpiViewMode state), so reading it off the first
+  // tile is enough to catch changes without needing a signature per tile;
+  // without this, toggling view mode while in manual mode silently did
+  // nothing, since the keys themselves never changed so this effect
+  // never re-ran and the already-built nodes kept their stale tileProps.
+  const tileKeysSignature = tiles.map(t => t.key).join('|') + '::' + (tiles[0]?.tileProps?.viewMode ?? '');
   useEffect(() => {
     setNodes(current => {
       const tileMap = new Map(tiles.map(t => [t.key, t]));
@@ -3368,6 +3906,15 @@ function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }
     })));
   };
 
+  // Align/Distribute/Arrange in Grid now live in the parent toolbar
+  // (HmiPropertiesListing's own manual-mode row) rather than a Panel on
+  // this canvas, so the parent needs a way to actually trigger them here.
+  useImperativeHandle(ref, () => ({
+    align: handleAlign,
+    distribute: handleDistribute,
+    arrangeGrid: handleArrangeGrid,
+  }));
+
   return (
     <div className="op-property-layout-canvas">
       <ReactFlow
@@ -3381,54 +3928,414 @@ function PropertyLayoutCanvasInner({ tiles, manualPositions, onPositionsChange }
         fitView
       >
         <Background color="#b0b0b0" />
-        <Panel position="top-right">
-          <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
-            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
-              {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleAlign(e.itemData.value)} stylingMode="outlined">
-              {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => handleDistribute(e.itemData.value)} stylingMode="outlined">
-              {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <Button text="Arrange in Grid" onClick={handleArrangeGrid} stylingMode="outlined" />
-          </div>
-        </Panel>
       </ReactFlow>
+    </div>
+  );
+});
+
+// Cards manual layout — same "stack in corner" default and grid-arrange
+// spacing reasoning as the property-layout constants above, just for
+// asset type boxes (which run somewhat larger than a single StatTile).
+const CARDS_LAYOUT_DEFAULT_POSITION = { x: 0, y: 0 };
+const CARDS_LAYOUT_GRID_SIZE = 20;
+const CARDS_LAYOUT_ARRANGE_CELL_WIDTH = 300;
+const CARDS_LAYOUT_ARRANGE_CELL_HEIGHT = 220;
+const CARDS_LAYOUT_ARRANGE_COLUMNS = 3;
+
+// Manual Cards-layout canvas — one node per related-asset type box, no
+// edges ever (Diagram is what exists for showing relationships between
+// types; Cards is purely a spatial arrangement of the same boxes).
+// Structurally identical to PropertyLayoutCanvas — same proven pattern,
+// third time this shape gets reused (diagram nodes, property tiles,
+// now asset cards).
+const CardsLayoutCanvas = forwardRef(function CardsLayoutCanvas({ tiles, manualPositions, onPositionsChange, readOnly }, ref) {
+  return (
+    <ReactFlowProvider>
+      <CardsLayoutCanvasInner ref={ref} tiles={tiles} manualPositions={manualPositions} onPositionsChange={onPositionsChange} readOnly={readOnly} />
+    </ReactFlowProvider>
+  );
+});
+
+const CardsLayoutCanvasInner = forwardRef(function CardsLayoutCanvasInner({ tiles, manualPositions, onPositionsChange, readOnly }, ref) {
+  const [nodes, setNodes, onNodesChange] = useNodesState(
+    tiles.map(t => ({
+      id: t.key,
+      type: 'cardsLayoutNode',
+      position: manualPositions[t.key] ?? CARDS_LAYOUT_DEFAULT_POSITION,
+      data: { boxProps: t.boxProps, isCenter: t.isCenter },
+    }))
+  );
+
+  // Same tileKeysSignature fix as PropertyLayoutCanvasInner — depending
+  // on the tiles array reference directly caused an infinite loop there
+  // (tiles is rebuilt fresh every parent render regardless of whether
+  // the visible set actually changed); applying the same fix here from
+  // the start rather than waiting to hit it again.
+  const tileKeysSignature = tiles.map(t => t.key).join('|');
+  useEffect(() => {
+    setNodes(current => {
+      const tileMap = new Map(tiles.map(t => [t.key, t]));
+      const kept = current
+        .filter(n => tileMap.has(n.id))
+        .map(n => ({ ...n, data: { boxProps: tileMap.get(n.id).boxProps, isCenter: tileMap.get(n.id).isCenter } }));
+      const keptIds = new Set(kept.map(n => n.id));
+      const added = tiles
+        .filter(t => !keptIds.has(t.key))
+        .map(t => ({
+          id: t.key,
+          type: 'cardsLayoutNode',
+          position: manualPositions[t.key] ?? CARDS_LAYOUT_DEFAULT_POSITION,
+          data: { boxProps: t.boxProps, isCenter: t.isCenter },
+        }));
+      return [...kept, ...added];
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tileKeysSignature]);
+
+  useEffect(() => {
+    const positions = {};
+    nodes.forEach(n => { positions[n.id] = { x: Math.round(n.position.x), y: Math.round(n.position.y) }; });
+    onPositionsChange(positions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes]);
+
+  const handleAlign = (mode) => {
+    const result = alignSelectedNodes(nodes, mode);
+    if (result === null) {
+      notify('Select at least 2 cards to align (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    setNodes(result);
+  };
+
+  const handleDistribute = (axis) => {
+    const result = distributeSelectedNodes(nodes, axis);
+    if (result === null) {
+      notify('Select at least 3 cards to distribute (shift+drag to select multiple)', 'warning', 2500);
+      return;
+    }
+    setNodes(result);
+  };
+
+  const handleArrangeGrid = () => {
+    setNodes(current => current.map((n, i) => ({
+      ...n,
+      position: {
+        x: (i % CARDS_LAYOUT_ARRANGE_COLUMNS) * CARDS_LAYOUT_ARRANGE_CELL_WIDTH,
+        y: Math.floor(i / CARDS_LAYOUT_ARRANGE_COLUMNS) * CARDS_LAYOUT_ARRANGE_CELL_HEIGHT,
+      },
+    })));
+  };
+
+  // Align/Distribute/Arrange in Grid now live in the parent toolbar
+  // (RelatedAssetsPreview's own manual-mode Row 3), same reasoning and
+  // pattern as PropertyLayoutCanvasInner's own ref exposure.
+  useImperativeHandle(ref, () => ({
+    align: handleAlign,
+    distribute: handleDistribute,
+    arrangeGrid: handleArrangeGrid,
+  }));
+
+  return (
+    <div className="op-property-layout-canvas">
+      <ReactFlow
+        nodes={nodes}
+        edges={[]}
+        nodeTypes={CARDS_LAYOUT_NODE_TYPES}
+        onNodesChange={onNodesChange}
+        snapToGrid
+        snapGrid={[CARDS_LAYOUT_GRID_SIZE, CARDS_LAYOUT_GRID_SIZE]}
+        minZoom={0.1}
+        fitView
+        nodesDraggable={!readOnly}
+        nodesConnectable={false}
+        elementsSelectable={!readOnly}
+      >
+        <Background color="#b0b0b0" />
+      </ReactFlow>
+    </div>
+  );
+});
+
+// Cards — the actual view: a plain flex-wrapped grid of related-asset
+// type boxes when cardsLayoutMode is 'auto' (genuinely responsive —
+// reflows on window resize, since it's real CSS flexbox), or the canvas
+// above when 'manual'. cardsFlexContainerRef/cardsFlexTileRefs are
+// populated here so RelatedAssetsPreview's handleSwitchCardsToManual can
+// measure real current positions at the moment of switching.
+function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick }) {
+  // This asset's own box, always shown first regardless of layout mode —
+  // same reasoning as the Diagram view's own isCenter node: the point of
+  // "related assets" is seeing them in context of the asset they're
+  // related TO, which was previously only true in Diagram mode. Cards
+  // (both its manual and flex/auto sub-modes) never included it at all.
+  const thisAssetBoxProps = {
+    relatedTypeId: currentTypeId,
+    relatedTypeName: currentTypeName,
+    relatedTypeExampleAssetId: currentTypeExampleAssetId,
+    typeDisplayTemplates,
+    typePropertyConfigs,
+    evidencePoints,
+    onTitleClick,
+    onGearClick,
+  };
+
+  if (cardsLayoutMode === 'manual') {
+    return (
+      <div className="op-related-assets-diagram">
+        <CardsLayoutCanvas
+          ref={cardsLayoutCanvasRef}
+          readOnly={readOnly}
+          tiles={[
+            { key: currentTypeId, boxProps: thisAssetBoxProps, isCenter: true },
+            ...visibleRows.map(row => ({
+              key: row.key,
+              boxProps: {
+                relatedTypeId: row.relatedTypeId,
+                relatedTypeName: row.relatedTypeName,
+                relatedTypeExampleAssetId: row.relatedTypeExampleAssetId,
+                typeDisplayTemplates,
+                typePropertyConfigs,
+                evidencePoints,
+                onTitleClick,
+                onGearClick,
+              },
+            })),
+          ]}
+          manualPositions={cardsManualPositions}
+          onPositionsChange={onCardsPositionsChange}
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      className="op-related-assets-box-flow"
+      style={{ flexDirection: cardsFlowDirection, flexWrap: cardsFlowWrap, alignContent: cardsAlignContent }}
+      ref={cardsFlexContainerRef}
+    >
+      <div
+        key={currentTypeId}
+        className="op-related-asset-box op-related-asset-box--center"
+        ref={el => { cardsFlexTileRefs.current[currentTypeId] = el; }}
+      >
+        <RelatedAssetBoxContent {...thisAssetBoxProps} />
+      </div>
+      {visibleRows.map(row => (
+        <div
+          key={row.key}
+          className="op-related-asset-box"
+          ref={el => { cardsFlexTileRefs.current[row.key] = el; }}
+        >
+          <RelatedAssetBoxContent
+            relatedTypeId={row.relatedTypeId}
+            relatedTypeName={row.relatedTypeName}
+            relatedTypeExampleAssetId={row.relatedTypeExampleAssetId}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            evidencePoints={evidencePoints}
+            onTitleClick={onTitleClick}
+            onGearClick={onGearClick}
+          />
+        </div>
+      ))}
     </div>
   );
 }
 
-function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList }) {
+// Read-only Related Assets view for the new Operator-only Assets area —
+// shows the same saved template a type's Related Assets tab in
+// Visualization produces (Cards or Diagram, with whatever settings were
+// saved there), but with no toolbar and no editing capability at all.
+// Mirrors RelatedAssetsPreview's own relatedAssetRows/visibleRows
+// computation exactly, just without any of the state that exists there
+// only to support editing.
+function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
+  // RelatedAssetsCards' flex-mode rendering writes to these unconditionally
+  // (its tile ref callback needs somewhere to write to regardless of
+  // whether the manual-switch feature — irrelevant here — is ever used),
+  // so real ref objects are required even though nothing here ever reads
+  // from them.
+  const cardsFlexContainerRef = useRef(null);
+  const cardsFlexTileRefs = useRef({});
+  const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
+  const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+    ...row,
+    visibility: relatedAssetOverrides[row.key] || 'always',
+  }));
+  const visibleRows = relatedAssetRows.filter(r => r.visibility === 'always');
+  const layoutMode = savedTemplate?.layoutMode ?? 'cards';
+
+  if (visibleRows.length === 0) {
+    return <div className="op-dash-text op-dash-text--muted">No related assets to show.</div>;
+  }
+
+  return layoutMode === 'cards' ? (
+    <RelatedAssetsCards
+      currentTypeId={typeId}
+      currentTypeName={typeList.find(t => t.id === typeId)?.name}
+      currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+      visibleRows={visibleRows}
+      typeDisplayTemplates={typeDisplayTemplates}
+      typePropertyConfigs={typePropertyConfigs}
+      evidencePoints={evidencePoints}
+      cardsLayoutMode={savedTemplate?.cardsLayoutMode ?? 'auto'}
+      cardsManualPositions={savedTemplate?.cardsManualPositions ?? {}}
+      onCardsPositionsChange={() => {}}
+      cardsFlexContainerRef={cardsFlexContainerRef}
+      cardsFlexTileRefs={cardsFlexTileRefs}
+      cardsFlowDirection={savedTemplate?.cardsFlowDirection ?? 'row'}
+      cardsFlowWrap={savedTemplate?.cardsFlowWrap ?? 'wrap'}
+      cardsAlignContent={savedTemplate?.cardsAlignContent ?? 'stretch'}
+      readOnly
+      onTitleClick={onTitleClick}
+      onGearClick={onGearClick}
+    />
+  ) : (
+    <RelatedAssetsDiagram
+      currentTypeId={typeId}
+      currentTypeName={typeList.find(t => t.id === typeId)?.name}
+      currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+      visibleRows={visibleRows}
+      typeList={typeList}
+      allTypesMode={false}
+      typeDisplayTemplates={typeDisplayTemplates}
+      typePropertyConfigs={typePropertyConfigs}
+      evidencePoints={evidencePoints}
+      diagramAlgorithm={savedTemplate?.diagramAlgorithm ?? 'layered'}
+      diagramDirection={savedTemplate?.diagramDirection ?? 'RIGHT'}
+      diagramEdgeRouting={savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL'}
+      diagramNodeSpacing={savedTemplate?.diagramNodeSpacing ?? 40}
+      diagramLayerSpacing={savedTemplate?.diagramLayerSpacing ?? 80}
+      diagramAspectRatio={savedTemplate?.diagramAspectRatio ?? 8}
+      diagramShowLabels={savedTemplate?.diagramShowLabels ?? 'hidden'}
+      diagramShowArrowheads={savedTemplate?.diagramShowArrowheads ?? 'shown'}
+      diagramConnectionPointMode={savedTemplate?.diagramConnectionPointMode ?? 'center'}
+      diagramLayoutResetSignal={0}
+      onManualEdit={() => {}}
+      setDiagramShowLabels={() => {}}
+      setDiagramShowArrowheads={() => {}}
+      setDiagramConnectionPointMode={() => {}}
+      onPositionsChange={undefined}
+      savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
+      readOnly
+      onTitleClick={onTitleClick}
+      onGearClick={onGearClick}
+    />
+  );
+}
+
+// Read-only All Assets view for the new Operator-only Assets area —
+// same global saved template and hiddenAssetIds the configurator's own
+// All Assets diagram uses, no toolbar, no editing capability.
+function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
+  return (
+    <RelatedAssetsDiagram
+      typeList={typeList}
+      allTypesMode
+      hiddenAssetIds={hiddenAssetIds}
+      typeDisplayTemplates={typeDisplayTemplates}
+      typePropertyConfigs={typePropertyConfigs}
+      evidencePoints={evidencePoints}
+      diagramAlgorithm={savedTemplate?.diagramAlgorithm ?? 'layered'}
+      diagramDirection={savedTemplate?.diagramDirection ?? 'RIGHT'}
+      diagramEdgeRouting={savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL'}
+      diagramNodeSpacing={savedTemplate?.diagramNodeSpacing ?? 40}
+      diagramLayerSpacing={savedTemplate?.diagramLayerSpacing ?? 80}
+      diagramAspectRatio={savedTemplate?.diagramAspectRatio ?? 8}
+      diagramShowLabels={savedTemplate?.diagramShowLabels ?? 'hidden'}
+      diagramShowArrowheads={savedTemplate?.diagramShowArrowheads ?? 'shown'}
+      diagramConnectionPointMode={savedTemplate?.diagramConnectionPointMode ?? 'center'}
+      diagramLayoutResetSignal={0}
+      onManualEdit={() => {}}
+      setDiagramShowLabels={() => {}}
+      setDiagramShowArrowheads={() => {}}
+      setDiagramConnectionPointMode={() => {}}
+      onPositionsChange={undefined}
+      savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
+      readOnly
+      onTitleClick={onTitleClick}
+      onGearClick={onGearClick}
+    />
+  );
+}
+
+function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
   const [densityFilter, setDensityFilter] = useState('always');
-  const [layoutMode, setLayoutMode] = useState('cards');
-  const [flowDirection, setFlowDirection] = useState('row');
-  const [flowWrap, setFlowWrap] = useState('wrap');
-  const [alignContent, setAlignContent] = useState('flex-start');
-  const [diagramAlgorithm, setDiagramAlgorithm] = useState('layered');
-  const [diagramDirection, setDiagramDirection] = useState('RIGHT');
-  const [diagramEdgeRouting, setDiagramEdgeRouting] = useState('ORTHOGONAL');
-  const [diagramNodeSpacing, setDiagramNodeSpacing] = useState(40);
-  const [diagramLayerSpacing, setDiagramLayerSpacing] = useState(80);
-  const [diagramAspectRatio, setDiagramAspectRatio] = useState(8);
-  const [diagramShowLabels, setDiagramShowLabels] = useState('hidden');
-  const [diagramShowArrowheads, setDiagramShowArrowheads] = useState('shown');
-  const [diagramConnectionPointMode, setDiagramConnectionPointMode] = useState('center');
+  // Cards (flex-wrapped boxes, genuinely responsive — reflows on resize,
+  // unlike the ELK/React Flow diagram canvas which uses fixed pixel
+  // positions) vs Diagram (ELK-computed, with relationship edges drawn).
+  // Two fundamentally different renderers, not one axis — restored as a
+  // real top-level split. All the state below is seeded from savedTemplate
+  // when one exists (hydrated once on mount, via key={typeId} at the call
+  // site), falling back to the same defaults as before otherwise.
+  const [layoutMode, setLayoutMode] = useState(savedTemplate?.layoutMode ?? 'cards');
+  // Cards' own auto(flex)/manual(drag) toggle — same pattern as
+  // HmiPropertiesListing's propertyLayoutMode: 'manual' swaps in a
+  // separate React Flow canvas (CardsLayoutCanvas, no edges — related-
+  // asset boxes don't relate to each other the way types in Diagram do),
+  // seeded by measuring the flex view's actual current box positions at
+  // the moment of switching so nothing visually jumps.
+  const [cardsLayoutMode, setCardsLayoutMode] = useState(savedTemplate?.cardsLayoutMode ?? 'auto');
+  const [cardsManualPositions, setCardsManualPositions] = useState(savedTemplate?.cardsManualPositions ?? {});
+  // Cards flex container's own row/column, wrap/no-wrap, and distribute/
+  // cluster controls — same three settings and icons HmiPropertiesListing
+  // already uses for arranging property tiles within one box, just one
+  // level up (arranging the boxes themselves). Defaults match the
+  // container's previous hardcoded behavior (row, wrap) so existing
+  // layouts don't visually shift; 'stretch' for alignContent matches
+  // the CSS default that was in effect before this had an explicit control.
+  const [cardsFlowDirection, setCardsFlowDirection] = useState(savedTemplate?.cardsFlowDirection ?? 'row');
+  const [cardsFlowWrap, setCardsFlowWrap] = useState(savedTemplate?.cardsFlowWrap ?? 'wrap');
+  const [cardsAlignContent, setCardsAlignContent] = useState(savedTemplate?.cardsAlignContent ?? 'stretch');
+  const cardsFlexTileRefs = useRef({});
+  const cardsFlexContainerRef = useRef(null);
+  const handleSwitchCardsToManual = () => {
+    const measured = {};
+    const containerRect = cardsFlexContainerRef.current?.getBoundingClientRect();
+    if (containerRect) {
+      Object.entries(cardsFlexTileRefs.current).forEach(([key, el]) => {
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        measured[key] = { x: Math.round(rect.left - containerRect.left), y: Math.round(rect.top - containerRect.top) };
+      });
+    }
+    setCardsManualPositions(current => ({ ...measured, ...current }));
+    setCardsLayoutMode('manual');
+  };
+  const handleResetCardsLayout = () => {
+    confirm(
+      'This will discard your manual card positions and return to the flex layout. Continue?',
+      'Reset to Flex Layout'
+    ).then(confirmed => {
+      if (!confirmed) return;
+      setCardsLayoutMode('auto');
+    });
+  };
+  const [diagramAlgorithm, setDiagramAlgorithm] = useState(savedTemplate?.diagramAlgorithm ?? 'layered');
+  const [diagramDirection, setDiagramDirection] = useState(savedTemplate?.diagramDirection ?? 'RIGHT');
+  const [diagramEdgeRouting, setDiagramEdgeRouting] = useState(savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL');
+  const [diagramNodeSpacing, setDiagramNodeSpacing] = useState(savedTemplate?.diagramNodeSpacing ?? 40);
+  const [diagramLayerSpacing, setDiagramLayerSpacing] = useState(savedTemplate?.diagramLayerSpacing ?? 80);
+  const [diagramAspectRatio, setDiagramAspectRatio] = useState(savedTemplate?.diagramAspectRatio ?? 8);
+  const [diagramShowLabels, setDiagramShowLabels] = useState(savedTemplate?.diagramShowLabels ?? 'hidden');
+  const [diagramShowArrowheads, setDiagramShowArrowheads] = useState(savedTemplate?.diagramShowArrowheads ?? 'shown');
+  const [diagramConnectionPointMode, setDiagramConnectionPointMode] = useState(savedTemplate?.diagramConnectionPointMode ?? 'center');
   // 'auto': layout-affecting controls are live, ELK drives node positions.
   // 'manual': entered the instant the user drags a node or uses Align/
   // Distribute (see onManualEdit below) — layout-affecting controls
   // become disabled until the user explicitly confirms leaving manual
   // mode via the Reset button, which increments layoutResetSignal to
   // force a fresh ELK computation even if no other setting changed.
-  const [diagramLayoutMode, setDiagramLayoutMode] = useState('auto');
+  const [diagramLayoutMode, setDiagramLayoutMode] = useState(savedTemplate?.diagramLayoutMode ?? 'auto');
   const [diagramLayoutResetSignal, setDiagramLayoutResetSignal] = useState(0);
+  // Working copy of the diagram's current node positions, kept in sync via
+  // RelatedAssetsDiagram's onPositionsChange — read at save time (below)
+  // and fed back in as savedManualPositions on the next load so a manual
+  // arrangement survives a type switch or page refresh.
+  const [diagramManualPositions, setDiagramManualPositions] = useState(savedTemplate?.diagramManualPositions ?? {});
+  const diagramCanvasRef = useRef(null);
+  const cardsLayoutCanvasRef = useRef(null);
   const handleManualEdit = () => setDiagramLayoutMode('manual');
   const handleConfirmResetToAuto = () => {
     confirm(
@@ -3440,7 +4347,6 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
       setDiagramLayoutResetSignal(s => s + 1);
     });
   };
-  const [graphScope, setGraphScope] = useState('focused');
 
   // Memoized so the diagram view (which re-runs ELK's layout whenever this
   // array changes) doesn't recompute on every unrelated re-render — only
@@ -3450,10 +4356,77 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
     [relatedAssetRows, densityFilter]
   );
 
+  // Registers this tab's save action, same pattern as HmiPropertiesListing's
+  // own registration — whichever of the three Details tabs is currently
+  // mounted (matching activeTabIndex) is the one the title-bar Save button
+  // actually saves. Cleared on unmount so a stale handler can't linger.
+  useEffect(() => {
+    if (!activeSaveHandlerRef) return undefined;
+    activeSaveHandlerRef.current = () => onSaveTemplate?.(currentTypeId, {
+      layoutMode,
+      cardsLayoutMode,
+      cardsManualPositions: cardsLayoutMode === 'manual' ? cardsManualPositions : {},
+      cardsFlowDirection,
+      cardsFlowWrap,
+      cardsAlignContent,
+      diagramAlgorithm,
+      diagramDirection,
+      diagramEdgeRouting,
+      diagramNodeSpacing,
+      diagramLayerSpacing,
+      diagramAspectRatio,
+      diagramShowLabels,
+      diagramShowArrowheads,
+      diagramConnectionPointMode,
+      diagramLayoutMode,
+      diagramManualPositions: diagramLayoutMode === 'manual' ? diagramManualPositions : {},
+    });
+    return () => { activeSaveHandlerRef.current = null; };
+  }, [currentTypeId, layoutMode, cardsLayoutMode, cardsManualPositions, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
+
   return (
     <div className="op-related-assets-preview">
-      <div className="op-hmiprops-toolbar">
-        {!(layoutMode === 'diagram' && graphScope === 'model') && (
+      {showToolbar && (
+      <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        {/* Row 1: unified badge + reset/switch anchored left (switch button
+            always present in flex/auto, reset button always present in
+            manual — diagram's own switch button is new here: manual mode
+            used to only be reachable by dragging a node or using Align/
+            Distribute, this makes it reachable directly too, matching
+            Cards' own explicit switch button), density slider anchored
+            right. */}
+        <div className="op-toolbar-row-1" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span
+              className="op-dash-text"
+              style={{
+                padding: '4px 10px',
+                borderRadius: 12,
+                fontSize: 11,
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                background: (layoutMode === 'cards' ? cardsLayoutMode : diagramLayoutMode) === 'manual' ? '#fff4e5' : '#e8f4fd',
+                color: (layoutMode === 'cards' ? cardsLayoutMode : diagramLayoutMode) === 'manual' ? '#8a5a00' : '#0078d4',
+              }}
+            >
+              {layoutMode === 'cards'
+                ? (cardsLayoutMode === 'manual' ? 'Manual Layout' : 'Flex Layout')
+                : (diagramLayoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout')}
+            </span>
+            {layoutMode === 'cards' ? (
+              cardsLayoutMode === 'manual' ? (
+                <Button text="Reset to Flex Layout" onClick={handleResetCardsLayout} stylingMode="outlined" />
+              ) : (
+                <Button text="Switch to Manual Layout" onClick={handleSwitchCardsToManual} stylingMode="outlined" />
+              )
+            ) : (
+              diagramLayoutMode === 'manual' ? (
+                <Button text="Reset to Auto Layout" onClick={handleConfirmResetToAuto} stylingMode="outlined" />
+              ) : (
+                <Button text="Switch to Manual Layout" onClick={handleManualEdit} stylingMode="outlined" />
+              )
+            )}
+          </div>
           <div className="op-tierfilter-slider-wrap" style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
             <Slider
               min={0}
@@ -3467,188 +4440,237 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
               <SliderLabel visible format={formatRelatedAssetDensityLabel} position="bottom" />
             </Slider>
           </div>
-        )}
-        <ButtonGroup
-          keyExpr="value"
-          selectedItemKeys={[layoutMode]}
-          onItemClick={e => setLayoutMode(e.itemData.value)}
-          stylingMode="outlined"
-          className="op-dash-chart-toggle"
-        >
-          {RELATED_ASSETS_LAYOUT_MODE_ITEMS.map(item => (
-            <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-          ))}
-        </ButtonGroup>
-        {layoutMode === 'cards' && (
-          <>
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[flowDirection]}
-              onItemClick={e => setFlowDirection(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-            >
-              {FLOW_DIRECTION_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[flowWrap]}
-              onItemClick={e => setFlowWrap(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-            >
-              {FLOW_WRAP_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[alignContent]}
-              onItemClick={e => setAlignContent(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-            >
-              {ALIGN_CONTENT_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-              ))}
-            </ButtonGroup>
-          </>
-        )}
-        {layoutMode === 'diagram' && (
-          <>
-            <span
-              className="op-dash-text"
-              style={{
-                padding: '4px 10px',
-                borderRadius: 12,
-                fontSize: 11,
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                background: diagramLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
-                color: diagramLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
-              }}
-            >
-              {diagramLayoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout'}
-            </span>
-            {diagramLayoutMode === 'manual' && (
-              <Button text="Reset to Auto Layout" onClick={handleConfirmResetToAuto} stylingMode="outlined" />
-            )}
-            <ButtonGroup
-              keyExpr="value"
-              selectedItemKeys={[graphScope]}
-              onItemClick={e => setGraphScope(e.itemData.value)}
-              stylingMode="outlined"
-              className="op-dash-chart-toggle"
-              disabled={diagramLayoutMode === 'manual'}
-            >
-              {RELATED_ASSETS_GRAPH_SCOPE_ITEMS.map(item => (
-                <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} />
-              ))}
-            </ButtonGroup>
-            <SelectBox
-              dataSource={RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS}
-              valueExpr="value"
-              displayExpr="label"
-              value={diagramAlgorithm}
-              onValueChanged={e => setDiagramAlgorithm(e.value)}
-              stylingMode="outlined"
-              width={110}
-              height={28}
-              disabled={diagramLayoutMode === 'manual'}
-            />
-            {RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS.has(diagramAlgorithm) && (
+        </div>
+        {/* Row 2: Cards/Auto toggle (the top-level view switch, always
+            shown) plus the one mode-specific control set — flex settings,
+            cards-manual align/distribute/arrange, diagram-auto
+            algorithm/direction/routing, or diagram-manual align/distribute
+            — never more than one of those four at once. Connection-
+            point/arrow/label toggles live back on the canvas itself now
+            (top-right panel), not here. Diagram-auto's node/layer/ratio
+            sliders are anchored right in this same row, alongside the
+            left-anchored group above — same visibility rule as always
+            (diagram + auto only), just relocated up from row 3. */}
+        <div className="op-toolbar-row-2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+          <ButtonGroup
+            keyExpr="value"
+            selectedItemKeys={[layoutMode]}
+            onItemClick={e => setLayoutMode(e.itemData.value)}
+            stylingMode="outlined"
+            className="op-dash-chart-toggle"
+          >
+            {RELATED_ASSETS_LAYOUT_MODE_ITEMS.map(item => (
+              <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+            ))}
+          </ButtonGroup>
+          {layoutMode === 'cards' && cardsLayoutMode === 'auto' && (
+            <>
               <ButtonGroup
                 keyExpr="value"
-                selectedItemKeys={[diagramDirection]}
-                onItemClick={e => setDiagramDirection(e.itemData.value)}
+                selectedItemKeys={[cardsFlowDirection]}
+                onItemClick={e => setCardsFlowDirection(e.itemData.value)}
                 stylingMode="outlined"
                 className="op-dash-chart-toggle"
-                disabled={diagramLayoutMode === 'manual'}
               >
-                {RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS.map(item => (
+                {FLOW_DIRECTION_ITEMS.map(item => (
                   <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
                 ))}
               </ButtonGroup>
-            )}
-            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
               <ButtonGroup
                 keyExpr="value"
-                selectedItemKeys={[diagramEdgeRouting]}
-                onItemClick={e => setDiagramEdgeRouting(e.itemData.value)}
+                selectedItemKeys={[cardsFlowWrap]}
+                onItemClick={e => setCardsFlowWrap(e.itemData.value)}
                 stylingMode="outlined"
                 className="op-dash-chart-toggle"
-                disabled={diagramLayoutMode === 'manual'}
               >
-                {RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS.map(item => (
+                {FLOW_WRAP_ITEMS.map(item => (
                   <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
                 ))}
               </ButtonGroup>
-            )}
-            <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-              <Slider
-                min={0}
-                max={200}
-                step={1}
-                value={diagramNodeSpacing}
-                onValueChanged={e => setDiagramNodeSpacing(e.value)}
-                valueChangeMode="onHandleRelease"
-                className="op-tierfilter-slider"
-                style={{ width: '100%' }}
-                disabled={diagramLayoutMode === 'manual'}
+              <ButtonGroup
+                keyExpr="value"
+                selectedItemKeys={[cardsAlignContent]}
+                onItemClick={e => setCardsAlignContent(e.itemData.value)}
+                stylingMode="outlined"
+                className="op-dash-chart-toggle"
               >
-                <SliderLabel visible format={v => `Nodes: ${v}`} position="bottom" />
-              </Slider>
-            </div>
-            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                {ALIGN_CONTENT_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            </>
+          )}
+          {layoutMode === 'cards' && cardsLayoutMode === 'manual' && (
+            <>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <Button text="Arrange in Grid" onClick={() => cardsLayoutCanvasRef.current?.arrangeGrid()} stylingMode="outlined" />
+            </>
+          )}
+          {layoutMode === 'diagram' && diagramLayoutMode === 'auto' && (
+            <>
+              <ButtonGroup
+                keyExpr="value"
+                selectedItemKeys={[diagramAlgorithm]}
+                onItemClick={e => setDiagramAlgorithm(e.itemData.value)}
+                stylingMode="outlined"
+                className="op-dash-chart-toggle"
+              >
+                {RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              {RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS.has(diagramAlgorithm) && (
+                <ButtonGroup
+                  keyExpr="value"
+                  selectedItemKeys={[diagramDirection]}
+                  onItemClick={e => setDiagramDirection(e.itemData.value)}
+                  stylingMode="outlined"
+                  className="op-dash-chart-toggle"
+                >
+                  {RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+              )}
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <ButtonGroup
+                  keyExpr="value"
+                  selectedItemKeys={[diagramEdgeRouting]}
+                  onItemClick={e => setDiagramEdgeRouting(e.itemData.value)}
+                  stylingMode="outlined"
+                  className="op-dash-chart-toggle"
+                >
+                  {RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+              )}
+            </>
+          )}
+          {layoutMode === 'diagram' && diagramLayoutMode === 'manual' && (
+            <>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            </>
+          )}
+          </div>
+          {layoutMode === 'diagram' && diagramLayoutMode === 'auto' && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
               <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
                 <Slider
                   min={0}
                   max={200}
                   step={1}
-                  value={diagramLayerSpacing}
-                  onValueChanged={e => setDiagramLayerSpacing(e.value)}
+                  value={diagramNodeSpacing}
+                  onValueChanged={e => setDiagramNodeSpacing(e.value)}
                   valueChangeMode="onHandleRelease"
                   className="op-tierfilter-slider"
                   style={{ width: '100%' }}
-                  disabled={diagramLayoutMode === 'manual'}
                 >
-                  <SliderLabel visible format={v => `Layers: ${v}`} position="bottom" />
+                  <SliderLabel visible format={v => `Nodes: ${v}`} position="bottom" />
                 </Slider>
               </div>
-            )}
-            {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
-              <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-                <Slider
-                  min={0.2}
-                  max={8}
-                  step={0.1}
-                  value={diagramAspectRatio}
-                  onValueChanged={e => setDiagramAspectRatio(e.value)}
-                  valueChangeMode="onHandleRelease"
-                  className="op-tierfilter-slider"
-                  style={{ width: '100%' }}
-                  disabled={diagramLayoutMode === 'manual'}
-                >
-                  <SliderLabel visible format={v => `Ratio: ${v.toFixed(1)}`} position="bottom" />
-                </Slider>
-              </div>
-            )}
-          </>
-        )}
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                  <Slider
+                    min={0}
+                    max={200}
+                    step={1}
+                    value={diagramLayerSpacing}
+                    onValueChanged={e => setDiagramLayerSpacing(e.value)}
+                    valueChangeMode="onHandleRelease"
+                    className="op-tierfilter-slider"
+                    style={{ width: '100%' }}
+                  >
+                    <SliderLabel visible format={v => `Layers: ${v}`} position="bottom" />
+                  </Slider>
+                </div>
+              )}
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                  <Slider
+                    min={0.2}
+                    max={8}
+                    step={0.1}
+                    value={diagramAspectRatio}
+                    onValueChanged={e => setDiagramAspectRatio(e.value)}
+                    valueChangeMode="onHandleRelease"
+                    className="op-tierfilter-slider"
+                    style={{ width: '100%' }}
+                  >
+                    <SliderLabel visible format={v => `Ratio: ${v.toFixed(1)}`} position="bottom" />
+                  </Slider>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-      {layoutMode === 'diagram' ? (
-        (graphScope === 'focused' && visibleRows.length === 0) ? (
+      )}
+      {layoutMode === 'cards' ? (
+        visibleRows.length === 0 ? (
+          <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
+        ) : (
+          <RelatedAssetsCards
+            currentTypeId={currentTypeId}
+            currentTypeName={currentTypeName}
+            currentTypeExampleAssetId={currentTypeExampleAssetId}
+            visibleRows={visibleRows}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            evidencePoints={evidencePoints}
+            cardsLayoutMode={cardsLayoutMode}
+            cardsManualPositions={cardsManualPositions}
+            onCardsPositionsChange={setCardsManualPositions}
+            cardsFlexContainerRef={cardsFlexContainerRef}
+            cardsFlexTileRefs={cardsFlexTileRefs}
+            cardsFlowDirection={cardsFlowDirection}
+            cardsFlowWrap={cardsFlowWrap}
+            cardsAlignContent={cardsAlignContent}
+            cardsLayoutCanvasRef={cardsLayoutCanvasRef}
+            onTitleClick={onTitleClick}
+          />
+        )
+      ) : (
+        visibleRows.length === 0 ? (
           <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
         ) : (
           <RelatedAssetsDiagram
+            ref={diagramCanvasRef}
             currentTypeId={currentTypeId}
             currentTypeName={currentTypeName}
             currentTypeExampleAssetId={currentTypeExampleAssetId}
             visibleRows={visibleRows}
             typeList={typeList}
-            graphScope={graphScope}
+            allTypesMode={false}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
             evidencePoints={evidencePoints}
@@ -3666,71 +4688,321 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
             setDiagramShowLabels={setDiagramShowLabels}
             setDiagramShowArrowheads={setDiagramShowArrowheads}
             setDiagramConnectionPointMode={setDiagramConnectionPointMode}
+            onPositionsChange={setDiagramManualPositions}
+            savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
+            onTitleClick={onTitleClick}
           />
         )
-      ) : visibleRows.length === 0 ? (
-        <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
-      ) : (
-        <div className="op-related-assets-box-flow" style={{ flexDirection: flowDirection, flexWrap: flowWrap, alignContent }}>
-          {visibleRows.map(row => (
-            <div key={row.key} className="op-related-asset-box">
-              <RelatedAssetBoxContent
-                relatedTypeId={row.relatedTypeId}
-                relatedTypeName={row.relatedTypeName}
-                relatedTypeExampleAssetId={row.relatedTypeExampleAssetId}
-                typeDisplayTemplates={typeDisplayTemplates}
-                typePropertyConfigs={typePropertyConfigs}
-                evidencePoints={evidencePoints}
-              />
-            </div>
-          ))}
-        </div>
       )}
     </div>
   );
 }
 
-function NowTypeDetail({ title, typeId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange }) {
-  // Mirrors HmiPropertiesListing's current view mode, purely for display in
-  // the "Visual" column below — that state actually lives inside
-  // HmiPropertiesListing (a sibling, not a parent/child of this table), and
-  // is reported up via onDisplayStateChange whenever it changes.
-  const [rightPanelViewMode, setRightPanelViewMode] = useState(typeDisplayTemplates?.[typeId]?.viewMode ?? 'all');
-
-  // DevExtreme's DataGrid does not automatically recalculate column widths
-  // when its container is resized via a Splitter drag (this is a documented
-  // requirement, not a bug) — without this, dragging the splitter narrower
-  // can leave columns at their previous (wider) computed size, overflowing
-  // past the visible area. rAF-throttled per DevExtreme's own guidance,
-  // since onResize can fire many times per drag.
-  const propsGridRef = useRef(null);
-  const propsSplitterResizeFrame = useRef(null);
-  const handlePropsSplitterResize = () => {
-    cancelAnimationFrame(propsSplitterResizeFrame.current);
-    propsSplitterResizeFrame.current = requestAnimationFrame(() => {
-      propsGridRef.current?.instance()?.updateDimensions();
-    });
-  };
-  // Same fix, applied proactively to the Related Assets tab's own splitter
-  // rather than waiting for the same resize issue to resurface there too.
-  const relatedGridRef = useRef(null);
-  const relatedSplitterResizeFrame = useRef(null);
-  const handleRelatedSplitterResize = () => {
-    cancelAnimationFrame(relatedSplitterResizeFrame.current);
-    relatedSplitterResizeFrame.current = requestAnimationFrame(() => {
-      relatedGridRef.current?.instance()?.updateDimensions();
-    });
-  };
-
-  if (!properties) {
+// The global "All Assets" view — diagram-only (no Cards option), showing
+// every type in the current model at once rather than one type's
+// immediate relationships. Deliberately not per-type: this is one shared
+// view regardless of which type happens to be selected in the tree,
+// unlike RelatedAssetsPreview/HmiPropertiesListing's own templates.
+// Mirrors RelatedAssetsPreview's Diagram-mode settings and Auto/Manual
+// machinery directly (same shape of state, same handlers) rather than
+// sharing a component with it, since the two are independent, separately
+// intended-to-be-saved layouts.
+// All Assets' visibility tree — lives in the Details panel now. Every
+// real asset instance in the current model, in its actual containment
+// hierarchy (plant/train/stage/equipment) via HierarchyTree — the same
+// component the Now area's own (not-yet-built) Assets tab already uses
+// elsewhere in this file, so a tree is the established pattern for
+// browsing this hierarchy, not a new one invented just for this list.
+// hiddenAssetIds/onToggleAssetVisibility are lifted state
+// (OperatorWorkspaceInner), shared with AllAssetsDiagram below rather
+// than owned here, since the two halves are now separate components in
+// separate panels.
+function AllAssetsVisibilityItem({ hiddenAssetIds, onToggleAssetVisibility }) {
+  return (item) => {
+    const hidden = hiddenAssetIds.has(item.id);
     return (
-      <div className="op-panel op-investigate-panel op-now-asset-detail">
-        <div className="op-now-asset-detail-title">{title}</div>
-        <div className="op-dashboard-card op-now-asset-kpi-card">
-          <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>
-        </div>
+      <div className="op-all-assets-tree-row">
+        <span className="op-all-assets-tree-row-name">{item.name}</span>
+        <button
+          className="op-visibility-cycle-btn"
+          title={hidden ? 'Hidden — click to show' : 'Visible — click to hide'}
+          onClick={(e) => { e.stopPropagation(); onToggleAssetVisibility(item.id); }}
+        >
+          <VisibilityStateIcon visibility={hidden ? 'never' : 'always'} />
+        </button>
       </div>
     );
+  };
+}
+function AllAssetsTypeList({ hiddenAssetIds, onToggleAssetVisibility }) {
+  return (
+    <div className="op-now-type-props-list">
+      <HierarchyTree
+        dataSource={CURRENT_ASSET_DATA}
+        displayExpr="name"
+        itemRender={AllAssetsVisibilityItem({ hiddenAssetIds, onToggleAssetVisibility })}
+        selectedId={null}
+        onSelect={() => {}}
+      />
+    </div>
+  );
+}
+
+// All Assets' diagram — the visual playground half, living in the center
+// preview now. Owns its own diagram settings locally (algorithm, spacing,
+// etc. — purely "how to render," not persisted configuration), but
+// hiddenAssetIds itself is a prop, shared with AllAssetsTypeList above.
+function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
+  const [diagramAlgorithm, setDiagramAlgorithm] = useState(savedTemplate?.diagramAlgorithm ?? 'layered');
+  const [diagramDirection, setDiagramDirection] = useState(savedTemplate?.diagramDirection ?? 'RIGHT');
+  const [diagramEdgeRouting, setDiagramEdgeRouting] = useState(savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL');
+  const [diagramNodeSpacing, setDiagramNodeSpacing] = useState(savedTemplate?.diagramNodeSpacing ?? 40);
+  const [diagramLayerSpacing, setDiagramLayerSpacing] = useState(savedTemplate?.diagramLayerSpacing ?? 80);
+  const [diagramAspectRatio, setDiagramAspectRatio] = useState(savedTemplate?.diagramAspectRatio ?? 8);
+  const [diagramShowLabels, setDiagramShowLabels] = useState(savedTemplate?.diagramShowLabels ?? 'hidden');
+  const [diagramShowArrowheads, setDiagramShowArrowheads] = useState(savedTemplate?.diagramShowArrowheads ?? 'shown');
+  const [diagramConnectionPointMode, setDiagramConnectionPointMode] = useState(savedTemplate?.diagramConnectionPointMode ?? 'center');
+  const [diagramLayoutMode, setDiagramLayoutMode] = useState(savedTemplate?.diagramLayoutMode ?? 'auto');
+  const [diagramLayoutResetSignal, setDiagramLayoutResetSignal] = useState(0);
+  // Working copy of the diagram's current node positions — same reasoning
+  // as RelatedAssetsPreview's diagramManualPositions above.
+  const [diagramManualPositions, setDiagramManualPositions] = useState(savedTemplate?.diagramManualPositions ?? {});
+  const diagramCanvasRef = useRef(null);
+  const handleManualEdit = () => setDiagramLayoutMode('manual');
+  const handleConfirmResetToAuto = () => {
+    confirm(
+      `This will discard your manual positioning and re-run the ${RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.find(a => a.value === diagramAlgorithm)?.label ?? diagramAlgorithm} layout. Continue?`,
+      'Reset to Auto Layout'
+    ).then(confirmed => {
+      if (!confirmed) return;
+      setDiagramLayoutMode('auto');
+      setDiagramLayoutResetSignal(s => s + 1);
+    });
+  };
+
+  // Registers this tab's save action, same pattern as RelatedAssetsPreview
+  // and HmiPropertiesListing — this is the global, non-per-type template,
+  // so hiddenAssetIds (itself lifted state, not owned here) rides along in
+  // the same saved payload rather than needing a separate save action.
+  useEffect(() => {
+    if (!activeSaveHandlerRef) return undefined;
+    activeSaveHandlerRef.current = () => onSaveTemplate?.({
+      hiddenAssetIds: [...(hiddenAssetIds ?? [])],
+      diagramAlgorithm,
+      diagramDirection,
+      diagramEdgeRouting,
+      diagramNodeSpacing,
+      diagramLayerSpacing,
+      diagramAspectRatio,
+      diagramShowLabels,
+      diagramShowArrowheads,
+      diagramConnectionPointMode,
+      diagramLayoutMode,
+      diagramManualPositions: diagramLayoutMode === 'manual' ? diagramManualPositions : {},
+    });
+    return () => { activeSaveHandlerRef.current = null; };
+  }, [hiddenAssetIds, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
+
+  return (
+    <div className="op-dashboard-card op-now-type-kpi-card op-related-assets-preview">
+      {showToolbar && (
+      <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+        {/* Row 1: badge + reset button, anchored left — no slider here (All
+            Assets has no density concept, visibility is per-type via the
+            Details panel instead), so this row has no right-anchored partner. */}
+        <div className="op-toolbar-row-1" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span
+            className="op-dash-text"
+            style={{
+              padding: '4px 10px',
+              borderRadius: 12,
+              fontSize: 11,
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              background: diagramLayoutMode === 'manual' ? '#fff4e5' : '#e8f4fd',
+              color: diagramLayoutMode === 'manual' ? '#8a5a00' : '#0078d4',
+            }}
+          >
+            {diagramLayoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout'}
+          </span>
+          {diagramLayoutMode === 'manual' ? (
+            <Button text="Reset to Auto Layout" onClick={handleConfirmResetToAuto} stylingMode="outlined" />
+          ) : (
+            <Button text="Switch to Manual Layout" onClick={handleManualEdit} stylingMode="outlined" />
+          )}
+        </div>
+        {/* Row 2: the one mode-specific control set — diagram-auto
+            algorithm/direction/routing, or diagram-manual align/distribute
+            — never both. Connection-point/arrow/label toggles live back
+            on the canvas itself now (top-right panel), not here.
+            Diagram-auto's node/layer/ratio sliders are anchored right in
+            this same row — same visibility rule as always, just relocated
+            up from row 3. */}
+        <div className="op-toolbar-row-2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+          {diagramLayoutMode === 'auto' && (
+            <>
+              <ButtonGroup
+                keyExpr="value"
+                selectedItemKeys={[diagramAlgorithm]}
+                onItemClick={e => setDiagramAlgorithm(e.itemData.value)}
+                stylingMode="outlined"
+                className="op-dash-chart-toggle"
+              >
+                {RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              {RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS.has(diagramAlgorithm) && (
+                <ButtonGroup
+                  keyExpr="value"
+                  selectedItemKeys={[diagramDirection]}
+                  onItemClick={e => setDiagramDirection(e.itemData.value)}
+                  stylingMode="outlined"
+                  className="op-dash-chart-toggle"
+                >
+                  {RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+              )}
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <ButtonGroup
+                  keyExpr="value"
+                  selectedItemKeys={[diagramEdgeRouting]}
+                  onItemClick={e => setDiagramEdgeRouting(e.itemData.value)}
+                  stylingMode="outlined"
+                  className="op-dash-chart-toggle"
+                >
+                  {RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS.map(item => (
+                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                  ))}
+                </ButtonGroup>
+              )}
+            </>
+          )}
+          {diagramLayoutMode === 'manual' && (
+            <>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
+                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
+                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
+                ))}
+              </ButtonGroup>
+            </>
+          )}
+          </div>
+          {diagramLayoutMode === 'auto' && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
+              <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                <Slider
+                  min={0}
+                  max={200}
+                  step={1}
+                  value={diagramNodeSpacing}
+                  onValueChanged={e => setDiagramNodeSpacing(e.value)}
+                  valueChangeMode="onHandleRelease"
+                  className="op-tierfilter-slider"
+                  style={{ width: '100%' }}
+                >
+                  <SliderLabel visible format={v => `Nodes: ${v}`} position="bottom" />
+                </Slider>
+              </div>
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                  <Slider
+                    min={0}
+                    max={200}
+                    step={1}
+                    value={diagramLayerSpacing}
+                    onValueChanged={e => setDiagramLayerSpacing(e.value)}
+                    valueChangeMode="onHandleRelease"
+                    className="op-tierfilter-slider"
+                    style={{ width: '100%' }}
+                  >
+                    <SliderLabel visible format={v => `Layers: ${v}`} position="bottom" />
+                  </Slider>
+                </div>
+              )}
+              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
+                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+                  <Slider
+                    min={0.2}
+                    max={8}
+                    step={0.1}
+                    value={diagramAspectRatio}
+                    onValueChanged={e => setDiagramAspectRatio(e.value)}
+                    valueChangeMode="onHandleRelease"
+                    className="op-tierfilter-slider"
+                    style={{ width: '100%' }}
+                  >
+                    <SliderLabel visible format={v => `Ratio: ${v.toFixed(1)}`} position="bottom" />
+                  </Slider>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+      )}
+      <RelatedAssetsDiagram
+        ref={diagramCanvasRef}
+        currentTypeId={currentTypeId}
+        typeList={typeList}
+        allTypesMode
+        hiddenAssetIds={hiddenAssetIds}
+        typeDisplayTemplates={typeDisplayTemplates}
+        typePropertyConfigs={typePropertyConfigs}
+        evidencePoints={evidencePoints}
+        diagramAlgorithm={diagramAlgorithm}
+        diagramDirection={diagramDirection}
+        diagramEdgeRouting={diagramEdgeRouting}
+        diagramNodeSpacing={diagramNodeSpacing}
+        diagramLayerSpacing={diagramLayerSpacing}
+        diagramAspectRatio={diagramAspectRatio}
+        diagramShowLabels={diagramShowLabels}
+        diagramShowArrowheads={diagramShowArrowheads}
+        diagramConnectionPointMode={diagramConnectionPointMode}
+        diagramLayoutResetSignal={diagramLayoutResetSignal}
+        onManualEdit={handleManualEdit}
+        setDiagramShowLabels={setDiagramShowLabels}
+        setDiagramShowArrowheads={setDiagramShowArrowheads}
+        setDiagramConnectionPointMode={setDiagramConnectionPointMode}
+        onPositionsChange={setDiagramManualPositions}
+        savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
+        onTitleClick={onTitleClick}
+      />
+    </div>
+  );
+}
+
+// The Details panel's content for a selected type — three tabs, each
+// showing only the config list (no preview at all; that lives in
+// NowTypeMainPreview, in the center, as its own separate component now).
+// rightPanelViewMode/hiddenAssetIds are lifted state (OperatorWorkspaceInner),
+// read here for display/editing but actually driven by the center preview.
+function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange }) {
+  // DevExtreme's DataGrid does not automatically recalculate column widths
+  // when its container is resized (documented requirement, not a bug) —
+  // without this, a narrower Details panel can leave columns at their
+  // previous (wider) size, overflowing past the visible area. rAF-
+  // throttled per DevExtreme's own guidance, since onResize can fire many
+  // times per drag. No longer tied to a Splitter drag here (the list is
+  // full width now), but the panel itself is still resizable.
+  const propsGridRef = useRef(null);
+  const relatedGridRef = useRef(null);
+
+  if (!properties) {
+    return <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>;
   }
 
   const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
@@ -3806,73 +5078,150 @@ function NowTypeDetail({ title, typeId, typeList, properties, sparklineSource, e
   ];
 
   return (
+    <div className="op-now-type-tabs">
+      <TabPanel
+        height="100%"
+        animationEnabled={false}
+        swipeEnabled={false}
+        selectedIndex={activeTabIndex}
+        onSelectionChanged={e => onActiveTabIndexChange(e.component.option('selectedIndex'))}
+      >
+        <TabPanelItem title="Properties">
+          <div className="op-now-type-props-list">
+            <DataListGrid
+              ref={propsGridRef}
+              items={propertyRows}
+              columns={propertyColumns}
+              keyExpr="key"
+              selectedId={null}
+              onSelect={() => {}}
+              searchEnabled={false}
+              noDataText="No properties for this type."
+            />
+          </div>
+        </TabPanelItem>
+        <TabPanelItem title="Related Assets">
+          <div className="op-now-type-props-list">
+            <DataListGrid
+              ref={relatedGridRef}
+              items={relatedAssetRows}
+              columns={relatedAssetColumns}
+              keyExpr="key"
+              selectedId={null}
+              onSelect={() => {}}
+              searchEnabled={false}
+              noDataText="No related assets for this type."
+            />
+          </div>
+        </TabPanelItem>
+        <TabPanelItem title="All Assets">
+          <AllAssetsTypeList hiddenAssetIds={hiddenAssetIds} onToggleAssetVisibility={onToggleAssetVisibility} />
+        </TabPanelItem>
+      </TabPanel>
+    </div>
+  );
+}
+
+// The main preview area for a selected type — whichever of the three
+// visual playgrounds matches the Details panel's currently-active tab.
+// Persists across Details being hidden/shown: closing the Details panel
+// doesn't blank this out or reset it, it just keeps showing whichever
+// was last active.
+function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange }) {
+  const titleRow = (
+    <div className="op-now-asset-detail-title op-now-asset-detail-title--with-caret">
+      <button
+        type="button"
+        className="op-now-asset-detail-caret"
+        onClick={() => onToolbarExpandedChange(e => !e)}
+        title={toolbarExpanded ? 'Hide controls' : 'Show controls'}
+      >
+        <CaretIcon expanded={toolbarExpanded} />
+      </button>
+      <span>{title}</span>
+    </div>
+  );
+
+  if (!properties) {
+    return (
+      <div className="op-panel op-investigate-panel op-now-asset-detail">
+        <div className="op-now-asset-detail-title">{title}</div>
+        <div className="op-dashboard-card op-now-asset-kpi-card">
+          <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTabIndex === 1) {
+    const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
+    const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+      ...row,
+      visibility: relatedAssetOverrides[row.key] || 'always',
+    }));
+    return (
+      <div className="op-panel op-investigate-panel op-now-asset-detail">
+        {titleRow}
+        <div className="op-dashboard-card op-now-type-kpi-card">
+          <RelatedAssetsPreview
+            key={typeId}
+            relatedAssetRows={relatedAssetRows}
+            evidencePoints={evidencePoints}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            currentTypeId={typeId}
+            currentTypeName={title}
+            currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+            typeList={typeList}
+            savedTemplate={relatedAssetsTemplates?.[typeId]}
+            onSaveTemplate={onSaveRelatedAssetsTemplate}
+            activeSaveHandlerRef={activeSaveHandlerRef}
+            onTitleClick={onTitleClick}
+            showToolbar={toolbarExpanded}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeTabIndex === 2) {
+    return (
+      <div className="op-panel op-investigate-panel op-now-asset-detail">
+        {titleRow}
+        <AllAssetsDiagram
+          typeList={typeList}
+          currentTypeId={typeId}
+          hiddenAssetIds={hiddenAssetIds}
+          typeDisplayTemplates={typeDisplayTemplates}
+          typePropertyConfigs={typePropertyConfigs}
+          evidencePoints={evidencePoints}
+          savedTemplate={allAssetsTemplate}
+          onSaveTemplate={onSaveAllAssetsTemplate}
+          activeSaveHandlerRef={activeSaveHandlerRef}
+          onTitleClick={onTitleClick}
+          showToolbar={toolbarExpanded}
+        />
+      </div>
+    );
+  }
+
+  return (
     <div className="op-panel op-investigate-panel op-now-asset-detail">
-      <div className="op-now-type-tabs">
-        <TabPanel
-          height="100%"
-          animationEnabled={false}
-          swipeEnabled={false}
-          selectedIndex={activeTabIndex}
-          onSelectionChanged={e => onActiveTabIndexChange(e.component.option('selectedIndex'))}
-        >
-          <TabPanelItem title="Properties">
-            <Splitter orientation="horizontal" style={{ height: '100%' }} onResize={handlePropsSplitterResize}>
-              <SplitterItem size="45%" minSize="220px" resizable={true}>
-                <div className="op-now-type-props-list">
-                  <DataListGrid
-                    ref={propsGridRef}
-                    items={propertyRows}
-                    columns={propertyColumns}
-                    keyExpr="key"
-                    selectedId={null}
-                    onSelect={() => {}}
-                    searchEnabled={false}
-                    noDataText="No properties for this type."
-                  />
-                </div>
-              </SplitterItem>
-              <SplitterItem resizable={true}>
-                <div className="op-dashboard-card op-now-type-kpi-card">
-                  <HmiPropertiesListing
-                    properties={properties}
-                    sparklineSource={sparklineSource}
-                    evidencePoints={evidencePoints}
-                    typeVisibilityMode
-                    typeId={typeId}
-                    typePropertyConfigs={typePropertyConfigs}
-                    typeDisplayTemplates={typeDisplayTemplates}
-                    onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
-                    activeSaveHandlerRef={activeSaveHandlerRef}
-                    onViewModeChange={setRightPanelViewMode}
-                  />
-                </div>
-              </SplitterItem>
-            </Splitter>
-          </TabPanelItem>
-          <TabPanelItem title="Related Assets">
-            <Splitter orientation="horizontal" style={{ height: '100%' }} onResize={handleRelatedSplitterResize}>
-              <SplitterItem size="45%" minSize="220px" resizable={true}>
-                <div className="op-now-type-props-list">
-                  <DataListGrid
-                    ref={relatedGridRef}
-                    items={relatedAssetRows}
-                    columns={relatedAssetColumns}
-                    keyExpr="key"
-                    selectedId={null}
-                    onSelect={() => {}}
-                    searchEnabled={false}
-                    noDataText="No related assets for this type."
-                  />
-                </div>
-              </SplitterItem>
-              <SplitterItem resizable={true}>
-                <div className="op-dashboard-card op-now-type-kpi-card">
-                  <RelatedAssetsPreview relatedAssetRows={relatedAssetRows} evidencePoints={evidencePoints} typeDisplayTemplates={typeDisplayTemplates} typePropertyConfigs={typePropertyConfigs} currentTypeId={typeId} currentTypeName={title} currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId} typeList={typeList} />
-                </div>
-              </SplitterItem>
-            </Splitter>
-          </TabPanelItem>
-        </TabPanel>
+      {titleRow}
+      <div className="op-dashboard-card op-now-type-kpi-card">
+        <HmiPropertiesListing
+          properties={properties}
+          sparklineSource={sparklineSource}
+          evidencePoints={evidencePoints}
+          typeVisibilityMode
+          typeId={typeId}
+          typePropertyConfigs={typePropertyConfigs}
+          typeDisplayTemplates={typeDisplayTemplates}
+          onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
+          activeSaveHandlerRef={activeSaveHandlerRef}
+          onViewModeChange={onViewModeChange}
+          showToolbar={toolbarExpanded}
+        />
       </div>
     </div>
   );
@@ -4118,7 +5467,53 @@ function WorkListPanel({ items, selectedId, onSelect, onToggleDone, onAdd }) {
 // Investigate — detail for the selected Attention item
 // ─────────────────────────────────────────────────────────────────────────────
 
-function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView }) {
+function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, activeSaveHandlerRef, onTitleClick, onGearClick }) {
+  // This Asset vs. Related Assets sub-toggle, within the Related Assets
+  // tab. Declared before the early return below (not alongside the other
+  // computed values further down, which only run once item is known) so
+  // this hook is always called, on every render, per the Rules of Hooks.
+  const [relatedAssetsSubview, setRelatedAssetsSubview] = useState('thisAsset');
+
+  // Time-track scrubber for the Related Assets tab. Defaults to the last
+  // index of the shared shift timeline — the exact same instant "current"
+  // values already reflect (verified: the static snapshot each box shows
+  // by default is identical to the last point of that same property's own
+  // series), so nothing visibly changes until the user actually scrubs or
+  // presses play. Also declared before the early return per Rules of Hooks.
+  const scrubMaxIndex = (STATION_TELEMETRY?.timestamps?.length ?? 1) - 1;
+  const [scrubTimeIndex, setScrubTimeIndex] = useState(scrubMaxIndex);
+  const [scrubPlaying, setScrubPlaying] = useState(false);
+  // DevExtreme's Slider fires onValueChanged for a programmatic value prop
+  // change exactly the same as a real user drag — it has no way to tell
+  // them apart itself. Without this flag, the moment playback's own effect
+  // advances the index, the slider would report that as a "value changed"
+  // event, and the handler below would immediately call
+  // setScrubPlaying(false), self-cancelling playback after a single step.
+  // Set to true right before any programmatic setScrubTimeIndex call, and
+  // consumed (cleared, without pausing) by the very next onValueChanged.
+  const scrubProgrammaticRef = useRef(false);
+
+  useEffect(() => {
+    if (!scrubPlaying) return;
+    if (scrubTimeIndex >= scrubMaxIndex) {
+      setScrubPlaying(false);
+      return;
+    }
+    const timer = setTimeout(() => {
+      scrubProgrammaticRef.current = true;
+      setScrubTimeIndex(i => Math.min(i + 1, scrubMaxIndex));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [scrubPlaying, scrubTimeIndex, scrubMaxIndex]);
+
+  const handleScrubPlayPause = () => {
+    if (!scrubPlaying && scrubTimeIndex >= scrubMaxIndex) {
+      scrubProgrammaticRef.current = true;
+      setScrubTimeIndex(0);
+    }
+    setScrubPlaying(p => !p);
+  };
+
   if (!item) {
     return (
       <div className="op-panel op-investigate-panel">
@@ -4130,6 +5525,39 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
 
   const d = item.detail;
   const severityColor = SEVERITY_COLORS[item.severity];
+
+  // Related Assets: resolves via attentionAssetToAssetEntry/CURRENT_ASSET_DATA
+  // for all three models, including refinery (its own hardcoded ASSET_DATA
+  // constant, not a fetched file, but resolved the same way). Stays null
+  // only if an attention item's asset string genuinely doesn't match any
+  // real asset id, in which case the tab shows a plain "not available"
+  // message rather than an empty/broken diagram.
+  const relatedAssetsAssetEntry = attentionAssetToAssetEntry(item.asset);
+  const relatedAssetsTypeId = relatedAssetsAssetEntry ? `TYPE_${relatedAssetsAssetEntry.assetLevel}_${relatedAssetsAssetEntry.assetType}` : null;
+  const relatedAssetsTypeEntry = relatedAssetsTypeId ? typeList.find(t => t.id === relatedAssetsTypeId) : null;
+
+  // Related Alarms: other attention items on the same asset type as this
+  // one (e.g. both on an "Aeration" stage, just a different train) —
+  // surfaces whether this looks like a one-off or a pattern across the
+  // same kind of equipment elsewhere in the plant. There's no dedicated
+  // "related alarms" field in the data, so this is derived directly from
+  // the attention items list, reusing the same typeId resolution as
+  // Related Assets above. A null typeId (an asset string that doesn't
+  // resolve) never matches another null, so this stays empty rather than
+  // spuriously grouping unrelated unresolved items together.
+  const relatedAlarms = relatedAssetsTypeId
+    ? ATTENTION_ITEMS.filter(other => other.id !== item.id && attentionAssetToTypeId(other.asset) === relatedAssetsTypeId)
+    : [];
+
+  // Shared between the Timeline tab's own content and the small Timeline
+  // card shown alongside the Trend chart — same underlying data either way.
+  const timelineItems = d.evidencePoints.map(p => ({
+    time: p.time,
+    primary: p.value,
+    secondary: p.label || null,
+    highlighted: !!p.label,
+    color: severityColor,
+  }));
 
   return (
     <div className="op-panel op-investigate-panel">
@@ -4143,127 +5571,224 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
         </div>
       </div>
 
-      <div className="op-investigate-toprow">
-        <div className="op-dash-ministat-row">
-          <div className="op-dash-ministat" style={{ color: CONFIDENCE_COLORS[d.confidenceLevel] }}>
-            <div className="op-dash-ministat-top">
-              <span className="op-dash-ministat-icon"><ConfidenceIcon filled={CONFIDENCE_BARS[d.confidenceLevel]} /></span>
-              <div className="op-dash-ministat-textblock">
-                <span className="op-dash-ministat-category">Confidence</span>
-                <span className="op-dash-ministat-value">{CONFIDENCE_LABELS[d.confidenceLevel]}</span>
-              </div>
-            </div>
-            <div className="op-dash-ministat-detail">{d.confidence}</div>
-          </div>
-          <div className="op-dash-ministat" style={{ color: RISK_COLORS[d.riskLevel] }}>
-            <div className="op-dash-ministat-top">
-              <span className="op-dash-ministat-icon">{d.riskLevel === 'none' ? <ShieldCheckIcon /> : <RiskAlertIcon />}</span>
-              <div className="op-dash-ministat-textblock">
-                <span className="op-dash-ministat-category">Risk</span>
-                <span className="op-dash-ministat-value">{RISK_LABELS[d.riskLevel]}</span>
-              </div>
-            </div>
-            <div className="op-dash-ministat-detail">{d.risk}</div>
-          </div>
-          <div className="op-dash-ministat" style={{ color: OUTCOME_COLORS[d.outcomeStatus] }}>
-            <div className="op-dash-ministat-top">
-              <span className="op-dash-ministat-icon">{d.outcomeStatus === 'recovering' ? <TrendUpIcon /> : d.outcomeStatus === 'resolved' ? <ShieldCheckIcon /> : <DashIcon />}</span>
-              <div className="op-dash-ministat-textblock">
-                <span className="op-dash-ministat-category">Outcome</span>
-                <span className="op-dash-ministat-value">{OUTCOME_LABELS[d.outcomeStatus]}</span>
-              </div>
-            </div>
-            <div className="op-dash-ministat-detail">{d.expectedOutcome !== '—' ? d.expectedOutcome : 'No outcome defined'}</div>
-          </div>
-        </div>
-        <button className="op-btn op-btn--primary" onClick={() => onCreateWorkItem(item)}>
-          Create work item
-        </button>
+      <div className="op-investigate-toggle-row">
+        <ButtonGroup
+          items={EVIDENCE_VIEW_ITEMS}
+          keyExpr="value"
+          selectedItemKeys={[evidenceView]}
+          onItemClick={e => setEvidenceView(e.itemData.value)}
+          stylingMode="outlined"
+          className="op-dash-chart-toggle"
+        />
       </div>
 
-      <div className="op-investigate-dashboard">
-        <div className="op-dashboard-card op-dashboard-card--signal">
-          <div className="op-dashboard-card-title">Signal</div>
-          <div className="op-dash-text op-dash-text--clamp3">{d.signal}</div>
-          <div className="op-dash-separator" />
-          <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+      {evidenceView === 'ai' ? (
+        <>
+          <div className="op-dashboard-card op-dashboard-card--ministats">
+            <div className="op-dash-ministat-row">
+              <div className="op-dash-ministat" style={{ color: CONFIDENCE_COLORS[d.confidenceLevel] }}>
+                <div className="op-dash-ministat-top">
+                  <span className="op-dash-ministat-icon"><ConfidenceIcon filled={CONFIDENCE_BARS[d.confidenceLevel]} /></span>
+                  <div className="op-dash-ministat-textblock">
+                    <span className="op-dash-ministat-category">Confidence</span>
+                    <span className="op-dash-ministat-value">{CONFIDENCE_LABELS[d.confidenceLevel]}</span>
+                  </div>
+                </div>
+                <div className="op-dash-ministat-detail">{d.confidence}</div>
+              </div>
+              <div className="op-dash-ministat" style={{ color: RISK_COLORS[d.riskLevel] }}>
+                <div className="op-dash-ministat-top">
+                  <span className="op-dash-ministat-icon">{d.riskLevel === 'none' ? <ShieldCheckIcon /> : <RiskAlertIcon />}</span>
+                  <div className="op-dash-ministat-textblock">
+                    <span className="op-dash-ministat-category">Risk</span>
+                    <span className="op-dash-ministat-value">{RISK_LABELS[d.riskLevel]}</span>
+                  </div>
+                </div>
+                <div className="op-dash-ministat-detail">{d.risk}</div>
+              </div>
+              <div className="op-dash-ministat" style={{ color: OUTCOME_COLORS[d.outcomeStatus] }}>
+                <div className="op-dash-ministat-top">
+                  <span className="op-dash-ministat-icon">{d.outcomeStatus === 'recovering' ? <TrendUpIcon /> : d.outcomeStatus === 'resolved' ? <ShieldCheckIcon /> : <DashIcon />}</span>
+                  <div className="op-dash-ministat-textblock">
+                    <span className="op-dash-ministat-category">Outcome</span>
+                    <span className="op-dash-ministat-value">{OUTCOME_LABELS[d.outcomeStatus]}</span>
+                  </div>
+                </div>
+                <div className="op-dash-ministat-detail">{d.expectedOutcome !== '—' ? d.expectedOutcome : 'No outcome defined'}</div>
+              </div>
+            </div>
+          </div>
+          <div className="op-investigate-dashboard op-investigate-dashboard--ai">
+            <div className="op-dashboard-card op-dashboard-card--interpretation">
+              <div className="op-dashboard-card-title">Interpretation</div>
+              <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+                <div className="op-dash-text op-dash-text--clamp3">{d.signal}</div>
+                <div className="op-dash-separator" />
+                <div className="op-evidence-layer">
+                  <span className="op-evidence-layer-label op-evidence-layer-label--observed">Observed</span>
+                  <div className="op-dash-text op-dash-text--clamp2">{d.observed}</div>
+                </div>
+                <div className="op-evidence-layer">
+                  <span className="op-evidence-layer-label op-evidence-layer-label--derived">Derived</span>
+                  <div className="op-dash-text op-dash-text--clamp2">{d.derived}</div>
+                </div>
+                <div className="op-evidence-layer">
+                  <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Inferred</span>
+                  <div className="op-dash-text op-dash-text--clamp2">{d.inferred}</div>
+                </div>
+                <div className="op-dash-separator" />
+                <div className="op-evidence-layer">
+                  <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Next steps</span>
+                  <div className="op-dash-text op-dash-text--clamp3">{d.recommendation}</div>
+                </div>
+                <button className="op-btn op-btn--primary op-investigate-createworkitem-btn" onClick={() => onCreateWorkItem(item)}>
+                  Create work item
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : evidenceView === 'relatedAssets' ? (
+        <>
+          <div className="op-investigate-relatedassets-toprow">
             <ButtonGroup
-              items={EVIDENCE_VIEW_ITEMS}
+              items={RELATED_ASSETS_SUBVIEW_ITEMS}
               keyExpr="value"
-              selectedItemKeys={[evidenceView]}
-              onItemClick={e => setEvidenceView(e.itemData.value)}
+              selectedItemKeys={[relatedAssetsSubview]}
+              onItemClick={e => setRelatedAssetsSubview(e.itemData.value)}
               stylingMode="outlined"
-              className="op-dash-chart-toggle"
+              className="op-dash-chart-toggle op-investigate-relatedassets-toggle"
             />
-            {evidenceView === 'line' && (
-              <ComparisonLineChart evidence={d.evidence} evidencePoints={d.evidencePoints} color={severityColor} />
-            )}
-            {evidenceView === 'candlestick' && (
-              <CandlestickChart evidence={d.evidence} evidencePoints={d.evidencePoints} color={severityColor} />
-            )}
-            {evidenceView === 'timeline' && (
-              <VerticalTimeline
-                maxItems={4}
-                items={d.evidencePoints.map(p => ({
-                  time: p.time,
-                  primary: p.value,
-                  secondary: p.label || null,
-                  highlighted: !!p.label,
-                  color: severityColor,
-                }))}
-              />
-            )}
-            {evidenceView === 'table' && (
-              <EvidenceTable evidencePoints={d.evidencePoints} />
-            )}
-            {evidenceView === 'hmi' && (
-              <HmiPropertiesListing asset={item.asset} evidencePoints={d.evidencePoints} />
+            {STATION_TELEMETRY?.timestamps?.[scrubTimeIndex] && (
+              <div className="op-investigate-scrubtime">{STATION_TELEMETRY.timestamps[scrubTimeIndex]}</div>
             )}
           </div>
-        </div>
-
-        <div className="op-dashboard-card op-dashboard-card--interpretation">
-          <div className="op-dashboard-card-title">Interpretation</div>
-          <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
-            <div className="op-evidence-layer">
-              <span className="op-evidence-layer-label op-evidence-layer-label--observed">Observed</span>
-              <div className="op-dash-text op-dash-text--clamp2">{d.observed}</div>
-            </div>
-            <div className="op-evidence-layer">
-              <span className="op-evidence-layer-label op-evidence-layer-label--derived">Derived</span>
-              <div className="op-dash-text op-dash-text--clamp2">{d.derived}</div>
-            </div>
-            <div className="op-evidence-layer">
-              <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Inferred</span>
-              <div className="op-dash-text op-dash-text--clamp2">{d.inferred}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="op-dashboard-card op-dashboard-card--similarrecent">
-          <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
-            <div className="op-dash-subsection">
-              <div className="op-dash-subsection-label"><AiPill />Similar</div>
-              {d.relatedOccurrences.length > 0 ? (
-                <div className="op-dash-text op-dash-text--clamp2">{d.relatedOccurrences[0].summary}</div>
+          <div className="op-investigate-relatedassets-split">
+            <TimeScrubContext.Provider value={scrubTimeIndex}>
+              <div className="op-investigate-relatedassets-body">
+                {relatedAssetsTypeId ? (
+                  relatedAssetsSubview === 'thisAsset' ? (
+                    <div className={`op-hmiprops-singlebox op-investigate-related-template${typeDisplayTemplates?.[relatedAssetsTypeId]?.layoutMode === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+                      <RelatedAssetBoxContent
+                        relatedTypeId={relatedAssetsTypeId}
+                        relatedTypeName={relatedAssetsTypeEntry?.name}
+                        relatedTypeExampleAssetId={relatedAssetsAssetEntry?.id}
+                        typeDisplayTemplates={typeDisplayTemplates}
+                        typePropertyConfigs={typePropertyConfigs}
+                        evidencePoints={d.evidencePoints}
+                        onTitleClick={onTitleClick}
+                        onGearClick={onGearClick}
+                      />
+                    </div>
+                  ) : (
+                    // Same component the Operator Assets area's own Related
+                    // Assets tab uses (OperatorAssetDetail, activeTab==='related')
+                    // — guarantees this is literally the same view, not just a
+                    // similar one, and correctly threads onGearClick through to
+                    // both its Cards and Diagram layout modes (RelatedAssetsPreview,
+                    // used here previously, never accepted that prop at all,
+                    // which is why the gear icon was missing).
+                    <ReadOnlyRelatedAssetsView
+                      typeId={relatedAssetsTypeId}
+                      typeList={typeList}
+                      typeDisplayTemplates={typeDisplayTemplates}
+                      typePropertyConfigs={typePropertyConfigs}
+                      typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                      evidencePoints={d.evidencePoints}
+                      savedTemplate={relatedAssetsTemplates?.[relatedAssetsTypeId]}
+                      onTitleClick={onTitleClick}
+                      onGearClick={onGearClick}
+                    />
+                  )
+                ) : (
+                  <div className="op-dash-text op-dash-text--muted">Related assets aren't available for this asset.</div>
+                )}
+              </div>
+            </TimeScrubContext.Provider>
+            {/* Always visible regardless of which sub-view (This Asset /
+                Related Assets) is active on the left — same active-at-
+                scrubbed-time highlighting as before, just now a permanent
+                fixture rather than a third thing to switch to. */}
+            <div className="op-investigate-alarmssidebar">
+              <div className="op-dashboard-card-title">Alarms</div>
+              {relatedAlarms.length > 0 ? (
+                <div className="op-timeline op-timeline--sidebar">
+                  {relatedAlarms.map(other => {
+                    const active = isAttentionItemActiveAtTime(other, STATION_TELEMETRY?.timestamps?.[scrubTimeIndex]);
+                    return (
+                      <div key={other.id} className={`op-timeline-row${active ? ' op-timeline-row--active' : ''}`}>
+                        <span
+                          className="op-timeline-dot op-timeline-dot--highlighted"
+                          style={{ background: SEVERITY_COLORS[other.severity], boxShadow: `0 0 0 1px ${SEVERITY_COLORS[other.severity]}` }}
+                        />
+                        <div className="op-timeline-time">{other.since}</div>
+                        <div className="op-timeline-primary">
+                          {other.asset}
+                          {active && <span className="op-investigate-alarm-active-tag">Active now</span>}
+                        </div>
+                        <div className="op-timeline-secondary">{other.signal}</div>
+                      </div>
+                    );
+                  })}
+                </div>
               ) : (
-                <div className="op-dash-text op-dash-text--muted">No matching pattern found.</div>
+                <div className="op-dash-text op-dash-text--muted">No related alarms on this line right now.</div>
               )}
             </div>
-            <div className="op-dash-subsection">
-              <div className="op-dash-subsection-label"><AiPill />Other recent</div>
-              <div className="op-dash-text op-dash-text--clamp2">{d.whatChangedSummary}</div>
+          </div>
+          {STATION_TELEMETRY?.timestamps?.length > 0 && (
+            <div className="op-investigate-timetrack">
+              <button
+                type="button"
+                className="op-investigate-timetrack-playbtn"
+                onClick={handleScrubPlayPause}
+                title={scrubPlaying ? 'Pause' : 'Play'}
+              >
+                <PlayPauseIcon playing={scrubPlaying} />
+              </button>
+              <Slider
+                min={0}
+                max={scrubMaxIndex}
+                step={1}
+                value={scrubTimeIndex}
+                onValueChanged={e => {
+                  if (scrubProgrammaticRef.current) {
+                    scrubProgrammaticRef.current = false;
+                    return;
+                  }
+                  setScrubPlaying(false);
+                  setScrubTimeIndex(e.value);
+                }}
+                className="op-investigate-timetrack-slider"
+              >
+                <SliderLabel visible format={v => STATION_TELEMETRY.timestamps[v] ?? ''} position="bottom" />
+              </Slider>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="op-investigate-dashboard">
+          <div className="op-dashboard-card op-dashboard-card--signal">
+            <div className="op-dashboard-card-title">Signal</div>
+            <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+              <ComparisonLineChart evidence={d.evidence} evidencePoints={d.evidencePoints} color={severityColor} />
+            </div>
+          </div>
+
+          <div className="op-dashboard-card op-dashboard-card--timelinemini">
+            <div className="op-dashboard-card-title">Timeline</div>
+            <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+              <VerticalTimeline maxItems={4} items={timelineItems} />
+            </div>
+          </div>
+          <div className="op-dashboard-card op-dashboard-card--tablemini">
+            <div className="op-dashboard-card-title">Table</div>
+            <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
+              <EvidenceTable evidencePoints={d.evidencePoints} />
             </div>
           </div>
         </div>
-
-        <div className="op-dashboard-card op-dashboard-card--nextsteps">
-          <div className="op-dashboard-card-title"><AiPill />Next steps</div>
-          <div className="op-dashboard-card-body">
-            <div className="op-dash-text op-dash-text--clamp3">{d.recommendation}</div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -4298,6 +5823,9 @@ function TaskDetailPanel({ item, onToggleDone }) {
           <div className="op-investigate-asset">{item.assetLabel || (item.source === 'ai' ? 'AI-created task' : 'Task')}</div>
           <div className="op-investigate-signal">{item.text}</div>
         </div>
+        <button className="op-btn op-btn--primary op-investigate-header-action" onClick={() => onToggleDone(item.id)}>
+          {item.done ? 'Mark as not done' : 'Mark as done'}
+        </button>
       </div>
 
       <div className="op-investigate-chain">
@@ -4357,12 +5885,6 @@ function TaskDetailPanel({ item, onToggleDone }) {
           {item.progressNote && <div className="op-dash-text op-dash-text--muted" style={{ marginTop: 6 }}>{item.progressNote}</div>}
         </div>
       )}
-
-      <div className="op-investigate-actions">
-        <button className="op-btn op-btn--primary" onClick={() => onToggleDone(item.id)}>
-          {item.done ? 'Mark as not done' : 'Mark as done'}
-        </button>
-      </div>
     </div>
   );
 }
@@ -4383,6 +5905,64 @@ function WorkTabIcon() {
   );
 }
 
+function AssetsRailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8 1.5 14 4.8V11.2L8 14.5 2 11.2V4.8Z" />
+      <path d="M2 4.8 8 8 14 4.8" />
+      <path d="M8 8V14.5" />
+    </svg>
+  );
+}
+
+function GearIcon() {
+  const toothAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="8" cy="8" r="4.2" />
+      <circle cx="8" cy="8" r="1.5" />
+      {toothAngles.map(angle => (
+        <rect key={angle} x="7.25" y="1.4" width="1.5" height="2.4" rx="0.4" transform={`rotate(${angle} 8 8)`} fill="currentColor" stroke="none" />
+      ))}
+    </svg>
+  );
+}
+
+// Right when collapsed, rotated to point down when expanded — CSS
+// transform on the same shape rather than two separate icons.
+function CaretIcon({ expanded }) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.12s ease' }}
+    >
+      <path d="M5 2.5 11 8 5 13.5" />
+    </svg>
+  );
+}
+
+function PlayPauseIcon({ playing }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" stroke="none">
+      {playing ? (
+        <>
+          <rect x="3.5" y="2.5" width="3" height="11" rx="0.8" />
+          <rect x="9.5" y="2.5" width="3" height="11" rx="0.8" />
+        </>
+      ) : (
+        <path d="M4 2.3v11.4a0.8 0.8 0 0 0 1.22 0.68l9.1-5.7a0.8 0.8 0 0 0 0-1.36l-9.1-5.7A0.8 0.8 0 0 0 4 2.3z" />
+      )}
+    </svg>
+  );
+}
+
 function ChatTabIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -4396,6 +5976,19 @@ function AiTabIcon() {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" stroke="none">
       <path d="M8 1.4c.35 3 1.15 4.8 4.1 5.1-2.95.3-3.75 2.1-4.1 5.1-.35-3-1.15-4.8-4.1-5.1 2.95-.3 3.75-2.1 4.1-5.1z" />
       <path d="M13 9.6c.15 1.1.5 1.5 1.5 1.7-1 .2-1.35.6-1.5 1.7-.15-1.1-.5-1.5-1.5-1.7 1-.2 1.35-.6 1.5-1.7z" />
+    </svg>
+  );
+}
+
+// A small list-with-lines glyph — distinct from Chat's speech bubble and
+// AI's sparkle, reads as "details/properties list" at a glance.
+function DetailsTabIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+      <rect x="2" y="2.5" width="12" height="11" rx="1" />
+      <line x1="4.5" y1="5.5" x2="11.5" y2="5.5" />
+      <line x1="4.5" y1="8" x2="11.5" y2="8" />
+      <line x1="4.5" y1="10.5" x2="8.5" y2="10.5" />
     </svg>
   );
 }
@@ -4611,12 +6204,13 @@ const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 // A live-reading gauge — distinct from Attention's bell and Work's
 // checklist, and consistent with this app's own recurring gauge/indicator
 // visual language.
-function NowRailIcon() {
+function VisualizationRailIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 12.5a6 6 0 0 1 12 0" />
-      <path d="M8 12.5 11 8" />
-      <circle cx="8" cy="12.5" r="1" fill="currentColor" stroke="none" />
+      <rect x="1.8" y="1.8" width="5.2" height="5.2" rx="0.8" />
+      <rect x="9" y="1.8" width="5.2" height="3.2" rx="0.8" />
+      <rect x="9" y="6.6" width="5.2" height="4.4" rx="0.8" />
+      <rect x="1.8" y="8.6" width="5.2" height="5.6" rx="0.8" />
     </svg>
   );
 }
@@ -4647,9 +6241,10 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operato
   const [expanded, setExpanded] = useState(false);
 
   const allItems = [
-    { id: 'now', label: 'Now', Icon: NowRailIcon, count: 0 },
+    { id: 'now', label: 'Visualization', Icon: VisualizationRailIcon, count: 0 },
     { id: 'attention', label: 'Attention', Icon: AttentionRailIcon, count: attentionCount },
     { id: 'work', label: 'Work', Icon: WorkTabIcon, count: workCount },
+    { id: 'assets', label: 'Assets', Icon: AssetsRailIcon, count: 0 },
   ];
   const items = operatorPersona === 'configurator'
     ? allItems.filter(item => item.id === 'now')
@@ -4688,7 +6283,7 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operato
 }
 
 
-function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage }) {
+function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility }) {
   return (
     <div className="op-panel op-side-panel">
       <div className="op-side-tab-content">
@@ -4702,6 +6297,36 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
           />
         )}
         {mode === 'ai' && <AiChatPanel />}
+        {mode === 'details' && (
+          selectedNowThing?.kind === 'type' ? (
+            (() => {
+              const typeEntry = nowTypeList.find(t => t.id === selectedNowThing.id);
+              if (!typeEntry) {
+                return <div className="op-now-detail-placeholder-note">Select a type from the list to view it.</div>;
+              }
+              const { properties } = resolveAssetProperties(typeEntry.exampleAssetId);
+              return (
+                <NowTypeDetailsList
+                  key={selectedNowThing.id}
+                  typeId={selectedNowThing.id}
+                  typeList={nowTypeList}
+                  properties={properties}
+                  typePropertyConfigs={typePropertyConfigs}
+                  setTypePropertyConfigs={setTypePropertyConfigs}
+                  typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                  setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
+                  rightPanelViewMode={rightPanelViewMode}
+                  hiddenAssetIds={hiddenAssetIds}
+                  onToggleAssetVisibility={onToggleAssetVisibility}
+                  activeTabIndex={activeTabIndex}
+                  onActiveTabIndexChange={onActiveTabIndexChange}
+                />
+              );
+            })()
+          ) : (
+            <div className="op-now-detail-placeholder-note">Select a type from the tree to view its details.</div>
+          )
+        )}
       </div>
     </div>
   );
@@ -4718,11 +6343,20 @@ const RIGHT_RAIL_ITEMS = [
   { id: 'chat', label: 'Chat', Icon: ChatTabIcon },
   { id: 'ai', label: 'AI chat', Icon: AiTabIcon },
 ];
+// Details (the selected type's Properties/Related Assets/All Assets tabs)
+// is a Configurator-only concern — Operator has no reason to edit a
+// type's templates, so this stays out of their right rail entirely
+// rather than appearing as a mode they'd never use.
+const RIGHT_RAIL_ITEMS_CONFIGURATOR = [
+  ...RIGHT_RAIL_ITEMS,
+  { id: 'details', label: 'Details', Icon: DetailsTabIcon },
+];
 
-function RightRail({ mode, hidden, onIconClick, hasUnread }) {
+function RightRail({ mode, hidden, onIconClick, hasUnread, operatorPersona }) {
+  const items = operatorPersona === 'configurator' ? RIGHT_RAIL_ITEMS_CONFIGURATOR : RIGHT_RAIL_ITEMS;
   return (
     <div className="op-nav-rail op-nav-rail--right">
-      {RIGHT_RAIL_ITEMS.map(item => {
+      {items.map(item => {
         const isActive = mode === item.id && !hidden;
         return (
           <button
@@ -4895,10 +6529,10 @@ function assignModelData(name, value) {
   }
 }
 
-const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange }, ref) {
+const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }, ref) {
   const [dataState, setDataState] = useState({ loaded: false, error: null, loadedModel: null });
   // Holds whatever "save the current thing" function the deepest-nested
-  // relevant component last registered (currently: NowTypeDetail's type
+  // relevant component last registered (currently: NowTypeMainPreview's type
   // display template save) — a ref rather than state since updating it
   // shouldn't itself trigger a re-render here.
   const activeSaveHandlerRef = useRef(null);
@@ -4965,14 +6599,36 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
       operatorPersona={operatorPersona}
       activeSaveHandlerRef={activeSaveHandlerRef}
       onSaveAvailabilityChange={onSaveAvailabilityChange}
+      initialDeepLink={initialDeepLink}
+      onNavigate={onNavigate}
+      onNavigateToConfig={onNavigateToConfig}
     />
   );
 });
 
 export default OperatorWorkspace;
 
-function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveAvailabilityChange }) {
-  const [railMode, setRailMode] = useState(operatorPersona === 'configurator' ? 'now' : 'attention'); // 'now' | 'attention' | 'work' — drives both the list and detail slots; default depends on which rail items this persona can see
+// Shared between Visualization's activeTabIndex (0/1/2) and the Assets
+// area's own tab (name-based) — both the deep-link URL scheme and
+// NowTypeMainPreview's tab order agree on this same properties/related/
+// all sequence, so one mapping serves both.
+const DEEP_LINK_TAB_NAMES = ['properties', 'related', 'all'];
+
+function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }) {
+  // A deep link (checked against the current persona) seeds this fresh
+  // mount's initial selection. It's read once here, on mount, but it is
+  // NOT necessarily fixed for the app's whole lifetime the way a URL-only
+  // deep link would be — the gear icon on an Operator asset box (see
+  // handleNavigateToConfig below) sets a brand new deep link and switches
+  // persona in the same action, and since a persona switch always
+  // remounts this component fresh (see the key above), that new deep
+  // link is exactly what this next mount reads. A deep link landing the
+  // operator persona always opens directly on Assets rather than the
+  // usual Attention default.
+  const deepLinkAppliesHere = initialDeepLink?.persona === operatorPersona;
+  const [railMode, setRailMode] = useState(
+    operatorPersona === 'configurator' ? 'now' : (deepLinkAppliesHere ? 'assets' : 'attention')
+  ); // 'now' | 'attention' | 'work' | 'assets' — drives both the list and detail slots; default depends on which rail items this persona can see
   const [leftPanelHidden, setLeftPanelHidden] = useState(false);
   const [issueMapExpanded, setIssueMapExpanded] = useState(false);
   const [selectedDetailLine, setSelectedDetailLine] = useState(null);
@@ -4994,7 +6650,24 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   const [evidenceView, setEvidenceView] = useState('line');
   const [workItems, setWorkItems] = useState(INITIAL_WORK_ITEMS);
   const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0].id);
-  const [selectedNowThing, setSelectedNowThing] = useState(() => loadNowSelection(CURRENT_MODEL));
+  const [selectedNowThing, setSelectedNowThing] = useState(() =>
+    (deepLinkAppliesHere && operatorPersona === 'configurator')
+      ? { kind: 'type', id: initialDeepLink.id }
+      : loadNowSelection(CURRENT_MODEL)
+  );
+  // Separate selection state for the new Operator-only Assets area — a
+  // real asset instance, not a type, so it can't share selectedNowThing
+  // (which is Visualization's own type-based selection).
+  const [selectedAssetId, setSelectedAssetId] = useState(
+    (deepLinkAppliesHere && operatorPersona === 'operator') ? initialDeepLink.id : null
+  );
+  // Lifted up from OperatorAssetDetail (previously its own local state) so
+  // it can participate in the deep-link URL alongside selectedAssetId.
+  const [selectedAssetTab, setSelectedAssetTab] = useState(
+    (deepLinkAppliesHere && operatorPersona === 'operator' && DEEP_LINK_TAB_NAMES.includes(initialDeepLink.tab))
+      ? initialDeepLink.tab
+      : 'properties'
+  );
   useEffect(() => {
     onSaveAvailabilityChange?.(selectedNowThing?.kind === 'type');
   }, [selectedNowThing]);
@@ -5044,12 +6717,108 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
     });
     notify('Template saved', 'success', 2000);
   };
+  // Per-type Related Assets template (Cards/Diagram, Auto/Manual, all the
+  // diagram settings, and manual positions if any) — same persistence
+  // shape and Save-button wiring as typeDisplayTemplates above, just a
+  // separate saved thing per the "two saved views per type" split.
+  const [relatedAssetsTemplates, setRelatedAssetsTemplates] = useState(() => loadRelatedAssetsTemplates());
+  const handleSaveRelatedAssetsTemplate = (typeId, template) => {
+    setRelatedAssetsTemplates(prev => {
+      const next = { ...prev, [typeId]: template };
+      saveRelatedAssetsTemplates(next);
+      return next;
+    });
+    notify('Template saved', 'success', 2000);
+  };
+  // The single global All Assets template — not keyed by type, since this
+  // is one shared view regardless of which type is selected. Hydrated from
+  // storage on mount, same as the two per-type templates above, including
+  // the hiddenAssetIds state that already existed — it just wasn't
+  // persisted before now.
+  const [allAssetsTemplate, setAllAssetsTemplate] = useState(() => loadAllAssetsTemplate());
+  const handleSaveAllAssetsTemplate = (template) => {
+    setAllAssetsTemplate(template);
+    saveAllAssetsTemplate(template);
+    notify('Template saved', 'success', 2000);
+  };
   const nowTypeList = useMemo(() => buildTypeList(CURRENT_ASSET_DATA), []);
 
-  const [rightPanelMode, setRightPanelMode] = useState('chat'); // 'chat' | 'ai' — drives the right rail + right panel
+  const [rightPanelMode, setRightPanelMode] = useState('chat'); // 'chat' | 'ai' | 'details' — drives the right rail + right panel
   const [rightPanelHidden, setRightPanelHidden] = useState(true);
   const [contacts, setContacts] = useState(CONTACTS_SEED);
   const [activeContactId, setActiveContactId] = useState(null);
+  // Which Details-panel tab (Properties/Related Assets/All Assets) is
+  // active — lives up here (rather than inside NowTypeDetailsList itself,
+  // which remounts fresh via key={typeId} on every type switch) so
+  // switching types doesn't silently reset back to the first tab.
+  const [activeTabIndex, setActiveTabIndex] = useState(
+    (deepLinkAppliesHere && operatorPersona === 'configurator' && DEEP_LINK_TAB_NAMES.includes(initialDeepLink.tab))
+      ? DEEP_LINK_TAB_NAMES.indexOf(initialDeepLink.tab)
+      : 0
+  );
+  // Keeps the URL in sync with whatever's currently selected, so the
+  // address bar always reflects a link back to the current view. Only
+  // fires while the user is actually in a deep-linkable area — a type
+  // selected in Visualization, or an asset selected in the new Assets
+  // area — since Attention/Work have no deep-link scheme of their own
+  // and simply leave the URL as it was.
+  useEffect(() => {
+    if (!onNavigate) return;
+    if (operatorPersona === 'configurator' && selectedNowThing?.kind === 'type') {
+      onNavigate({ id: selectedNowThing.id, tab: DEEP_LINK_TAB_NAMES[activeTabIndex] });
+    } else if (operatorPersona === 'operator' && railMode === 'assets' && selectedAssetId) {
+      onNavigate({ id: selectedAssetId, tab: selectedAssetTab });
+    }
+  }, [operatorPersona, selectedNowThing, activeTabIndex, railMode, selectedAssetId, selectedAssetTab, onNavigate]);
+  // Click-to-navigate for a box's name, wherever RelatedAssetBoxContent's
+  // title renders (Properties/Related Assets/All Assets, both Cards and
+  // Diagram) — always jumps to that thing's own Properties view. Every
+  // box already carries relatedTypeId (the type) and
+  // relatedTypeExampleAssetId (the concrete asset whose real values the
+  // box is showing), so Visualization navigates by type — its whole
+  // mental model is type-level — while the Assets area navigates by that
+  // concrete asset id, matching what's actually on screen in the box
+  // rather than introducing a second, different notion of "the asset
+  // this box represents."
+  const handleNavigateToType = ({ relatedTypeId }) => {
+    setSelectedNowThing({ kind: 'type', id: relatedTypeId });
+    setActiveTabIndex(0);
+  };
+  const handleNavigateToAsset = ({ relatedTypeExampleAssetId }) => {
+    setSelectedAssetId(relatedTypeExampleAssetId);
+    setSelectedAssetTab('properties');
+  };
+  // The gear icon on an Operator asset box — unlike the two handlers
+  // above, this one crosses personas entirely (Operator's Assets area to
+  // Visualization's own Properties tab for that asset's type), which
+  // needs App.js's own persona state, not anything owned here. Reuses the
+  // exact same deep-link-on-fresh-mount mechanism the URL scheme already
+  // relies on: onNavigateToConfig sets a new deep link and switches
+  // persona together, and the fresh OperatorWorkspaceInner mount that
+  // persona switch triggers reads that deep link as its own initial
+  // state, landing exactly on the requested type's Properties tab.
+  const handleNavigateToConfig = ({ relatedTypeId }) => {
+    onNavigateToConfig?.({ id: relatedTypeId, tab: 'properties' });
+  };
+  // Mirrors HmiPropertiesListing's current view mode, purely for display in
+  // the Properties list's "Visual" column in the Details panel — the
+  // actual view-mode control lives in the center preview (a sibling, not
+  // a parent/child of the list now that the two are split across panels),
+  // reported up via onViewModeChange whenever it changes.
+  const [rightPanelViewMode, setRightPanelViewMode] = useState('all');
+  // All Assets' per-asset show/hide choice — shared between the visibility
+  // tree (Details panel) and the diagram (center preview), same reasoning
+  // as rightPanelViewMode above. Hydrated from the saved All Assets
+  // template if one exists (stored as a plain array there, since Sets
+  // aren't JSON-serializable); every asset visible by default otherwise.
+  const [hiddenAssetIds, setHiddenAssetIds] = useState(() => new Set(allAssetsTemplate?.hiddenAssetIds ?? []));
+  const handleToggleAssetVisibility = (assetId) => {
+    setHiddenAssetIds(current => {
+      const next = new Set(current);
+      if (next.has(assetId)) next.delete(assetId); else next.add(assetId);
+      return next;
+    });
+  };
 
   const selectedItem = ATTENTION_ITEMS.find(i => i.id === selectedAttentionId) || null;
   const selectedWorkItem = workItems.find(w => w.id === selectedWorkItemId) || null;
@@ -5197,6 +6966,8 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 <NowAssetTreePanel ref={nowTreePanelRef} selectedThing={selectedNowThing} onSelectThing={setSelectedNowThing} typeList={nowTypeList} />
               ) : railMode === 'attention' ? (
                 <AttentionPanel selectedId={selectedAttentionId} onSelect={setSelectedAttentionId} />
+              ) : railMode === 'assets' ? (
+                <OperatorAssetTreePanel selectedAssetId={selectedAssetId} onSelectAsset={setSelectedAssetId} />
               ) : (
                 <WorkListPanel
                   items={workItems}
@@ -5220,9 +6991,46 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 typeDisplayTemplates={typeDisplayTemplates}
                 onSaveTypeDisplayTemplate={handleSaveTypeDisplayTemplate}
                 activeSaveHandlerRef={activeSaveHandlerRef}
+                activeTabIndex={activeTabIndex}
+                onViewModeChange={setRightPanelViewMode}
+                hiddenAssetIds={hiddenAssetIds}
+                relatedAssetsTemplates={relatedAssetsTemplates}
+                onSaveRelatedAssetsTemplate={handleSaveRelatedAssetsTemplate}
+                allAssetsTemplate={allAssetsTemplate}
+                onSaveAllAssetsTemplate={handleSaveAllAssetsTemplate}
+                onTitleClick={handleNavigateToType}
               />
             ) : railMode === 'attention' ? (
-              <InvestigatePanel item={selectedItem} onCreateWorkItem={handleCreateWorkItem} evidenceView={evidenceView} setEvidenceView={setEvidenceView} />
+              <InvestigatePanel
+                item={selectedItem}
+                onCreateWorkItem={handleCreateWorkItem}
+                evidenceView={evidenceView}
+                setEvidenceView={setEvidenceView}
+                typeList={nowTypeList}
+                typeDisplayTemplates={typeDisplayTemplates}
+                typePropertyConfigs={typePropertyConfigs}
+                typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                relatedAssetsTemplates={relatedAssetsTemplates}
+                onSaveRelatedAssetsTemplate={handleSaveRelatedAssetsTemplate}
+                activeSaveHandlerRef={activeSaveHandlerRef}
+                onTitleClick={handleNavigateToType}
+                onGearClick={handleNavigateToConfig}
+              />
+            ) : railMode === 'assets' ? (
+              <OperatorAssetDetail
+                selectedAssetId={selectedAssetId}
+                typeList={nowTypeList}
+                typeDisplayTemplates={typeDisplayTemplates}
+                typePropertyConfigs={typePropertyConfigs}
+                typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                relatedAssetsTemplates={relatedAssetsTemplates}
+                allAssetsTemplate={allAssetsTemplate}
+                hiddenAssetIds={hiddenAssetIds}
+                activeTab={selectedAssetTab}
+                onActiveTabChange={setSelectedAssetTab}
+                onTitleClick={handleNavigateToAsset}
+                onGearClick={handleNavigateToConfig}
+              />
             ) : (
               <TaskDetailPanel key={selectedWorkItemId} item={selectedWorkItem} onToggleDone={handleToggleWorkItem} />
             )}
@@ -5236,12 +7044,26 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 onSelectContact={selectContact}
                 onBack={() => setActiveContactId(null)}
                 onSendMessage={sendContactMessage}
+                selectedNowThing={selectedNowThing}
+                nowTypeList={nowTypeList}
+                typePropertyConfigs={typePropertyConfigs}
+                setTypePropertyConfigs={setTypePropertyConfigs}
+                typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
+                typeDisplayTemplates={typeDisplayTemplates}
+                onSaveTypeDisplayTemplate={handleSaveTypeDisplayTemplate}
+                activeSaveHandlerRef={activeSaveHandlerRef}
+                activeTabIndex={activeTabIndex}
+                onActiveTabIndexChange={setActiveTabIndex}
+                rightPanelViewMode={rightPanelViewMode}
+                hiddenAssetIds={hiddenAssetIds}
+                onToggleAssetVisibility={handleToggleAssetVisibility}
               />
             </SplitterItem>
           )}
         </Splitter>
 
-        <RightRail mode={rightPanelMode} hidden={rightPanelHidden} onIconClick={handleRightIconClick} hasUnread={hasUnreadContacts} />
+        <RightRail mode={rightPanelMode} hidden={rightPanelHidden} onIconClick={handleRightIconClick} hasUnread={hasUnreadContacts} operatorPersona={operatorPersona} />
       </div>
     </div>
   );

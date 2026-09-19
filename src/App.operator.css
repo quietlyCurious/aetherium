@@ -233,7 +233,12 @@
 
 /* ── Now section wrapper ──────────────────────────────────────────────────── */
 
+/* Temporarily hidden per request — confirmed the rest of the layout has
+   comfortable room without it. Design for this section (including its
+   own pulltab/issue-map overlay) is still to be decided later, so this
+   is a deliberate override to switch it back on, not a removal. */
 .op-now-section {
+  display: none !important;
   position: relative;
   z-index: 3;
   flex-shrink: 0;
@@ -674,11 +679,50 @@
   color: #0078d4;
 }
 
+/* All Assets' visibility tree — each row renders via HierarchyTree's own
+   itemRender, so this needs to lay out the name and toggle button itself
+   rather than relying on DataListGrid's column widths like the old flat
+   type list did. */
+.op-all-assets-tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding-right: 4px;
+}
+
+.op-all-assets-tree-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .op-hmiprops-singlebox {
+  position: relative;
+  background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 3px;
   padding: 10px 12px;
   margin-top: 14px;
+}
+
+/* Used for the Operator Assets area's Properties tab, where the box
+   wraps a single asset's real values under its type's saved manual
+   layout. A plain block element's default width is "fill parent," never
+   "grow to fit content" — so without this, the visible border/background
+   stays at the parent's width while the manually-positioned tiles inside
+   (which render at whatever x/y the type's own display template saved,
+   originally captured on Visualization's full-size, pannable layout
+   canvas — not a compact card) spill out past it, since nothing here
+   clips them either. width:fit-content lets the box grow to match; the
+   outer panel's own overflow:auto (see .op-now-type-detail-main above)
+   provides scrolling if that ends up wider than the viewport.
+   min-width:100% keeps it filling the available width same as before
+   when the content doesn't need the extra room. */
+.op-hmiprops-singlebox--manual {
+  width: fit-content;
+  min-width: 100%;
 }
 
 .op-hmiprops-kpis--flowrow {
@@ -706,6 +750,47 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 8px;
+}
+
+.op-hmiprops-card-title--clickable {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.op-hmiprops-card-title--clickable:hover {
+  color: #4a90d9;
+  text-decoration: underline;
+}
+
+/* Reserves room so a long title's own text never runs under the
+   absolutely-positioned gear button sitting in the box's corner. */
+.op-hmiprops-card-title--with-gear {
+  padding-right: 22px;
+}
+
+/* Operator Assets area only — jumps to Visualization's Properties tab
+   for this box's own asset type. Subtle by design (light grey, no
+   border or background until hover) since it's a secondary action next
+   to the box's own content, not competing with it for attention. */
+.op-asset-box-gear {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #bbb;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.op-asset-box-gear:hover {
+  background: #f0f0f0;
+  color: #777;
 }
 
 .op-hmiprops-kpis {
@@ -919,6 +1004,26 @@
   background: #fff;
 }
 
+/* Matches the Configurator's own type table's selected-row blue
+   (#ebf3fc, DevExtreme's DataGrid selection color) rather than
+   TreeView's own default grey selected-state, so a selected asset here
+   reads the same way a selected type does there. Scoped to this specific
+   tree (not TreeView generally) since Visualization's own All Assets
+   visibility tree also uses TreeView, for an unrelated purpose (toggling
+   visibility, not navigating), and keeping its own default grey avoids
+   implying the two trees mean the same thing. */
+/* !important is necessary here, not just defensive — App.css has a
+   pre-existing, global, unscoped rule (.dx-treeview-item.dx-state-selected
+   { background-color: transparent !important; }, from an unrelated
+   data-source-selection TreeView elsewhere in the page builder) that
+   blanket-suppresses every TreeView's background state app-wide,
+   including this one. Without matching !important here, this override
+   could never win regardless of how specific its own selector is. */
+.op-operator-asset-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item {
+  background-color: #ebf3fc !important;
+  color: #242424;
+}
+
 .op-now-tree-wrap {
   flex: 1;
   min-height: 0;
@@ -952,6 +1057,31 @@
   flex-shrink: 0;
 }
 
+.op-now-asset-detail-title--with-caret {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.op-now-asset-detail-caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.op-now-asset-detail-caret:hover {
+  background: #f0f0f0;
+  color: #444;
+}
+
 .op-now-asset-kpi-card {
   flex: 1;
   overflow-y: auto;
@@ -978,6 +1108,23 @@
   min-height: 0;
 }
 
+/* The Operator-only Assets area's center panel (Properties/Related
+   Assets/All Assets) — same flex-column-with-a-definite-height shape as
+   .op-related-assets-preview above, for the same reason: whichever tab is
+   showing may itself rely on flex:1/min-height:0 to fill available space
+   (the Diagram view's React Flow canvas most critically — without an
+   actual flex-column ancestor, flex:1 there is a no-op and the canvas
+   collapses to its own 1px border, rendering as a bare thin grey line). */
+.op-now-type-detail-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+}
+
 /* flex-direction/flex-wrap/align-content set inline from RelatedAssetsPreview's
    own row/column, wrap, and cluster/distribute controls — same mechanism as
    .op-hmiprops-kpis--typeflow uses for individual property tiles, just one
@@ -994,10 +1141,20 @@
 /* React Flow fills 100% of its parent, so this needs an explicit size —
    matches .op-related-assets-box-flow's own flex:1/min-height:0 pattern
    so both views fit the same flex-column parent (.op-related-assets-preview)
-   the same way. */
+   the same way. height:0 alongside flex:1 (rather than flex:1 alone) is
+   deliberate: React Flow measures its container via getBoundingClientRect
+   on mount, and a bare flex-grow value is something the browser resolves
+   iteratively as it lays out the whole flex chain, so React Flow's own
+   measurement can end up racing that resolution and locking onto 0 in some
+   real-world timing conditions, even though the flex chain does correctly
+   settle to a real height moments later — the classic "React Flow renders
+   as a 1px sliver" failure mode. height:0 gives the browser an unambiguous
+   starting box immediately, before flex-grow distributes the remaining
+   space into it, removing that race rather than just narrowing it. */
 .op-related-assets-diagram {
   margin-top: 14px;
   flex: 1;
+  height: 0;
   min-height: 0;
   border: 1px solid #e5e5e5;
   border-radius: 3px;
@@ -1039,11 +1196,51 @@
   max-width: 280px;
 }
 
+/* A type's own properties can be in manual layout mode independent of
+   this diagram's own layout — the 280px cap above exists to keep *flex*
+   content from spreading unbounded, but a manually-positioned type's
+   content is the user's own deliberate arrangement and needs to be able
+   to grow past that, not clip or overflow it. */
+.op-related-assets-diagram .op-related-asset-box--manual {
+  max-width: none;
+}
+
 /* Light grey canvas, replacing the default white — Background's own
    color prop only tints the dot pattern, not the canvas itself, so this
    needs to be set separately. */
 .op-related-assets-diagram .react-flow {
   background: #e8e8e8;
+}
+
+/* The dot-pattern background's own <rect> spans the entire canvas, and
+   React Flow renders it after the node layer in the DOM — with both at
+   z-index:auto, plain DOM order stacks it on top for hit-testing
+   purposes, even though it's invisible there in practice (nodes' own
+   opaque backgrounds cover the dots wherever they overlap). The result:
+   clicks and hover on anything inside a node — the gear icon, the
+   clickable title — silently landed on the background instead and did
+   nothing. The background is purely decorative and never needs to
+   receive pointer events itself, so disabling them here lets clicks
+   fall through to whatever's actually underneath. Applied to every
+   React Flow canvas in the app, not just the read-only ones, since a
+   decorative background never legitimately needs pointer events
+   regardless of context.
+*/
+.react-flow__background {
+  pointer-events: none;
+}
+
+/* The Operator Assets area specifically (op-operator-asset-detail is
+   that component's own class, added precisely so this rule can't also
+   match NowAssetDetail — Visualization's equivalent panel — which shares
+   the same op-investigate-panel base class) wants this canvas a shade
+   lighter, matching the #f9f9f9 background used elsewhere in the app
+   rather than the darker #e8e8e8 set above for the shared base case.
+   Scoped rather than changing the base rule itself, since that rule also
+   covers Visualization's own Related Assets/All Assets diagrams, which
+   weren't part of this request. */
+.op-operator-asset-detail .op-related-assets-diagram .react-flow {
+  background: #f9f9f9;
 }
 
 /* Default edges are a light #b1b1b7 — barely visible against a grey
@@ -1055,6 +1252,7 @@
 }
 
 .op-related-asset-box {
+  position: relative;
   background: #fff;
   border: 1px solid #e5e5e5;
   border-radius: 3px;
@@ -1062,9 +1260,10 @@
   flex-shrink: 0;
 }
 
-/* Diagram view's center node — the type currently selected in the tree,
-   not a related asset — now shows its own properties identically to the
-   others, so this border is the only remaining way to tell it apart. */
+/* The asset the whole Related Assets view is about (Diagram's own center
+   node, or Cards' now-always-included first tile) — not one of the
+   related assets themselves — shows its own properties identically to
+   the others, so this border is the only remaining way to tell it apart. */
 .op-related-asset-box--center {
   border-color: #0078d4;
   border-width: 2px;
@@ -1576,8 +1775,13 @@
 
 /* ── Investigate dashboard (Signal / Interpretation / Similar / Other
    recent / Next steps) — a 4-column × 4-row grid. Signal takes the left
-   three columns for the full height; Interpretation, Similar, Other
-   recent, and Next steps stack one-per-row in the last column. ───────── */
+   three columns for the full height; the last column's content depends
+   on which evidence-view tab is active (see the modifiers below). ───── */
+
+.op-investigate-toggle-row {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
 
 .op-investigate-dashboard {
   flex: 1;
@@ -1595,19 +1799,174 @@
   grid-row: 1 / span 4;
 }
 
+/* No right-column content is assigned for every tab (only Trend's
+   Timeline/Table pair and the standalone AI tab have one) — this lets
+   Signal take the full width on every other tab rather than leaving an
+   empty fourth column. */
+.op-investigate-dashboard--full .op-dashboard-card--signal {
+  grid-column: 1 / span 4;
+}
+
+.op-dashboard-card--timelinemini {
+  grid-column: 4 / span 1;
+  grid-row: 1 / span 2;
+}
+
+.op-dashboard-card--tablemini {
+  grid-column: 4 / span 1;
+  grid-row: 3 / span 2;
+}
+
 .op-dashboard-card--interpretation {
   grid-column: 4 / span 1;
   grid-row: 1 / span 2;
 }
 
-.op-dashboard-card--similarrecent {
-  grid-column: 4 / span 1;
-  grid-row: 3 / span 1;
+/* The AI tab has no other cards alongside Interpretation any more — it's
+   the sole card, spanning the full grid, with the summary, interpretation,
+   and next-steps content (plus the Create work item button) all stacked
+   inside it, separated by horizontal rules. */
+.op-investigate-dashboard--ai .op-dashboard-card--interpretation {
+  grid-column: 1 / span 4;
+  grid-row: 1 / span 4;
 }
 
-.op-dashboard-card--nextsteps {
-  grid-column: 4 / span 1;
-  grid-row: 4 / span 1;
+/* Related Assets tab: This Asset / Related Assets / Related Alarms toggle
+   and the current scrub time sitting directly on the panel's grey
+   background (no card/box around them), flush with the outer evidence-view
+   toggle above, with spacing below before whichever sub-view's content
+   follows. */
+.op-investigate-relatedassets-toprow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.op-investigate-related-template {
+  margin-top: 0;
+}
+/* The instant the time-track is currently scrubbed to — same font
+   treatment as a dashboard card's own title, just right-anchored instead
+   of leading a card. */
+.op-investigate-scrubtime {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+/* Main content (This Asset / Related Assets, 3/4 width) and the
+   always-visible Related Alarms sidebar (1/4 width) side by side — the
+   3:1 flex-grow ratio gives the same proportions as an explicit
+   grid-column split would, without needing one for just two children. */
+.op-investigate-relatedassets-split {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  gap: 16px;
+}
+
+/* Now a flex-row child of .split (width divided by flex-grow, 3 vs 1),
+   so height:100% against .split's own definite height is what gives the
+   Diagram mode's React Flow canvas an unambiguous box to measure against
+   on mount — the flex-column height:0 trick .op-now-type-detail-main
+   uses doesn't apply here since the main axis is horizontal, not
+   vertical. No horizontal padding, so content lines up flush with the
+   toggle above rather than being indented relative to it. */
+.op-investigate-relatedassets-body {
+  display: flex;
+  flex-direction: column;
+  flex: 3;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Always visible regardless of which sub-view is active on the left — a
+   left border stands in for a full card box, enough to visually separate
+   it from the main content without boxing it in, consistent with the
+   "no white box" treatment the rest of this tab already uses. */
+.op-investigate-alarmssidebar {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding-left: 16px;
+  border-left: 1px solid #e5e5e5;
+}
+.op-investigate-alarmssidebar .op-dashboard-card-title {
+  margin-bottom: 10px;
+}
+/* Narrower than the sidebar's own 1/4-width column, so long asset/signal
+   text wraps sensibly instead of being fully justified corner to corner. */
+.op-timeline--sidebar .op-timeline-primary {
+  -webkit-line-clamp: 3;
+}
+
+/* Related Alarms sidebar: a row for an alarm whose own narrative window
+   contains the currently-scrubbed time gets a left accent bar and a
+   faint tint, plus the "Active now" tag next to its asset name — calling
+   out which alarm was actually firing at that instant, not just which
+   ones exist in the list. */
+.op-timeline-row--active {
+  background: #fff4e5;
+  border-left: 3px solid #d97706;
+  padding-left: 7px;
+  margin-left: -10px;
+  border-radius: 2px;
+}
+.op-investigate-alarm-active-tag {
+  display: block;
+  margin-top: 2px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #d97706;
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  width: fit-content;
+}
+
+/* Time-track scrubber, bottom of the Related Assets tab — play/pause on
+   the left, a single-instant slider (not a range) taking the rest of the
+   width, matching the visual language of the range selector under the
+   Trend chart but for one point in time rather than a start/end pair. */
+.op-investigate-timetrack {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e5;
+}
+.op-investigate-timetrack-playbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #d0d0d0;
+  border-radius: 50%;
+  background: #fff;
+  color: #444;
+  cursor: pointer;
+}
+.op-investigate-timetrack-playbtn:hover {
+  background: #f0f0f0;
+}
+.op-investigate-timetrack-slider {
+  flex: 1;
+  min-width: 0;
+  margin-top: 12px;
 }
 
 .op-dashboard-card {
@@ -1674,6 +2033,25 @@
   flex-wrap: wrap;
   gap: 10px;
   flex-shrink: 0;
+}
+
+/* Fixed per-row heights for the multi-row toolbars (properties template,
+   related assets, all assets) — min-height (not height) so a row never
+   collapses shorter than its tallest possible content, but can still grow
+   in a genuinely cramped/wrapped case rather than clipping. Reused as the
+   exact same value for the same row position across all three toolbars,
+   so row 1 always matches row 1 elsewhere, row 2 always matches row 2,
+   etc., regardless of which controls happen to be showing in that view
+   right now. Row 1 and row 3 can contain a slider-with-label
+   (padding: 4px top + 20px bottom + track + label), which is taller than
+   a plain button row, hence the taller value shared between them; row 2
+   is button-groups only. */
+.op-toolbar-row-1,
+.op-toolbar-row-3 {
+  min-height: 48px;
+}
+.op-toolbar-row-2 {
+  min-height: 34px;
 }
 
 .op-dash-chart-toggle {
@@ -1813,15 +2191,20 @@
   letter-spacing: 0.03em;
 }
 
-.op-investigate-toprow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.op-dashboard-card--ministats {
   flex-shrink: 0;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 10px;
+}
+.op-dashboard-card--ministats .op-dash-ministat {
+  flex: 0 1 260px;
+}
+
+/* Follows the Next steps content directly, centered horizontally within
+   the card. */
+.op-investigate-createworkitem-btn {
+  align-self: center;
+  margin-top: 8px;
+  flex-shrink: 0;
 }
 
 .op-dash-ministat-row {
@@ -1957,10 +2340,11 @@
   margin-top: 1px;
 }
 
-.op-investigate-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+/* Anchors the Mark as done/not done button to the right of the header,
+   inline with the title rather than below the rest of the content. */
+.op-investigate-header-action {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .op-btn {

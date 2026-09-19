@@ -1143,13 +1143,13 @@
 
 .app-titlebar-model-switcher {
   position: relative;
-  margin-right: 16px;
+  margin-left: 16px;
 }
 
 .app-titlebar-model-trigger {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   opacity: 0.85;
   transition: opacity 0.15s;
@@ -1163,9 +1163,6 @@
 }
 
 .app-titlebar-model-label {
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
   white-space: nowrap;
 }
 

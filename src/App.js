@@ -224,6 +224,32 @@ function adjustCoordForAR(container, coord) {
   return coord;
 }
 
+// Deep-link routing for the two Operator Workspace personas — a plain
+// read-the-path-on-load / replaceState-as-you-navigate scheme, matching
+// the app's existing (much simpler) ?runtime= query-param convention
+// rather than pulling in a full router for two path shapes:
+//   /configuration/visualization/<typeId>/<tab>
+//   /operation/assets/<assetId>/<tab>
+// tab is one of 'properties' | 'related' | 'all' in both schemes. Returns
+// null if the current path doesn't match either shape, so callers can
+// fall back to whatever the normal (non-deep-linked) default is.
+function parseDeepLinkFromPathname(pathname) {
+  const configMatch = pathname.match(/^\/configuration\/visualization\/([^/]+)\/([^/]+)\/?$/);
+  if (configMatch) {
+    return { persona: 'configurator', id: decodeURIComponent(configMatch[1]), tab: configMatch[2] };
+  }
+  const opMatch = pathname.match(/^\/operation\/assets\/([^/]+)\/([^/]+)\/?$/);
+  if (opMatch) {
+    return { persona: 'operator', id: decodeURIComponent(opMatch[1]), tab: opMatch[2] };
+  }
+  return null;
+}
+function buildDeepLinkPathname({ persona, id, tab }) {
+  const base = persona === 'configurator' ? '/configuration/visualization' : '/operation/assets';
+  if (!id) return base;
+  return `${base}/${encodeURIComponent(id)}/${tab || 'properties'}`;
+}
+
 function AetheriumEditor() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -452,7 +478,16 @@ function AetheriumEditor() {
   const [showGap, setShowGap] = useState(true);
   const [coordMode, setCoordMode] = useState('reposition');
   const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
-  const [operatorPersona, setOperatorPersona] = useState(() => loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
+  // Read once on mount from the URL — a deep link there (if present)
+  // takes priority over the persisted last-used persona below. Also
+  // reused (via setInitialDeepLink) for in-app navigation that switches
+  // persona — the gear icon on an Operator asset box, which jumps to
+  // Visualization's Properties tab for that asset's type — since
+  // OperatorWorkspaceInner already reads this exact piece of state, once,
+  // on every fresh mount (including the fresh mount a persona switch
+  // itself causes), to seed its own initial selection.
+  const [initialDeepLink, setInitialDeepLink] = useState(() => parseDeepLinkFromPathname(window.location.pathname));
+  const [operatorPersona, setOperatorPersona] = useState(() => initialDeepLink?.persona || loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
   const [menuOpen, setMenuOpen] = useState(false);
   const AVAILABLE_MODELS = [
     { id: 'refinery', label: 'Refinery' },
@@ -1383,7 +1418,7 @@ function AetheriumEditor() {
             onClick={() => setMenuOpen(o => !o)}
             style={{ cursor: 'pointer', userSelect: 'none' }}
           >
-            Aetherium ▾
+            Next Gen | {operatorPersona === 'configurator' ? 'Configuration' : 'Operator'} Experience ▾
           </span>
           {menuOpen && (
             <div className="app-titlebar-dropdown">
@@ -1449,6 +1484,38 @@ function AetheriumEditor() {
               >
                 Configurator Interface
               </div>
+            </div>
+          )}
+        </div>
+        <div
+          className="app-titlebar-model-switcher"
+          ref={modelMenuRef => {
+            if (modelMenuRef) {
+              modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
+            }
+          }}
+        >
+          <div
+            className="app-titlebar-model-trigger"
+            onClick={() => setModelMenuOpen(o => !o)}
+            title="Switch model"
+          >
+            <span className="app-titlebar-title app-titlebar-model-pipe">|</span>
+            <span className="app-titlebar-title app-titlebar-model-label">
+              {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.label} ▾
+            </span>
+          </div>
+          {modelMenuOpen && (
+            <div className="app-titlebar-dropdown">
+              {AVAILABLE_MODELS.map(m => (
+                <div
+                  key={m.id}
+                  className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
+                  onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
+                >
+                  {m.label}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -1548,43 +1615,6 @@ function AetheriumEditor() {
             </button>
           );
         })()}
-        <div
-          className="app-titlebar-model-switcher"
-          ref={modelMenuRef => {
-            if (modelMenuRef) {
-              modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
-            }
-          }}
-        >
-          <div
-            className="app-titlebar-model-trigger"
-            onClick={() => setModelMenuOpen(o => !o)}
-            title="Switch model"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10" cy="3.5" r="2.2" stroke="white" strokeWidth="1.4" />
-              <path d="M10 5.7V9M10 9H4M10 9H16M4 9V11.5M16 9V11.5" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
-              <circle cx="4" cy="14" r="2.2" stroke="white" strokeWidth="1.4" />
-              <circle cx="16" cy="14" r="2.2" stroke="white" strokeWidth="1.4" />
-            </svg>
-            <span className="app-titlebar-model-label">
-              {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.label}
-            </span>
-          </div>
-          {modelMenuOpen && (
-            <div className="app-titlebar-dropdown app-titlebar-dropdown--right">
-              {AVAILABLE_MODELS.map(m => (
-                <div
-                  key={m.id}
-                  className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
-                  onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
-                >
-                  {m.label}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
         <div className="app-titlebar-profile" title="Profile">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
@@ -1697,7 +1727,21 @@ function AetheriumEditor() {
           </div>
 
         ) : currentView === 'operator' ? (
-          <OperatorWorkspace ref={operatorWorkspaceRef} selectedModel={selectedModel} operatorPersona={operatorPersona} onSaveAvailabilityChange={setOperatorSaveAvailable} />
+          <OperatorWorkspace
+            ref={operatorWorkspaceRef}
+            selectedModel={selectedModel}
+            operatorPersona={operatorPersona}
+            onSaveAvailabilityChange={setOperatorSaveAvailable}
+            initialDeepLink={initialDeepLink}
+            onNavigate={({ id, tab }) => {
+              const pathname = buildDeepLinkPathname({ persona: operatorPersona, id, tab });
+              window.history.replaceState(null, '', pathname);
+            }}
+            onNavigateToConfig={({ id, tab }) => {
+              setInitialDeepLink({ persona: 'configurator', id, tab });
+              setOperatorPersona('configurator');
+            }}
+          />
 
         ) : (
           <Splitter orientation="horizontal" style={{ height: '100%' }}>
