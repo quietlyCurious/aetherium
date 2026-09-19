@@ -1,0 +1,510 @@
+{
+ "properties": {
+  "farm_power_kw": {
+   "label": "Farm Output",
+   "unit": "kW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    65000
+   ],
+   "decimals": 0
+  },
+  "capacity_factor_pct": {
+   "label": "Capacity Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "availability_pct": {
+   "label": "Availability",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "feeder_power_kw": {
+   "label": "Feeder Output",
+   "unit": "kW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    20000
+   ],
+   "decimals": 0
+  },
+  "feeder_current_a": {
+   "label": "Feeder Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 0
+  },
+  "export_power_kw": {
+   "label": "Export Power",
+   "unit": "kW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    65000
+   ],
+   "decimals": 0
+  },
+  "poi_voltage_kv": {
+   "label": "POI Voltage",
+   "unit": "kV",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    220,
+    242
+   ],
+   "decimals": 1
+  },
+  "reactive_power_kvar": {
+   "label": "Reactive Power",
+   "unit": "kvar",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    -15000,
+    15000
+   ],
+   "decimals": 0
+  },
+  "transformer_oil_temp_c": {
+   "label": "Transformer Oil Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    -10,
+    110
+   ],
+   "decimals": 1
+  },
+  "met_wind_speed_ms": {
+   "label": "Reference Wind Speed",
+   "unit": "m/s",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 1
+  },
+  "wind_direction_deg": {
+   "label": "Wind Direction",
+   "unit": "°",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    0,
+    360
+   ],
+   "decimals": 0
+  },
+  "ambient_temp_c": {
+   "label": "Ambient Temperature",
+   "unit": "°C",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    -20,
+    20
+   ],
+   "decimals": 1
+  },
+  "relative_humidity_pct": {
+   "label": "Relative Humidity",
+   "unit": "%",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 0
+  },
+  "active_power_kw": {
+   "label": "Active Power",
+   "unit": "kW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    3500
+   ],
+   "decimals": 0
+  },
+  "wind_speed_ms": {
+   "label": "Nacelle Wind Speed",
+   "unit": "m/s",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 1
+  },
+  "power_curve_perf_pct": {
+   "label": "Power Curve Performance",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0,
+    130
+   ],
+   "decimals": 1
+  },
+  "rated_power_kw": {
+   "label": "Rated Power",
+   "unit": "kW",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    3500
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "rotor_speed_rpm": {
+   "label": "Rotor Speed",
+   "unit": "rpm",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 1
+  },
+  "blade_pitch_angle_deg": {
+   "label": "Blade Pitch Angle",
+   "unit": "°",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    -5,
+    95
+   ],
+   "decimals": 1
+  },
+  "pitch_battery_voltage_v": {
+   "label": "Pitch Battery Voltage",
+   "unit": "V",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    150,
+    260
+   ],
+   "decimals": 1
+  },
+  "pitch_motor_current_a": {
+   "label": "Pitch Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "pitch_deviation_deg": {
+   "label": "Blade Pitch Deviation",
+   "unit": "°",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "drivetrain_vibration_mms": {
+   "label": "Drivetrain Vibration (max)",
+   "unit": "mm/s",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "bearing_temp_c": {
+   "label": "Bearing Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    -10,
+    110
+   ],
+   "decimals": 1
+  },
+  "vibration_mms": {
+   "label": "Vibration",
+   "unit": "mm/s",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "gearbox_oil_temp_c": {
+   "label": "Gearbox Oil Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    -10,
+    90
+   ],
+   "decimals": 1
+  },
+  "gearbox_oil_pressure_bar": {
+   "label": "Gearbox Oil Pressure",
+   "unit": "bar",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  },
+  "oil_particle_count": {
+   "label": "Oil Debris Count",
+   "unit": "particles/h",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 0
+  },
+  "generator_speed_rpm": {
+   "label": "Generator Speed",
+   "unit": "rpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    2000
+   ],
+   "decimals": 0
+  },
+  "stator_winding_temp_c": {
+   "label": "Stator Winding Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    -10,
+    160
+   ],
+   "decimals": 1
+  },
+  "coolant_temp_c": {
+   "label": "Coolant Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    -10,
+    80
+   ],
+   "decimals": 1
+  },
+  "cooling_fan_current_a": {
+   "label": "Fan Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P1",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 1
+  },
+  "converter_temp_c": {
+   "label": "Converter Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    -10,
+    90
+   ],
+   "decimals": 1
+  },
+  "dc_link_voltage_v": {
+   "label": "DC Link Voltage",
+   "unit": "V",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    1300
+   ],
+   "decimals": 0
+  },
+  "cabinet_humidity_pct": {
+   "label": "Cabinet Humidity",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 0
+  },
+  "yaw_error_deg": {
+   "label": "Yaw Error (measured)",
+   "unit": "°",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    -20,
+    20
+   ],
+   "decimals": 1
+  },
+  "nacelle_direction_deg": {
+   "label": "Nacelle Direction",
+   "unit": "°",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    360
+   ],
+   "decimals": 0
+  },
+  "yaw_motor_current_a": {
+   "label": "Yaw Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 1
+  },
+  "transformer_load_pct": {
+   "label": "Transformer Load",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "collector_feeder",
+   "property": "feeder_power_kw",
+   "fn": "sum",
+   "of": "active_power_kw",
+   "fromType": "wtg_geared|wtg_direct_drive",
+   "scope": "children"
+  },
+  {
+   "assetType": "collector_feeder",
+   "property": "availability_pct",
+   "fn": "mean",
+   "of": "availability_pct",
+   "fromType": "wtg_geared|wtg_direct_drive",
+   "scope": "children"
+  },
+  {
+   "assetType": "wind_farm",
+   "property": "farm_power_kw",
+   "fn": "sum",
+   "of": "active_power_kw",
+   "fromType": "wtg_geared|wtg_direct_drive",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "wind_farm",
+   "property": "availability_pct",
+   "fn": "mean",
+   "of": "availability_pct",
+   "fromType": "wtg_geared|wtg_direct_drive",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "drivetrain",
+   "property": "drivetrain_vibration_mms",
+   "fn": "max",
+   "of": "vibration_mms",
+   "fromType": "main_bearing|hs_bearing",
+   "scope": "children"
+  },
+  {
+   "assetType": "main_shaft",
+   "property": "drivetrain_vibration_mms",
+   "fn": "max",
+   "of": "vibration_mms",
+   "fromType": "main_bearing",
+   "scope": "children"
+  },
+  {
+   "assetType": "wind_farm",
+   "property": "capacity_factor_pct",
+   "fn": "formula",
+   "note": "farm_power_kw / installed capacity (60,200 kW) × 100"
+  },
+  {
+   "assetType": "collector_feeder",
+   "property": "feeder_current_a",
+   "fn": "formula",
+   "note": "feeder_power_kw × 1000 / (√3 × 34,500 V × 0.98 power factor)"
+  },
+  {
+   "assetType": "collector_substation",
+   "property": "export_power_kw",
+   "fn": "formula",
+   "note": "sum of feeder_power_kw × 0.975 (collector cable + main transformer losses)"
+  }
+ ],
+ "typeLabels": {
+  "wtg_geared": "WTG 2.3 MW Geared",
+  "wtg_direct_drive": "WTG 3.3 MW Direct Drive",
+  "hs_bearing": "HS Bearing",
+  "dfig_generator": "DFIG Generator",
+  "pm_generator": "PM Generator",
+  "met_mast": "Met Mast"
+ }
+}

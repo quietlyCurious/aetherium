@@ -1,0 +1,1045 @@
+[
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG01_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG01_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG01_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG01_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG01_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG02_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG02_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG02_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG02_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG02_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG03_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG03_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG03_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG03_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG03_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG04_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG04_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG04_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG04_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG04_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG05_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG05_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG05_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG05_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG05_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_ROTOR",
+  "targetAssetId": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F1_WTG06_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_GENERATOR",
+  "targetAssetId": "BOREAS_F1_WTG06_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_CONVERTER",
+  "targetAssetId": "BOREAS_F1_WTG06_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_TRAFO",
+  "targetAssetId": "BOREAS_F1",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1_WTG06_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F1_WTG06_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG07_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG07_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG07_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG07_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG07_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG08_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG08_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG08_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG08_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG08_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG09_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG09_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG09_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG09_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG09_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG10_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG10_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG10_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG10_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG10_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG11_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG11_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG11_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG11_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG11_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG12_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG12_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG12_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG12_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG12_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_ROTOR",
+  "targetAssetId": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F2_WTG13_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_GENERATOR",
+  "targetAssetId": "BOREAS_F2_WTG13_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_CONVERTER",
+  "targetAssetId": "BOREAS_F2_WTG13_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_TRAFO",
+  "targetAssetId": "BOREAS_F2",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2_WTG13_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F2_WTG13_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG14_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG14_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG14_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG14_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG14_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG15_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG15_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG15_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG15_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG15_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG16_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG16_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG16_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG16_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG16_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG17_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG17_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG17_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG17_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG17_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG18_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG18_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG18_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG18_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG18_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_ROTOR",
+  "targetAssetId": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "targetAssetId": "BOREAS_F3_WTG19_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_GENERATOR",
+  "targetAssetId": "BOREAS_F3_WTG19_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_CONVERTER",
+  "targetAssetId": "BOREAS_F3_WTG19_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_TRAFO",
+  "targetAssetId": "BOREAS_F3",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3_WTG19_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F3_WTG19_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_ROTOR",
+  "targetAssetId": "BOREAS_F4_WTG20_MAINSHAFT",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_MAINSHAFT",
+  "targetAssetId": "BOREAS_F4_WTG20_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_GENERATOR",
+  "targetAssetId": "BOREAS_F4_WTG20_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_CONVERTER",
+  "targetAssetId": "BOREAS_F4_WTG20_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_TRAFO",
+  "targetAssetId": "BOREAS_F4",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG20_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F4_WTG20_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_ROTOR",
+  "targetAssetId": "BOREAS_F4_WTG21_MAINSHAFT",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_MAINSHAFT",
+  "targetAssetId": "BOREAS_F4_WTG21_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_GENERATOR",
+  "targetAssetId": "BOREAS_F4_WTG21_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_CONVERTER",
+  "targetAssetId": "BOREAS_F4_WTG21_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_TRAFO",
+  "targetAssetId": "BOREAS_F4",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG21_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F4_WTG21_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_ROTOR",
+  "targetAssetId": "BOREAS_F4_WTG22_MAINSHAFT",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_MAINSHAFT",
+  "targetAssetId": "BOREAS_F4_WTG22_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_GENERATOR",
+  "targetAssetId": "BOREAS_F4_WTG22_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_CONVERTER",
+  "targetAssetId": "BOREAS_F4_WTG22_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_TRAFO",
+  "targetAssetId": "BOREAS_F4",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG22_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F4_WTG22_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_ROTOR",
+  "targetAssetId": "BOREAS_F4_WTG23_MAINSHAFT",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_MAINSHAFT",
+  "targetAssetId": "BOREAS_F4_WTG23_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_GENERATOR",
+  "targetAssetId": "BOREAS_F4_WTG23_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_CONVERTER",
+  "targetAssetId": "BOREAS_F4_WTG23_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_TRAFO",
+  "targetAssetId": "BOREAS_F4",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG23_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F4_WTG23_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_ROTOR",
+  "targetAssetId": "BOREAS_F4_WTG24_MAINSHAFT",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_MAINSHAFT",
+  "targetAssetId": "BOREAS_F4_WTG24_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "mechanical power",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_GENERATOR",
+  "targetAssetId": "BOREAS_F4_WTG24_CONVERTER",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_CONVERTER",
+  "targetAssetId": "BOREAS_F4_WTG24_TRAFO",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_TRAFO",
+  "targetAssetId": "BOREAS_F4",
+  "relationshipType": "feeds_into",
+  "label": "690 V → 34.5 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4_WTG24_GENERATOR_FAN",
+  "targetAssetId": "BOREAS_F4_WTG24_GENERATOR",
+  "relationshipType": "feeds_into",
+  "label": "cooling air",
+  "layer": "cooling"
+ },
+ {
+  "sourceAssetId": "BOREAS_F1",
+  "targetAssetId": "BOREAS_SUB",
+  "relationshipType": "feeds_into",
+  "label": "34.5 kV collector",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F2",
+  "targetAssetId": "BOREAS_SUB",
+  "relationshipType": "feeds_into",
+  "label": "34.5 kV collector",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F3",
+  "targetAssetId": "BOREAS_SUB",
+  "relationshipType": "feeds_into",
+  "label": "34.5 kV collector",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_F4",
+  "targetAssetId": "BOREAS_SUB",
+  "relationshipType": "feeds_into",
+  "label": "34.5 kV collector",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "BOREAS_MET",
+  "targetAssetId": "BOREAS",
+  "relationshipType": "feeds_into",
+  "label": "reference wind for power-curve checks",
+  "layer": "reference"
+ }
+]

@@ -1,0 +1,146 @@
+{
+ "BOREAS_F1_WTG01": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F1_WTG02": {
+  "state": "down",
+  "statusSinceMinutes": 330,
+  "mode": "MAINTENANCE",
+  "product": "Grid export"
+ },
+ "BOREAS_F1_WTG03": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F1_WTG04": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F1_WTG05": {
+  "state": "attention",
+  "statusSinceMinutes": 480,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F1_WTG06": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG07": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG08": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG09": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG10": {
+  "state": "down",
+  "statusSinceMinutes": 230,
+  "mode": "STOPPED",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG11": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG12": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F2_WTG13": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG14": {
+  "state": "attention",
+  "statusSinceMinutes": 130,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG15": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG16": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG17": {
+  "state": "attention",
+  "statusSinceMinutes": 300,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG18": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F3_WTG19": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F4_WTG20": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F4_WTG21": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F4_WTG22": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F4_WTG23": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ },
+ "BOREAS_F4_WTG24": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export"
+ }
+}

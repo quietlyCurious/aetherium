@@ -1,0 +1,817 @@
+[
+ {
+  "id": "BSIT01",
+  "assetId": "BOREAS_F1_WTG05_DRIVETRAIN_HSBRG",
+  "unitId": "BOREAS_F1_WTG05",
+  "primaryProperty": "bearing_temp_c",
+  "asset": "WTG-05 · Drivetrain · HS Bearing",
+  "line": "WTG-05",
+  "severity": "high",
+  "signal": "Gearbox HS bearing running hotter than its siblings at the same load",
+  "aiInterpretation": "HS-shaft bearing temperature has climbed about 14 °C against load since 06:00, with the gearbox oil debris count rising alongside it — the classic early signature of bearing surface damage.",
+  "since": "8h 0m ago",
+  "sinceMinutes": 480,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "WTG-05 HS bearing is 89 °C at 14:00; the other running Feeder 1 turbines, at the same power, read 75–76 °C.",
+   "observed": "Bearing temperature trend diverges from the power-normalised fleet trend from 06:00; oil debris counter up from ~3 to ~22 particles/h; HS bearing vibration up ~0.9 mm/s.",
+   "derived": "Temperature residual (actual minus load/ambient model) is rising steadily, not stepping — consistent with progressive wear rather than a sensor offset.",
+   "inferred": "Early-stage HS bearing damage (spalling). Weeks, not hours, to functional failure at this rate, but trending the wrong way.",
+   "recommendation": "Keep running with a lower temperature alarm; schedule borescope and oil sample at the next low-wind window; order a replacement bearing kit.",
+   "relatedOccurrences": [
+    {
+     "date": "2025-11-03",
+     "summary": "WTG-11 HS bearing replaced after a similar 3-week temperature and debris trend."
+    }
+   ],
+   "whatChangedSummary": "No maintenance or setpoint change on WTG-05 in the window — the trend is intrinsic.",
+   "whatChanged": [
+    {
+     "time": "06:00",
+     "source": "Event",
+     "description": "Bearing temperature residual crosses the 2σ band.",
+     "related": true
+    },
+    {
+     "time": "11:40",
+     "source": "Field Check",
+     "description": "Oil debris counter reading confirmed on site.",
+     "related": true
+    }
+   ],
+   "confidence": "Two independent signals agree (temperature and oil debris)",
+   "confidenceLevel": "medium",
+   "risk": "High if ignored — a failed HS bearing can take the gearbox with it",
+   "riskLevel": "high",
+   "expectedOutcome": "Planned repair before failure",
+   "evidence": [
+    54.5,
+    55.5,
+    66.2,
+    75.1,
+    81.1,
+    85.4,
+    88.6
+   ],
+   "evidencePoints": [
+    {
+     "time": "06:00",
+     "value": "54.5 °C",
+     "label": "Divergence begins (low wind)"
+    },
+    {
+     "time": "08:00",
+     "value": "55.5 °C",
+     "label": ""
+    },
+    {
+     "time": "10:00",
+     "value": "66.2 °C",
+     "label": ""
+    },
+    {
+     "time": "11:00",
+     "value": "75.1 °C",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "81.1 °C",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "85.4 °C",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "88.6 °C",
+     "label": "Current — siblings ~75 °C"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "BSIT02",
+  "assetId": "BOREAS_F1_WTG03_GENERATOR",
+  "unitId": "BOREAS_F1_WTG03",
+  "primaryProperty": "stator_winding_temp_c",
+  "asset": "WTG-03 · Generator",
+  "line": "WTG-03",
+  "severity": "medium",
+  "signal": "Generator winding temperature climbed, fan motor had stopped",
+  "aiInterpretation": "The winding temperature rise looked like a generator problem, but it started exactly when the cooling fan motor current dropped to zero — the generator was fine, its cooling had stopped.",
+  "since": "Resolved 2h 40m ago",
+  "sinceMinutes": 160,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "WTG-03 stator winding temperature rose 64 °C between 09:20 and 11:10 at steady load.",
+   "observed": "Cooling fan motor current fell from ~9 A to 0 A at 09:40; the winding temperature started climbing within the next interval.",
+   "derived": "Load and ambient were unchanged, so the heat input didn’t change — the heat removal did.",
+   "inferred": "Fan motor protection tripped; the generator itself was healthy.",
+   "recommendation": "Reset the fan motor breaker, then watch the winding temperature come back down before closing out.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Fan motor breaker reset remotely at 11:20; winding temperature back to normal by 12:10.",
+   "whatChanged": [
+    {
+     "time": "09:40",
+     "source": "Event",
+     "description": "Cooling fan current 0 A.",
+     "related": true
+    },
+    {
+     "time": "10:50",
+     "source": "Alarm",
+     "description": "Generator thermal derate applied by the turbine controller.",
+     "related": true
+    },
+    {
+     "time": "11:20",
+     "source": "Operator Action",
+     "description": "Fan motor breaker reset remotely.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — temperature fell as soon as the fan restarted",
+   "confidenceLevel": "high",
+   "risk": "Low — caught before a winding over-temperature trip",
+   "riskLevel": "low",
+   "expectedOutcome": "Fan running, winding temperature normal",
+   "evidence": [
+    73.5,
+    90.9,
+    111.9,
+    127.8,
+    137.4,
+    119.3,
+    109.9
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:20",
+     "value": "73.5 °C",
+     "label": "Baseline"
+    },
+    {
+     "time": "09:40",
+     "value": "90.9 °C",
+     "label": "Fan current drops to 0 A"
+    },
+    {
+     "time": "10:10",
+     "value": "111.9 °C",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "127.8 °C",
+     "label": ""
+    },
+    {
+     "time": "11:10",
+     "value": "137.4 °C",
+     "label": "Peak"
+    },
+    {
+     "time": "11:30",
+     "value": "119.3 °C",
+     "label": "Fan reset"
+    },
+    {
+     "time": "12:10",
+     "value": "109.9 °C",
+     "label": "Back to normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "BSIT03",
+  "assetId": "BOREAS_F2",
+  "unitId": null,
+  "primaryProperty": "feeder_power_kw",
+  "asset": "Feeder 2",
+  "line": "Feeder 2",
+  "severity": "high",
+  "signal": "Feeder 2 tripped and took seven turbines offline",
+  "aiInterpretation": "All seven Feeder 2 turbines stopped in the same interval — a feeder-level event, not seven turbine faults. WTG-10’s pad transformer had been heating with no matching load before the trip.",
+  "since": "Resolved 3h 10m ago",
+  "sinceMinutes": 190,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Feeder 2 output fell from 8.4 MW to 0 at 10:10; export dropped by the same amount.",
+   "observed": "Feeder breaker opened on ground fault; WTG-07…13 all lost grid at the same time; WTG-10 transformer oil temperature had risen 19 °C since 09:20 at constant load.",
+   "derived": "The only asset with an abnormal trend before the trip was WTG-10’s pad transformer — the likely origin.",
+   "inferred": "Internal fault in WTG-10’s pad-mount transformer; its own protection didn’t clear it, so the feeder breaker did.",
+   "recommendation": "Isolate WTG-10 at its loop-feed switches, re-energise Feeder 2, and keep WTG-10 out of service for transformer testing.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "WTG-10 isolated at 10:40; Feeder 2 re-energised at 10:50 without it. Six turbines back online.",
+   "whatChanged": [
+    {
+     "time": "10:10",
+     "source": "Alarm",
+     "description": "Feeder 2 breaker trip, ground fault.",
+     "related": true
+    },
+    {
+     "time": "10:40",
+     "source": "Field Check",
+     "description": "WTG-10 transformer isolated at loop-feed switches.",
+     "related": true
+    },
+    {
+     "time": "10:50",
+     "source": "Operator Action",
+     "description": "Feeder 2 breaker closed.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by field crew (oil discoloration, pressure relief operated)",
+   "confidenceLevel": "high",
+   "risk": "Contained — WTG-10 out of service until the transformer is replaced",
+   "riskLevel": "medium",
+   "expectedOutcome": "Feeder 2 restored; WTG-10 transformer replacement planned",
+   "evidence": [
+    8667.0,
+    8442.0,
+    0.0,
+    0.0,
+    0.0,
+    9710.0,
+    10828.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:50",
+     "value": "8,667 kW",
+     "label": "Normal"
+    },
+    {
+     "time": "10:00",
+     "value": "8,442 kW",
+     "label": ""
+    },
+    {
+     "time": "10:10",
+     "value": "0 kW",
+     "label": "Feeder breaker trips"
+    },
+    {
+     "time": "10:20",
+     "value": "0 kW",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "0 kW",
+     "label": "WTG-10 isolated"
+    },
+    {
+     "time": "10:50",
+     "value": "9,710 kW",
+     "label": "Feeder re-energised"
+    },
+    {
+     "time": "11:00",
+     "value": "10,828 kW",
+     "label": "Recovering"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "BSIT04",
+  "assetId": "BOREAS_F2_WTG12",
+  "unitId": "BOREAS_F2_WTG12",
+  "primaryProperty": "wind_speed_ms",
+  "asset": "WTG-12",
+  "line": "WTG-12",
+  "severity": "low",
+  "signal": "Nacelle wind speed read low on WTG-12 while it kept producing normally",
+  "aiInterpretation": "WTG-12 reported roughly a third less wind than its neighbours and the met mast, but its power stayed where they are — the measurement was wrong, not the wind.",
+  "since": "Resolved 4h 10m ago",
+  "sinceMinutes": 250,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "At 08:20 WTG-12 reported 4.0 m/s while the met mast read 6.5 m/s.",
+   "observed": "Power output tracked the neighbours; power-curve performance computed against its own wind reading jumped above 120%.",
+   "derived": "Nothing else corroborated a low-wind condition — rotor speed, pitch and power all said normal wind.",
+   "inferred": "Iced nacelle anemometer (ambient −5 °C, humidity 97%); anemometer heater circuit had tripped.",
+   "recommendation": "Reset the anemometer heater and confirm the reading returns to the met-mast reference.",
+   "relatedOccurrences": [
+    {
+     "date": "2025-12-19",
+     "summary": "Same anemometer heater trip on WTG-12 during freezing fog."
+    }
+   ],
+   "whatChangedSummary": "Heater circuit reset remotely at 09:50; reading back in line within one interval.",
+   "whatChanged": [
+    {
+     "time": "06:40",
+     "source": "Event",
+     "description": "Anemometer reading diverges from neighbours.",
+     "related": true
+    },
+    {
+     "time": "09:50",
+     "source": "Operator Action",
+     "description": "Anemometer heater reset.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — reading recovered as soon as the heater came back",
+   "confidenceLevel": "high",
+   "risk": "Low — control uses the reading for yaw and cut-out, but power was unaffected",
+   "riskLevel": "low",
+   "expectedOutcome": "Measurement restored",
+   "evidence": [
+    7.7,
+    4.3,
+    3.5,
+    4.0,
+    5.2,
+    8.8,
+    9.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "06:20",
+     "value": "7.7 m/s",
+     "label": "Baseline"
+    },
+    {
+     "time": "06:40",
+     "value": "4.3 m/s",
+     "label": "Reading drops"
+    },
+    {
+     "time": "07:30",
+     "value": "3.5 m/s",
+     "label": ""
+    },
+    {
+     "time": "08:20",
+     "value": "4.0 m/s",
+     "label": ""
+    },
+    {
+     "time": "09:10",
+     "value": "5.2 m/s",
+     "label": ""
+    },
+    {
+     "time": "09:50",
+     "value": "8.8 m/s",
+     "label": "Heater reset"
+    },
+    {
+     "time": "10:00",
+     "value": "9.0 m/s",
+     "label": "Normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "BSIT05",
+  "assetId": "BOREAS_F2_WTG09_CONVERTER",
+  "unitId": "BOREAS_F2_WTG09",
+  "primaryProperty": "cabinet_humidity_pct",
+  "asset": "WTG-09 · Converter",
+  "line": "WTG-09",
+  "severity": "medium",
+  "signal": "Converter tripped on a phase-module fault after a humid, low-load morning",
+  "aiInterpretation": "Cabinet humidity rose through the cold low-wind morning; the converter tripped as load ramped back up. Field data shows most converter faults are moisture-related, not heat-related.",
+  "since": "1h 30m ago",
+  "sinceMinutes": 90,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "WTG-09 converter tripped at 12:30 on a phase-module fault; turbine restarted 13:10 after cabinet heaters ran.",
+   "observed": "Cabinet humidity climbed from 55% to 72% between 06:00 and 12:20 through a cold, low-load morning; converter temperature was normal.",
+   "derived": "Trip happened on the load ramp, with no over-temperature — pointing at condensation, not thermal stress.",
+   "inferred": "Condensation on the phase module; the cabinet heater thermostat may be set too low for this cold spell.",
+   "recommendation": "Keep running; check the cabinet heater thermostat and inspect the phase module for moisture tracking at the next visit.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Restarted 13:10 after heaters ran for 40 minutes; humidity falling.",
+   "whatChanged": [
+    {
+     "time": "12:30",
+     "source": "Alarm",
+     "description": "Converter phase-module fault, turbine stopped.",
+     "related": true
+    },
+    {
+     "time": "13:10",
+     "source": "Operator Action",
+     "description": "Remote restart after cabinet heating.",
+     "related": true
+    }
+   ],
+   "confidence": "Likely — consistent with field studies, not yet inspected",
+   "confidenceLevel": "medium",
+   "risk": "Medium — a repeat trip could damage the module",
+   "riskLevel": "medium",
+   "expectedOutcome": "Humidity back below 50% within the hour",
+   "evidence": [
+    55.0,
+    64.0,
+    67.0,
+    72.0,
+    81.0,
+    65.0,
+    52.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "06:00",
+     "value": "55%",
+     "label": ""
+    },
+    {
+     "time": "08:00",
+     "value": "64%",
+     "label": "Low load, cold"
+    },
+    {
+     "time": "11:30",
+     "value": "67%",
+     "label": ""
+    },
+    {
+     "time": "12:20",
+     "value": "72%",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "81%",
+     "label": "Converter trip"
+    },
+    {
+     "time": "13:10",
+     "value": "65%",
+     "label": "Restart"
+    },
+    {
+     "time": "14:00",
+     "value": "52%",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "recovering"
+  }
+ },
+ {
+  "id": "BSIT06",
+  "assetId": "BOREAS_F3_WTG14_ROTOR_PITCH",
+  "unitId": "BOREAS_F3_WTG14",
+  "primaryProperty": "pitch_battery_voltage_v",
+  "asset": "WTG-14 · Rotor · Pitch System",
+  "line": "WTG-14",
+  "severity": "high",
+  "signal": "WTG-14 keeps stopping on pitch battery checks — four times since 11:50",
+  "aiInterpretation": "Each stop is short and the turbine restarts on its own, but the pitch backup battery is too weak to guarantee feathering the blades on a grid loss. The stops will keep coming and the safety margin is gone.",
+  "since": "2h 10m ago",
+  "sinceMinutes": 130,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Pitch backup battery voltage is 206 V (nominal ~238 V); four automatic safety stops since 11:50.",
+   "observed": "Battery voltage has been falling since midnight; each stop takes 5–7 minutes, then the turbine auto-restarts.",
+   "derived": "Stops are getting closer together (50, 40, 30 minutes apart) as the battery gets weaker in the cold.",
+   "inferred": "End-of-life pitch battery pack; cold weather is pushing it under the test threshold.",
+   "recommendation": "Stop WTG-14 and keep it stopped until the battery pack is replaced — without it, the blades may not feather on a grid loss.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-01-06",
+     "summary": "WTG-15 pitch battery pack replaced after low-voltage warnings."
+    }
+   ],
+   "whatChangedSummary": "No change yet — waiting on a decision to stop the turbine.",
+   "whatChanged": [
+    {
+     "time": "11:50",
+     "source": "Alarm",
+     "description": "Pitch battery test failed, safety stop.",
+     "related": true
+    },
+    {
+     "time": "12:40",
+     "source": "Alarm",
+     "description": "Pitch battery test failed, safety stop.",
+     "related": true
+    },
+    {
+     "time": "13:20",
+     "source": "Alarm",
+     "description": "Pitch battery test failed, safety stop.",
+     "related": true
+    },
+    {
+     "time": "13:50",
+     "source": "Alarm",
+     "description": "Pitch battery test failed, safety stop.",
+     "related": true
+    }
+   ],
+   "confidence": "High — battery voltage and stop pattern agree",
+   "confidenceLevel": "high",
+   "risk": "High — blades may not feather on a grid loss",
+   "riskLevel": "high",
+   "expectedOutcome": "Battery pack replaced, turbine back in service",
+   "evidence": [
+    224.8,
+    218.1,
+    211.8,
+    209.5,
+    208.1,
+    206.1,
+    205.6
+   ],
+   "evidencePoints": [
+    {
+     "time": "06:00",
+     "value": "224.8 V",
+     "label": ""
+    },
+    {
+     "time": "09:00",
+     "value": "218.1 V",
+     "label": ""
+    },
+    {
+     "time": "11:50",
+     "value": "211.8 V",
+     "label": "Safety stop #1"
+    },
+    {
+     "time": "12:40",
+     "value": "209.5 V",
+     "label": "Safety stop #2"
+    },
+    {
+     "time": "13:20",
+     "value": "208.1 V",
+     "label": "Safety stop #3"
+    },
+    {
+     "time": "13:50",
+     "value": "206.1 V",
+     "label": "Safety stop #4"
+    },
+    {
+     "time": "14:00",
+     "value": "205.6 V",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "BSIT07",
+  "assetId": "BOREAS_F3_WTG17",
+  "unitId": "BOREAS_F3_WTG17",
+  "primaryProperty": "power_curve_perf_pct",
+  "asset": "WTG-17",
+  "line": "WTG-17",
+  "severity": "medium",
+  "signal": "WTG-17 producing ~5% under its power curve, with nothing reported wrong",
+  "aiInterpretation": "WTG-17 is available and running, and its measured yaw error reads near zero — yet it’s steadily below its curve while its Feeder 3 neighbours aren’t. That combination points at a wind vane that’s pointing the wrong way.",
+  "since": "5h 0m ago",
+  "sinceMinutes": 300,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "WTG-17 has averaged 95% of its power curve since 08:00, versus 99% for the other healthy Feeder 3 turbines.",
+   "observed": "Availability 100%; measured yaw error averages ~0°; nacelle direction sits ~11° off the met-mast wind direction.",
+   "derived": "A steady ~11° misalignment explains a ~5% loss (cos² to cos³ law); the controller can’t see it because it trusts the vane.",
+   "inferred": "Wind vane offset after yesterday’s vane replacement.",
+   "recommendation": "Check the vane’s north-mark alignment against the nacelle axis and correct the offset parameter.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Wind vane replaced on WTG-17 yesterday afternoon.",
+   "whatChanged": [
+    {
+     "time": "09:00",
+     "source": "Event",
+     "description": "Underperformance flagged after a full night of data.",
+     "related": true
+    }
+   ],
+   "confidence": "Medium — pattern fits, not yet checked on site",
+   "confidenceLevel": "medium",
+   "risk": "Low safety risk; ~5% lost energy on this turbine until fixed",
+   "riskLevel": "low",
+   "expectedOutcome": "Performance back to ~99%",
+   "evidence": [
+    96.5,
+    97.2,
+    97.5,
+    93.1,
+    93.1,
+    95.8
+   ],
+   "evidencePoints": [
+    {
+     "time": "02:00",
+     "value": "96.5%",
+     "label": ""
+    },
+    {
+     "time": "05:00",
+     "value": "97.2%",
+     "label": ""
+    },
+    {
+     "time": "08:00",
+     "value": "97.5%",
+     "label": ""
+    },
+    {
+     "time": "10:00",
+     "value": "93.1%",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "93.1%",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "95.8%",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "BSIT08",
+  "assetId": "BOREAS_F4_WTG22",
+  "unitId": "BOREAS_F4_WTG22",
+  "primaryProperty": "power_curve_perf_pct",
+  "asset": "WTG-22",
+  "line": "WTG-22",
+  "severity": "medium",
+  "signal": "Feeder 4 turbines under their power curve in freezing fog — blade icing",
+  "aiInterpretation": "Performance fell on all five Feeder 4 turbines together at −5 °C and 97% humidity, worst on WTG-22, and recovered as the temperature rose above freezing.",
+  "since": "Resolved 3h 20m ago",
+  "sinceMinutes": 200,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "WTG-22 fell to 78% of its power curve at 07:30; the other Feeder 4 machines averaged 91%.",
+   "observed": "Ambient −5 °C and 97% humidity at the met mast; rotor speed lower than expected for the wind; no fault codes.",
+   "derived": "A site-wide, weather-correlated loss on one feeder (the ridge-top string) is a signature of icing, not of any one machine.",
+   "inferred": "Rime ice on the blades of the exposed Feeder 4 string.",
+   "recommendation": "Keep running while ice-throw risk is managed (access restrictions); watch recovery as it warms.",
+   "relatedOccurrences": [
+    {
+     "date": "2025-12-19",
+     "summary": "Feeder 4 icing event, 6 hours, similar pattern."
+    }
+   ],
+   "whatChangedSummary": "Ambient crossed 0 °C at ~10:30; performance back to normal by 11:00.",
+   "whatChanged": [
+    {
+     "time": "05:00",
+     "source": "Operator Action",
+     "description": "Ice-throw access restriction posted for Feeder 4 roads.",
+     "related": true
+    },
+    {
+     "time": "11:10",
+     "source": "Operator Action",
+     "description": "Access restriction lifted.",
+     "related": true
+    }
+   ],
+   "confidence": "High — pattern, weather and recovery all agree",
+   "confidenceLevel": "high",
+   "risk": "Low — lost energy only; ice throw managed by access control",
+   "riskLevel": "low",
+   "expectedOutcome": "Resolved as temperatures rose",
+   "evidence": [
+    98.5,
+    88.9,
+    77.8,
+    80.6,
+    96.4,
+    98.0,
+    98.7
+   ],
+   "evidencePoints": [
+    {
+     "time": "04:00",
+     "value": "98.5%",
+     "label": "Baseline"
+    },
+    {
+     "time": "05:30",
+     "value": "88.9%",
+     "label": ""
+    },
+    {
+     "time": "07:30",
+     "value": "77.8%",
+     "label": "Worst"
+    },
+    {
+     "time": "09:00",
+     "value": "80.6%",
+     "label": ""
+    },
+    {
+     "time": "10:00",
+     "value": "96.4%",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "98.0%",
+     "label": "Temperature above 0 °C"
+    },
+    {
+     "time": "11:00",
+     "value": "98.7%",
+     "label": "Normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "BSIT09",
+  "assetId": "BOREAS_SUB",
+  "unitId": null,
+  "primaryProperty": "export_power_kw",
+  "asset": "Collector Substation",
+  "line": "Collector Substation",
+  "severity": "medium",
+  "signal": "Grid operator curtailment: cap export at 45 MW from 14:30",
+  "aiInterpretation": "Wind is still rising and export is already above the cap. The plant controller setpoint must be lowered before 14:30 — and WTG-14’s pending stop changes how much the others need to give up.",
+  "since": "15m ago",
+  "sinceMinutes": 15,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Export is 53.4 MW at 14:00 and rising with the wind; the instruction caps it at 45.0 MW from 14:30.",
+   "observed": "Dispatch instruction received 13:45; wind at the met mast 12.8 m/s and forecast to keep rising through the afternoon.",
+   "derived": "At the forecast wind, uncurtailed export would reach ~57 MW — about 12 MW has to be shed.",
+   "inferred": "A plant-level setpoint of 45 MW will spread the curtailment across turbines automatically.",
+   "recommendation": "Enter the 45 MW setpoint in the power plant controller by 14:20 and confirm it with the grid operator.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Instruction logged; setpoint not yet entered.",
+   "whatChanged": [
+    {
+     "time": "13:45",
+     "source": "Event",
+     "description": "Curtailment instruction received from the grid operator.",
+     "related": true
+    }
+   ],
+   "confidence": "n/a — an instruction, not a diagnosis",
+   "confidenceLevel": "n/a",
+   "risk": "Medium — non-compliance penalties if export isn’t capped in time",
+   "riskLevel": "medium",
+   "expectedOutcome": "Export held at or under 45 MW from 14:30",
+   "evidence": [
+    49439.0,
+    49245.0,
+    52994.0,
+    51815.0,
+    53360.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:00",
+     "value": "49,439 kW",
+     "label": ""
+    },
+    {
+     "time": "13:20",
+     "value": "49,245 kW",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "52,994 kW",
+     "label": ""
+    },
+    {
+     "time": "13:50",
+     "value": "51,815 kW",
+     "label": "Instruction received 13:45"
+    },
+    {
+     "time": "14:00",
+     "value": "53,360 kW",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ }
+]

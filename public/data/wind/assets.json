@@ -1,0 +1,2298 @@
+[
+ {
+  "id": "BOREAS",
+  "parentId": null,
+  "name": "Boreas Ridge",
+  "assetType": "wind_farm",
+  "assetLevel": "site"
+ },
+ {
+  "id": "BOREAS_F1",
+  "parentId": "BOREAS",
+  "name": "Feeder 1",
+  "assetType": "collector_feeder",
+  "assetLevel": "circuit"
+ },
+ {
+  "id": "BOREAS_F1_WTG01",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-01",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_ROTOR",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG01_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG01_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_GENERATOR",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG01_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG01_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_CONVERTER",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_YAW",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG01_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG01_TRAFO",
+  "parentId": "BOREAS_F1_WTG01",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-02",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_ROTOR",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG02_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG02_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_GENERATOR",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG02_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG02_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_CONVERTER",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_YAW",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG02_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG02_TRAFO",
+  "parentId": "BOREAS_F1_WTG02",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-03",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_ROTOR",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG03_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG03_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_GENERATOR",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG03_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG03_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_CONVERTER",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_YAW",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG03_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG03_TRAFO",
+  "parentId": "BOREAS_F1_WTG03",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-04",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_ROTOR",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG04_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG04_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_GENERATOR",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG04_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG04_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_CONVERTER",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_YAW",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG04_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG04_TRAFO",
+  "parentId": "BOREAS_F1_WTG04",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-05",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_ROTOR",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG05_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG05_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_GENERATOR",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG05_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG05_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_CONVERTER",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_YAW",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG05_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG05_TRAFO",
+  "parentId": "BOREAS_F1_WTG05",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06",
+  "parentId": "BOREAS_F1",
+  "name": "WTG-06",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_ROTOR",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_ROTOR_PITCH",
+  "parentId": "BOREAS_F1_WTG06_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F1_WTG06_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_GENERATOR",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F1_WTG06_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_GENERATOR_FAN",
+  "parentId": "BOREAS_F1_WTG06_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_CONVERTER",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_YAW",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F1_WTG06_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F1_WTG06_TRAFO",
+  "parentId": "BOREAS_F1_WTG06",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2",
+  "parentId": "BOREAS",
+  "name": "Feeder 2",
+  "assetType": "collector_feeder",
+  "assetLevel": "circuit"
+ },
+ {
+  "id": "BOREAS_F2_WTG07",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-07",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_ROTOR",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG07_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG07_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_GENERATOR",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG07_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG07_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_CONVERTER",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_YAW",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG07_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG07_TRAFO",
+  "parentId": "BOREAS_F2_WTG07",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-08",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_ROTOR",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG08_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG08_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_GENERATOR",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG08_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG08_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_CONVERTER",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_YAW",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG08_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG08_TRAFO",
+  "parentId": "BOREAS_F2_WTG08",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-09",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_ROTOR",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG09_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG09_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_GENERATOR",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG09_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG09_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_CONVERTER",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_YAW",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG09_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG09_TRAFO",
+  "parentId": "BOREAS_F2_WTG09",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-10",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_ROTOR",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG10_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG10_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_GENERATOR",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG10_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG10_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_CONVERTER",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_YAW",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG10_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG10_TRAFO",
+  "parentId": "BOREAS_F2_WTG10",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-11",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_ROTOR",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG11_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG11_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_GENERATOR",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG11_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG11_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_CONVERTER",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_YAW",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG11_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG11_TRAFO",
+  "parentId": "BOREAS_F2_WTG11",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-12",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_ROTOR",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG12_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG12_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_GENERATOR",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG12_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG12_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_CONVERTER",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_YAW",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG12_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG12_TRAFO",
+  "parentId": "BOREAS_F2_WTG12",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13",
+  "parentId": "BOREAS_F2",
+  "name": "WTG-13",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_ROTOR",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_ROTOR_PITCH",
+  "parentId": "BOREAS_F2_WTG13_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F2_WTG13_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_GENERATOR",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F2_WTG13_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_GENERATOR_FAN",
+  "parentId": "BOREAS_F2_WTG13_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_CONVERTER",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_YAW",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F2_WTG13_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F2_WTG13_TRAFO",
+  "parentId": "BOREAS_F2_WTG13",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3",
+  "parentId": "BOREAS",
+  "name": "Feeder 3",
+  "assetType": "collector_feeder",
+  "assetLevel": "circuit"
+ },
+ {
+  "id": "BOREAS_F3_WTG14",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-14",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_ROTOR",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG14_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG14_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_GENERATOR",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG14_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG14_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_CONVERTER",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_YAW",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG14_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG14_TRAFO",
+  "parentId": "BOREAS_F3_WTG14",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-15",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_ROTOR",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG15_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG15_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_GENERATOR",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG15_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG15_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_CONVERTER",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_YAW",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG15_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG15_TRAFO",
+  "parentId": "BOREAS_F3_WTG15",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-16",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_ROTOR",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG16_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG16_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_GENERATOR",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG16_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG16_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_CONVERTER",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_YAW",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG16_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG16_TRAFO",
+  "parentId": "BOREAS_F3_WTG16",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-17",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_ROTOR",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG17_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG17_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_GENERATOR",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG17_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG17_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_CONVERTER",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_YAW",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG17_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG17_TRAFO",
+  "parentId": "BOREAS_F3_WTG17",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-18",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_ROTOR",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG18_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG18_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_GENERATOR",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG18_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG18_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_CONVERTER",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_YAW",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG18_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG18_TRAFO",
+  "parentId": "BOREAS_F3_WTG18",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19",
+  "parentId": "BOREAS_F3",
+  "name": "WTG-19",
+  "assetType": "wtg_geared",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_ROTOR",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_ROTOR_PITCH",
+  "parentId": "BOREAS_F3_WTG19_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Drivetrain",
+  "assetType": "drivetrain",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_DRIVETRAIN_MAINBRG",
+  "parentId": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_DRIVETRAIN_GEARBOX",
+  "parentId": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "name": "Gearbox",
+  "assetType": "gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_DRIVETRAIN_HSBRG",
+  "parentId": "BOREAS_F3_WTG19_DRIVETRAIN",
+  "name": "HS Bearing",
+  "assetType": "hs_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_GENERATOR",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Generator",
+  "assetType": "dfig_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_GENERATOR_GENBRG",
+  "parentId": "BOREAS_F3_WTG19_GENERATOR",
+  "name": "Generator Bearing",
+  "assetType": "generator_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_GENERATOR_FAN",
+  "parentId": "BOREAS_F3_WTG19_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_CONVERTER",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_YAW",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F3_WTG19_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F3_WTG19_TRAFO",
+  "parentId": "BOREAS_F3_WTG19",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4",
+  "parentId": "BOREAS",
+  "name": "Feeder 4",
+  "assetType": "collector_feeder",
+  "assetLevel": "circuit"
+ },
+ {
+  "id": "BOREAS_F4_WTG20",
+  "parentId": "BOREAS_F4",
+  "name": "WTG-20",
+  "assetType": "wtg_direct_drive",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_ROTOR",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_ROTOR_PITCH",
+  "parentId": "BOREAS_F4_WTG20_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_MAINSHAFT",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Main Shaft",
+  "assetType": "main_shaft",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_MAINSHAFT_MAINBRG",
+  "parentId": "BOREAS_F4_WTG20_MAINSHAFT",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_GENERATOR",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Generator",
+  "assetType": "pm_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_GENERATOR_FAN",
+  "parentId": "BOREAS_F4_WTG20_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_CONVERTER",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_YAW",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F4_WTG20_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG20_TRAFO",
+  "parentId": "BOREAS_F4_WTG20",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21",
+  "parentId": "BOREAS_F4",
+  "name": "WTG-21",
+  "assetType": "wtg_direct_drive",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_ROTOR",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_ROTOR_PITCH",
+  "parentId": "BOREAS_F4_WTG21_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_MAINSHAFT",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Main Shaft",
+  "assetType": "main_shaft",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_MAINSHAFT_MAINBRG",
+  "parentId": "BOREAS_F4_WTG21_MAINSHAFT",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_GENERATOR",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Generator",
+  "assetType": "pm_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_GENERATOR_FAN",
+  "parentId": "BOREAS_F4_WTG21_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_CONVERTER",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_YAW",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F4_WTG21_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG21_TRAFO",
+  "parentId": "BOREAS_F4_WTG21",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22",
+  "parentId": "BOREAS_F4",
+  "name": "WTG-22",
+  "assetType": "wtg_direct_drive",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_ROTOR",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_ROTOR_PITCH",
+  "parentId": "BOREAS_F4_WTG22_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_MAINSHAFT",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Main Shaft",
+  "assetType": "main_shaft",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_MAINSHAFT_MAINBRG",
+  "parentId": "BOREAS_F4_WTG22_MAINSHAFT",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_GENERATOR",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Generator",
+  "assetType": "pm_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_GENERATOR_FAN",
+  "parentId": "BOREAS_F4_WTG22_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_CONVERTER",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_YAW",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F4_WTG22_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG22_TRAFO",
+  "parentId": "BOREAS_F4_WTG22",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23",
+  "parentId": "BOREAS_F4",
+  "name": "WTG-23",
+  "assetType": "wtg_direct_drive",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_ROTOR",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_ROTOR_PITCH",
+  "parentId": "BOREAS_F4_WTG23_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_MAINSHAFT",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Main Shaft",
+  "assetType": "main_shaft",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_MAINSHAFT_MAINBRG",
+  "parentId": "BOREAS_F4_WTG23_MAINSHAFT",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_GENERATOR",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Generator",
+  "assetType": "pm_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_GENERATOR_FAN",
+  "parentId": "BOREAS_F4_WTG23_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_CONVERTER",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_YAW",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F4_WTG23_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG23_TRAFO",
+  "parentId": "BOREAS_F4_WTG23",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24",
+  "parentId": "BOREAS_F4",
+  "name": "WTG-24",
+  "assetType": "wtg_direct_drive",
+  "assetLevel": "turbine"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_ROTOR",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Rotor",
+  "assetType": "rotor",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_ROTOR_PITCH",
+  "parentId": "BOREAS_F4_WTG24_ROTOR",
+  "name": "Pitch System",
+  "assetType": "pitch_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_MAINSHAFT",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Main Shaft",
+  "assetType": "main_shaft",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_MAINSHAFT_MAINBRG",
+  "parentId": "BOREAS_F4_WTG24_MAINSHAFT",
+  "name": "Main Bearing",
+  "assetType": "main_bearing",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_GENERATOR",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Generator",
+  "assetType": "pm_generator",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_GENERATOR_FAN",
+  "parentId": "BOREAS_F4_WTG24_GENERATOR",
+  "name": "Cooling Fan",
+  "assetType": "cooling_fan",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_CONVERTER",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Converter",
+  "assetType": "converter",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_YAW",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Yaw System",
+  "assetType": "yaw_system",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_YAW_YAWDRIVE",
+  "parentId": "BOREAS_F4_WTG24_YAW",
+  "name": "Yaw Drive",
+  "assetType": "yaw_drive",
+  "assetLevel": "component"
+ },
+ {
+  "id": "BOREAS_F4_WTG24_TRAFO",
+  "parentId": "BOREAS_F4_WTG24",
+  "name": "Pad Transformer",
+  "assetType": "pad_transformer",
+  "assetLevel": "subsystem"
+ },
+ {
+  "id": "BOREAS_SUB",
+  "parentId": "BOREAS",
+  "name": "Collector Substation",
+  "assetType": "collector_substation",
+  "assetLevel": "circuit"
+ },
+ {
+  "id": "BOREAS_MET",
+  "parentId": "BOREAS",
+  "name": "Met Mast",
+  "assetType": "met_mast",
+  "assetLevel": "circuit"
+ }
+]

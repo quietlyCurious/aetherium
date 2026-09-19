@@ -1,0 +1,51 @@
+[
+  {
+    "id": "refinery",
+    "label": "Refinery",
+    "shape": "refinery"
+  },
+  {
+    "id": "water",
+    "label": "Water",
+    "shape": "four-level",
+    "files": {
+      "assetData": "water-asset-data.json"
+    }
+  },
+  {
+    "id": "wastewater",
+    "label": "Wastewater",
+    "shape": "four-level",
+    "files": {
+      "assetData": "water-asset-data.json"
+    }
+  },
+  {
+    "id": "wind",
+    "label": "Wind",
+    "shape": "generic",
+    "levels": [
+      {
+        "id": "site",
+        "label": "Site"
+      },
+      {
+        "id": "circuit",
+        "label": "Circuit"
+      },
+      {
+        "id": "turbine",
+        "label": "Turbine"
+      },
+      {
+        "id": "subsystem",
+        "label": "Subsystem"
+      },
+      {
+        "id": "component",
+        "label": "Component"
+      }
+    ],
+    "unitLevel": "turbine"
+  }
+]
