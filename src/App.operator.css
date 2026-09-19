@@ -238,7 +238,6 @@
    own pulltab/issue-map overlay) is still to be decided later, so this
    is a deliberate override to switch it back on, not a removal. */
 .op-now-section {
-  display: none !important;
   position: relative;
   z-index: 3;
   flex-shrink: 0;
@@ -289,6 +288,14 @@
    covers that overlap). Expanding slides the whole rigid box down to
    translateY(0), carrying the tab down to the new true bottom with it —
    like pulling a page out from under the one on top, not growing a box. */
+
+/* With the Now strip visible again, the collapsed overlay (translated up by
+   its own height) reaches past the strip into the title bar area. The
+   title bar has to sit above it, or the tucked-away map covers the title. */
+.app-titlebar {
+  position: relative;
+  z-index: 10;
+}
 
 .op-now-issuemap-overlay {
   position: fixed;
@@ -524,6 +531,16 @@
   font-weight: 700;
   color: #e4e6eb;
   white-space: nowrap;
+}
+
+/* Display unit after a value — generic packs only (legacy packs have no
+   unit metadata, so this never renders for them). Inherits the value's
+   color so it follows whatever theme/override the value itself gets. */
+.op-statkpi-unit {
+  margin-left: 3px;
+  font-size: 0.72em;
+  font-weight: 500;
+  opacity: 0.7;
 }
 
 .op-statkpi-track {

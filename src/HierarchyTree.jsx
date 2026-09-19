@@ -12,7 +12,23 @@ function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', 
       const instance = treeRef.current?.instance?.();
       if (instance) {
         instance.unselectAll();
-        if (selectedId) instance.selectItem(selectedId);
+        if (selectedId) {
+          // A selection made from outside the tree (a Now-strip tile, a deep
+          // link) can point at an asset nested several levels down. Expand
+          // its ancestors so it's actually visible, then scroll it into view.
+          if (Array.isArray(dataSource)) {
+            const byKey = new Map(dataSource.map(d => [d[keyExpr], d]));
+            let parentKey = byKey.get(selectedId)?.[parentIdExpr];
+            const ancestors = [];
+            while (parentKey != null && byKey.has(parentKey) && !ancestors.includes(parentKey)) {
+              ancestors.unshift(parentKey);
+              parentKey = byKey.get(parentKey)[parentIdExpr];
+            }
+            ancestors.forEach(key => instance.expandItem(key));
+          }
+          instance.selectItem(selectedId);
+          instance.scrollToItem?.(selectedId);
+        }
       }
     }
   }, [selectedId]);

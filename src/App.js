@@ -39,6 +39,7 @@ import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage';
 import { loadOperatorNavigation, saveOperatorNavigation } from './operatorNavigationStorage';
+import { loadModelRegistry } from './modelRegistry';
 import ThemeWorkspace from './ThemeWorkspace';
 import OperatorWorkspace from './OperatorWorkspace';
 import DataListGrid from './DataListGrid';
@@ -489,12 +490,27 @@ function AetheriumEditor() {
   const [initialDeepLink, setInitialDeepLink] = useState(() => parseDeepLinkFromPathname(window.location.pathname));
   const [operatorPersona, setOperatorPersona] = useState(() => initialDeepLink?.persona || loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
   const [menuOpen, setMenuOpen] = useState(false);
-  const AVAILABLE_MODELS = [
-    { id: 'refinery', label: 'Refinery' },
-    { id: 'water', label: 'Water' },
-    { id: 'wastewater', label: 'Wastewater' },
-  ];
+  // The model switcher's list comes from public/data/models.json (via
+  // modelRegistry.js) rather than being hardcoded here, so adding an
+  // industry pack needs no code change. Empty until the fetch resolves —
+  // the switcher just shows the saved model's id until then.
+  const [availableModels, setAvailableModels] = useState([]);
   const [selectedModel, setSelectedModel] = useState(() => loadOperatorNavigation()?.selectedModel || 'refinery');
+  React.useEffect(() => {
+    let cancelled = false;
+    loadModelRegistry()
+      .then(models => {
+        if (cancelled) return;
+        setAvailableModels(models);
+        // A saved model that's since been removed from models.json would
+        // otherwise leave the workspace stuck on a load error.
+        setSelectedModel(current => (models.some(m => m.id === current) ? current : models[0].id));
+      })
+      .catch(() => {
+        // OperatorWorkspace surfaces the same failure with a proper message.
+      });
+    return () => { cancelled = true; };
+  }, []);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const [selectedWidgetName, setSelectedWidgetName] = useState(null);
   // Breakpoint / device preview
@@ -1418,15 +1434,14 @@ function AetheriumEditor() {
             onClick={() => setMenuOpen(o => !o)}
             style={{ cursor: 'pointer', userSelect: 'none' }}
           >
-            Next Gen | {operatorPersona === 'configurator' ? 'Configuration' : 'Operator'} Experience ▾
+            {currentView === 'operator'
+              ? `Next Gen | ${operatorPersona === 'configurator' ? 'Configuration' : 'Operator'} Experience ▾`
+              : 'Aetherium ▾'}
           </span>
           {menuOpen && (
             <div className="app-titlebar-dropdown">
-              {/* Screens/Widgets/Theme/Data Sources/Entities/Queries/Scripts
-                  hidden for now — see TODO.md ("Nav: page-builder areas").
-                  Operator/Configurator Interface are the only areas in
-                  active use right now; commented rather than removed so
-                  restoring the full menu later is a straightforward revert.
+              {/* Page-builder areas (Screens … Scripts) — restored to the
+                  menu alongside the Operator/Configurator interfaces. */}
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'screens' ? ' active' : ''}`}
                 onClick={() => handleNavigate('screens')}
@@ -1471,7 +1486,6 @@ function AetheriumEditor() {
                 Scripts
               </div>
               <div className="app-titlebar-dropdown-divider" />
-              */}
               <div
                 className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'operator' ? ' active' : ''}`}
                 onClick={() => handleNavigateOperatorPersona('operator')}
@@ -1487,38 +1501,42 @@ function AetheriumEditor() {
             </div>
           )}
         </div>
-        <div
-          className="app-titlebar-model-switcher"
-          ref={modelMenuRef => {
-            if (modelMenuRef) {
-              modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
-            }
-          }}
-        >
+        {/* The industry model only drives the Operator/Configurator
+            interfaces, so the switcher is hidden in the page-builder areas. */}
+        {currentView === 'operator' && (
           <div
-            className="app-titlebar-model-trigger"
-            onClick={() => setModelMenuOpen(o => !o)}
-            title="Switch model"
+            className="app-titlebar-model-switcher"
+            ref={modelMenuRef => {
+              if (modelMenuRef) {
+                modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
+              }
+            }}
           >
-            <span className="app-titlebar-title app-titlebar-model-pipe">|</span>
-            <span className="app-titlebar-title app-titlebar-model-label">
-              {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.label} ▾
-            </span>
-          </div>
-          {modelMenuOpen && (
-            <div className="app-titlebar-dropdown">
-              {AVAILABLE_MODELS.map(m => (
-                <div
-                  key={m.id}
-                  className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
-                  onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
-                >
-                  {m.label}
-                </div>
-              ))}
+            <div
+              className="app-titlebar-model-trigger"
+              onClick={() => setModelMenuOpen(o => !o)}
+              title="Switch model"
+            >
+              <span className="app-titlebar-title app-titlebar-model-pipe">|</span>
+              <span className="app-titlebar-title app-titlebar-model-label">
+                {availableModels.find(m => m.id === selectedModel)?.label ?? selectedModel} ▾
+              </span>
             </div>
-          )}
-        </div>
+            {modelMenuOpen && (
+              <div className="app-titlebar-dropdown">
+                {availableModels.map(m => (
+                  <div
+                    key={m.id}
+                    className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
+                    onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
+                  >
+                    {m.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         <div className="app-titlebar-right-cluster">
         {currentView !== 'operator' && (
           <button

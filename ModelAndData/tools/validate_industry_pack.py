@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Validate a 4-level industry pack in public/data/<model>/ against INDUSTRY_PACK_SPEC.md.
+"""Validate an industry pack in public/data/<model>/ against INDUSTRY_PACK_SPEC.md.
 
 Usage:  python3 ModelAndData/tools/validate_industry_pack.py <model> [--repo PATH]
+
+The pack's shape comes from its public/data/models.json entry:
+  generic     — the v2 format every new pack uses (spec §6, checks per §8)
+  four-level  — legacy water/wastewater format (spec §12)
+  refinery    — not covered (hierarchy lives in src/assetData.js)
 
 Standard library only. Exit code 1 if any ERROR is reported.
 ERROR   = breaks the app or violates a hard rule in the spec.
@@ -76,6 +81,339 @@ def close(a, b, tol):
     return a is not None and b is not None and abs(a - b) <= tol
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Generic packs (spec v2 §6/§8)
+# ─────────────────────────────────────────────────────────────────────────────
+
+GENERIC_FILES = {'assets': 'assets.json', 'assetRelationships': 'asset-relationships.json',
+                 'properties': 'properties.json', 'assetValues': 'asset-values.json',
+                 'assetTelemetry': 'asset-telemetry.json', 'unitStatus': 'unit-status.json',
+                 'attentionItems': 'attention-items.json', 'workItems': 'work-items.json'}
+ID_RE = re.compile(r'^[A-Z0-9_]+$')
+SLUG_RE = re.compile(r'^[a-z0-9_]+$')
+HMI_CATEGORIES = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition']
+GENERIC_ATT_KEYS = ATT_KEYS + ['assetId', 'unitId', 'primaryProperty']
+GENERIC_WORK_KEYS = WORK_KEYS + ['assetId', 'createdAt']
+DERIV_FNS = {'sum': sum, 'mean': statistics.mean, 'min': min, 'max': max, 'count': len}
+
+
+def validate_generic(repo, model, entry, R):
+    d = os.path.join(repo, 'public', 'data', model)
+    files = {**GENERIC_FILES, **(entry.get('files') or {})}
+    data = {}
+    for role, name in files.items():
+        p = os.path.join(d, name)
+        if not os.path.exists(p):
+            R.err('files', f'missing {name}'); continue
+        with open(p, encoding='utf-8') as f:
+            data[role] = json.load(f)
+    unknown = set(entry.get('files') or {}) - set(GENERIC_FILES)
+    if unknown: R.err('registry', f'files block has unknown roles {sorted(unknown)}')
+    if R.errors:
+        R.print(); sys.exit(1)
+    A, REL, PROPS, VAL, TEL, US, ATT, WK = (data[k] for k in GENERIC_FILES)
+
+    # ── Registration ────────────────────────────────────────────────────
+    S = 'registry'
+    levels = [l['id'] if isinstance(l, dict) else l for l in entry.get('levels') or []]
+    unit_level = entry.get('unitLevel')
+    if not entry.get('label'): R.warn(S, 'models.json entry has no label')
+    if not levels: R.err(S, 'models.json entry needs "levels"')
+    if len(set(levels)) != len(levels): R.err(S, 'duplicate level ids')
+    if unit_level not in levels: R.err(S, f'unitLevel {unit_level!r} is not one of the levels')
+    if levels and not 3 <= len(levels) <= 7: R.warn('budget', f'{len(levels)} levels (§7: 3–7)')
+    depth_of = {lv: i for i, lv in enumerate(levels)}
+
+    # ── Hierarchy ───────────────────────────────────────────────────────
+    S = 'hierarchy'
+    M, kids = {}, defaultdict(list)
+    for a in A:
+        miss = [k for k in ['id', 'parentId', 'name', 'assetType', 'assetLevel'] if k not in a]
+        if miss: R.err(S, f'{a.get("id")} missing {miss}'); continue
+        if a['id'] in M: R.err(S, f'duplicate id {a["id"]}')
+        M[a['id']] = a
+        if not ID_RE.match(a['id']): R.err(S, f'id {a["id"]!r} is not UPPER_SNAKE_CASE')
+        if not SLUG_RE.match(a['assetType']): R.err(S, f'{a["id"]} assetType {a["assetType"]!r} is not snake_case')
+        if a['assetLevel'] not in depth_of: R.err(S, f'{a["id"]} assetLevel {a["assetLevel"]!r} is not a declared level')
+    for a in M.values():
+        if a['parentId'] is None:
+            if depth_of.get(a['assetLevel']) != 0: R.err(S, f'root {a["id"]} is not at the first level')
+        elif a['parentId'] not in M:
+            R.err(S, f'{a["id"]} parent {a["parentId"]} does not exist')
+        else:
+            kids[a['parentId']].append(a)
+            p = M[a['parentId']]
+            if a['assetLevel'] in depth_of and p['assetLevel'] in depth_of and depth_of[a['assetLevel']] != depth_of[p['assetLevel']] + 1:
+                R.err(S, f'{a["id"]} ({a["assetLevel"]}) is not exactly one level below its parent ({p["assetLevel"]})')
+    for pid, ch in kids.items():
+        names = Counter(c['name'] for c in ch)
+        for n, c in names.items():
+            if c > 1: R.err(S, f'{pid} has {c} children named {n!r}')
+        if len(ch) > 40: R.warn('budget', f'{pid} has {len(ch)} children (§7: ≤ 40)')
+    types_by_level = defaultdict(set)
+    for a in M.values(): types_by_level[a['assetType']].add(a['assetLevel'])
+    for t, lvls in types_by_level.items():
+        if len(lvls) > 1: R.err(S, f'assetType {t!r} used on several levels {sorted(lvls)}')
+    unused = [lv for lv in levels if not any(a['assetLevel'] == lv for a in M.values())]
+    if unused: R.warn(S, f'declared levels with no assets: {unused}')
+    # same-type consistency: property keys and child-type sets (§3.1)
+    by_type = defaultdict(list)
+    for a in M.values(): by_type[(a['assetLevel'], a['assetType'])].append(a)
+    for (lv, t), inst in by_type.items():
+        keysets = {tuple(sorted(VAL.get(a['id'], {}))) for a in inst}
+        if len(keysets) > 1: R.err(S, f'type {t} instances have different property keys ({len(keysets)} variants)')
+        childsets = {tuple(sorted({c['assetType'] for c in kids.get(a['id'], [])})) for a in inst}
+        if len(childsets) > 1: R.warn(S, f'type {t} instances have different child types (fine for containers like a feeder with mixed turbines; otherwise consider splitting the type)')
+    if len(M) > 400: R.warn('budget', f'{len(M)} assets (§7: ≤ 400 soft)')
+    units = [a['id'] for a in A if a.get('assetLevel') == unit_level]
+    if len(units) > 24: R.warn('budget', f'{len(units)} units at {unit_level!r} (§7: ≤ 24 soft)')
+
+    def unit_of(aid):
+        a = M.get(aid)
+        while a and a['assetLevel'] != unit_level:
+            a = M.get(a['parentId'])
+        return a['id'] if a else None
+
+    def label_of(aid):
+        names, a = [], M.get(aid)
+        while a:
+            names.insert(0, a['name'])
+            if a['assetLevel'] == unit_level: return SEP.join(names)
+            a = M.get(a['parentId'])
+        return M[aid]['name'] if aid in M else None
+
+    # ── Properties ──────────────────────────────────────────────────────
+    S = 'properties'
+    P = PROPS.get('properties') if isinstance(PROPS, dict) else None
+    if not isinstance(P, dict): R.err(S, 'properties.json needs a "properties" object'); P = {}
+    used = {k for v in VAL.values() for k in v}
+    for k in sorted(used - set(P)): R.err(S, f'{k} used by an asset but has no metadata')
+    for k in sorted(set(P) - used): R.warn(S, f'{k} has metadata but no asset uses it')
+    cats = set()
+    for k, m in P.items():
+        for f in ['label', 'unit', 'category', 'tier', 'range']:
+            if f not in m: R.err(S, f'{k} metadata missing {f!r}')
+        if m.get('tier') not in TIERS: R.err(S, f'{k} tier {m.get("tier")!r}')
+        r = m.get('range')
+        if not (isinstance(r, list) and len(r) == 2 and all(isinstance(x, (int, float)) for x in r) and r[0] < r[1]):
+            R.err(S, f'{k} range {r!r} malformed')
+        if m.get('category'): cats.add(m['category'])
+        if re.search(r'\(.*\)', m.get('label', '')) and m.get('unit') and m['unit'] in m['label']:
+            R.warn(S, f'{k} label repeats its unit: {m["label"]!r}')
+    extra = sorted(cats - set(HMI_CATEGORIES))
+    if extra: R.warn(S, f'extra categories (listed after the standard six): {extra}')
+    if len(cats) > 8: R.err(S, f'{len(cats)} categories (§3.4: ≤ 8)')
+    tiers = Counter(P[k].get('tier') for k in used if k in P)
+    if tiers and tiers['P1'] / sum(tiers.values()) > 0.5: R.warn(S, f'{tiers["P1"]} of {sum(tiers.values())} keys are P1 (aim ~35%)')
+    for (lv, t), inst in by_type.items():
+        n = len(VAL.get(inst[0]['id'], {}))
+        if n == 0: R.warn(S, f'type {t} has no properties (empty preview in the Configurator)')
+        elif n > 8: R.warn(S, f'type {t} has {n} properties (§3.3: about 2–8)')
+    type_labels = PROPS.get('typeLabels', {}) if isinstance(PROPS, dict) else {}
+    for t in type_labels:
+        if t not in types_by_level: R.warn(S, f'typeLabels names unknown assetType {t!r}')
+
+    # ── Timeline, values, series ────────────────────────────────────────
+    S = 'telemetry'
+    tl = TEL.get('timeline') or {}
+    ts = TEL.get('timestamps') or []
+    grid = []
+    try:
+        step = tl['stepMinutes']
+        if step not in (1, 2, 5, 10, 15): R.err(S, f'stepMinutes {step} (allowed 1, 2, 5, 10, 15)')
+        datetime.fromisoformat(tl['date'])
+        start, end = tmin(tl['start']), tmin(tl['end'])
+        if end <= start or (end - start) % step: R.err(S, 'timeline start/end/step do not form a whole grid')
+        grid = [f'{m // 60:02d}:{m % 60:02d}' for m in range(start, end + 1, step)]
+    except (KeyError, ValueError, TypeError) as e:
+        R.err(S, f'timeline malformed: {e}')
+    if grid and ts != grid: R.err(S, 'timestamps do not match timeline')
+    npts = len(ts)
+    if not 40 <= npts <= 200: R.warn('budget', f'{npts} points per series (§7: 40–200)')
+    now_min = tmin(tl['end']) if grid else None
+    SER = TEL.get('series') or {}
+    for aid in set(VAL) - set(M): R.err('values', f'values for unknown asset {aid}')
+    for aid in set(SER) - set(M): R.err(S, f'series for unknown asset {aid}')
+    out_of_range, bad_pct = Counter(), set()
+    for aid, vals in VAL.items():
+        for k, v in vals.items():
+            if not isinstance(v, (int, float)) or isinstance(v, bool): R.err('values', f'{aid}.{k} is not a number'); continue
+            meta = P.get(k, {})
+            s = SER.get(aid, {}).get(k)
+            if meta.get('static'):
+                if s is not None: R.err(S, f'{aid}.{k} is static but has a series')
+                continue
+            if s is None: R.err(S, f'{aid}.{k} has no series (mark it static if it is a nameplate value)'); continue
+            if len(s) != npts or not all(isinstance(x, (int, float)) for x in s): R.err(S, f'{aid}.{k}: series is not {npts} numbers'); continue
+            if not close(v, s[-1], 1e-9): R.err('values', f'{aid}.{k}: current {v} != last point {s[-1]} (§5.3)')
+            r = meta.get('range')
+            if isinstance(r, list) and len(r) == 2 and (min(s) < r[0] or max(s) > r[1]): out_of_range[k] += 1
+            # Percentages stay in 0–100 unless the metric's declared range says it's
+            # a ratio that can exceed it (performance vs curve, transformer load).
+            pct_hi = max(100, r[1]) if isinstance(r, list) and len(r) == 2 else 100
+            if (k.endswith('_pct') or meta.get('unit') == '%') and (min(s) < 0 or max(s) > pct_hi): bad_pct.add(k)
+        for k in set(SER.get(aid, {})) - set(vals): R.err(S, f'{aid}.{k} has a series but no current value')
+    for k, n in out_of_range.items(): R.warn('ranges', f'{k}: {n} asset(s) go outside its gauge range')
+    for k in sorted(bad_pct): R.err('physics', f'{k} goes outside 0–100 (or above its declared range)')
+
+    # ── Derivations (§3.5) ──────────────────────────────────────────────
+    S = 'derivations'
+    def descendants(aid, scope):
+        out, stack = [], list(kids.get(aid, []))
+        while stack:
+            c = stack.pop(); out.append(c)
+            if scope == 'descendants': stack.extend(kids.get(c['id'], []))
+        return out
+    for dv in (PROPS.get('derivations') or []) if isinstance(PROPS, dict) else []:
+        fn = dv.get('fn')
+        if fn == 'formula':
+            if not dv.get('note'): R.warn(S, f'{dv.get("assetType")}.{dv.get("property")}: formula derivation has no note')
+            continue
+        if fn not in DERIV_FNS: R.err(S, f'unknown fn {fn!r}'); continue
+        from_types = set((dv.get('fromType') or '').split('|'))
+        scope = dv.get('scope', 'children')
+        targets = [a for a in M.values() if a['assetType'] == dv.get('assetType')]
+        if not targets: R.err(S, f'no assets of type {dv.get("assetType")!r}'); continue
+        bad = 0
+        for t in targets:
+            srcs = [c['id'] for c in descendants(t['id'], scope) if c['assetType'] in from_types]
+            target_s = SER.get(t['id'], {}).get(dv.get('property'))
+            if not srcs or target_s is None: R.err(S, f'{t["id"]}.{dv.get("property")}: no source assets or no target series'); continue
+            src_s = [SER.get(x, {}).get(dv.get('of')) for x in srcs]
+            if any(x is None for x in src_s): R.err(S, f'{t["id"]}: a source asset has no {dv.get("of")!r} series'); continue
+            for i in range(npts):
+                exp = DERIV_FNS[fn]([x[i] for x in src_s])
+                if not close(target_s[i], exp, max(0.051, abs(exp) * 1e-4)): bad += 1; break
+        if bad: R.err(S, f'{dv.get("assetType")}.{dv.get("property")} = {fn}({dv.get("of")}) fails on {bad} asset(s)')
+
+    # ── Relationships ───────────────────────────────────────────────────
+    S = 'relationships'
+    for r in REL:
+        miss = [k for k in ['sourceAssetId', 'targetAssetId', 'relationshipType', 'label', 'layer'] if k not in r]
+        if miss: R.err(S, f'edge missing {miss}: {r}'); continue
+        if r['sourceAssetId'] not in M or r['targetAssetId'] not in M: R.err(S, f'edge endpoint missing: {r["sourceAssetId"]} -> {r["targetAssetId"]}')
+        elif M[r['targetAssetId']].get('parentId') == r['sourceAssetId'] or M[r['sourceAssetId']].get('parentId') == r['targetAssetId']:
+            if r['layer'] in ('containment', 'contains'): R.err(S, f'containment edge {r["sourceAssetId"]} -> {r["targetAssetId"]} (containment comes from parentId)')
+        if not r.get('layer'): R.err(S, f'edge without layer: {r["sourceAssetId"]} -> {r["targetAssetId"]}')
+    if len({(r.get('sourceAssetId'), r.get('targetAssetId'), r.get('layer')) for r in REL}) != len(REL): R.err(S, 'duplicate edges')
+
+    # ── Unit status ─────────────────────────────────────────────────────
+    S = 'units'
+    for u in units:
+        if u not in US: R.err(S, f'unit {u} has no unit-status entry')
+    for k, v in US.items():
+        if k not in units: R.err(S, f'unit-status entry {k} is not a {unit_level!r} asset')
+        if v.get('state') not in LINE_STATES: R.err(S, f'{k} state {v.get("state")!r}')
+        if v.get('mode') not in MODES: R.warn(S, f'{k} mode {v.get("mode")!r} has no color yet (shows neutral)')
+        if not v.get('product'): R.warn(S, f'{k} has no product')
+
+    # ── Attention items ─────────────────────────────────────────────────
+    S = 'attention'
+    ids = Counter(a.get('id') for a in ATT)
+    for i, n in ids.items():
+        if n > 1: R.err(S, f'duplicate id {i}')
+    open_units = defaultdict(list)
+    for a in ATT:
+        aid = a.get('id')
+        for k in GENERIC_ATT_KEYS:
+            if k not in a: R.err(S, f'{aid} missing {k}')
+        dt = a.get('detail', {})
+        for k in DETAIL_KEYS:
+            if k not in dt: R.err(S, f'{aid} detail missing {k}')
+        for fld, allowed in [('severity', SEVERITY), ('attentionState', ATT_STATES)]:
+            if a.get(fld) not in allowed: R.err(S, f'{aid} {fld} {a.get(fld)!r}')
+        for fld, allowed in [('confidenceLevel', CONF), ('riskLevel', RISK), ('outcomeStatus', OUTCOME)]:
+            if dt.get(fld) not in allowed: R.err(S, f'{aid} {fld} {dt.get(fld)!r}')
+        asset = a.get('assetId')
+        if asset not in M: R.err(S, f'{aid} assetId {asset!r} does not exist'); continue
+        exp_unit = unit_of(asset)
+        if exp_unit is None:
+            # Above the unit level (a site, a feeder, a substation): no unit to name.
+            if a.get('unitId') is not None: R.err(S, f'{aid} is on {asset}, above the unit level, so unitId must be null')
+            if a.get('line') != M[asset]['name']: R.warn(S, f'{aid} line {a.get("line")!r} (expected the asset\'s own name {M[asset]["name"]!r})')
+        elif a.get('unitId') not in units: R.err(S, f'{aid} unitId {a.get("unitId")!r} is not a unit')
+        elif a['unitId'] != exp_unit: R.err(S, f'{aid} unitId {a["unitId"]} is not the unit above {asset} ({exp_unit})')
+        if a.get('primaryProperty') not in VAL.get(asset, {}): R.err(S, f'{aid} primaryProperty {a.get("primaryProperty")!r} is not a property of {asset}')
+        if exp_unit and a.get('asset') != label_of(asset): R.warn(S, f'{aid} asset label {a.get("asset")!r} (expected {label_of(asset)!r})')
+        if a.get('unitId') in M and a.get('line') != M[a['unitId']]['name']: R.warn(S, f'{aid} line {a.get("line")!r} (expected unit name {M[a["unitId"]]["name"]!r})')
+        pts = dt.get('evidencePoints', [])
+        if len(dt.get('evidence', [])) != len(pts): R.warn(S, f'{aid}: evidence has {len(dt.get("evidence", []))} values, evidencePoints {len(pts)}')
+        if not 5 <= len(pts) <= 8: R.warn(S, f'{aid}: {len(pts)} evidencePoints (§7: 5–8)')
+        off = [p.get('time') for p in pts if p.get('time') not in ts]
+        if off: R.err(S, f'{aid}: evidencePoints off the timeline grid: {off[:4]}')
+        times = [p['time'] for p in pts if p.get('time') in ts]
+        if times != sorted(times): R.err(S, f'{aid}: evidencePoints not in time order')
+        resolved_txt, mins = parse_since(a.get('since', ''))
+        if mins is None: R.err(S, f'{aid}: since {a.get("since")!r} not in "[Resolved ]Xh Ym ago" form')
+        elif mins != a.get('sinceMinutes'): R.err(S, f'{aid}: since text says {mins}m, sinceMinutes={a.get("sinceMinutes")}')
+        if resolved_txt is not None and resolved_txt != (dt.get('outcomeStatus') == 'resolved'):
+            R.err(S, f'{aid}: "Resolved" in since text disagrees with outcomeStatus')
+        if dt.get('outcomeStatus') == 'none':
+            open_units[a.get('unitId')].append(a.get('sinceMinutes', 0))
+        for r in dt.get('relatedOccurrences', []):
+            if set(r) != {'date', 'summary'}: R.err(S, f'{aid}: relatedOccurrence keys {sorted(r)}')
+        for w in dt.get('whatChanged', []):
+            if not {'time', 'source', 'description', 'related'} <= set(w): R.err(S, f'{aid}: whatChanged entry missing keys')
+    for u, mins in open_units.items():
+        if u is None: continue  # items above the unit level have no unit tile
+        st = US.get(u, {})
+        if st.get('state') != 'attention': R.warn('units', f'{u} has open attention items but state is {st.get("state")!r}')
+        elif st.get('statusSinceMinutes') != max(mins): R.warn('units', f'{u} statusSinceMinutes {st.get("statusSinceMinutes")} != oldest open item {max(mins)}')
+
+    # ── Scenario coverage (§4.1) ────────────────────────────────────────
+    S = 'scenarios'
+    n = len(ATT)
+    if not 6 <= n <= 14: R.warn(S, f'{n} attention items (§4.1: 6–14)')
+    good = [a for a in ATT if a.get('assetId') in M]
+    if len({a['unitId'] for a in good if a.get('unitId')}) < min(4, len(units)): R.warn(S, 'items touch fewer than 4 units')
+    if len({M[a['assetId']]['assetType'] for a in good}) < 4: R.warn(S, 'items touch fewer than 4 asset types')
+    if len({M[a['assetId']]['assetLevel'] for a in good}) < 2: R.warn(S, 'all items are on one hierarchy level')
+    if not any(kids.get(a['assetId']) for a in good): R.warn(S, 'no item is on a non-leaf asset')
+    oc = Counter(a.get('detail', {}).get('outcomeStatus') for a in ATT)
+    if oc['none'] < 2: R.warn(S, f'{oc["none"]} open items (want ≥ 2)')
+    if oc['recovering'] < 1: R.warn(S, 'no recovering item')
+    if not any(a.get('attentionState') == 'act' for a in ATT): R.warn(S, 'no "act" item')
+    if not any(a.get('severity') == 'high' for a in ATT): R.warn(S, 'no high-severity item')
+    if not any(a.get('sinceMinutes', 999) <= 30 for a in ATT): R.warn(S, 'no item within 30 min of now')
+
+    # ── Work items ──────────────────────────────────────────────────────
+    S = 'work'
+    for w in WK:
+        wid = w.get('id')
+        for k in GENERIC_WORK_KEYS:
+            if k not in w: R.err(S, f'{wid} missing {k}')
+        if w.get('priority') not in PRIORITY: R.err(S, f'{wid} priority {w.get("priority")!r}')
+        if w.get('sourceType') not in SRC_TYPE: R.err(S, f'{wid} sourceType {w.get("sourceType")!r}')
+        if w.get('source') not in SRC: R.err(S, f'{wid} source {w.get("source")!r}')
+        if w.get('assetId') is not None and w['assetId'] not in M: R.err(S, f'{wid} assetId {w["assetId"]!r} does not exist')
+        if w.get('sourceType') == 'situation' and not str(w.get('sourceLabel') or '').startswith('From: '):
+            R.warn(S, f'{wid} situation work item sourceLabel should be "From: <situation>"')
+        for k in ['plannedStart', 'dueAt', 'completedAt', 'createdAt']:
+            v = w.get(k)
+            if v:
+                try:
+                    dtv = datetime.fromisoformat(v)
+                    if v.endswith('Z'): R.err(S, f'{wid}.{k} must be local time without Z')
+                    if grid and dtv.date().isoformat() != tl['date']: R.warn(S, f'{wid}.{k} not on the timeline date')
+                except ValueError:
+                    R.err(S, f'{wid}.{k} not ISO: {v}')
+        if w.get('done') and not w.get('completedAt'): R.err(S, f'{wid} done but no completedAt')
+        if not w.get('done') and w.get('completedAt'): R.err(S, f'{wid} not done but has completedAt')
+    if not 8 <= len(WK) <= 15: R.warn('budget', f'{len(WK)} work items (§7: 8–15)')
+    if sum(1 for w in WK if not w.get('done')) < 2: R.warn(S, 'fewer than 2 open work items')
+
+    # ── Sizes ───────────────────────────────────────────────────────────
+    total = 0
+    for name in set(files.values()):
+        sz = os.path.getsize(os.path.join(d, name)); total += sz
+        if sz > 3_000_000: R.err('budget', f'{name} is {sz // 1024} KB (§7: ≤ 3 MB)')
+    if total > 5_000_000: R.err('budget', f'pack is {total // 1024} KB (§7: ≤ 5 MB)')
+
+    print(f'Industry pack: {model}  (generic; {len(levels)} levels, {len(M)} assets, {len(units)} units, '
+          f'{len(REL)} edges, {len(used)} property keys, {npts} points, {len(ATT)} attention, {len(WK)} work, {total // 1024} KB)\n')
+    sys.exit(1 if R.print() else 0)
+
+
 def main():
     args = sys.argv[1:]
     if not args:
@@ -85,7 +423,43 @@ def main():
     d = os.path.join(repo, 'public', 'data', model)
     R = Report()
 
+    # models.json registration (spec §9) — also supplies any per-role
+    # filename overrides, so this validates exactly the files the app loads.
+    overrides = {}
+    reg_path = os.path.join(repo, 'public', 'data', 'models.json')
+    try:
+        with open(reg_path, encoding='utf-8') as f:
+            registry = json.load(f)
+        entry = next((m for m in registry if m.get('id') == model), None)
+        if entry is None:
+            R.warn('registry', f'"{model}" is not listed in public/data/models.json, so the app will not offer it')
+        else:
+            shape = entry.get('shape', 'four-level')
+            if shape == 'generic':
+                validate_generic(repo, model, entry, R)
+                return
+            if shape != 'four-level':
+                R.err('registry', f'models.json shape is {shape!r}; this validator covers generic and four-level packs only')
+            if not entry.get('label'):
+                R.warn('registry', 'models.json entry has no label')
+            overrides = entry.get('files') or {}
+    except FileNotFoundError:
+        R.err('registry', 'public/data/models.json not found')
+    ROLE_OF = {'asset-data.json': 'assetData', 'asset-relationships.json': 'assetRelationships',
+               'station-telemetry.json': 'stationTelemetry', 'station-full-properties.json': 'stationFullProperties',
+               'station-metrics.json': 'stationMetrics', 'station-sparklines.json': 'stationSparklines',
+               'equipment-telemetry.json': 'equipmentTelemetry', 'equipment-metrics.json': 'equipmentMetrics',
+               'line-telemetry.json': 'lineTelemetry', 'line-rollups.json': 'lineRollups',
+               'plant-telemetry.json': 'plantTelemetry', 'plant-rollups.json': 'plantRollups',
+               'line-status.json': 'lineStatus', 'operating-context.json': 'operatingContext',
+               'property-labels.json': 'propertyLabels', 'property-categories.json': 'propertyCategories',
+               'property-tiers.json': 'propertyTiers', 'property-ranges.json': 'propertyRanges',
+               'attention-items.json': 'attentionItems', 'work-items.json': 'workItems'}
+    unknown = set(overrides) - set(ROLE_OF.values())
+    if unknown: R.err('registry', f'models.json files block has unknown roles {sorted(unknown)}')
+
     def load(*names, required=True):
+        names = [overrides.get(ROLE_OF.get(n), n) for n in names]
         for n in names:
             p = os.path.join(d, n)
             if os.path.exists(p):
@@ -95,7 +469,7 @@ def main():
             R.err('files', f'missing {" or ".join(names)}')
         return None
 
-    A = load('asset-data.json', 'water-asset-data.json')
+    A = load('asset-data.json')
     if A is None:
         R.print(); sys.exit(1)
     REL = load('asset-relationships.json')

@@ -34,6 +34,7 @@ import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from './typeDispla
 import { loadRelatedAssetsTemplates, saveRelatedAssetsTemplates } from './relatedAssetsTemplatesStorage';
 import { loadAllAssetsTemplate, saveAllAssetsTemplate } from './allAssetsTemplateStorage';
 import { loadNowSelection, saveNowSelection } from './nowSelectionStorage';
+import { loadModelRegistry, getModelDataFiles, MODEL_SHAPES } from './modelRegistry';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from './typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from './typeRelatedAssetConfigsStorage';
 import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from './assetDisplayTemplatesStorage';
@@ -239,7 +240,10 @@ function groupAttentionItems(items, groupBy) {
 // min left).
 // ─────────────────────────────────────────────────────────────────────────────
 
-const WORK_NOW_REFERENCE = new Date('2026-08-28T14:05:00');
+// Reassigned by applyTimeline() whenever a model finishes loading — the
+// legacy packs all share the 2026-08-28 08:00–14:05 shift below; a generic
+// pack declares its own timeline in asset-telemetry.json.
+let WORK_NOW_REFERENCE = new Date('2026-08-28T14:05:00');
 
 const WORK_PRIORITY_ORDER = { urgent: 0, important: 1, routine: 2 };
 const WORK_PRIORITY_COLORS = { urgent: '#d64545', important: '#e0a336', routine: '#8c8c8c' };
@@ -341,9 +345,27 @@ function AiPill() {
 // One of two chart-type options for the Evidence card (toggled via a
 // ButtonGroup) — a conventional line chart with a visible axis, gridlines,
 // and point markers at each reading.
-const SHIFT_START_MIN = 8 * 60;   // 08:00
-const NOW_REFERENCE_MIN = 14 * 60 + 5; // 14:05, the app's shared "now"
+let SHIFT_START_MIN = 8 * 60;   // 08:00 — see applyTimeline()
+let NOW_REFERENCE_MIN = 14 * 60 + 5; // 14:05, the active model's "now"
 const PAD_STEP_MIN = 15;
+
+// The active model's timeline. Legacy packs don't declare one, so they get
+// the shared demo shift they were all generated on; generic packs declare
+// theirs in asset-telemetry.json (INDUSTRY_PACK_SPEC.md §4.2).
+const LEGACY_TIMELINE = { date: '2026-08-28', start: '08:00', end: '14:05', stepMinutes: 5 };
+let CURRENT_TIMELINE = LEGACY_TIMELINE;
+// The active model's "HH:MM" sample grid — every series in the model has
+// exactly one value per entry. Everything that scrubs, slices or labels
+// time reads this rather than a specific telemetry file.
+let CURRENT_TIMESTAMPS = [];
+
+function applyTimeline(timeline, timestamps) {
+  CURRENT_TIMELINE = timeline || LEGACY_TIMELINE;
+  CURRENT_TIMESTAMPS = timestamps || [];
+  SHIFT_START_MIN = timeStrToMinutes(CURRENT_TIMELINE.start);
+  NOW_REFERENCE_MIN = timeStrToMinutes(CURRENT_TIMELINE.end);
+  WORK_NOW_REFERENCE = new Date(`${CURRENT_TIMELINE.date}T${CURRENT_TIMELINE.end}:00`);
+}
 
 function timeStrToMinutes(t) {
   const [h, m] = t.split(':').map(Number);
@@ -351,7 +373,8 @@ function timeStrToMinutes(t) {
 }
 
 function minutesToShiftDate(mins) {
-  return new Date(2026, 7, 28, Math.floor(mins / 60), mins % 60);
+  const [y, mo, d] = CURRENT_TIMELINE.date.split('-').map(Number);
+  return new Date(y, mo - 1, d, Math.floor(mins / 60), mins % 60);
 }
 
 // The chart used to be scoped to ONLY the event's own evidencePoints —
@@ -381,20 +404,30 @@ function padEvidenceAcrossShift(evidencePoints, evidence) {
     .map(p => ({ time: minutesToShiftDate(p.minutes), value: p.value }));
 }
 
-function ComparisonLineChart({ evidence, evidencePoints, color }) {
+// fullSeries (optional): the item's real primary-property series, one value
+// per CURRENT_TIMESTAMPS entry. When present it replaces the padded
+// stand-in entirely — the chart then shows the actual whole-timeline trend,
+// still opening zoomed to the evidence window.
+function ComparisonLineChart({ evidence, evidencePoints, color, fullSeries }) {
   const initialRange = useMemo(() => [
     minutesToShiftDate(timeStrToMinutes(evidencePoints[0].time)),
     minutesToShiftDate(timeStrToMinutes(evidencePoints[evidencePoints.length - 1].time)),
   ], [evidencePoints]);
   const [visualRange, setVisualRange] = useState(initialRange);
-  const data = useMemo(() => padEvidenceAcrossShift(evidencePoints, evidence), [evidencePoints, evidence]);
+  const data = useMemo(() => (
+    fullSeries
+      ? fullSeries.map((value, i) => ({ time: minutesToShiftDate(timeStrToMinutes(CURRENT_TIMESTAMPS[i])), value }))
+      : padEvidenceAcrossShift(evidencePoints, evidence)
+  ), [evidencePoints, evidence, fullSeries]);
   return (
     <div className="op-evidence-chart-wrap op-evidence-chart-wrap--with-range">
       <div className="op-evidence-chart-main">
         <Chart dataSource={data} palette={[color]} height="100%">
           <CommonSeriesSettings argumentField="time" type="line" />
           <Series valueField="value">
-            <Point visible={true} size={7} />
+            {/* Markers on every sample would crowd a full-timeline series;
+                they stay on for the sparse legacy evidence points. */}
+            <Point visible={!fullSeries} size={7} />
             <Aggregation enabled={true} />
           </Series>
           <ArgumentAxis argumentType="datetime" visualRange={visualRange} valueMarginsEnabled={false}>
@@ -943,6 +976,31 @@ function attentionAssetToTypeId(asset) {
   return match ? `TYPE_${match.assetLevel}_${match.assetType}` : null;
 }
 
+// Item-level entry points — generic packs name the asset directly
+// (item.assetId, spec §6.7), at any level; legacy items only carry the
+// display label, which gets parsed as before.
+function getAttentionItemAssetEntry(item) {
+  if (item.assetId) return CURRENT_ASSET_MAP[item.assetId] || null;
+  return attentionAssetToAssetEntry(item.asset);
+}
+
+function getAttentionItemTypeId(item) {
+  const match = getAttentionItemAssetEntry(item);
+  return match ? `TYPE_${match.assetLevel}_${match.assetType}` : null;
+}
+
+// The real full-timeline series behind an item's evidence, when the item
+// says which property it tracks (generic packs: item.primaryProperty).
+// Null for legacy items, which fall back to the padded evidence below.
+function getAttentionItemPrimarySeries(item) {
+  if (!item.primaryProperty) return null;
+  const entry = getAttentionItemAssetEntry(item);
+  if (!entry) return null;
+  const { sparklineSource } = resolveAssetProperties(entry.id);
+  const series = getPropertySeriesForSource(sparklineSource, item.primaryProperty);
+  return series && series.length === CURRENT_TIMESTAMPS.length ? series : null;
+}
+
 // Whether an attention item's own narrative window — its evidencePoints'
 // first to last reading, in "HH:MM" clock time, the same real window
 // shown on its own Trend/Timeline tabs — contains a given scrubbed time.
@@ -1095,16 +1153,24 @@ function resolveWaterAssetProperties(assetId) {
 // — but sometimes instance-specific, like a line's name being "A1", not
 // "Line". De-slugifying the type works correctly either way.
 function deslugifyType(assetType) {
+  // Generic packs can name a type explicitly (properties.json typeLabels)
+  // where plain de-slugifying reads badly — "HS Bearing", not "Hs Bearing".
+  if (TYPE_LABELS[assetType]) return TYPE_LABELS[assetType];
   return assetType
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
-const TYPE_LEVEL_LABELS = {
+// Legacy models' level labels. A generic model declares its own in
+// models.json (CURRENT_LEVEL_LABELS), which win when present.
+const LEGACY_LEVEL_LABELS = {
   refinery: 'Refinery', line: 'Line', station: 'Station',
   plant: 'Plant', train: 'Train', stage: 'Stage', equipment: 'Equipment',
 };
+function getLevelLabel(level) {
+  return CURRENT_LEVEL_LABELS?.[level] || LEGACY_LEVEL_LABELS[level] || level;
+}
 
 // Builds a flat, alphabetically-sorted list of every distinct
 // (assetLevel, assetType) combination found in the asset hierarchy. Each
@@ -1120,7 +1186,7 @@ function buildTypeList(assetData) {
       seen.set(key, {
         id: `TYPE_${a.assetLevel}_${a.assetType}`,
         name: deslugifyType(a.assetType),
-        level: TYPE_LEVEL_LABELS[a.assetLevel] || a.assetLevel,
+        level: getLevelLabel(a.assetLevel),
         exampleAssetId: a.id,
       });
     }
@@ -1137,8 +1203,21 @@ const TYPE_LIST_COLUMNS = [
 // InvestigatePanel's Related Assets tab, the only place this is provided.
 const TimeScrubContext = createContext(null);
 
+// Dispatches on the active model's shape (from models.json), not its id —
+// any four-level pack (water, wastewater, and every future industry) goes
+// through the same plant/train/stage/equipment resolver.
 function resolveAssetProperties(assetId) {
-  return (CURRENT_MODEL === 'water' || CURRENT_MODEL === 'wastewater') ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
+  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.GENERIC) return resolveGenericAssetProperties(assetId);
+  return CURRENT_MODEL_SHAPE === MODEL_SHAPES.FOUR_LEVEL ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
+}
+
+// Generic packs key values and series by the real asset id, at any level —
+// no conversion, no per-level dataset to try in turn. An asset with no
+// entry in asset-values.json simply has no properties.
+function resolveGenericAssetProperties(assetId) {
+  const properties = ASSET_VALUES[assetId];
+  if (!properties) return { properties: null, sparklineSource: null };
+  return { properties, sparklineSource: { type: 'asset', id: assetId } };
 }
 
 const HMI_CATEGORY_ORDER = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition'];
@@ -1171,18 +1250,23 @@ function getPropertySeriesForSource(source, propKey) {
     const equipment = EQUIPMENT_TELEMETRY && EQUIPMENT_TELEMETRY.equipment && EQUIPMENT_TELEMETRY.equipment[source.id];
     return (equipment && equipment[propKey]) || null;
   }
+  if (source.type === 'asset') {
+    // Generic packs — static (nameplate) properties have no series, so
+    // this is null for them and their tiles just show no sparkline.
+    return ASSET_TELEMETRY?.series?.[source.id]?.[propKey] || null;
+  }
   return null;
 }
 
-// Clips a full series down to [startTime, endTime] using STATION_TELEMETRY's
+// Clips a full series down to [startTime, endTime] using the active model's
 // own timestamp grid — the same window the Line/Candlestick tabs show for
 // this item, via its evidencePoints. If that window reaches past what's
 // actually available (a couple of items' evidence extends past the shared
 // "now" reference as a projection), this naturally clips to real data
 // rather than inventing future readings to match exactly.
 function sliceSeriesToRange(series, startTime, endTime) {
-  if (!series || !STATION_TELEMETRY || !STATION_TELEMETRY.timestamps) return null;
-  const grid = STATION_TELEMETRY.timestamps.map(timeToMinutes);
+  if (!series || !CURRENT_TIMESTAMPS.length) return null;
+  const grid = CURRENT_TIMESTAMPS.map(timeToMinutes);
   const startMin = timeToMinutes(startTime);
   const endMin = timeToMinutes(endTime);
   let startIdx = grid.findIndex(m => m >= startMin);
@@ -1355,6 +1439,8 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       min: range ? range[0] : undefined,
       max: range ? range[1] : undefined,
       sparkline: sparkline && sparkline.length > 2 ? sparkline : null,
+      unit: PROPERTY_UNITS[p.key],
+      decimals: PROPERTY_DECIMALS[p.key],
       horizontal: true,
       labelFirst: true,
       // Per-property override wins over the toolbar's shared default —
@@ -1751,7 +1837,9 @@ function formatStatusDuration(minutes) {
 
 // Attention first (needs a person to look), changeover second (expected,
 // but worth a glance since it's a transition), running last (calm).
-const LINE_STATE_PRIORITY = { attention: 0, changeover: 1, running: 2 };
+// 'down' only occurs in generic packs so far (unit-status.json); without an
+// entry here it sorted as NaN, leaving down units in an arbitrary position.
+const LINE_STATE_PRIORITY = { attention: 0, down: 1, changeover: 2, running: 3 };
 
 function NowStrip({ selectedLine, onSelectLine }) {
   const orderedLines = useMemo(
@@ -1767,8 +1855,8 @@ function NowStrip({ selectedLine, onSelectLine }) {
           return (
             <button
               key={line.id}
-              className={`op-now-tile${selectedLine === lineIdToAssetId(line.id) ? ' op-now-tile--selected' : ''}`}
-              onClick={() => onSelectLine(lineIdToAssetId(line.id))}
+              className={`op-now-tile${selectedLine === nowTileIdToAssetId(line.id) ? ' op-now-tile--selected' : ''}`}
+              onClick={() => onSelectLine(nowTileIdToAssetId(line.id))}
             >
               <div className="op-now-tile-top">
                 <span className="op-now-dot" style={{ background: STATE_COLORS[line.state] }} />
@@ -1805,6 +1893,20 @@ function NowStrip({ selectedLine, onSelectLine }) {
 // the nextgen workbook's own asset ids like "AUR_L01" — this converts
 // between the two rather than renaming one of two already-established
 // conventions.
+// Generic packs build LINE_STATUS straight from unit-status.json, keyed by
+// the unit's real asset id — no conversion needed. Legacy four-level tiles
+// (water/wastewater) carry a "Plant · Train" label that resolves to the
+// train's asset id; only refinery keeps its own line-id convention, which
+// its Issue Map / Line Detail overlay expects.
+function nowTileIdToAssetId(tileId) {
+  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.GENERIC) return tileId;
+  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.FOUR_LEVEL) {
+    const tile = LINE_STATUS.find(l => l.id === tileId);
+    return (tile && attentionAssetToAssetEntry(tile.label)?.id) || tileId;
+  }
+  return lineIdToAssetId(tileId);
+}
+
 function lineIdToAssetId(lineStatusId) {
   const [refinery, code] = lineStatusId.split('_');
   const prefix = refinery === 'AURELIA' ? 'AUR' : 'FER';
@@ -1971,13 +2073,17 @@ let PROPERTY_RANGES = {};
 let PROPERTY_TIERS = {};
 let STATION_FULL_PROPERTIES = {};
 let CURRENT_MODEL = 'refinery';
-// Refinery's hierarchy is a static import; water's is fetched at runtime.
+// 'refinery' | 'four-level' — see modelRegistry.js. Set alongside
+// CURRENT_MODEL every time a model finishes loading.
+let CURRENT_MODEL_SHAPE = MODEL_SHAPES.REFINERY;
+// Refinery's hierarchy is a static import; every four-level model's is
+// fetched at runtime (the assetData role).
 // These two always point at whichever one is active, so the rest of the
 // code (the Now tree, the resolver) never needs to know which model is
 // selected — it just reads "the current hierarchy."
 let CURRENT_ASSET_DATA = ASSET_DATA;
 let CURRENT_ASSET_MAP = ASSET_MAP;
-let WATER_ASSET_DATA = [];
+let LOADED_ASSET_DATA = [];
 // Asset-to-asset edges: { sourceAssetId, targetAssetId, relationshipType,
 // label, layer }. Same variable name loaded from a different file per
 // model, same pattern as STATION_METRICS etc. — no "CURRENT_" prefix
@@ -1985,6 +2091,32 @@ let WATER_ASSET_DATA = [];
 let ASSET_RELATIONSHIPS = [];
 let EQUIPMENT_METRICS = {};
 let EQUIPMENT_TELEMETRY = null;
+
+// Generic-shape model data (INDUSTRY_PACK_SPEC.md §6) — everything keyed
+// by real asset id, so none of the legacy id conversions above apply.
+// ASSET_VALUES: { assetId: { key: currentValue } }. ASSET_TELEMETRY:
+// { timeline, timestamps, series: { assetId: { key: [values] } } }.
+// UNIT_STATUS: { unitAssetId: { state, statusSinceMinutes, mode, product } },
+// turned into LINE_STATUS/OPERATING_CONTEXT_BY_LINE on load so the Now
+// strip reads one shape regardless of model.
+let ASSET_VALUES = {};
+let ASSET_TELEMETRY = null;
+let UNIT_STATUS = {};
+// Display unit and precision per property key — generic packs only
+// (legacy packs carry units in the key name and have no decimals).
+let PROPERTY_UNITS = {};
+let PROPERTY_DECIMALS = {};
+// Declared rollup rules (spec §3.5). Not used for rendering today —
+// loaded so they're available alongside the values they describe.
+let PROPERTY_DERIVATIONS = [];
+// Optional display names per assetType (properties.json typeLabels) —
+// generic packs only; deslugifyType falls back to the slug otherwise.
+let TYPE_LABELS = {};
+// The active generic model's declared levels and unit level. Null for
+// legacy models, which fall back to LEGACY_LEVEL_LABELS and their own
+// hardcoded structure.
+let CURRENT_LEVEL_LABELS = null;
+let CURRENT_UNIT_LEVEL = null;
 
 let LINE_SPARKLINES = {};
 
@@ -2089,7 +2221,9 @@ function ResponsiveSparkline({ values, height = 26, color }) {
 // that cluster tightly (95-100%) and read as identical-looking full bars
 // rather than showing any real variation. The number itself carries the
 // information here; the label just says what it is.
-function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode = 'all' }) {
+// unit/decimals come from generic packs' properties.json (spec §3.4);
+// legacy packs have neither, so their values render exactly as before.
+function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode = 'all', unit, decimals }) {
   const hasRange = min != null && max != null && typeof value === 'number' && max > min;
   const pct = hasRange ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;
 
@@ -2106,7 +2240,13 @@ function StatTile({ label, value, min, max, sparkline, labelFirst, horizontal, v
   }
 
   const labelEl = <div className="op-statkpi-label">{label}</div>;
-  const valueEl = <div className="op-statkpi-value">{value}</div>;
+  const displayValue = (typeof value === 'number' && decimals != null) ? value.toFixed(decimals) : value;
+  const valueEl = (
+    <div className="op-statkpi-value">
+      {displayValue}
+      {unit && <span className="op-statkpi-unit">{unit}</span>}
+    </div>
+  );
 
   const vtrackEl = hasRange && (
     <div className="op-statkpi-vtrack">
@@ -2430,8 +2570,8 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
   const typeName = typeEntry?.name ?? deslugifyType(asset.assetType);
   // Same reasoning as NowAssetDetail's own fullRangeEvidencePoints below —
   // no single narrative/event window here, show the full available trend.
-  const evidencePoints = STATION_TELEMETRY && STATION_TELEMETRY.timestamps.length
-    ? [{ time: STATION_TELEMETRY.timestamps[0] }, { time: STATION_TELEMETRY.timestamps[STATION_TELEMETRY.timestamps.length - 1] }]
+  const evidencePoints = CURRENT_TIMESTAMPS.length
+    ? [{ time: CURRENT_TIMESTAMPS[0] }, { time: CURRENT_TIMESTAMPS[CURRENT_TIMESTAMPS.length - 1] }]
     : [];
 
   return (
@@ -2554,8 +2694,8 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
 
   // No single narrative/event window here (unlike Investigate) — show the
   // full available trend instead of slicing to nothing.
-  const fullRangeEvidencePoints = STATION_TELEMETRY && STATION_TELEMETRY.timestamps.length
-    ? [{ time: STATION_TELEMETRY.timestamps[0] }, { time: STATION_TELEMETRY.timestamps[STATION_TELEMETRY.timestamps.length - 1] }]
+  const fullRangeEvidencePoints = CURRENT_TIMESTAMPS.length
+    ? [{ time: CURRENT_TIMESTAMPS[0] }, { time: CURRENT_TIMESTAMPS[CURRENT_TIMESTAMPS.length - 1] }]
     : [];
 
   const { properties, sparklineSource } = resolveAssetProperties(assetIdForProperties);
@@ -2759,6 +2899,22 @@ function getRelatedAssetsForType(typeId, typeList) {
 // Screen" — unless the asset itself already IS that top-level ancestor
 // (a train node) or the root itself (the plant), neither of which needs
 // disambiguating.
+// Generic packs (spec §3.2): the names on the asset's path, starting at
+// its unit-level ancestor — "WTG-07 · Gearbox · HS Bearing". The unit
+// level is what an operator thinks in, so it's the natural anchor however
+// deep or shallow the model is. Assets above the unit level (a site, a
+// feeder) have no unit ancestor and just show their own name.
+function getGenericDisplayLabel(asset) {
+  const names = [];
+  let current = asset;
+  while (current) {
+    names.unshift(current.name);
+    if (current.assetLevel === CURRENT_UNIT_LEVEL) return names.join(' · ');
+    current = current.parentId ? CURRENT_ASSET_MAP[current.parentId] : null;
+  }
+  return asset.name;
+}
+
 function getTopLevelAncestor(assetId) {
   let current = CURRENT_ASSET_MAP[assetId];
   if (!current) return null;
@@ -2772,6 +2928,7 @@ function getTopLevelAncestor(assetId) {
 function getAssetDisplayLabel(assetId) {
   const asset = CURRENT_ASSET_MAP[assetId];
   if (!asset) return assetId;
+  if (CURRENT_UNIT_LEVEL) return getGenericDisplayLabel(asset);
   const topLevel = getTopLevelAncestor(assetId);
   if (!topLevel || topLevel.id === asset.id) return asset.name;
   return `${topLevel.name} · ${asset.name}`;
@@ -3823,6 +3980,8 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
         min={range ? range[0] : undefined}
         max={range ? range[1] : undefined}
         sparkline={sparkline && sparkline.length > 2 ? sparkline : null}
+        unit={PROPERTY_UNITS[key]}
+        decimals={PROPERTY_DECIMALS[key]}
         horizontal
         labelFirst
         viewMode={tileViewMode(key)}
@@ -5773,7 +5932,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
   // by default is identical to the last point of that same property's own
   // series), so nothing visibly changes until the user actually scrubs or
   // presses play. Also declared before the early return per Rules of Hooks.
-  const scrubMaxIndex = (STATION_TELEMETRY?.timestamps?.length ?? 1) - 1;
+  const scrubMaxIndex = Math.max(CURRENT_TIMESTAMPS.length, 1) - 1;
   const [scrubTimeIndex, setScrubTimeIndex] = useState(scrubMaxIndex);
   const [scrubPlaying, setScrubPlaying] = useState(false);
   // DevExtreme's Slider fires onValueChanged for a programmatic value prop
@@ -5825,7 +5984,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
   // only if an attention item's asset string genuinely doesn't match any
   // real asset id, in which case the tab shows a plain "not available"
   // message rather than an empty/broken diagram.
-  const relatedAssetsAssetEntry = attentionAssetToAssetEntry(item.asset);
+  const relatedAssetsAssetEntry = getAttentionItemAssetEntry(item);
   const relatedAssetsTypeId = relatedAssetsAssetEntry ? `TYPE_${relatedAssetsAssetEntry.assetLevel}_${relatedAssetsAssetEntry.assetType}` : null;
   const relatedAssetsTypeEntry = relatedAssetsTypeId ? typeList.find(t => t.id === relatedAssetsTypeId) : null;
 
@@ -5839,7 +5998,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
   // resolve) never matches another null, so this stays empty rather than
   // spuriously grouping unrelated unresolved items together.
   const relatedAlarms = relatedAssetsTypeId
-    ? ATTENTION_ITEMS.filter(other => other.id !== item.id && attentionAssetToTypeId(other.asset) === relatedAssetsTypeId)
+    ? ATTENTION_ITEMS.filter(other => other.id !== item.id && getAttentionItemTypeId(other) === relatedAssetsTypeId)
     : [];
 
   // Shared between the Timeline tab's own content and the small Timeline
@@ -5952,8 +6111,8 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
               stylingMode="outlined"
               className="op-dash-chart-toggle op-investigate-relatedassets-toggle"
             />
-            {STATION_TELEMETRY?.timestamps?.[scrubTimeIndex] && (
-              <div className="op-investigate-scrubtime">{STATION_TELEMETRY.timestamps[scrubTimeIndex]}</div>
+            {CURRENT_TIMESTAMPS[scrubTimeIndex] && (
+              <div className="op-investigate-scrubtime">{CURRENT_TIMESTAMPS[scrubTimeIndex]}</div>
             )}
           </div>
           <div className="op-investigate-relatedassets-split">
@@ -6013,7 +6172,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
               {relatedAlarms.length > 0 ? (
                 <div className="op-timeline op-timeline--sidebar">
                   {relatedAlarms.map(other => {
-                    const active = isAttentionItemActiveAtTime(other, STATION_TELEMETRY?.timestamps?.[scrubTimeIndex]);
+                    const active = isAttentionItemActiveAtTime(other, CURRENT_TIMESTAMPS[scrubTimeIndex]);
                     return (
                       <div key={other.id} className={`op-timeline-row${active ? ' op-timeline-row--active' : ''}`}>
                         <span
@@ -6035,7 +6194,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
               )}
             </div>
           </div>
-          {STATION_TELEMETRY?.timestamps?.length > 0 && (
+          {CURRENT_TIMESTAMPS.length > 0 && (
             <div className="op-investigate-timetrack">
               <button
                 type="button"
@@ -6060,7 +6219,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
                 }}
                 className="op-investigate-timetrack-slider"
               >
-                <SliderLabel visible format={v => STATION_TELEMETRY.timestamps[v] ?? ''} position="bottom" />
+                <SliderLabel visible format={v => CURRENT_TIMESTAMPS[v] ?? ''} position="bottom" />
               </Slider>
             </div>
           )}
@@ -6070,7 +6229,7 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
           <div className="op-dashboard-card op-dashboard-card--signal">
             <div className="op-dashboard-card-title">Signal</div>
             <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
-              <ComparisonLineChart evidence={d.evidence} evidencePoints={d.evidencePoints} color={severityColor} />
+              <ComparisonLineChart evidence={d.evidence} evidencePoints={d.evidencePoints} color={severityColor} fullSeries={getAttentionItemPrimarySeries(item)} />
             </div>
           </div>
 
@@ -6727,95 +6886,115 @@ function RightRail({ mode, hidden, onIconClick, hasUnread, operatorPersona }) {
 // would violate the Rules of Hooks.
 // ─────────────────────────────────────────────────────────────────────────────
 
-const REFINERY_DATA_FILES = [
-  ['ATTENTION_ITEMS', '/data/refinery/attention-items.json'],
-  ['INITIAL_WORK_ITEMS', '/data/refinery/work-items.json'],
-  ['LINE_STATUS', '/data/refinery/line-status.json'],
-  ['OPERATING_CONTEXT_BY_LINE', '/data/refinery/operating-context.json'],
-  ['LINE_ROLLUPS', '/data/refinery/line-rollups.json'],
-  ['REFINERY_ROLLUPS', '/data/refinery/refinery-rollups.json'],
-  ['STATION_METRICS', '/data/refinery/station-metrics.json'],
-  ['STATION_TELEMETRY', '/data/refinery/station-telemetry.json'],
-  ['LINE_TELEMETRY', '/data/refinery/line-telemetry.json'],
-  ['REFINERY_TELEMETRY', '/data/refinery/refinery-telemetry.json'],
-  ['LINE_SPARKLINES', '/data/refinery/line-sparklines.json'],
-  ['STATION_SPARKLINES', '/data/refinery/station-sparklines.json'],
-  ['PROPERTY_CATEGORIES', '/data/refinery/property-categories.json'],
-  ['PROPERTY_LABELS', '/data/refinery/property-labels.json'],
-  ['PROPERTY_RANGES', '/data/refinery/property-ranges.json'],
-  ['PROPERTY_TIERS', '/data/refinery/property-tiers.json'],
-  ['STATION_FULL_PROPERTIES', '/data/refinery/station-full-properties.json'],
-  ['ASSET_RELATIONSHIPS', '/data/refinery/asset-relationships.json'],
-];
+// Which model-data variable each models.json file role fills. The role
+// names (and each shape's default filenames) live in modelRegistry.js; the
+// per-model file list itself lives in public/data/models.json, so adding an
+// industry never touches this file. Unknown roles are ignored.
+const ROLE_TO_VARIABLE = {
+  attentionItems: 'ATTENTION_ITEMS',
+  workItems: 'INITIAL_WORK_ITEMS',
+  lineStatus: 'LINE_STATUS',
+  operatingContext: 'OPERATING_CONTEXT_BY_LINE',
+  lineRollups: 'LINE_ROLLUPS',
+  plantRollups: 'REFINERY_ROLLUPS',
+  stationMetrics: 'STATION_METRICS',
+  stationTelemetry: 'STATION_TELEMETRY',
+  lineTelemetry: 'LINE_TELEMETRY',
+  plantTelemetry: 'REFINERY_TELEMETRY',
+  lineSparklines: 'LINE_SPARKLINES',
+  stationSparklines: 'STATION_SPARKLINES',
+  propertyCategories: 'PROPERTY_CATEGORIES',
+  propertyLabels: 'PROPERTY_LABELS',
+  propertyRanges: 'PROPERTY_RANGES',
+  propertyTiers: 'PROPERTY_TIERS',
+  stationFullProperties: 'STATION_FULL_PROPERTIES',
+  assetData: 'LOADED_ASSET_DATA',
+  equipmentMetrics: 'EQUIPMENT_METRICS',
+  equipmentTelemetry: 'EQUIPMENT_TELEMETRY',
+  assetRelationships: 'ASSET_RELATIONSHIPS',
+  // Generic-shape roles (spec §6)
+  assets: 'LOADED_ASSET_DATA',
+  properties: 'GENERIC_PROPERTIES',
+  assetValues: 'ASSET_VALUES',
+  assetTelemetry: 'ASSET_TELEMETRY',
+  unitStatus: 'UNIT_STATUS',
+};
 
-// Water and wastewater are structurally identical (plant/train/stage/
-// equipment, same 4-level shape) but are two separate models with their
-// own asset hierarchy and data — Meridian (drinking water) and Confluence
-// (wastewater) used to share one "water" model/folder; they're now split.
-const WATER_DATA_FILES = [
-  ['ATTENTION_ITEMS', '/data/water/attention-items.json'],
-  ['INITIAL_WORK_ITEMS', '/data/water/work-items.json'],
-  ['LINE_STATUS', '/data/water/line-status.json'],
-  ['OPERATING_CONTEXT_BY_LINE', '/data/water/operating-context.json'],
-  ['LINE_ROLLUPS', '/data/water/line-rollups.json'],
-  ['REFINERY_ROLLUPS', '/data/water/plant-rollups.json'],
-  ['STATION_METRICS', '/data/water/station-metrics.json'],
-  ['STATION_TELEMETRY', '/data/water/station-telemetry.json'],
-  ['LINE_TELEMETRY', '/data/water/line-telemetry.json'],
-  ['REFINERY_TELEMETRY', '/data/water/plant-telemetry.json'],
-  ['STATION_SPARKLINES', '/data/water/station-sparklines.json'],
-  ['PROPERTY_CATEGORIES', '/data/water/property-categories.json'],
-  ['PROPERTY_LABELS', '/data/water/property-labels.json'],
-  ['PROPERTY_RANGES', '/data/water/property-ranges.json'],
-  ['PROPERTY_TIERS', '/data/water/property-tiers.json'],
-  ['STATION_FULL_PROPERTIES', '/data/water/station-full-properties.json'],
-  ['WATER_ASSET_DATA', '/data/water/water-asset-data.json'],
-  ['EQUIPMENT_METRICS', '/data/water/equipment-metrics.json'],
-  ['EQUIPMENT_TELEMETRY', '/data/water/equipment-telemetry.json'],
-  ['ASSET_RELATIONSHIPS', '/data/water/asset-relationships.json'],
-];
-
-const WASTEWATER_DATA_FILES = [
-  ['ATTENTION_ITEMS', '/data/wastewater/attention-items.json'],
-  ['INITIAL_WORK_ITEMS', '/data/wastewater/work-items.json'],
-  ['LINE_STATUS', '/data/wastewater/line-status.json'],
-  ['OPERATING_CONTEXT_BY_LINE', '/data/wastewater/operating-context.json'],
-  ['LINE_ROLLUPS', '/data/wastewater/line-rollups.json'],
-  ['REFINERY_ROLLUPS', '/data/wastewater/plant-rollups.json'],
-  ['STATION_METRICS', '/data/wastewater/station-metrics.json'],
-  ['STATION_TELEMETRY', '/data/wastewater/station-telemetry.json'],
-  ['LINE_TELEMETRY', '/data/wastewater/line-telemetry.json'],
-  ['REFINERY_TELEMETRY', '/data/wastewater/plant-telemetry.json'],
-  ['STATION_SPARKLINES', '/data/wastewater/station-sparklines.json'],
-  ['PROPERTY_CATEGORIES', '/data/wastewater/property-categories.json'],
-  ['PROPERTY_LABELS', '/data/wastewater/property-labels.json'],
-  ['PROPERTY_RANGES', '/data/wastewater/property-ranges.json'],
-  ['PROPERTY_TIERS', '/data/wastewater/property-tiers.json'],
-  ['STATION_FULL_PROPERTIES', '/data/wastewater/station-full-properties.json'],
-  ['WATER_ASSET_DATA', '/data/wastewater/water-asset-data.json'],
-  ['EQUIPMENT_METRICS', '/data/wastewater/equipment-metrics.json'],
-  ['EQUIPMENT_TELEMETRY', '/data/wastewater/equipment-telemetry.json'],
-  ['ASSET_RELATIONSHIPS', '/data/wastewater/asset-relationships.json'],
-];
-
-function getDataFilesForModel(model) {
-  if (model === 'water') return WATER_DATA_FILES;
-  if (model === 'wastewater') return WASTEWATER_DATA_FILES;
-  return REFINERY_DATA_FILES;
-}
-
-// Roles that exist in one model but not the other — reset to an empty
-// state before every fetch cycle so switching models never leaves the
-// PREVIOUS model's data lingering in a role the new one doesn't populate
-// (e.g. water briefly showing refinery's stale line-level telemetry).
+// Every model-data variable, reset to empty before each load so switching
+// models never leaves the PREVIOUS model's data lingering in a role the
+// new one doesn't populate. With three shapes (refinery, four-level,
+// generic) sharing almost no files, resetting everything is simpler and
+// safer than tracking which roles differ between which pair.
 function resetModelVaryingData() {
+  ATTENTION_ITEMS = [];
+  INITIAL_WORK_ITEMS = [];
+  LINE_STATUS = [];
+  OPERATING_CONTEXT_BY_LINE = {};
+  LINE_ROLLUPS = {};
   REFINERY_ROLLUPS = {};
+  STATION_METRICS = {};
+  STATION_TELEMETRY = null;
   LINE_TELEMETRY = null;
   REFINERY_TELEMETRY = null;
   LINE_SPARKLINES = {};
+  STATION_SPARKLINES = {};
+  PROPERTY_CATEGORIES = {};
+  PROPERTY_LABELS = {};
+  PROPERTY_RANGES = {};
+  PROPERTY_TIERS = {};
+  PROPERTY_UNITS = {};
+  PROPERTY_DECIMALS = {};
+  PROPERTY_DERIVATIONS = [];
+  TYPE_LABELS = {};
+  STATION_FULL_PROPERTIES = {};
+  LOADED_ASSET_DATA = [];
   EQUIPMENT_METRICS = {};
   EQUIPMENT_TELEMETRY = null;
-  WATER_ASSET_DATA = [];
+  ASSET_RELATIONSHIPS = [];
+  ASSET_VALUES = {};
+  ASSET_TELEMETRY = null;
+  UNIT_STATUS = {};
+}
+
+// properties.json (generic packs) holds what the legacy packs spread over
+// four files — split back into the same per-attribute lookups the rest of
+// the file already reads, plus units/decimals/derivations, which only
+// generic packs have.
+function assignGenericProperties(value) {
+  const props = value?.properties || {};
+  Object.entries(props).forEach(([key, meta]) => {
+    if (meta.label != null) PROPERTY_LABELS[key] = meta.label;
+    if (meta.category != null) PROPERTY_CATEGORIES[key] = meta.category;
+    if (meta.tier != null) PROPERTY_TIERS[key] = meta.tier;
+    if (Array.isArray(meta.range)) PROPERTY_RANGES[key] = meta.range;
+    if (meta.unit) PROPERTY_UNITS[key] = meta.unit;
+    if (meta.decimals != null) PROPERTY_DECIMALS[key] = meta.decimals;
+  });
+  PROPERTY_DERIVATIONS = value?.derivations || [];
+  TYPE_LABELS = value?.typeLabels || {};
+}
+
+// Generic packs describe each unit's status in one file keyed by asset id;
+// the Now strip reads the legacy LINE_STATUS list + OPERATING_CONTEXT_BY_LINE
+// map, so they're built from it here. Tiles follow assets.json order, and
+// each tile's id IS the unit's asset id (see nowTileIdToAssetId).
+function buildGenericUnitStatus() {
+  LINE_STATUS = [];
+  OPERATING_CONTEXT_BY_LINE = {};
+  CURRENT_ASSET_DATA
+    .filter(a => a.assetLevel === CURRENT_UNIT_LEVEL)
+    .forEach(unit => {
+      const status = UNIT_STATUS[unit.id] || {};
+      LINE_STATUS.push({
+        id: unit.id,
+        label: unit.name,
+        state: status.state || 'running',
+        statusSinceMinutes: status.statusSinceMinutes ?? null,
+      });
+      if (status.mode || status.product) {
+        OPERATING_CONTEXT_BY_LINE[unit.id] = { mode: status.mode || 'STEADY', product: status.product || '' };
+      }
+    });
 }
 
 function buildAssetMapFromArray(arr) {
@@ -6856,10 +7035,14 @@ function assignModelData(name, value) {
     case 'PROPERTY_RANGES': PROPERTY_RANGES = value; break;
     case 'PROPERTY_TIERS': PROPERTY_TIERS = value; break;
     case 'STATION_FULL_PROPERTIES': STATION_FULL_PROPERTIES = value; break;
-    case 'WATER_ASSET_DATA': WATER_ASSET_DATA = value; break;
+    case 'LOADED_ASSET_DATA': LOADED_ASSET_DATA = value; break;
     case 'EQUIPMENT_METRICS': EQUIPMENT_METRICS = value; break;
     case 'EQUIPMENT_TELEMETRY': EQUIPMENT_TELEMETRY = value; break;
     case 'ASSET_RELATIONSHIPS': ASSET_RELATIONSHIPS = value; break;
+    case 'GENERIC_PROPERTIES': assignGenericProperties(value); break;
+    case 'ASSET_VALUES': ASSET_VALUES = value; break;
+    case 'ASSET_TELEMETRY': ASSET_TELEMETRY = value; break;
+    case 'UNIT_STATUS': UNIT_STATUS = value; break;
     default: break;
   }
 }
@@ -6879,30 +7062,48 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   useEffect(() => {
     let cancelled = false;
     setDataState({ loaded: false, error: null, loadedModel: null });
-    const files = getDataFilesForModel(selectedModel);
-    Promise.all(
-      files.map(([, url]) =>
-        fetch(url).then(r => {
-          if (!r.ok) throw new Error(`${url} — ${r.status}`);
-          return r.json();
-        })
-      )
-    )
+    let files = [];
+    let model = null;
+    loadModelRegistry()
+      .then(models => {
+        model = models.find(m => m.id === selectedModel);
+        if (!model) throw new Error(`model "${selectedModel}" is not listed in /data/models.json`);
+        files = getModelDataFiles(model);
+        return Promise.all(
+          files.map(([, url]) =>
+            fetch(url).then(r => {
+              if (!r.ok) throw new Error(`${url} — ${r.status}`);
+              return r.json();
+            })
+          )
+        );
+      })
       .then(results => {
         if (cancelled) return;
-        // Clear roles the OTHER model owns before assigning this model's
+        // Clear roles the OTHER shape owns before assigning this model's
         // data — otherwise switching to water would leave refinery's stale
-        // line/refinery telemetry sitting in those variables untouched.
+        // line sparklines sitting in that variable untouched.
         resetModelVaryingData();
-        files.forEach(([name], i) => assignModelData(name, results[i]));
-        if (selectedModel === 'water' || selectedModel === 'wastewater') {
-          CURRENT_ASSET_DATA = WATER_ASSET_DATA;
-          CURRENT_ASSET_MAP = buildAssetMapFromArray(WATER_ASSET_DATA);
-        } else {
+        files.forEach(([role], i) => assignModelData(ROLE_TO_VARIABLE[role], results[i]));
+        if (model.shape === MODEL_SHAPES.REFINERY) {
           CURRENT_ASSET_DATA = ASSET_DATA;
           CURRENT_ASSET_MAP = ASSET_MAP;
+        } else {
+          CURRENT_ASSET_DATA = LOADED_ASSET_DATA;
+          CURRENT_ASSET_MAP = buildAssetMapFromArray(LOADED_ASSET_DATA);
         }
         CURRENT_MODEL = selectedModel;
+        CURRENT_MODEL_SHAPE = model.shape;
+        if (model.shape === MODEL_SHAPES.GENERIC) {
+          CURRENT_LEVEL_LABELS = Object.fromEntries(model.levels.map(l => [l.id, l.label]));
+          CURRENT_UNIT_LEVEL = model.unitLevel;
+          buildGenericUnitStatus();
+          applyTimeline(ASSET_TELEMETRY?.timeline, ASSET_TELEMETRY?.timestamps);
+        } else {
+          CURRENT_LEVEL_LABELS = null;
+          CURRENT_UNIT_LEVEL = null;
+          applyTimeline(LEGACY_TIMELINE, STATION_TELEMETRY?.timestamps);
+        }
         setDataState({ loaded: true, error: null, loadedModel: selectedModel });
       })
       .catch(err => {
@@ -6914,7 +7115,7 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   if (dataState.error) {
     return (
       <div className="op-workspace-loading op-workspace-loading--error">
-        Couldn't load operator data ({dataState.error}). Check that the /data/{selectedModel}/*.json files are present in the public folder.
+        Couldn't load operator data ({dataState.error}). Check that /data/models.json lists this model and that its /data/{selectedModel}/*.json files are present in the public folder.
       </div>
     );
   }
@@ -6980,11 +7181,11 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
     return () => window.removeEventListener('resize', measure);
   }, []);
   const [selectedAttentionId, setSelectedAttentionId] = useState(
-    (ATTENTION_ITEMS.find(i => i.attentionState === 'investigate') || ATTENTION_ITEMS[0]).id
+    (ATTENTION_ITEMS.find(i => i.attentionState === 'investigate') || ATTENTION_ITEMS[0])?.id ?? null
   );
   const [evidenceView, setEvidenceView] = useState('line');
   const [workItems, setWorkItems] = useState(INITIAL_WORK_ITEMS);
-  const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0].id);
+  const [selectedWorkItemId, setSelectedWorkItemId] = useState(INITIAL_WORK_ITEMS[0]?.id ?? null);
   const [selectedNowThing, setSelectedNowThing] = useState(() =>
     (deepLinkAppliesHere && operatorPersona === 'configurator')
       ? { kind: 'type', id: initialDeepLink.id }
@@ -7284,6 +7485,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
         id: `wk-${Date.now()}`,
         text: attentionItem.detail.recommendation,
         description: `Created from Attention: ${attentionItem.signal} (${attentionItem.asset})`,
+        assetId: attentionItem.assetId ?? null,
         assetLabel: attentionItem.asset,
         workType: 'INVESTIGATION',
         priority: attentionItem.severity === 'high' ? 'urgent' : attentionItem.severity === 'medium' ? 'important' : 'routine',
@@ -7317,6 +7519,12 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
     setSelectedWorkItemId(id);
   };
 
+  // Fixed for this mount's lifetime — a model switch remounts this component.
+  // The Issue Map / Line Detail overlay only knows the refinery's layout
+  // (spec §10), so every other model hides it and opens a clicked Now-strip
+  // tile in the Assets area instead.
+  const usesAssetTiles = CURRENT_MODEL_SHAPE !== MODEL_SHAPES.REFINERY;
+
   const handleSelectIssueFromMap = (attentionId) => {
     setRailMode('attention');
     setSelectedAttentionId(attentionId);
@@ -7338,8 +7546,16 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
       {operatorPersona !== 'configurator' && (
         <div className="op-now-section" ref={nowSectionRef}>
           <NowStrip
-            selectedLine={selectedDetailLine}
+            selectedLine={usesAssetTiles ? (railMode === 'assets' ? selectedAssetId : null) : selectedDetailLine}
             onSelectLine={(lineId) => {
+              if (usesAssetTiles) {
+                // Open the unit in the Assets area — the one view that
+                // works for any asset at any level.
+                setRailMode('assets');
+                setLeftPanelHidden(false);
+                setSelectedAssetId(lineId);
+                return;
+              }
               if (selectedDetailLine === lineId) {
                 setSelectedDetailLine(null);
               } else {
@@ -7348,14 +7564,14 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
               }
             }}
           />
-          <IssueMapOverlay
+          {!usesAssetTiles && <IssueMapOverlay
             expanded={issueMapExpanded}
             onToggle={() => setIssueMapExpanded(e => !e)}
             onSelectIssue={handleSelectIssueFromMap}
             selectedDetailLine={selectedDetailLine}
             onCloseDetailLine={() => setSelectedDetailLine(null)}
             topOffset={nowSectionBottom}
-          />
+          />}
         </div>
       )}
 

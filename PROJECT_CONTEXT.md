@@ -30,20 +30,38 @@ folder and commit/push yourself. Claude doesn't commit or push.
 Aetherium is a React + DevExtreme 25.x app with two main halves:
 
 - **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
-  Entities, Queries) — the original app, currently de-emphasized in the
-  nav (see `TODO.md`) while active work is on the half below.
+  Entities, Queries) — the original app, reachable again from the
+  title-bar menu (the title reads "Aetherium ▾" there, and the model
+  switcher hides, since models only drive the Operator side). Active work
+  is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
   concept, almost entirely contained in one very large file,
   `src/OperatorWorkspace.jsx` (~7,300 lines). This is where essentially
   all recent work has happened, and is very likely where new work will
   continue.
 
-Three simulated industry models exist — **refinery**, **water**, and
-**wastewater** — each with its own real asset hierarchy and generated
+Four simulated industry models exist — **refinery**, **water**,
+**wastewater** and **wind** (Boreas Ridge, the first generic pack, built
+from `ModelAndData/industries/wind/generate.py`) — each with its own real
+asset hierarchy and generated
 telemetry, loaded at runtime from `public/data/<model>/*.json` rather
 than hardcoded. A model switcher in the title bar (next to the
-Operator/Configurator experience switcher) picks which one is active;
-almost everything in `OperatorWorkspace.jsx` reads from whichever
+Operator/Configurator experience switcher) picks which one is active.
+The list of models, and which files each one loads, comes from
+`public/data/models.json`, so adding an industry is a data-only change
+(see `INDUSTRY_PACK_SPEC.md`).
+
+Models come in three **shapes**, and the shape (not the model's name)
+decides how the loader and the property lookup behave:
+
+- `generic`: the format for every new industry. Any hierarchy depth,
+  data keyed directly by asset id, and its own timeline. This is the
+  cleanest path through the code.
+- `four-level`: legacy water/wastewater (plant/train/stage/equipment).
+- `refinery`: legacy, with its hierarchy in `src/assetData.js`.
+
+Legacy shapes rely on string rules that convert one asset id into
+another; generic packs never do. Almost everything in `OperatorWorkspace.jsx` reads from whichever
 model's data is currently loaded, not from a specific model by name.
 
 ## The two personas, and what each one is for
@@ -128,6 +146,14 @@ either mode without extra work.
   top to bottom.
 - `src/App.js` — the outer shell: title bar, nav dropdown, model
   switcher, the title-bar Save button's enablement logic.
+- `public/data/models.json` + `src/modelRegistry.js` — the registry of
+  industry models (id, label, shape, per-role file overrides), read by both
+  the model switcher and `OperatorWorkspace`'s loader. A new industry pack
+  is one entry here plus its `public/data/<id>/` folder, with no code
+  changes. `INDUSTRY_PACK_SPEC.md` has the full requirements for building
+  one, and `ModelAndData/tools/validate_industry_pack.py` checks it.
+  `ModelAndData/tools/convert_legacy_to_generic.py` converts a legacy
+  four-level pack to the generic format.
 - `src/App.css` — title bar and other App.js-level chrome.
 - `src/App.operator.css` — essentially everything Operator/Configurator-
   specific.
@@ -138,7 +164,10 @@ either mode without extra work.
   file.
 - `src/HierarchyTree.jsx`, `src/DataListGrid.jsx` — small shared
   components reused across both the page-builder and Operator sides.
-- `public/data/<model>/*.json` — per-model generated data: telemetry
+- `public/data/<model>/*.json` — per-model generated data. Generic packs
+  have 8 files (`assets`, `asset-values`, `asset-telemetry`,
+  `properties`…, spec §6). The legacy description below is for the
+  20-file packs: telemetry
   (multiple points per property, not just current-value snapshots),
   asset relationships, attention/alarm items, work items, property
   labels/tiers/ranges. `station-full-properties.json`'s "current" value

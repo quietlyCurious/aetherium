@@ -1,34 +1,36 @@
 # Industry Pack Spec — adding a new simulated industry to Aetherium
 
-Read this before generating a new industry model (like `refinery`,
-`water`, `wastewater`). It's the full requirements list: what to research,
-what to design, what files to produce, the exact rules they follow, and
-how to check the result. Read `PROJECT_CONTEXT.md` first for the app itself.
+Read this before generating a new industry model. It's the full
+requirements list: what to research, how to design the asset model, what
+files to produce, the rules they follow, and how to check the result.
+Read `PROJECT_CONTEXT.md` first for the app itself.
 
 **How Amy will use this:** "Add a new industry: `<industry>`. Follow
 `INDUSTRY_PACK_SPEC.md`." That request plus this file should be enough to
-do the whole job. The only things to ask Amy up front are listed in §0.
+do the whole job. The only things to ask Amy up front are in §0.
 
-Everything here comes from the three existing packs in `public/data/` and
-the code that reads them in `src/OperatorWorkspace.jsx` (functions
-`getDataFilesForModel`, `assignModelData`, `resolveWaterAssetProperties`,
-`waterAssetDataIdTo*`, `attentionAssetToAssetEntry`,
-`getPropertySeriesForSource`). If this spec and the code ever disagree,
-the code wins. Fix this file when that happens.
+> **Status (v2, Sept 2026).** This version describes the **generic**
+> pack format: any hierarchy depth, uneven branches, and data keyed
+> directly by asset id. The app and the validator both support it
+> (`shape: "generic"` in `models.json`). The three existing packs
+> (refinery, water, wastewater) still use the older **legacy** formats
+> (§12), which keep working unchanged. §11 lists what was built and what
+> is still open.
 
 ---
 
 ## 0. Before starting — ask Amy (one batch)
 
-1. **Which industry, and how specific?** (for example "power generation",
-   "combined-cycle gas plant", "pharma tablet line").
-2. **Plant name(s).** Fictional names, like Aurelia, Ferrum, Meridian and
-   Confluence. The first 3 letters of each plant id become an id prefix,
-   so they must be unique within the model.
-3. **Anything the demo audience cares about?** (a customer segment, a
-   failure mode they'll recognize, a KPI they'll look for).
-4. **Is Excel output wanted too?** The default is: the generator script is
-   the source of truth, and it writes JSON only.
+1. **Which industry, and how specific?** (for example "onshore wind farm",
+   "combined-cycle gas plant", "pipeline compressor station").
+2. **Site and asset names.** Fictional names, like Aurelia, Meridian and
+   Confluence.
+3. **What should this model show off?** Deep and narrow, wide and
+   shallow, branches with different structures, many similar assets,
+   several relationship layers…? The existing models are listed in
+   `public/data/models.json`, so pick a shape they don't already cover.
+4. **Anything the demo audience cares about?** (a customer segment, a
+   failure they'll recognize, a KPI they'll look for).
 
 If Amy isn't around to answer, pick sensible defaults, write them at the
 top of `RESEARCH.md`, and carry on.
@@ -42,136 +44,135 @@ top of `RESEARCH.md`, and carry on.
 | 1 | Research brief (process, hierarchy, KPIs, failure modes, sources) | `ModelAndData/industries/<model>/RESEARCH.md` |
 | 2 | Scenario sheet (each scenario's story, timeline and data footprint) | `ModelAndData/industries/<model>/SCENARIOS.md` |
 | 3 | Deterministic generator script (fixed seed, rerunnable) | `ModelAndData/industries/<model>/generate.py` |
-| 4 | The 20 runtime JSON files (§6) | `public/data/<model>/` |
-| 5 | A passing run of the validator (§8) | `ModelAndData/tools/validate_industry_pack.py <model>` |
-| 6 | App wiring (§9): small code edits so the model shows up in the switcher | `src/App.js`, `src/OperatorWorkspace.jsx` |
+| 4 | The 8 runtime JSON files (§6) | `public/data/<model>/` |
+| 5 | The `models.json` entry (§9) | `public/data/models.json` |
+| 6 | A validator run with zero errors (§8) | `ModelAndData/tools/validate_industry_pack.py <model>` |
 | 7 | Browser check: switch to the model, then click through Configurator → Types/Assets and Operator → Attention/Assets/Investigate, with screenshots | Claude's sandbox (per `PROJECT_CONTEXT.md`) |
 
-`<model>` is a short lowercase slug with no spaces (for example `power`,
-`pharma`). It is the folder name, the model-switcher id, and the key used
-by `nowSelectionStorage`.
+`<model>` is a short lowercase slug with no spaces (for example `wind`).
+It's the folder name, the `models.json` id, and the key used by
+`nowSelectionStorage`.
 
-Commit the generator. The water and wastewater generators were never
-saved, so those packs can't be regenerated. Don't repeat that.
+Commit the generator. None of the three legacy packs has one, so none can
+be regenerated. Don't repeat that.
+
+**Worked example:** `ModelAndData/industries/wind/` (Boreas Ridge) is
+the first generic pack. It has all three documents plus a generator
+that reads its scenario constants from one block and derives the
+attention-item evidence from the generated series. Start a new pack by
+reading it.
 
 ---
 
 ## 2. Phase 1 — Research (RESEARCH.md)
 
 Research with web search before designing anything. Aim for about 75%
-realism and 25% demo clarity (the target set during the ChatGPT
-design sessions in `ModelAndData/ChatGPT_2026082*.txt`): real terms, real
-units, plausible magnitudes and real failure physics, simplified wherever
-realism would make a demo hard to follow.
+realism and 25% demo clarity (the target set during the ChatGPT design
+sessions in `ModelAndData/ChatGPT_2026082*.txt`): real terms, real units,
+plausible magnitudes and real failure physics, simplified wherever realism
+would make a demo hard to follow.
 
 RESEARCH.md must cover:
 
-1. **Process overview.** What the plant makes or does, and the main flow
-   from input to output in 5–6 steps. These steps become the **stages**.
-2. **Parallel units.** What the industry repeats in parallel (treatment
-   trains, production lines, generating units, packaging lines). These
-   become the **trains**. Justify having 6 of them, or explain the
-   deviation.
-3. **Equipment per step.** The 2–3 pieces of equipment an operator would
-   name at each step (pumps, tanks, basins, mixers, screens, blowers,
-   compressors, heat exchangers, fillers…). These become the **equipment**.
-4. **KPIs and properties.** For each stage type and each equipment type:
-   what's measured, in what unit, typical normal range, and which 1–2 of
-   those numbers an operator watches most. Cite sources.
-5. **Industry meaning of the universal KPIs.** Every stage carries the
-   same 8 universal properties (§5.4). Write down what each one means for
-   this industry: the throughput unit, what "scrap" or loss means, what
-   WIP or holdup means, and what the target rate is.
-6. **Failure modes.** At least 15 real, documented failure or abnormal
+1. **Process overview.** What the site produces or does, and how material,
+   energy or signals move through it.
+2. **The natural hierarchy.** How people in this industry break the site
+   down (site → area → unit → system → equipment, or whatever their own
+   words are). Use those levels and names; don't force the industry into
+   another industry's shape. Note where branches really differ (two
+   equipment generations, optional systems), and the realistic counts at
+   each level.
+3. **The unit of operation.** The level an operator thinks of as "a
+   thing I run", which gets its own status tile (a treatment train, a
+   turbine, a compressor unit). This becomes `unitLevel` (§3.1).
+4. **KPIs and properties.** For each asset type: what's measured, in what
+   unit, the typical normal range, and which 1–2 numbers an operator
+   watches most. Include the industry's headline KPIs (availability,
+   capacity factor, OEE, heat rate, whatever applies) and how they roll
+   up from child assets to parents. Cite sources.
+5. **Failure modes.** At least 12 real, documented failure or abnormal
    modes, each with: the asset involved, the physical cause, the first
-   measurable symptom, how it spreads downstream, how operators confirm
-   it, the usual fix, and a typical timescale (minutes, hours or days).
-   Cite sources: trade and regulator documents, OEM notes, operator
+   measurable symptom, how it spreads to related assets, how operators
+   confirm it, the usual fix, and a typical timescale (minutes, hours or
+   days). Cite sources: trade and regulator documents, OEM notes, operator
    training material, incident reports.
-7. **Normal-operation context.** Operating modes and products or grades
-   used in this industry (feeds `operating-context.json`), and typical
-   routine work (sampling, rounds, inspections, handovers, permits).
-8. **Sources.** A list of links.
+6. **Normal-operation context.** Operating modes, products or grades (or
+   their equivalent), and typical routine work (rounds, inspections,
+   sampling, permits, handovers).
+7. **Sources.** A list of links.
 
 ---
 
 ## 3. Phase 2 — Model design
 
-### 3.1 Hierarchy shape (fixed)
+### 3.1 Hierarchy
 
-New packs use the **4-level shape** that water and wastewater use. The
-refinery's 3-level shape is hardcoded in `src/assetData.js` and can't be
-reused.
+The hierarchy is a tree of assets. Each model declares its own levels, in
+order from root to leaf, in `models.json` (§9).
 
-| `assetLevel` (exact string) | Meaning | Count per model | Existing examples |
-|---|---|---|---|
-| `plant` | Site | 1 (2 is allowed but untested on this path) | Meridian, Confluence |
-| `train` | A parallel process unit | 6 per plant | T01…T06 |
-| `stage` | A process step within a train. **This is the "station" level: it carries the rich telemetry.** | 5–6 per train (30–36 total) | Intake, Coagulation, Aeration… |
-| `equipment` | Physical equipment within a stage | 2–3 per stage (80–100 total) | Raw Water Pump, Blower, Filter Bed |
+- **Depth:** 3–7 levels. Every asset sits exactly one level below its
+  parent. A branch can stop early: a leaf can be at any level, so a simple
+  pump can have no component children while its neighbour does.
+- **Width:** whatever is realistic. Counts can differ between branches (a
+  feeder with 7 turbines next to one with 10). There is no required count
+  at any level; see the budgets in §7.
+- **Roots:** one or more assets with `parentId: null`, all at the first
+  level. More than one root is fine, for example two sites.
+- **`unitLevel`:** one declared level whose assets are the units of
+  operation. Each one gets a Now-strip tile, a status and an operating
+  context (§6.6), and every attention item names one (§6.7). It's usually
+  the level right under the site, but it doesn't have to be.
+- **Types.** A type is (`assetLevel`, `assetType`), and an `assetType`
+  belongs to exactly one level. Every instance of a type has **the same
+  property keys**, because the Configurator shows and saves display
+  settings per type, so a type must mean one consistent set of values.
+  Instances should also have the same *kinds* of children. If they don't,
+  decide which of two cases it is:
+  - The asset itself is different (a geared turbine has a gearbox, a
+    direct-drive turbine doesn't): make it **two types**.
+  - It's a container that just holds a mix (a feeder with some turbines
+    of each kind): keep **one type**. The validator warns about it, and
+    that's expected.
+- **Heterogeneity is encouraged.** Branches with different structures,
+  optional subsystems and mixed generations are exactly what shows the
+  app handles real-world models. Say where and why in RESEARCH.md.
 
-The `assetLevel` strings are **not** negotiable, because the resolver
-matches on them. Industry wording goes in `name`. For example, a power
-plant's "units" are still `assetLevel: 'train'`, named `U01`…`U06`.
+### 3.2 IDs, names and labels
 
-Every train contains the same stage types in the same order, and every
-stage type has the same equipment types across trains. (Variation between
-trains shows up in the data, not the structure.)
+The generic format has **no id-derivation rules**. The app never builds
+one id from another; every file refers to assets by their real `id`.
 
-### 3.2 ID and naming rules (load-bearing — the app breaks if these are wrong)
-
-Several different id formats refer to the same asset, and the app
-converts between them with string rules. Follow these exactly. Examples
-below use a plant named "Halcyon" with trains named `U01`.
-
-| Thing | Rule | Example |
-|---|---|---|
-| Plant `id` | `UPPER(name)`, no spaces | `HALCYON` |
-| Plant prefix `PFX` | first 3 chars of plant id | `HAL` |
-| Train `name` | short code, no spaces, zero-padded number | `U01` |
-| Train `id` | `PLANT_ID + '_' + train.name` | `HALCYON_U01` |
-| Stage `name` | Title Case display name | `Steam Turbine` |
-| Stage `assetType` | `slug(name)`: lowercase, spaces → `_` | `steam_turbine` |
-| Stage `id` | `TRAIN_ID + '_' + UPPER(name) with spaces → '_'` | `HALCYON_U01_STEAM_TURBINE` |
-| Equipment `name` | Title Case | `Lube Oil Pump` |
-| Equipment `assetType` | `slug(name)` | `lube_oil_pump` |
-| Equipment `id` | `STAGE_ID + '_' + UPPER(name) with spaces removed` | `HALCYON_U01_STEAM_TURBINE_LUBEOILPUMP` |
-| **Station id** (keys in stage telemetry and metrics files) | `PFX + '_' + train.name + '_' + UPPER(assetType with '_' removed)` | `HAL_U01_STEAMTURBINE` |
-| **Line id** (keys in line files) | `PLANT_ID + '_' + PFX + '_' + train.name` | `HALCYON_HAL_U01` |
-| Line label | `plant.name + ' · ' + train.name` (the `·` is U+00B7 with spaces) | `Halcyon · U01` |
-| Stage label (attention `asset`) | `plant.name + ' · ' + train.name + ' · ' + stage.name` | `Halcyon · U01 · Steam Turbine` |
-
-Why these matter:
-
-- `attentionAssetToAssetEntry` turns a stage label into an id by
-  uppercasing each part and replacing spaces with `_`, then looks it up. So
-  the stage id must be exactly `UPPER(label parts joined by _)`.
-- `waterAssetDataIdToStageId` builds the station id from `PFX`,
-  `train.name` and the stage's `assetType` with underscores removed.
-- `waterAssetDataIdToTrainId` builds the line id the same way.
-- Equipment ids are used directly as keys in the equipment files, with no
-  conversion.
-- The types list uses `TYPE_<assetLevel>_<assetType>`. Keep each
-  `assetType` unique within its level. An equipment type may appear in
-  several stages (for example `sludge_collector`), and it's then one type
-  with many instances.
+- **`id`:** unique across the model, stable, `UPPER_SNAKE_CASE` using
+  only `A–Z`, `0–9` and `_`. Recommended (not required) form: the
+  parent's id plus `_` plus a short code, for example
+  `BOREAS_F2_WTG07_GEARBOX`. That keeps ids readable in logs.
+- **`assetType`:** lowercase `snake_case`, unique within its level
+  (`gearbox`, `pitch_system`).
+- **`name`:** the display name, unique among siblings. Short codes are
+  fine where that's how the industry refers to them (`WTG-07`, `F2`).
+  Repeated equipment names under different parents are expected
+  ("Gearbox" in every turbine).
+- **Display label:** the app shows an asset in context as the names on
+  its path, joined with `' · '` (U+00B7 with spaces), starting at the
+  unit-level ancestor, for example `WTG-07 · Gearbox`. Attention and work
+  items store this label (`asset`, `assetLabel`) for display, next to the
+  id they actually use (§6.7, §6.8).
 
 ### 3.3 Property keys
 
 - Use `snake_case` and put the **unit at the end** when there is one:
-  `bearing_temp_c`, `discharge_pressure_psi`, `dosing_flow_rate_gpm`,
-  `turbidity_ntu`, `level_pct`. Unitless indices end in `_index` or
-  `_score`.
+  `bearing_temp_c`, `active_power_kw`, `wind_speed_ms`, `level_pct`.
+  Unitless indices end in `_index` or `_score`.
 - **Metadata is global to the model, keyed by property name alone.** One
-  label, one category, one tier and one range per key. So:
-  - Reuse a key across equipment types only when it means the same thing
-    and has the same normal range (every pump's `vibration_mms`).
+  label, unit, category, tier and range per key. So:
+  - Reuse a key across types only when it means the same thing and has
+    the same normal range.
   - When a similar measurement has a very different magnitude, give it a
-    **different key**. Existing example: small dosing pumps use
-    `motor_current_a` (about 3–5 A) while large process pumps use
-    `process_motor_current_a`, so each gets its own gauge range.
-- Reusable **equipment property kits** keep things consistent. From
-  water and wastewater:
+    **different key**. The legacy packs use `motor_current_a` for small
+    dosing pumps and `process_motor_current_a` for large process pumps, so
+    each gets its own gauge range.
+- **Reusable property kits** keep equipment consistent. From the legacy
+  packs:
   - Centrifugal process pump: `flow_rate_gpm`, `discharge_pressure_psi`,
     `process_motor_current_a`, `vibration_mms`, `bearing_temp_c`
   - Metering or dosing pump: `dosing_flow_rate_gpm`,
@@ -179,74 +180,88 @@ Why these matter:
     `bearing_temp_c`
   - Storage tank: `level_pct`, `consumption_rate`, `temperature_c`
   - Basin or vessel: `level_pct`, `residence_time_min`
-  - Screen: `differential_pressure_psi`, `rake_motor_torque_pct`,
-    `cleaning_cycles_per_hr`
-  - Mixer: `motor_current_a`, `<x>_speed_rpm`, `torque_pct`
-  - Collector or skimmer: `motor_current_a`, `travel_speed_pct`,
-    `cycle_time_min`
   - Blower: `air_flow_scfm`, `blower_discharge_pressure_psi`,
     `discharge_temp_c`, `vibration_mms`
 
-  Reuse these keys when the new industry has the same kind of equipment.
-  Add new kits (compressor, heat exchanger, turbine, conveyor, filler…)
-  when it doesn't.
-- **Stage "typed" properties:** 4–6 per stage type, specific to that
-  process step (for example `coagulant_dose_mg_l`,
-  `sludge_blanket_level_pct`). Don't repeat the 8 universal properties
-  here.
-- **Equipment properties:** 2–5 per equipment type.
-- Aim for about 40–55 distinct stage and equipment property keys. Adding
-  the 19 fixed rollup keys, that's about 60–70 metadata entries in total.
+  Add new kits (gearbox, generator, converter, compressor, heat
+  exchanger, turbine…) when the industry needs them, and reuse them
+  across that model.
+- **How many per type:** about 2–8. Operators should see the handful
+  that matter, not everything a historian stores. Container assets (a
+  site, a feeder, an area) usually carry derived headline KPIs (§3.5). A
+  type with no properties at all is allowed, but it shows an empty
+  preview in the Configurator, so give it at least one if you can.
+- **Static properties** (nameplate values like `rated_power_kw`) are
+  allowed. They go in the current-values file but have no time series,
+  and must be marked `static: true` in their metadata.
 
-### 3.4 Property metadata
+### 3.4 Property metadata (`properties.json` → `properties`)
 
-For **every** key that appears in any stage typed set, equipment set, line
-rollup or plant rollup:
+For **every** key used by any asset:
 
-- **Label.** Short, human-readable name with no unit (units live in the
-  key). "Raw Water Turbidity", not "Raw Water Turbidity (NTU)".
-- **Category.** Exactly one of `Flow / WIP`, `Events / Losses`,
-  `Stability`, `Quality`, `Derived Metric`, `Condition` (this list is
-  `HMI_CATEGORY_ORDER`). Condition is for equipment-health signals
-  (vibration, temperature, current, pressure drop). Quality is for product
-  or effluent quality. Stability is for control or oscillation signals.
-- **Tier.** `P1` (always shown), `P2`, or `P3` (shown only at "max").
-  Existing packs are roughly 35% P1, 45% P2, 20% P3. The 1–2 numbers an
-  operator watches most per stage or equipment type are P1.
-- **Range.** `[min, max]` for the gauge. Normal operation should sit in
-  the middle 30–70% of the range, and failure excursions should still fit
-  inside it. **Every** numeric stage or equipment key needs a range.
-  (Existing packs are missing one for `residence_time_min`. Don't copy
-  that.)
+- **`label`:** short and human-readable, no unit ("Bearing Temperature").
+- **`unit`:** display unit string (`"°C"`, `"kW"`, `"%"`), or `""` for
+  indices.
+- **`category`:** prefer the six the Operator views already group by, in
+  this order: `Flow / WIP`, `Events / Losses`, `Stability`, `Quality`,
+  `Derived Metric`, `Condition`. Industry-specific extras are allowed
+  (for example `Electrical`, `Environmental`); the UI lists them after
+  the six. Keep the model to at most 8 categories in total.
+  - Condition is for equipment health (vibration, temperatures, current,
+    pressure drop).
+  - Quality is for product or output quality.
+  - Stability is for control and oscillation signals.
+- **`tier`:** `P1` (always shown), `P2`, or `P3` (shown only at "max").
+  This set is fixed by the UI's visibility filter. Aim for roughly 35% P1,
+  45% P2, 20% P3. The 1–2 numbers an operator watches most per type are
+  P1.
+- **`range`:** `[min, max]` for the gauge. Normal operation should sit in
+  the middle 30–70% of the range, and scenario excursions should still
+  fit inside it.
+- **`decimals`** (optional): display precision.
+- **`static`** (optional, default `false`): see §3.3.
 
-Labels, categories and tiers must also cover the line and plant rollup
-keys (§5.5). Ranges for rollup keys are optional.
+### 3.5 Derived (rollup) properties (`properties.json` → `derivations`)
 
-### 3.5 Relationships (`asset-relationships.json`)
+Parent-level KPIs are computed from their descendants, and the rule is
+written down as data:
+
+```jsonc
+{ "assetType": "feeder", "property": "active_power_kw",
+  "fn": "sum", "of": "active_power_kw", "fromType": "wind_turbine_geared|wind_turbine_dd", "scope": "descendants" }
+```
+
+- `fn` is one of `sum`, `mean`, `min`, `max`, `count` (count of
+  descendants matching a condition goes in RESEARCH.md and is precomputed).
+- `fromType` is one or more `assetType`s joined by `|`.
+- `scope` is `children` or `descendants`.
+- It applies at **every time point**, not only "now". The validator
+  checks this.
+- Ratios and industry formulas (availability, capacity factor, OEE)
+  that aren't a simple aggregate are documented in `generate.py` and
+  RESEARCH.md, and listed with `"fn": "formula"` and a `note`. The
+  validator then skips them.
+
+### 3.6 Relationships (`asset-relationships.json`)
 
 Schema: `{ sourceAssetId, targetAssetId, relationshipType, label, layer }`.
 
-- Edges are **equipment → equipment** within one train. No edges cross
-  trains, and there are no stage-level or train-level edges.
+- Edges can connect **any two assets at any levels**, including across
+  branches (a turbine's transformer feeding its feeder, a feeder feeding
+  the site substation).
+- **Containment is not an edge.** It already comes from `parentId`, and
+  the app draws it separately.
 - `relationshipType` is `feeds_into` for every existing edge. Add a new
   type only if Amy agrees it's needed.
-- `label` is `null`, except on edges that need explaining (such as
-  "return activated sludge" or "periodic cleaning cycle, reverse flow").
-- `layer` is required. Always include `process_flow` (the main flow
-  from the first stage to the last). Add 1–2 industry-specific layers
-  where they exist, for example `chemical_dosing`, `air_flow`,
-  `backwash`, or new ones like `steam`, `cooling_water`, `lube_oil`,
-  `power`. The same asset can receive edges from several layers.
-- Real cycles are fine and wanted when the process has them (such as
-  wastewater's return sludge).
-- Equipment that acts on its own vessel and passes nothing onward (mixers,
-  collectors, skimmers) may have no edge at all. Write down which ones and
-  why in RESEARCH.md.
-- The same edge pattern repeats in every train. Expect about 60–75 edges
-  in total.
-- Write the same content to both `asset-relationships.json` (what the
-  loader reads) and `asset-relationships-<model>.json` (a copy kept to
-  match the existing packs).
+- `label` is `null` unless the edge needs explaining ("return activated
+  sludge", "reverse flow during backwash").
+- `layer` is required. Use one or more industry layers (`process_flow`,
+  `power`, `steam`, `cooling_water`, `lube_oil`, `air_flow`,
+  `chemical_dosing`, `comms`…). An asset can have edges on several
+  layers.
+- Real cycles are fine when the process has them.
+- Assets with no flow relationship (a mixer acting on its own vessel) can
+  have no edges. Write down which ones and why in RESEARCH.md.
 
 ---
 
@@ -268,57 +283,73 @@ failure modes** from RESEARCH.md rather than inventing new ones.
 | 04 | Accumulation or saturation | Downstream capacity < incoming flow | Level or inventory steadily rising |
 | 05 | Component degradation | Bearing, seal or membrane wearing | Vibration or temperature ↑ at the same load |
 | 06 | Signal noise | Faulty instrument, healthy process | Erratic signal that nothing else confirms |
-| 07 | Ghost signal | Symptom shows downstream, cause is upstream | Quality problem appears at a later stage |
-| 08 | Throughput illusion | Headline rate hides losses | WIP or micro-stops ↑, rate looks fine |
+| 07 | Ghost signal | Symptom shows downstream, cause is upstream | Problem appears at a later asset |
+| 08 | Throughput illusion | Headline rate hides losses | Hidden losses ↑, headline rate looks fine |
 | 09 | Cascade failure | Upstream fault spreads downstream | Upstream interruption, then downstream disturbances |
 | 10 | Overcorrection loop | Manual and automatic corrections amplify each other | Oscillation growing |
-| 11 | Hard block | Physical obstruction or trip | Flow → 0, holdup rises fast |
+| 11 | Hard block | Physical obstruction or trip | Output → 0 suddenly |
 | 12 | Recurring micro-events | Small repeated interruptions add up | Event frequency above normal |
-| 13 | Quality drift | Input or process shift heading toward a spec limit | Quality falling while throughput stays healthy |
+| 13 | Quality drift | Input or process shift heading toward a limit | Quality falling while output stays healthy |
 | 14 | Plan or compliance at risk | Healthy equipment, a deadline or prerequisite at risk | Time needed is greater than time left |
 
-**Coverage requirement:** at least **8 attention items**, covering at
-least 8 different archetypes, and including at least one each of 05
-(degradation), 06 (instrument versus process), 07 (upstream cause) and 11
-or 09 (acute event). Archetype 01 never gets an attention item. Spread
-the items across at least 5 different trains and at least 4 different
-stage types.
+**Coverage:**
+
+- **6–14 attention items**, covering at least 6 different archetypes.
+  Include at least one each of 05 (degradation), 06 (instrument versus
+  process) and 07 (upstream cause), plus 09 or 11 (acute event).
+  Archetype 01 never gets an attention item.
+- Spread the items across at least 4 unit-level assets (or all of them,
+  if there are fewer) and at least 4 asset types, and at more than one
+  hierarchy level. At least one item should be on a non-leaf asset.
+  Items can sit above the unit level too (a feeder trip, a site-wide
+  curtailment); those have `unitId: null`.
 
 Include a mix of outcomes as of "now":
 
-- about 50–60% **resolved** (`attentionState: 'watch'`,
-  `outcomeStatus: 'resolved'`)
-- 1–2 **recovering**
-- 2–3 still **open** (`investigate` or `act`, with `outcomeStatus:
-  'none'`)
+- about half **resolved** (`attentionState: 'watch'`, `outcomeStatus:
+  'resolved'`)
+- at least 1 **recovering**
+- at least 2 still **open** (`investigate` or `act`, with
+  `outcomeStatus: 'none'`)
 - at least one `act` item and at least one `high` severity item
+- at least one item that started within 30 minutes of now (lights the
+  "new" dot on the Attention icon)
 
-### 4.2 Shared timeline (fixed across all models)
+### 4.2 The timeline
 
-- Shift window: **08:00 to 14:05** on **2026-08-28**, a 5-minute grid,
-  **74 points** (`08:00, 08:05 … 14:05`).
-- **"Now" is 2026-08-28 14:05.** This is hardcoded in the app
-  (`WORK_NOW_REFERENCE`, `NOW_REFERENCE_MIN`).
-- Every scenario's evidence window must sit inside 08:00–14:05, with
-  `evidencePoints` times **on the 5-minute grid**. (The time scrubber and
-  the evidence tables both line up against this grid.)
-- A resolved scenario's `sinceMinutes` = minutes from its resolution time
-  to 14:05. An open scenario's `sinceMinutes` = minutes from its start to
-  14:05. The `since` text must agree: `"Resolved 2h 35m ago"` or
-  `"5h 35m ago"` or `"55m ago"`.
-- At least one item with `sinceMinutes ≤ 30` makes the "new" dot on the
-  Attention icon light up (`NEW_ATTENTION_THRESHOLD_MINUTES = 30`).
+Each model declares its own timeline in `asset-telemetry.json` (§6.5):
+
+```json
+"timeline": { "date": "2026-08-28", "start": "08:00", "end": "14:05", "stepMinutes": 5 }
+```
+
+- `end` **is "now"** for that model. Everything "as of now" (snapshots,
+  `sinceMinutes`, work-item lateness) is measured from it.
+- One calendar day, `HH:MM` times, `start` < `end`, and `end − start`
+  divisible by `stepMinutes`. `stepMinutes` is 1, 2, 5, 10 or 15.
+- **Default** (use it unless the industry clearly calls for something
+  else): 08:00–14:05 at 5 minutes, 74 points, on 2026-08-28. That keeps
+  all models on the same demo day. A different step can be worth it: wind
+  SCADA naturally reports 10-minute averages, and compressor surge events
+  need 1–2 minutes.
+- Aim for 40–200 points per series (§7).
+- Every scenario's `evidencePoints` times are on the grid and inside the
+  window.
+- `sinceMinutes` for a resolved item = minutes from its resolution time
+  to `end`; for an open item = minutes from its start to `end`. The
+  `since` text must agree: `"Resolved 2h 35m ago"`, `"5h 35m ago"` or
+  `"55m ago"`.
 
 ### 4.3 What SCENARIOS.md records per scenario
 
-id, archetype #, stage label, the equipment it's rooted in, the primary
-property (the one in `evidencePoints` and the stage sparkline), secondary
-properties and how each one responds, start, peak, intervention and
-recovery times, the downstream stages affected and their lag,
-the ruled-out alternatives, the related work item(s), and a research
-citation for why it's realistic. The generator reads the same numbers
-(keep them as a table or dict at the top of `generate.py`), so the story
-and the data can't drift apart.
+id, archetype #, the asset id it's on, the root-cause asset (if
+different), the primary property, the secondary properties and how each
+responds, the start, peak, intervention and recovery times, the related
+assets affected (via which relationship layer) and their lag, the
+ruled-out alternatives, the related work items, and a research citation
+for why it's realistic. The generator reads the same numbers (keep them
+as a table or dict at the top of `generate.py`), so the story and the
+data can't drift apart.
 
 ---
 
@@ -326,22 +357,23 @@ and the data can't drift apart.
 
 ### 5.1 Baseline (normal) behaviour
 
-- Every series (stage universal, stage typed, equipment, line and plant)
-  has **74 points** on the shared grid.
+- Every non-static numeric property of every asset has a series with one
+  point per timeline step.
 - Model normal operation as a **slowly drifting AR(1) process around a
-  per-asset setpoint**, not white noise. The existing data has lag-1
+  per-asset setpoint**, not white noise. The legacy data has lag-1
   autocorrelation of about 0.8–0.95. Typical coefficient of variation:
-  about 0.2–2% for tightly controlled values (pH, availability,
-  throughput), about 5–15% for loosely controlled ones (turbidity, WIP,
-  differential pressure). Queue-like values can hit 0.
-- Give each train a slightly different setpoint or efficiency (about
-  ±1–3%) so the trains aren't identical and there's a real best and worst
-  train.
-- **Stay within physics:** percentages stay within 0–100 (the existing
-  packs occasionally show `performance` and `availability` above 100 —
-  don't copy that), counts are ≥ 0, and values stay inside their
-  `property-ranges` entry.
-- Round stored values to 3 decimals, or 2 for percentages. Use a fixed
+  about 0.2–2% for tightly controlled values, about 5–15% for loosely
+  controlled ones. Counts and queues can hit 0.
+- **Drive related values from a shared cause** where the physics does it
+  (wind speed → rotor speed → power → gearbox temperature), not as
+  independent noise. That's what makes the Investigate views convincing.
+- Give sibling assets slightly different setpoints or efficiencies
+  (about ±1–3%) so there's a real best and worst.
+- **Stay within physics:** percentages stay within 0–100, except ratios
+  that can really exceed it (performance against a curve, transformer
+  load); declare those with a range above 100. Counts are ≥ 0, and values
+  stay inside their metadata `range`.
+- Round stored values to 3 decimals or the key's `decimals`. Use a fixed
   random seed.
 
 ### 5.2 Injecting a scenario (its footprint in the data)
@@ -349,127 +381,132 @@ and the data can't drift apart.
 For each attention item, the generator must write the story into the
 telemetry, not just into the narrative text:
 
-1. **Primary property** at the affected stage: follows the
+1. **Primary property** on the item's asset follows the
    `evidencePoints` values at their exact times (with a little noise in
    between), shaped by the archetype (ramp, step, oscillation, spike and
    recovery…).
-2. **Root-cause equipment:** the equipment's own condition signals change
-   in the physically right direction, **starting before or with** the
-   stage symptom. (Example from water: the coagulant under-dose shows
-   discharge pressure falling on the metering pump.)
-3. **Downstream effect:** at least one downstream stage in the same
-   train responds after a realistic lag (example: settled-water turbidity
-   rises about 40 minutes after the coagulant dose drops). Archetype 06
-   (instrument fault) is the exception: nothing downstream or nearby
+2. **Root cause:** if the cause is on a different asset (a child
+   component, an upstream asset), that asset's own condition signals
+   change in the physically right direction, **starting before or with**
+   the visible symptom.
+3. **Related effect:** at least one related asset (through a
+   relationship edge or the parent chain) responds after a realistic lag.
+   Archetype 06 (instrument fault) is the exception: nothing related
    confirms it, and that absence is the point.
-4. **Universal KPIs** at the affected stage (performance, quality_factor,
-   throughput, wip…) dip or rise by a believable amount during the
-   episode and recover afterward if it was resolved.
+4. **Headline KPIs** on the item's asset and its ancestors dip or rise by
+   a believable amount through the derivations (§3.5), and recover
+   afterward if the item was resolved.
 5. **Recovery** after the intervention time, with realistic lag. Open
-   items are still abnormal at 14:05.
-6. Train-level and plant-level rollups are recomputed from the stage data
-   (§5.5), so the incident shows up there too.
+   items are still abnormal at "now".
 
 `evidence` (the number array) = the numeric values of `evidencePoints`,
 in order. For non-numeric evidence (event counts, task states), use small
-integer codes as the existing packs do.
+integer codes as the legacy packs do.
 
 ### 5.3 The "current value" rule
 
-For every asset, the **snapshot value equals the last point (14:05) of
-its own series.** The Investigate time scrubber depends on this.
-
-- `station-full-properties[stationId][k]` equals the last value of
-  `station-telemetry.stations[stationId].typed[k]`, exactly.
-- `equipment-metrics[eqId][k]` equals the last value of
-  `equipment-telemetry.equipment[eqId][k]`, exactly.
-- `line-rollups[lineId][k]` equals the last value of
-  `line-telemetry.lines[lineId][k]` (for numeric keys that have a series).
-- `plant-rollups[plantId][k]` equals the last value of
-  `plant-telemetry.refineries[plantId][k]`.
-- In `station-metrics`, `throughput`, `oee`, `wip`, `queueLength` and
-  `scrapRate` equal the last universal value, rounded to display
-  precision (within 0.05).
-- `station-sparklines[stationId].values` is identical to that stage's full
-  typed series for the named property.
-
-### 5.4 Universal stage properties (fixed key set)
-
-Every stage's `universal` block has exactly these 8 keys: `performance`,
-`availability`, `quality_factor`, `throughput`, `oee`, `wip`,
-`queue_length`, `scrap_rate`.
-
-- `oee = availability × performance × quality_factor / 10,000`, per point.
-- `throughput` is in the industry's natural rate unit per train (for
-  example MGD, t/h, units/min, MW). `targetRate` is the design rate.
-- `scrap_rate` is the % of throughput lost or off-spec. `wip` is holdup
-  or inventory in the stage. `queue_length` is backlog. Record the
-  industry meaning of each in RESEARCH.md.
-
-### 5.5 Rollup formulas (match the existing packs)
-
-Train (line), per time point, over the train's stages:
-
-| Key | Formula |
-|---|---|
-| `line_throughput` | mean of stage `throughput` |
-| `line_target_rate` | the train's design rate (constant) |
-| `line_oee`, `line_availability`, `line_quality_factor` | mean of the stage values |
-| `total_wip` | sum of stage `wip` |
-| `system_health_index` | = `line_oee` |
-| `flow_efficiency` | = `line_availability` |
-| `instability_index` | a variability measure of the train's stages (0–100 scale; the existing packs sit around 2–8 when normal). Document the formula in `generate.py` |
-| `bottleneck_station` (snapshot only) | the `stationType` (underscores kept) of the stage with the lowest `throughput` at 14:05 |
-
-Plant, per time point, over its trains:
-
-| Key | Formula |
-|---|---|
-| `plant_throughput`, `plant_target_rate` | sum over trains |
-| `plant_oee`, `plant_availability`, `plant_quality_factor` | mean over trains |
-| `plant_health_index` | = `plant_oee` |
-| `plant_instability_index` | max of the trains' `instability_index` |
-| `best_train`, `worst_train` (snapshot only) | line ids with the highest and lowest `line_oee` at 14:05 |
+For every asset and every non-static property,
+`asset-values[assetId][key]` **equals the last point** of
+`asset-telemetry.series[assetId][key]`, exactly. The Investigate time
+scrubber depends on this. Static properties appear only in
+`asset-values`.
 
 ---
 
-## 6. File contracts — the 20 files in `public/data/<model>/`
+## 6. File contracts — the 8 files in `public/data/<model>/`
 
-The names in the left column are the global variables `assignModelData`
-fills. Paths are fixed by the loader's file list (§9), so file names for
-new packs can be cleaner than the legacy `water-*` ones.
+| # | File | Role | Contents |
+|---|---|---|---|
+| 1 | `assets.json` | assets | the hierarchy |
+| 2 | `asset-relationships.json` | assetRelationships | relationship edges (§3.6) |
+| 3 | `properties.json` | properties | property metadata + derivations |
+| 4 | `asset-values.json` | assetValues | current value of every property |
+| 5 | `asset-telemetry.json` | assetTelemetry | timeline + series |
+| 6 | `unit-status.json` | unitStatus | status and operating context per unit |
+| 7 | `attention-items.json` | attentionItems | situations |
+| 8 | `work-items.json` | workItems | tasks |
 
-| Loader name | File (new packs) | Shape |
-|---|---|---|
-| `WATER_ASSET_DATA` | `asset-data.json` | `[{ id, parentId, name, assetType, assetLevel }]`, ordered as a depth-first walk (plant, train, stage, its equipment, next stage…) |
-| `ASSET_RELATIONSHIPS` | `asset-relationships.json` (+ the `-<model>` copy) | see §3.5 |
-| `STATION_TELEMETRY` | `station-telemetry.json` | `{ timestamps:[74 "HH:MM"], stations:{ [stationId]:{ universal:{8 keys:[74]}, typed:{k:[74]} } } }` |
-| `STATION_FULL_PROPERTIES` | `station-full-properties.json` | `{ [stationId]: { typedKey: value } }`, the same keys as `typed` |
-| `STATION_METRICS` | `station-metrics.json` | `{ [stationId]: { stationType, isReal:false, plant, throughput, targetRate, oee, wip, queueLength, scrapRate, highlights:[{label:typedKey, value}] ×2 } }`. `stationType` = UPPER(assetType) with underscores **kept** (`PRIMARY_CLARIFIER`); `plant` = plant.name |
-| `STATION_SPARKLINES` | `station-sparklines.json` | `{ [stationId]: { property: typedKey, values:[74] } }`, one entry for each stage that has an attention item |
-| `EQUIPMENT_TELEMETRY` | `equipment-telemetry.json` | `{ timestamps:[74], equipment:{ [equipmentId]:{ k:[74] } } }` |
-| `EQUIPMENT_METRICS` | `equipment-metrics.json` | `{ [equipmentId]: { k: value } }`, for **every** equipment asset |
-| `LINE_TELEMETRY` | `line-telemetry.json` | `{ timestamps:[74], lines:{ [lineId]:{ 9 line keys:[74] } } }` |
-| `LINE_ROLLUPS` | `line-rollups.json` | `{ [lineId]: { 9 line keys + bottleneck_station } }` |
-| `REFINERY_TELEMETRY` | `plant-telemetry.json` | `{ timestamps:[74], refineries:{ [plantId]:{ 7 plant keys:[74] } } }`. **The top-level key really is `refineries`**, because `getPropertySeriesForSource` reads that name |
-| `REFINERY_ROLLUPS` | `plant-rollups.json` | `{ [plantId]: { 7 plant keys + best_train + worst_train } }` |
-| `LINE_STATUS` | `line-status.json` | `[{ id: lineId, label: lineLabel, state, statusSinceMinutes }]`, one per train. `state` is one of `running`, `attention`, `changeover`, `down`. A train with an open attention item is `attention`, with `statusSinceMinutes` = the minutes since its oldest open item started |
-| `OPERATING_CONTEXT_BY_LINE` | `operating-context.json` | `{ [lineId]: { mode, product } }`. `mode` is one of `STEADY`, `CHANGEOVER`, `RAMP_UP`, `RAMP_DOWN`, `STOPPED`, `MAINTENANCE`, `CONTROLLED_HOLD`. `product` = the industry's product or grade name |
-| `PROPERTY_LABELS` | `property-labels.json` | `{ key: "Label" }` |
-| `PROPERTY_CATEGORIES` | `property-categories.json` | `{ key: category }` (§3.4) |
-| `PROPERTY_TIERS` | `property-tiers.json` | `{ key: "P1"\|"P2"\|"P3" }` |
-| `PROPERTY_RANGES` | `property-ranges.json` | `{ key: [min, max] }` |
-| `ATTENTION_ITEMS` | `attention-items.json` | see below |
-| `INITIAL_WORK_ITEMS` | `work-items.json` | see below |
+### 6.1 `assets.json`
 
-**Attention item:**
+```jsonc
+[{ "id": "BOREAS", "parentId": null, "name": "Boreas", "assetType": "wind_site", "assetLevel": "site" }, …]
+```
+
+Order it as a depth-first walk (parent, then its children, recursively),
+so the tree reads naturally.
+
+### 6.2 `asset-relationships.json`
+
+An array of edges (§3.6).
+
+### 6.3 `properties.json`
 
 ```jsonc
 {
-  "id": "HSIT01",                 // unique across ALL models: pick a new prefix (existing: SIT, WSIT)
+  "properties": {
+    "gearbox_oil_temp_c": { "label": "Gearbox Oil Temperature", "unit": "°C", "category": "Condition", "tier": "P1", "range": [20, 95], "decimals": 1 },
+    "rated_power_kw":     { "label": "Rated Power", "unit": "kW", "category": "Derived Metric", "tier": "P3", "range": [0, 5000], "static": true }
+  },
+  "derivations": [ { "assetType": "feeder", "property": "active_power_kw", "fn": "sum", "of": "active_power_kw", "fromType": "wind_turbine_geared|wind_turbine_dd", "scope": "descendants" } ],
+  "typeLabels": { "hs_bearing": "HS Bearing", "wind_turbine_dd": "Wind Turbine (Direct Drive)" }
+}
+```
+
+`typeLabels` (optional) gives a display name for an `assetType` where
+turning the slug into words reads badly: the app would otherwise show
+`hs_bearing` as "Hs Bearing".
+
+### 6.4 `asset-values.json`
+
+`{ [assetId]: { [key]: number } }`. Every asset with properties. Keys
+match that asset's type exactly (§3.1).
+
+### 6.5 `asset-telemetry.json`
+
+```jsonc
+{
+  "timeline": { "date": "2026-08-28", "start": "08:00", "end": "14:05", "stepMinutes": 5 },
+  "timestamps": ["08:00", "08:05", …, "14:05"],
+  "series": { [assetId]: { [key]: [number, …] } }
+}
+```
+
+`timestamps` is written out in full (it must match `timeline`) so the UI
+never has to rebuild it.
+
+### 6.6 `unit-status.json`
+
+One entry for **every asset at `unitLevel`**:
+
+```jsonc
+{ "BOREAS_F2_WTG07": { "state": "attention", "statusSinceMinutes": 95, "mode": "CURTAILED", "product": "Grid export" } }
+```
+
+- `state` is one of `running`, `attention`, `changeover`, `down`. These
+  are the states the Now strip has colors and icons for; a new state
+  needs a small code change. A unit with an open attention item is
+  `attention`, with `statusSinceMinutes` = the minutes since its oldest
+  open item started.
+- `mode` is ideally one of the colored modes: `STEADY`, `CHANGEOVER`,
+  `RAMP_UP`, `RAMP_DOWN`, `STOPPED`, `MAINTENANCE`, `CONTROLLED_HOLD`.
+  Industry-specific modes (such as `CURTAILED`) are allowed; they show in
+  a neutral color until one is added.
+- `product` is what the unit is making or delivering, in industry terms
+  (grade, product, "Grid export", "Potable supply").
+
+This replaces the legacy `line-status.json` and `operating-context.json`.
+
+### 6.7 `attention-items.json`
+
+```jsonc
+{
+  "id": "BSIT01",                           // unique across ALL models: pick a new prefix (legacy uses SIT, WSIT)
+  "assetId": "BOREAS_F2_WTG07_GEARBOX",     // the asset the situation is about, at any level
+  "unitId": "BOREAS_F2_WTG07",              // its unit-level ancestor (or itself); null if the asset sits above the unit level
+  "primaryProperty": "gearbox_oil_temp_c",  // the property evidencePoints track; must exist on assetId
+  "asset": "WTG-07 · Gearbox",              // display label (§3.2)
+  "line": "WTG-07",                         // display name of the unit (the Attention list groups by it); the asset's own name when unitId is null
   "severity": "high|medium|low",
-  "asset": "Halcyon · U02 · Steam Turbine",   // stage label (3 parts); 2-part train label only for train-wide items
-  "line": "Halcyon · U02",                    // train label, must match line-status label
   "signal": "One-line headline, operator voice",
   "aiInterpretation": "One or two sentences: what the AI thinks is going on",
   "since": "Resolved 2h 35m ago",
@@ -479,11 +516,11 @@ new packs can be cleaner than the legacy `water-*` ones.
     "signal": "…specific numbers, times…",
     "observed": "raw facts", "derived": "computed or correlated facts", "inferred": "hypothesis",
     "recommendation": "what to do",
-    "evidence": [18.1, 17.6, …],              // numbers from evidencePoints, in order
-    "evidencePoints": [{ "time": "09:40", "value": "18.1 mg/L", "label": "Baseline" }, …],  // 5–8 points, on the 5-min grid, labels on the key moments and "" elsewhere
-    "relatedOccurrences": [{ "date": "2026-07-14", "summary": "…" }],   // 0–2 past occurrences; [] if none
+    "evidence": [61.2, 63.0, …],
+    "evidencePoints": [{ "time": "09:40", "value": "61.2 °C", "label": "Baseline" }, …],   // 5–8 points, on the grid, labels on the key moments and "" elsewhere
+    "relatedOccurrences": [{ "date": "2026-07-14", "summary": "…" }],                     // 0–2 past occurrences; [] if none
     "whatChangedSummary": "one sentence",
-    "whatChanged": [{ "time": "11:32", "source": "Operator Action|Maintenance|Field Check|Event|Alarm|Setpoint Change|Quality Event|…", "description": "…", "related": true }],
+    "whatChanged": [{ "time": "11:32", "source": "Operator Action|Maintenance|Field Check|Event|Alarm|Setpoint Change|…", "description": "…", "related": true }],
     "confidence": "Confirmed by inspection", "confidenceLevel": "high|medium|low|n/a",
     "risk": "Low — caught before …", "riskLevel": "high|medium|low|none",
     "expectedOutcome": "…", "outcomeStatus": "resolved|recovering|none"
@@ -491,20 +528,21 @@ new packs can be cleaner than the legacy `water-*` ones.
 }
 ```
 
-For items still open at 14:05, don't put the confirmed root cause in the
+For items still open at "now", don't put the confirmed root cause in the
 text. The AI shouldn't know the answer before its own diagnosis gets
 there (a design decision from the Aug 27 sessions).
 
-**Work item:**
+### 6.8 `work-items.json`
 
 ```jsonc
 {
-  "id": "wk-h01", "text": "Short task title", "description": "…",
-  "assetLabel": "Halcyon · U02",        // plant name, train label or stage label, or null
-  "workType": "SAMPLE|INSPECTION|HUDDLE|MAINTENANCE|INSTRUMENT_CHECK|DOCUMENTATION|QUALITY_CHECK|PROCEDURE|CHANGEOVER|MATERIAL_STAGE|QUALITY_RELEASE",
+  "id": "wk-b01", "text": "Short task title", "description": "…",
+  "assetId": "BOREAS_F2_WTG07",           // any level, or null for site-wide
+  "assetLabel": "WTG-07",                 // display label, or null
+  "workType": "SAMPLE|INSPECTION|HUDDLE|MAINTENANCE|INSTRUMENT_CHECK|DOCUMENTATION|QUALITY_CHECK|PROCEDURE|CHANGEOVER|MATERIAL_STAGE|QUALITY_RELEASE|PERMIT|…",
   "priority": "urgent|important|routine",
-  "sourceType": "planned|situation", "sourceLabel": "From: Steam turbine vibration climbing" /* display text, shown after the task type; null for planned */, "source": "operator|ai",
-  "assignedRole": "Operator|Field Operator|Maintenance|Quality|Materials",
+  "sourceType": "planned|situation", "sourceLabel": "From: Gearbox oil temperature climbing" /* null for planned */, "source": "operator|ai",
+  "assignedRole": "Operator|Field Operator|Maintenance|Quality|Materials|…",
   "plannedStart": "2026-08-28T08:15:00", "dueAt": "2026-08-28T08:15:00",
   "estimatedDurationMinutes": 15,
   "done": true, "completedAt": "2026-08-28T08:22:00",   // null when not done
@@ -512,27 +550,47 @@ there (a design decision from the Aug 27 sessions).
 }
 ```
 
-Aim for 9–14 work items: about half planned routine work from
-RESEARCH.md §7, and half created from situations (`source: "ai"`,
-`sourceType: "situation"`), each tied to an attention item by being on
-the same asset and by `sourceLabel: "From: <that item's situation>"`.
-(This is the same format the app uses when an operator creates a task from
-Investigate.) Leave 2–4 not done, with at least one
-due after 14:05. ISO times are local with no `Z`.
+- Times are local ISO with no `Z`, on the timeline's date.
+- About half are planned routine work from RESEARCH.md; half are created
+  from situations (`source: "ai"`, `sourceType: "situation"`), each on
+  the same asset as its attention item, with `sourceLabel: "From: <that
+  item's situation>"` (the same format the app uses when an operator
+  creates a task from Investigate).
+- `workType` and `assignedRole` can use industry-specific values. The UI
+  displays them as text.
+- Leave 2–4 not done, with at least one due after "now".
 
 ---
 
-## 7. Size targets (keep the app fast and in line with existing packs)
+## 7. Budgets — and why each number exists
 
-| Item | Target |
-|---|---|
-| Stages | 30–36 |
-| Equipment | 80–100 |
-| Relationship edges | 60–75 |
-| Distinct stage and equipment property keys | 40–55 |
-| Attention items | 8–12 |
-| Work items | 9–14 |
-| Largest single file | under 700 KB |
+These are the only numeric limits. Each has a reason; if the reason goes
+away, so should the limit.
+
+| Budget | Value | Why |
+|---|---|---|
+| Hierarchy depth | 3–7 levels | Under 3 there's nothing to show; over 7 the tree and breadcrumbs get hard to read. |
+| Total assets | ≤ 400 (soft) | The All Assets diagram draws every asset as a property box and lays them all out with ELK. Measured in headless Chromium: 127 assets are ready in about 2.2 s, and a synthetic 389-asset, 5-level pack in about 4.3 s, with the page still responsive afterwards. Past 400, plan on hiding assets from that view by default. |
+| Children per parent | ≤ 40 (soft) | Beyond that, the tree and the cards views get hard to scan. |
+| Units (`unitLevel` assets) | ≤ 24 (soft) | One Now-strip tile each. The refinery's 12 fit comfortably; past about 24 the strip scrolls sideways (tested with 34). The Now strip is currently hidden by CSS (`.op-now-section`), so this only matters once it's shown again. |
+| Properties per type | about 2–8 | What an operator can take in at a glance (§3.3). |
+| Distinct property keys | no fixed number | Follows from the types; the old 40–55 target only described the legacy packs. |
+| Points per series | 40–200 | Enough shape for a trend, small enough for fast files. |
+| Total pack size | ≤ 5 MB, no file over 3 MB | Everything loads at once when switching models. The legacy packs are about 1–1.2 MB. |
+| Attention items | 6–14 | Enough to cover the required archetypes (§4.1), few enough for the Attention list to stay meaningful. |
+| Work items | 8–15 | A believable shift's workload. |
+| Evidence points per item | 5–8 | What the Timeline and Table cards display well. |
+
+Rough size check: *assets with series × properties × points × about 7
+bytes*. 300 assets × 4 properties × 74 points ≈ 620 KB.
+
+Numbers from v1 that **were removed**, because they only described the
+legacy packs: exactly 4 levels; 1 plant; 6 trains; 5–6 stages per train;
+2–3 equipment per stage; 30–36 stages; 80–100 equipment; 60–75 edges;
+edges only between equipment in the same train; 8 fixed "universal"
+properties on every stage; fixed line and plant KPI key sets; the OEE
+formula; the six categories being the only ones allowed; the fixed shared
+timeline.
 
 ---
 
@@ -544,95 +602,172 @@ Run:
 python3 ModelAndData/tools/validate_industry_pack.py <model>
 ```
 
-It checks, among other things: the hierarchy shape and every §3.2 id
-rule; full cross-file key coverage; 74-point series; the §5.3 "current
-value" rule; the OEE formula; the rollup formulas; metadata coverage and
-allowed values; the relationship rules; attention and work item schemas;
-the timeline, grid and `sinceMinutes` consistency; and the scenario
-coverage minimums. Errors must be zero. Warnings need a reason, written
-down in SCENARIOS.md.
+For generic packs it checks:
+
+- **Registration:** the `models.json` entry and its levels.
+- **Hierarchy:** one level per depth step; roots at the first level;
+  unique ids and sibling names; same-type consistency (§3.1).
+- **Coverage:** `unitLevel` coverage in `unit-status`.
+- **Properties:** every key has metadata; metadata values are allowed;
+  static keys have no series; non-static keys have one.
+- **Values and series:** series lengths and timestamps match `timeline`;
+  the current-value rule (§5.3); values within ranges; percentages 0–100.
+- **Derivations** at every time point.
+- **Relationships:** endpoints exist; every edge has a layer.
+- **Attention and work items:** schemas; that `assetId`, `unitId` and
+  `primaryProperty` resolve; evidence times on the grid; `since` and
+  `sinceMinutes` agree.
+- **Scenario coverage** minimums (§4.1).
+- **Budgets** (§7).
+
+Errors must be zero. Warnings need a reason, written down in
+SCENARIOS.md.
 
 Then do the browser check from `PROJECT_CONTEXT.md` with the new model
 selected, and actually look at the screenshots:
 
 - Configurator: the Types and Assets tabs list the new types and assets,
-  and property previews show gauges with ranges.
-- Operator: the Attention list, Investigate (Trend, Assets and the time
-  scrubber moving real values), and the Assets view with a Diagram of the
-  relationships.
+  including assets at every level; property previews show gauges with
+  ranges and units.
+- Operator: the Attention list; Investigate (Trend, Assets, and the time
+  scrubber moving real values); the Assets view with a Diagram of the
+  relationships; the Now strip showing one tile per unit.
 
 ---
 
-## 9. Wiring the model into the app (current code, Sept 2026)
+## 9. Registering the model (`public/data/models.json`)
 
-Today a new model needs small code edits. **Coordinate before editing
-`OperatorWorkspace.jsx`**, because other work may be happening in the same
-file at the same time.
+```jsonc
+{
+  "id": "wind",
+  "label": "Wind",
+  "shape": "generic",
+  "levels": [
+    { "id": "site", "label": "Site" },
+    { "id": "feeder", "label": "Feeder" },
+    { "id": "turbine", "label": "Turbine" },
+    { "id": "subsystem", "label": "Subsystem" },
+    { "id": "component", "label": "Component" }
+  ],
+  "unitLevel": "turbine"
+}
+```
 
-1. `src/App.js`: add `{ id: '<model>', label: '<Label>' }` to the model
-   list (search for `{ id: 'wastewater', label: 'Wastewater' }`).
-2. `src/OperatorWorkspace.jsx`:
-   - add a `<MODEL>_DATA_FILES` array (copy `WASTEWATER_DATA_FILES`, with
-     paths and names from §6)
-   - add a branch to `getDataFilesForModel`
-   - add the model to the two `water || wastewater` checks: the loader's
-     `CURRENT_ASSET_DATA` assignment, and `resolveAssetProperties`
+- `id` matches the folder `public/data/<id>/`. `label` is what the
+  model switcher shows; entries appear in file order.
+- `levels` lists every `assetLevel` used in `assets.json`, root first.
+  Their `label`s replace the app's hardcoded level labels.
+- `unitLevel` is one of those level ids.
+- `files` (optional) overrides a default filename, as in legacy entries.
+  New packs use the §6 names and leave it out.
 
-**Recommended one-time refactor** (do it once and later industries need
-no code at all): replace those checks with a single list of 4-level
-models, or better, a `public/data/models.json` manifest
-(`[{ id, label, shape: "4-level", files: {...} }]`) read by both App.js and
-the loader.
+---
 
-**Known refinery-only UI.** These don't generalize yet, even for water or
-wastewater. They're outside the data pack's scope, but worth telling Amy
-about:
+## 10. Refinery-only UI (not driven by the data)
+
+These parts of the Operator view are hardcoded to the refinery:
 
 - the Issue Map grid (`AURELIA_LINES`, `FERRUM_LINES` and the station
   lists)
-- `lineIdToAssetId` (Now-strip tile clicks)
-- `attentionAssetToStationId`
-- `STATION_TYPE_LABELS`, `HIGHLIGHT_FIELD_LABELS` and
-  `SPARKLINE_PROPERTY_LABELS` (the Line Detail captions)
+- the Line Detail panel (`LineDetail`, with `STATION_TYPE_LABELS`,
+  `HIGHLIGHT_FIELD_LABELS`, `SPARKLINE_PROPERTY_LABELS`)
+- `lineIdToAssetId` and `attentionAssetToStationId`
+
+Only the refinery model shows the Issue Map pull-tab. Every other model
+(generic packs, and legacy water and wastewater) hides it, and clicking a
+Now-strip tile opens that unit in the Assets area instead.
 
 ---
 
-## 10. Known quirks in the existing packs — don't copy them
+## 11. Implementation status
 
-- `performance` and `availability` sometimes exceed 100 in water and
-  wastewater.
-- `residence_time_min` has no range entry in water or wastewater.
-- `station-metrics` values are rounded snapshots, not exact last points
-  (tolerated; new packs may round the same way).
-- The variable and key names `REFINERY_ROLLUPS`, `REFINERY_TELEMETRY` and
-  `refineries` are legacy names that now mean "plant level". Keep them for
-  the loader; don't propagate the word "refinery" anywhere else.
-- `water-asset-data.json` is also used for wastewater. New packs should
-  use the clearer `asset-data.json`.
-- **Line and plant series** were generated separately from the stage
-  series. Only the 14:05 endpoint matches the rollup formulas (mid-shift,
-  line OEE can be up to about 2 points off the stage mean). New packs must
-  compute rollups at every point.
-- In wastewater, `bottleneck_station` drops the underscore
-  (`SECONDARYCLARIFIER`) while `stationType` keeps it.
-- Some `evidencePoints` fall off the 5-minute grid (for example
-  `09:41`), and two water work items still say "Meridian & Confluence"
-  from when the two were one model.
-- No generator scripts exist for the three current packs.
+Built (Sept 2026):
 
-Running the validator on `water` or `wastewater` reports exactly these
-quirks and nothing else. That's a useful reminder of what "legacy" means
-here, and a check that the spec matches the real files.
+1. **Registry** (`modelRegistry.js`): `shape: "generic"`, with `levels` and
+   `unitLevel` checked on load, and the §6 default filenames.
+2. **Loader** (`OperatorWorkspace.jsx`): loads the 8 files, and splits
+   `properties.json` into the label, category, tier, range, unit, decimals
+   and type-label lookups. It resets **every** model variable before each
+   load, so nothing leaks between models of different shapes.
+3. **Property lookup:** `resolveGenericAssetProperties` reads
+   `asset-values[assetId]` directly, and sparklines read
+   `asset-telemetry.series[assetId]`. There are no id conversions.
+4. **Timeline:** `applyTimeline()` sets "now", the shift start and the
+   sample grid from the model (legacy models keep 08:00–14:05). The
+   scrubber, slicing, work-item lateness and chart dates all follow it.
+5. **Level labels** come from `models.json`. Display labels start at the
+   unit-level ancestor.
+6. **Now strip:** tiles come from `unit-status.json`, and a tile click
+   opens that unit in the Assets area. The tree expands down to it.
+7. **Attention and work items** resolve by `assetId`. The Trend chart
+   plots the real `primaryProperty` series across the whole timeline,
+   instead of the padded stand-in legacy items use.
+8. **Units and decimals** are shown in the stat tiles.
+9. **Scale check:** done (see §7).
+10. **Validator:** checks generic packs (§8), and legacy four-level
+    packs as before.
+11. **Converter:** `ModelAndData/tools/convert_legacy_to_generic.py
+    <legacy> <new-id>` turns a four-level pack into the generic format.
+    It was used to check that a converted wastewater pack shows the same
+    values as the original.
+
+Still open:
+
+- Converting water and wastewater for real (run the converter, fix the
+  quirks it carries over, and swap their `models.json` entries). Then the
+  four-level code path can be deleted. Refinery needs its own converter,
+  because its hierarchy lives in `src/assetData.js`.
+- Generic replacements for the Issue Map and Line Detail, or a decision
+  to keep them refinery-only (§10).
+- `derivations` are validated but not yet used by the UI (for example, to
+  explain where a rollup comes from).
 
 ---
 
-## 11. Definition of done
+## 12. Legacy formats (refinery, water, wastewater)
 
-- [ ] RESEARCH.md and SCENARIOS.md written, with sources
+The three existing packs keep working unchanged:
+
+- **`shape: "refinery"`:** 3 levels (refinery/line/station); hierarchy in
+  `src/assetData.js`.
+- **`shape: "four-level"`:** plant/train/stage/equipment; hierarchy in
+  `water-asset-data.json`.
+
+Both use the older 20-file layout: per-level telemetry files, "station"
+ids derived from asset ids by string rules, and fixed line and plant KPI
+sets. That contract is in git history (INDUSTRY_PACK_SPEC.md v1, commit
+`8515fdd`), and the legacy validator checks remain in the validator.
+**Don't create new packs in these formats.** To move a four-level pack
+to the generic format, use `convert_legacy_to_generic.py` (§11). Its
+output validates except for the data quirks below, which it carries over
+and reports.
+
+Known data quirks in the legacy packs (the validator reports exactly
+these):
+
+- `performance`, `availability` and a few `level_pct` series sometimes
+  exceed 100.
+- `residence_time_min` has no range.
+- Line and plant series match the rollup formulas only at the final
+  point.
+- Wastewater's `bottleneck_station` drops an underscore.
+- Some `evidencePoints` are off the 5-minute grid.
+- Two water work items still say "Meridian & Confluence".
+- No generator scripts exist.
+
+---
+
+## 13. Definition of done
+
+- [ ] RESEARCH.md and SCENARIOS.md written, with sources, including why
+      this hierarchy shape was chosen
 - [ ] `generate.py` committed, deterministic, and it regenerates every
       JSON file from scratch
-- [ ] all 20 JSON files present; the validator shows 0 errors
-- [ ] model wired into the app (§9), and it loads with no console errors
-- [ ] screenshots reviewed for Configurator and Operator views
-- [ ] handed to Amy as full files to drop in, with a short note on the
+- [ ] all 8 JSON files present, and the `models.json` entry added
+- [ ] the validator shows 0 errors, and every warning has a reason in
+      SCENARIOS.md
+- [ ] the model loads with no console errors, and screenshots of the
+      Configurator and Operator views have been reviewed
+- [ ] handed to Amy as a zip of full files in repo folder layout (her
+      laptop blocks some single-file downloads), with a short note on the
       scenarios and which archetypes they cover
