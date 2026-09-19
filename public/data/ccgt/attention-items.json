@@ -1,0 +1,1036 @@
+[
+ {
+  "id": "HSIT01",
+  "assetId": "HALCYON_B1_HRSG2_FW_BFPA_BRG",
+  "unitId": "HALCYON_B1_HRSG2",
+  "primaryProperty": "pump_bearing_temp_f",
+  "asset": "HRSG-2 · Feedwater System · BFP-A · Pump Bearings",
+  "line": "HRSG-2",
+  "severity": "medium",
+  "signal": "HRSG-2 BFP-A bearings running hotter and rougher at the same flow",
+  "aiInterpretation": "Pump bearing temperature and vibration have both been climbing since about 09:30 while flow and speed held steady — the pattern of a mechanical change inside the pump, not a load change.",
+  "since": "4h 35m ago",
+  "sinceMinutes": 275,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "BFP-A bearing temperature is 191 °F at 14:05, up from 161 °F at 09:30; the identical HRSG-1 BFP-A reads 166 °F. Vibration is 0.264 in/s, up from 0.127.",
+   "observed": "Pump flow averaged 1,414 gpm with no step change; bearing temperature rising steadily and vibration rising faster in the last hour; motor current up about 7 A.",
+   "derived": "Temperature residual against the sister pump is growing, and vibration is accelerating rather than stepping — consistent with progressive wear, not a sensor offset (two independent signals agree).",
+   "inferred": "Early bearing distress on BFP-A: possible causes include lubricant degradation, bearing wear, or a developing misalignment. Not yet confirmed.",
+   "recommendation": "Take a handheld vibration spectrum and an oil sample on the next round; confirm BFP-B is ready and plan a controlled swap to BFP-B if the trend continues.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-03-11",
+     "summary": "HRSG-1 BFP-B outboard bearing replaced after a 2-week vibration trend."
+    }
+   ],
+   "whatChangedSummary": "No maintenance, speed or setpoint change on HRSG-2 feedwater during the window — the trend is intrinsic.",
+   "whatChanged": [
+    {
+     "time": "09:30",
+     "source": "Event",
+     "description": "Bearing temperature residual crosses the 2σ band vs. HRSG-1 BFP-A.",
+     "related": true
+    },
+    {
+     "time": "12:40",
+     "source": "Field Check",
+     "description": "Rounds operator reports BFP-A louder than normal; oil sight glass level normal.",
+     "related": true
+    }
+   ],
+   "confidence": "Two independent signals agree (temperature and vibration)",
+   "confidenceLevel": "medium",
+   "risk": "Medium — standby pump available, but an unplanned BFP trip would disturb HRSG-2 drum levels",
+   "riskLevel": "medium",
+   "expectedOutcome": "Controlled swap to BFP-B and a planned bearing inspection",
+   "evidence": [
+    160.8,
+    167.2,
+    173.2,
+    178.9,
+    183.9,
+    186.9,
+    190.6
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:30",
+     "value": "160.8 °F",
+     "label": "Divergence begins"
+    },
+    {
+     "time": "10:30",
+     "value": "167.2 °F",
+     "label": ""
+    },
+    {
+     "time": "11:30",
+     "value": "173.2 °F",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "178.9 °F",
+     "label": ""
+    },
+    {
+     "time": "13:15",
+     "value": "183.9 °F",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "186.9 °F",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "190.6 °F",
+     "label": "Current — HRSG-1 BFP-A 166 °F"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "HSIT02",
+  "assetId": "HALCYON_B1_CTG2_COMP",
+  "unitId": "HALCYON_B1_CTG2",
+  "primaryProperty": "compressor_efficiency_pct",
+  "asset": "CTG-2 · Compressor",
+  "line": "CTG-2",
+  "severity": "medium",
+  "signal": "CTG-2 needing more fuel for the same megawatts — compressor efficiency drifting down",
+  "aiInterpretation": "CTG-2 compressor efficiency and corrected output have been sliding against CTG-1 all morning while AGC hid it by loading the unit harder. Online water wash at 11:30 recovered most of it.",
+  "since": "2h 35m ago",
+  "sinceMinutes": 155,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "CTG-2 compressor efficiency fell from 88.29% to 87.32% by 11:25 (CTG-1: 88.58%); corrected output 97.4% of new-and-clean. Now 87.94% / 98.5%.",
+   "observed": "Compressor discharge pressure lower and exhaust temperature a few °F higher than CTG-1 at matched load; IGVs slightly more open.",
+   "derived": "CTG-2 heat rate ran about 1.4% above CTG-1 at 11:25 — roughly the penalty expected for this efficiency loss.",
+   "inferred": "Recoverable compressor fouling (airborne dust and pollen in dry harvest weather). The rest needs an offline crank wash at the next outage.",
+   "recommendation": "Keep watching the post-wash trend; add CTG-2 to the offline-wash list for the September outage; check inlet filter DP trend.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-08-14",
+     "summary": "CTG-2 online wash recovered 0.6 pts of compressor efficiency."
+    }
+   ],
+   "whatChangedSummary": "Online water wash 11:30–12:00; efficiency recovered about 60% of the loss.",
+   "whatChanged": [
+    {
+     "time": "10:40",
+     "source": "Operator Action",
+     "description": "Performance engineer confirms CTG-2 vs CTG-1 gap on corrected basis.",
+     "related": true
+    },
+    {
+     "time": "11:30",
+     "source": "Operator Action",
+     "description": "CTG-2 online compressor water wash started.",
+     "related": true
+    },
+    {
+     "time": "12:00",
+     "source": "Event",
+     "description": "Wash sequence complete.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — efficiency stepped back up after the wash",
+   "confidenceLevel": "high",
+   "risk": "Low — lost efficiency only; no equipment risk",
+   "riskLevel": "low",
+   "expectedOutcome": "Efficiency holding near 88% until the offline wash",
+   "evidence": [
+    88.29,
+    87.92,
+    87.57,
+    87.32,
+    87.74,
+    88.26,
+    87.94
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "88.29%",
+     "label": "Shift start"
+    },
+    {
+     "time": "09:30",
+     "value": "87.92%",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "87.57%",
+     "label": ""
+    },
+    {
+     "time": "11:25",
+     "value": "87.32%",
+     "label": "Before wash"
+    },
+    {
+     "time": "12:00",
+     "value": "87.74%",
+     "label": "Wash complete"
+    },
+    {
+     "time": "12:30",
+     "value": "88.26%",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "87.94%",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "recovering"
+  }
+ },
+ {
+  "id": "HSIT03",
+  "assetId": "HALCYON_B1_CTG2_TURB",
+  "unitId": "HALCYON_B1_CTG2",
+  "primaryProperty": "exhaust_temp_spread_f",
+  "asset": "CTG-2 · Turbine Section",
+  "line": "CTG-2",
+  "severity": "high",
+  "signal": "CTG-2 exhaust spread jumping around — one thermocouple, not the combustor",
+  "aiInterpretation": "The spread was jumping between normal and alarm levels every few minutes, but combustion dynamics, NOx, wheelspace and the worst-thermocouple location never moved — a failing exhaust thermocouple, not a combustion problem.",
+  "since": "Resolved 3h 0m ago",
+  "sinceMinutes": 180,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "CTG-2 exhaust spread swung between about 36 °F and 111 °F from 10:05 to 11:00, with no trend.",
+   "observed": "The same thermocouple (TC-14) was the low reader on every spike; dynamics, NOx and adjacent thermocouples stayed flat.",
+   "derived": "A real combustion spread follows load and moves around the annulus; this one stayed at one position and alternated with normal readings — an intermittent open circuit.",
+   "inferred": "TC-14 junction or extension cable failing.",
+   "recommendation": "Reject TC-14 in the controller and replace it at the next outage; watch the remaining adjacent-TC protection logic.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-05-02",
+     "summary": "CTG-1 TC-22 rejected for the same intermittent open-circuit signature."
+    }
+   ],
+   "whatChangedSummary": "TC-14 rejected by the controls technician at 11:05; spread back to 31 °F.",
+   "whatChanged": [
+    {
+     "time": "10:05",
+     "source": "Alarm",
+     "description": "Exhaust spread high alarm (intermittent).",
+     "related": true
+    },
+    {
+     "time": "10:20",
+     "source": "Operator Action",
+     "description": "Checked combustion dynamics and NOx — both normal.",
+     "related": true
+    },
+    {
+     "time": "11:05",
+     "source": "Maintenance",
+     "description": "TC-14 rejected in controller.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — spread normal after rejecting one thermocouple",
+   "confidenceLevel": "high",
+   "risk": "Low — caught before a spurious high-spread trip",
+   "riskLevel": "low",
+   "expectedOutcome": "Spread normal; TC-14 on the outage list",
+   "evidence": [
+    30.8,
+    71.8,
+    98.5,
+    111.4,
+    35.6,
+    31.0,
+    31.2
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:00",
+     "value": "30.8 °F",
+     "label": "Normal"
+    },
+    {
+     "time": "10:05",
+     "value": "71.8 °F",
+     "label": "Erratic"
+    },
+    {
+     "time": "10:15",
+     "value": "98.5 °F",
+     "label": ""
+    },
+    {
+     "time": "10:35",
+     "value": "111.4 °F",
+     "label": "Peak"
+    },
+    {
+     "time": "10:50",
+     "value": "35.6 °F",
+     "label": ""
+    },
+    {
+     "time": "11:05",
+     "value": "31.0 °F",
+     "label": "TC-14 rejected"
+    },
+    {
+     "time": "11:10",
+     "value": "31.2 °F",
+     "label": "Normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "HSIT04",
+  "assetId": "HALCYON_B1_STG1_COND",
+  "unitId": "HALCYON_B1_STG1",
+  "primaryProperty": "condenser_backpressure_inhga",
+  "asset": "STG-1 · Condenser",
+  "line": "STG-1",
+  "severity": "medium",
+  "signal": "Condenser vacuum getting worse with nothing wrong at the condenser",
+  "aiInterpretation": "Backpressure rose while air in-leakage, hotwell level and TTD all stayed normal. The cause was upstream on the cooling water loop: cooling tower cell 6 fan had stopped, so the water coming back to the condenser was warmer.",
+  "since": "Resolved 1h 45m ago",
+  "sinceMinutes": 105,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Condenser backpressure rose from 2.54 to 2.75 inHgA between 10:45 and 11:35, at steady steam turbine load.",
+   "observed": "CW supply temperature up from 81.6 °F to 84.5 °F; cooling tower cell 6 fan power 0 kW from 10:50; condenser air in-leakage and TTD unchanged.",
+   "derived": "Tower approach rose about 2 °F with one of eight cells without a fan — enough to explain the whole backpressure rise.",
+   "inferred": "Cell 6 fan motor tripped (thermal overload in high ambient); condenser itself healthy.",
+   "recommendation": "Reset the cell 6 fan motor at the MCC after a field check of the gearbox; confirm backpressure returns.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Cell 6 fan restarted at 11:40 after a field check; backpressure back on its wet-bulb trend by 12:20.",
+   "whatChanged": [
+    {
+     "time": "10:50",
+     "source": "Alarm",
+     "description": "CT cell 6 fan motor overload trip.",
+     "related": true
+    },
+    {
+     "time": "11:30",
+     "source": "Field Check",
+     "description": "Gearbox oil and vibration checked on site — normal.",
+     "related": true
+    },
+    {
+     "time": "11:40",
+     "source": "Operator Action",
+     "description": "Cell 6 fan motor reset and restarted.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — backpressure recovered as soon as the fan restarted",
+   "confidenceLevel": "high",
+   "risk": "Low — about 2 MW of steam turbine output for an hour",
+   "riskLevel": "low",
+   "expectedOutcome": "All eight cells in service",
+   "evidence": [
+    2.535,
+    2.621,
+    2.711,
+    2.752,
+    2.679,
+    2.628,
+    2.606
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:45",
+     "value": "2.54 inHgA",
+     "label": "Baseline"
+    },
+    {
+     "time": "10:50",
+     "value": "2.62 inHgA",
+     "label": "CT cell 6 fan stops"
+    },
+    {
+     "time": "11:10",
+     "value": "2.71 inHgA",
+     "label": ""
+    },
+    {
+     "time": "11:35",
+     "value": "2.75 inHgA",
+     "label": "Peak"
+    },
+    {
+     "time": "11:40",
+     "value": "2.68 inHgA",
+     "label": "Fan reset"
+    },
+    {
+     "time": "12:00",
+     "value": "2.63 inHgA",
+     "label": ""
+    },
+    {
+     "time": "12:20",
+     "value": "2.61 inHgA",
+     "label": "Back on wet-bulb trend"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "HSIT05",
+  "assetId": "HALCYON_B1_HRSG1_HP_DRUM",
+  "unitId": "HALCYON_B1_HRSG1",
+  "primaryProperty": "drum_level_in",
+  "asset": "HRSG-1 · HP Section · HP Drum",
+  "line": "HRSG-1",
+  "severity": "high",
+  "signal": "HRSG-1 HP drum level swinging wider every cycle",
+  "aiInterpretation": "Drum level and feedwater valve are oscillating with growing amplitude since 13:20. It started soon after the drum level control lost its steam-flow input, and manual valve moves appear to be adding to it rather than damping it.",
+  "since": "45m ago",
+  "sinceMinutes": 45,
+  "attentionState": "act",
+  "detail": {
+   "signal": "HP drum level swinging between +6.5 in and -6.7 in at 14:05; the swing was about ±1.5 in at 13:20.",
+   "observed": "Feedwater control valve and HP feedwater flow oscillating in step with the level; HP steam flow steady; steam flow transmitter valved out for calibration since 13:10; manual valve moves at 13:25 and 13:45.",
+   "derived": "Without the steam-flow term, the controller is effectively single-element and chases swell and shrink; each manual correction lands out of phase with the level.",
+   "inferred": "A control-loop interaction (single-element control plus manual corrections), not a feedwater supply problem — BFP-A pressure is steady.",
+   "recommendation": "Stop manual valve moves, return the valve to auto, and restore the steam-flow transmitter so the loop goes back to three-element control. Be ready for a high-level trip if the swing reaches ±8 in.",
+   "relatedOccurrences": [
+    {
+     "date": "2025-11-20",
+     "summary": "HRSG-2 drum level oscillation during a transmitter calibration; settled after three-element control was restored."
+    }
+   ],
+   "whatChangedSummary": "Steam flow transmitter out for calibration from 13:10; operator manual feedwater valve moves at 13:25 and 13:45.",
+   "whatChanged": [
+    {
+     "time": "13:10",
+     "source": "Maintenance",
+     "description": "HP steam flow transmitter valved out for calibration (planned).",
+     "related": true
+    },
+    {
+     "time": "13:25",
+     "source": "Operator Action",
+     "description": "Manual feedwater valve adjustment.",
+     "related": true
+    },
+    {
+     "time": "13:45",
+     "source": "Operator Action",
+     "description": "Manual feedwater valve adjustment.",
+     "related": true
+    }
+   ],
+   "confidence": "Timing and control mode strongly suggest the loop; not yet proven",
+   "confidenceLevel": "medium",
+   "risk": "High — a drum high/low level trip would take HRSG-1 and CTG-1 offline",
+   "riskLevel": "high",
+   "expectedOutcome": "Level back within ±2 in under three-element control",
+   "evidence": [
+    0.0,
+    1.36,
+    3.15,
+    3.86,
+    5.25,
+    6.46,
+    -6.68
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:15",
+     "value": "0.00 in",
+     "label": "Normal"
+    },
+    {
+     "time": "13:20",
+     "value": "1.36 in",
+     "label": "Swing starts"
+    },
+    {
+     "time": "13:30",
+     "value": "3.15 in",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "3.86 in",
+     "label": ""
+    },
+    {
+     "time": "13:50",
+     "value": "5.25 in",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "6.46 in",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "-6.68 in",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "HSIT06",
+  "assetId": "HALCYON_CP_FG_HTR",
+  "unitId": "HALCYON_CP_FG",
+  "primaryProperty": "fuel_gas_temp_f",
+  "asset": "Fuel Gas Yard · Performance Heater",
+  "line": "Fuel Gas Yard",
+  "severity": "high",
+  "signal": "Fuel gas heater tripped — both gas turbines ran back and the steam turbine followed",
+  "aiInterpretation": "Loss of heating water to the fuel gas performance heater cooled the fuel below its Wobbe band, both CTGs ran back on fuel-temperature protection, and HRSG steam and steam turbine output fell over the next 10–15 minutes.",
+  "since": "Resolved 4h 20m ago",
+  "sinceMinutes": 260,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Fuel gas temperature fell from 365 °F to 109 °F by 09:10; plant net output dropped from 649 to 553 MW.",
+   "observed": "Heater heating-water flow 0 gpm from 08:35; Modified Wobbe Index up from 42.5 to 51.2 (band ±5%); combustion dynamics and NOx up on both CTGs (HRSG-2 stack NOx touched 2.1 ppm; the 1-hour average stayed under 2.0); STG-1 output fell from 241 to 207 MW.",
+   "derived": "Everything downstream moved in the order the fuel → gas turbine → HRSG → steam turbine path predicts, with the steam side lagging 10–15 minutes.",
+   "inferred": "Heating-water control valve failed closed (positioner air supply).",
+   "recommendation": "Restore heating water, let the fuel temperature recover before reloading the CTGs, then release the load limit.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Positioner air line repaired and heating water restored at 09:15; CTGs back at the AGC target by 09:45.",
+   "whatChanged": [
+    {
+     "time": "08:35",
+     "source": "Alarm",
+     "description": "Performance heater low heating-water flow.",
+     "related": true
+    },
+    {
+     "time": "08:40",
+     "source": "Event",
+     "description": "CTG-1 and CTG-2 runback on fuel temperature / MWI.",
+     "related": true
+    },
+    {
+     "time": "09:15",
+     "source": "Maintenance",
+     "description": "Heating-water valve positioner air line repaired.",
+     "related": true
+    },
+    {
+     "time": "09:45",
+     "source": "Operator Action",
+     "description": "CTG load limits released; AGC back in control.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by field repair",
+   "confidenceLevel": "high",
+   "risk": "Low now — cost was about 70 min of derate and an AGC deviation",
+   "riskLevel": "low",
+   "expectedOutcome": "Heater in service; availability impact logged",
+   "evidence": [
+    364.0,
+    278.7,
+    154.2,
+    108.7,
+    191.2,
+    310.5,
+    348.6
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:30",
+     "value": "364.0 °F",
+     "label": "Normal"
+    },
+    {
+     "time": "08:35",
+     "value": "278.7 °F",
+     "label": "Heating water lost"
+    },
+    {
+     "time": "08:50",
+     "value": "154.2 °F",
+     "label": ""
+    },
+    {
+     "time": "09:10",
+     "value": "108.7 °F",
+     "label": "Minimum"
+    },
+    {
+     "time": "09:15",
+     "value": "191.2 °F",
+     "label": "Heater restored"
+    },
+    {
+     "time": "09:30",
+     "value": "310.5 °F",
+     "label": ""
+    },
+    {
+     "time": "09:45",
+     "value": "348.6 °F",
+     "label": "Recovered"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "HSIT07",
+  "assetId": "HALCYON",
+  "unitId": null,
+  "primaryProperty": "net_heat_rate_btu_kwh",
+  "asset": "Halcyon Point",
+  "line": "Halcyon Point",
+  "severity": "medium",
+  "signal": "Plant hitting its dispatch target, but burning more fuel to do it",
+  "aiInterpretation": "Net output is right on the AGC target, so nothing looks wrong on the headline number. But net heat rate has crept up and the steam turbine is making a smaller share of the megawatts — the gas turbines are quietly covering a steam-side loss.",
+  "since": "2h 20m ago",
+  "sinceMinutes": 140,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Net heat rate 6,462 Btu/kWh at 14:05, up from 6,390 at 11:45, while net output tracks the 705 MW target.",
+   "observed": "STG-1 output per GT MW down from 0.550 at 11:45 to 0.538 now; HP bypass valve shows 0% open, but its downstream temperature has risen from 232 °F to 779 °F; condenser heat load slightly up.",
+   "derived": "The gas turbines' own heat rates rose only 0.4% over the same period (hotter air), while plant net heat rate rose 1.1%. The difference is a loss inside the steam cycle, which AGC is covering by loading the gas turbines.",
+   "inferred": "Hypothesis: HP steam is reaching the condenser without making power — a passing valve on the steam side is the leading candidate, not yet confirmed.",
+   "recommendation": "Check HP bypass downstream temperature against its warm-up line; do a thermography sweep of the bypass and drain valves on the next round before deciding on any isolation.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "No operator or maintenance action on the steam turbine or bypass system today.",
+   "whatChanged": [
+    {
+     "time": "11:45",
+     "source": "Event",
+     "description": "Steam turbine share of block output starts falling.",
+     "related": true
+    },
+    {
+     "time": "09:50",
+     "source": "Setpoint Change",
+     "description": "AGC target ramped 650 → 705 MW for the afternoon peak.",
+     "related": false
+    }
+   ],
+   "confidence": "Loss is real; location not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — costs fuel every hour; a badly passing bypass valve can erode its seat further",
+   "riskLevel": "medium",
+   "expectedOutcome": "Loss located and isolated or scheduled",
+   "evidence": [
+    6390.0,
+    6391.0,
+    6409.0,
+    6428.0,
+    6445.0,
+    6453.0,
+    6462.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "11:45",
+     "value": "6,390 Btu/kWh",
+     "label": "Baseline"
+    },
+    {
+     "time": "12:15",
+     "value": "6,391 Btu/kWh",
+     "label": ""
+    },
+    {
+     "time": "12:45",
+     "value": "6,409 Btu/kWh",
+     "label": ""
+    },
+    {
+     "time": "13:15",
+     "value": "6,428 Btu/kWh",
+     "label": ""
+    },
+    {
+     "time": "13:35",
+     "value": "6,445 Btu/kWh",
+     "label": ""
+    },
+    {
+     "time": "13:50",
+     "value": "6,453 Btu/kWh",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "6,462 Btu/kWh",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "HSIT08",
+  "assetId": "HALCYON_B1_HRSG1_SCR",
+  "unitId": "HALCYON_B1_HRSG1",
+  "primaryProperty": "ammonia_slip_ppm",
+  "asset": "HRSG-1 · SCR / Emissions",
+  "line": "HRSG-1",
+  "severity": "medium",
+  "signal": "HRSG-1 ammonia slip climbing toward its 5 ppm limit while NOx looked great",
+  "aiInterpretation": "Stack NOx on HRSG-1 was unusually low, which looked like good news, but ammonia slip was rising steeply. The NOx trim setpoint had been lowered overnight, so the controller kept adding ammonia to chase it.",
+  "since": "Resolved 2h 5m ago",
+  "sinceMinutes": 125,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "HRSG-1 ammonia slip reached 4.1 ppm at 11:15 (permit limit 5 ppm); stack NOx 0.83 ppm.",
+   "observed": "NH₃/NOx molar ratio climbing all morning; slip rising faster than linearly; HRSG-2 at the same load steady at about 1.9 ppm slip.",
+   "derived": "Slip rises steeply once the molar ratio passes about 0.9 — the SCR was being over-fed, not failing.",
+   "inferred": "NOx trim setpoint lowered from 1.5 to 1.0 ppm by night shift (for margin during the CEMS calibration) and not restored.",
+   "recommendation": "Restore the 1.5 ppm NOx trim setpoint and confirm slip comes back under 2 ppm.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Setpoint restored at 11:15; slip back to normal by 12:00.",
+   "whatChanged": [
+    {
+     "time": "02:10",
+     "source": "Setpoint Change",
+     "description": "HRSG-1 NOx trim setpoint 1.5 → 1.0 ppm (night shift).",
+     "related": true
+    },
+    {
+     "time": "11:15",
+     "source": "Setpoint Change",
+     "description": "NOx trim setpoint restored to 1.5 ppm.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — slip fell as soon as the setpoint was restored",
+   "confidenceLevel": "high",
+   "risk": "Low — caught below the permit limit; ammonium bisulfate fouling risk avoided",
+   "riskLevel": "low",
+   "expectedOutcome": "Slip under 2 ppm with NOx at 1.5 ppm",
+   "evidence": [
+    2.34,
+    3.16,
+    3.86,
+    4.02,
+    4.14,
+    2.05,
+    1.78
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "2.34 ppm",
+     "label": "Shift start"
+    },
+    {
+     "time": "09:30",
+     "value": "3.16 ppm",
+     "label": "Flagged"
+    },
+    {
+     "time": "10:30",
+     "value": "3.86 ppm",
+     "label": ""
+    },
+    {
+     "time": "11:10",
+     "value": "4.02 ppm",
+     "label": ""
+    },
+    {
+     "time": "11:15",
+     "value": "4.14 ppm",
+     "label": "Peak — setpoint restored"
+    },
+    {
+     "time": "11:40",
+     "value": "2.05 ppm",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "1.78 ppm",
+     "label": "Back to normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "HSIT09",
+  "assetId": "HALCYON_B1_CTG1_COMB",
+  "unitId": "HALCYON_B1_CTG1",
+  "primaryProperty": "combustion_dynamics_psi",
+  "asset": "CTG-1 · Combustion System",
+  "line": "CTG-1",
+  "severity": "medium",
+  "signal": "CTG-1 combustion dynamics excursions getting more frequent",
+  "aiInterpretation": "Short hot-tone excursions on CTG-1 have come closer together since 11:20 as ambient and load climbed. Each clears on its own, but six in under three hours is above this unit's normal and the baseline is creeping up.",
+  "since": "2h 45m ago",
+  "sinceMinutes": 165,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Six hot-tone excursions between 11:20 and 13:55, the latest 3.37 psi against a 1.04 psi baseline; intervals shrinking from 55 to 15 minutes.",
+   "observed": "Each excursion lasts one interval, with a small NOx bump; CTG-2 at similar load shows none; fuel gas temperature and Wobbe index steady.",
+   "derived": "Excursions line up with rising compressor inlet temperature, not with load steps.",
+   "inferred": "Possible tuning margin loss at high ambient on CTG-1 (fuel split or can-to-can imbalance). Needs the dynamics spectrum to narrow down.",
+   "recommendation": "Pull the high-speed dynamics data for the six events; ask the combustion tuning engineer whether an ambient-based fuel split bias is due. Hold CTG-1 load steady rather than ramping hard meanwhile.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-07-22",
+     "summary": "CTG-1 hot-tone excursions on a 97 °F afternoon; cleared in the evening without action."
+    }
+   ],
+   "whatChangedSummary": "No tuning or fuel changes today; ambient up from 78 °F to 95 °F.",
+   "whatChanged": [
+    {
+     "time": "11:20",
+     "source": "Alarm",
+     "description": "Combustion dynamics high (hot tone) — cleared in the same interval.",
+     "related": true
+    },
+    {
+     "time": "13:55",
+     "source": "Alarm",
+     "description": "Sixth excursion; interval now 15 minutes.",
+     "related": true
+    }
+   ],
+   "confidence": "Pattern is clear; cause not yet diagnosed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — sustained high dynamics damage combustion hardware; a big excursion can trip the unit",
+   "riskLevel": "medium",
+   "expectedOutcome": "Excursions stop after a tuning adjustment or as ambient falls",
+   "evidence": [
+    1.11,
+    2.66,
+    2.8,
+    2.92,
+    3.03,
+    3.23,
+    3.37
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:00",
+     "value": "1.11 psi",
+     "label": "Baseline"
+    },
+    {
+     "time": "11:20",
+     "value": "2.66 psi",
+     "label": "1st excursion"
+    },
+    {
+     "time": "12:15",
+     "value": "2.80 psi",
+     "label": ""
+    },
+    {
+     "time": "12:50",
+     "value": "2.92 psi",
+     "label": ""
+    },
+    {
+     "time": "13:20",
+     "value": "3.03 psi",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "3.23 psi",
+     "label": ""
+    },
+    {
+     "time": "13:55",
+     "value": "3.37 psi",
+     "label": "Latest"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "HSIT10",
+  "assetId": "HALCYON_B1_HRSG2_SCR_NH3",
+  "unitId": "HALCYON_B1_HRSG2",
+  "primaryProperty": "ammonia_flow_lb_h",
+  "asset": "HRSG-2 · SCR / Emissions · Ammonia Skid",
+  "line": "HRSG-2",
+  "severity": "high",
+  "signal": "HRSG-2 ammonia flow went to zero — stack NOx spiked",
+  "aiInterpretation": "The ammonia forwarding pump tripped and the standby pump didn't auto-start, so the SCR lost its reagent. Stack NOx rose within minutes as stored ammonia on the catalyst ran out.",
+  "since": "Resolved 1h 30m ago",
+  "sinceMinutes": 90,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Ammonia flow 0 lb/h from 12:20 to 12:35; stack NOx peaked at 8.6 ppm (limit 2.0 ppm, 1-hour average).",
+   "observed": "Forwarding pump A motor trip alarm; pump B did not auto-start; catalyst inlet temperature and GT NOx unchanged.",
+   "derived": "NOx removal fell from about 83% to near zero, with a short lag while stored ammonia on the catalyst was consumed.",
+   "inferred": "Pump A motor trip plus failed auto-start of pump B.",
+   "recommendation": "Start pump B locally, then investigate the auto-start failure. Log the excess emission event for the quarterly report.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Pump B started locally at 12:35; NOx back under 2 ppm by 12:45. The 1-hour average exceeded the limit for one hour.",
+   "whatChanged": [
+    {
+     "time": "12:20",
+     "source": "Alarm",
+     "description": "Ammonia forwarding pump A motor trip.",
+     "related": true
+    },
+    {
+     "time": "12:35",
+     "source": "Operator Action",
+     "description": "Forwarding pump B started locally by the field operator.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed",
+   "confidenceLevel": "high",
+   "risk": "Low now — one excess emission hour to report",
+   "riskLevel": "low",
+   "expectedOutcome": "Pump B running; auto-start logic tested",
+   "evidence": [
+    97.0,
+    32.2,
+    0.0,
+    0.0,
+    82.3,
+    96.1,
+    99.7
+   ],
+   "evidencePoints": [
+    {
+     "time": "12:15",
+     "value": "97.0 lb/h",
+     "label": "Normal"
+    },
+    {
+     "time": "12:20",
+     "value": "32.2 lb/h",
+     "label": "Pump trip"
+    },
+    {
+     "time": "12:25",
+     "value": "0.0 lb/h",
+     "label": "No flow"
+    },
+    {
+     "time": "12:30",
+     "value": "0.0 lb/h",
+     "label": ""
+    },
+    {
+     "time": "12:35",
+     "value": "82.3 lb/h",
+     "label": "Standby pump on"
+    },
+    {
+     "time": "12:45",
+     "value": "96.1 lb/h",
+     "label": ""
+    },
+    {
+     "time": "12:55",
+     "value": "99.7 lb/h",
+     "label": "Recovered"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "HSIT11",
+  "assetId": "HALCYON_B1_HRSG2_SCR_CEMS",
+  "unitId": "HALCYON_B1_HRSG2",
+  "primaryProperty": "hours_since_cal_h",
+  "asset": "HRSG-2 · SCR / Emissions · Stack CEMS",
+  "line": "HRSG-2",
+  "severity": "medium",
+  "signal": "HRSG-2 CEMS daily calibration missed — data goes invalid at 14:30",
+  "aiInterpretation": "The 06:00 automatic calibration on the HRSG-2 CEMS aborted on low calibration gas pressure. The last good calibration was 12:30 yesterday, so HRSG-2 emissions data goes out of control at 14:30 unless a manual calibration passes first.",
+  "since": "20m ago",
+  "sinceMinutes": 20,
+  "attentionState": "act",
+  "detail": {
+   "signal": "25.6 hours since the last passing daily calibration; data stays valid for 26 hours (until 14:30).",
+   "observed": "Auto-cal aborted at 06:00 on low cal gas cylinder pressure; analyzer readings themselves look normal.",
+   "derived": "A cylinder swap (≈ 30 min) plus a manual calibration (≈ 20 min) needs ~50 minutes; 25 minutes remain.",
+   "inferred": "The deadline will be missed unless the calibration starts immediately; some substitute data hours are likely either way.",
+   "recommendation": "Get the CEMS technician on the cylinder swap now, run the manual calibration, and tell the environmental coordinator to expect substitute data from 14:30.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Found at 13:45 during the DAHS review; calibration not yet started.",
+   "whatChanged": [
+    {
+     "time": "06:00",
+     "source": "Alarm",
+     "description": "CEMS auto-calibration aborted — low cal gas pressure.",
+     "related": true
+    },
+    {
+     "time": "13:45",
+     "source": "Field Check",
+     "description": "DAHS review finds the missed calibration.",
+     "related": true
+    }
+   ],
+   "confidence": "n/a — a compliance deadline, not a diagnosis",
+   "confidenceLevel": "n/a",
+   "risk": "Medium — out-of-control CEMS hours need substitute data and are reportable",
+   "riskLevel": "medium",
+   "expectedOutcome": "Calibration passed; data back in control",
+   "evidence": [
+    19.5,
+    21.5,
+    23.5,
+    24.5,
+    25.25,
+    25.58
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "19.50 h",
+     "label": "Shift start"
+    },
+    {
+     "time": "10:00",
+     "value": "21.50 h",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "23.50 h",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "24.50 h",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "25.25 h",
+     "label": "Found by DAHS review"
+    },
+    {
+     "time": "14:05",
+     "value": "25.58 h",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ }
+]

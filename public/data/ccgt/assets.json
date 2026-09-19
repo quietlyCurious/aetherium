@@ -1,0 +1,905 @@
+[
+ {
+  "id": "HALCYON",
+  "parentId": null,
+  "name": "Halcyon Point",
+  "assetType": "cc_plant",
+  "assetLevel": "site"
+ },
+ {
+  "id": "HALCYON_B1",
+  "parentId": "HALCYON",
+  "name": "Block 1",
+  "assetType": "power_block",
+  "assetLevel": "area"
+ },
+ {
+  "id": "HALCYON_B1_CTG1",
+  "parentId": "HALCYON_B1",
+  "name": "CTG-1",
+  "assetType": "gas_turbine",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_INLET",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Inlet Filter House",
+  "assetType": "gt_inlet_filter",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_COMP",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Compressor",
+  "assetType": "gt_compressor",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_COMB",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Combustion System",
+  "assetType": "dln_combustor",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_COMB_GCV",
+  "parentId": "HALCYON_B1_CTG1_COMB",
+  "name": "Gas Control Valve",
+  "assetType": "gas_control_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_TURB",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Turbine Section",
+  "assetType": "gt_turbine_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_TURB_BRG1",
+  "parentId": "HALCYON_B1_CTG1_TURB",
+  "name": "Bearing #1",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_TURB_BRG2",
+  "parentId": "HALCYON_B1_CTG1_TURB",
+  "name": "Bearing #2",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_LUBE",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Lube Oil System",
+  "assetType": "lube_oil_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_LUBE_LOPA",
+  "parentId": "HALCYON_B1_CTG1_LUBE",
+  "name": "Lube Oil Pump A",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_LUBE_LOPB",
+  "parentId": "HALCYON_B1_CTG1_LUBE",
+  "name": "Lube Oil Pump B",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_LUBE_LOC",
+  "parentId": "HALCYON_B1_CTG1_LUBE",
+  "name": "Lube Oil Cooler",
+  "assetType": "lube_oil_cooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_GEN",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "Generator",
+  "assetType": "h2_cooled_generator",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_GEN_H2",
+  "parentId": "HALCYON_B1_CTG1_GEN",
+  "name": "Hydrogen System",
+  "assetType": "h2_cooling_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_GEN_EXC",
+  "parentId": "HALCYON_B1_CTG1_GEN",
+  "name": "Exciter",
+  "assetType": "static_exciter",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG1_GSU",
+  "parentId": "HALCYON_B1_CTG1",
+  "name": "GSU Transformer",
+  "assetType": "gsu_transformer",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1",
+  "parentId": "HALCYON_B1",
+  "name": "HRSG-1",
+  "assetType": "hrsg",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_HP",
+  "parentId": "HALCYON_B1_HRSG1",
+  "name": "HP Section",
+  "assetType": "hrsg_hp_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_HP_DRUM",
+  "parentId": "HALCYON_B1_HRSG1_HP",
+  "name": "HP Drum",
+  "assetType": "hp_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_HP_DRUM_FCV",
+  "parentId": "HALCYON_B1_HRSG1_HP_DRUM",
+  "name": "Feedwater Control Valve",
+  "assetType": "feedwater_control_valve",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_HP_SH",
+  "parentId": "HALCYON_B1_HRSG1_HP",
+  "name": "HP Superheater",
+  "assetType": "hp_superheater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_HP_SH_ATT",
+  "parentId": "HALCYON_B1_HRSG1_HP_SH",
+  "name": "HP Attemperator",
+  "assetType": "attemperator",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_IP",
+  "parentId": "HALCYON_B1_HRSG1",
+  "name": "IP / Reheat Section",
+  "assetType": "hrsg_ip_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_IP_DRUM",
+  "parentId": "HALCYON_B1_HRSG1_IP",
+  "name": "IP Drum",
+  "assetType": "ip_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_IP_RH",
+  "parentId": "HALCYON_B1_HRSG1_IP",
+  "name": "Reheater",
+  "assetType": "reheater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_LP",
+  "parentId": "HALCYON_B1_HRSG1",
+  "name": "LP Section",
+  "assetType": "hrsg_lp_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_LP_DRUM",
+  "parentId": "HALCYON_B1_HRSG1_LP",
+  "name": "LP Drum",
+  "assetType": "lp_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW",
+  "parentId": "HALCYON_B1_HRSG1",
+  "name": "Feedwater System",
+  "assetType": "feedwater_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPA",
+  "parentId": "HALCYON_B1_HRSG1_FW",
+  "name": "BFP-A",
+  "assetType": "boiler_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPA_MTR",
+  "parentId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "name": "Motor",
+  "assetType": "pump_motor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPA_BRG",
+  "parentId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "name": "Pump Bearings",
+  "assetType": "pump_bearings",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPB",
+  "parentId": "HALCYON_B1_HRSG1_FW",
+  "name": "BFP-B",
+  "assetType": "boiler_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPB_MTR",
+  "parentId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "name": "Motor",
+  "assetType": "pump_motor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_FW_BFPB_BRG",
+  "parentId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "name": "Pump Bearings",
+  "assetType": "pump_bearings",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_SCR",
+  "parentId": "HALCYON_B1_HRSG1",
+  "name": "SCR / Emissions",
+  "assetType": "scr_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_SCR_NH3",
+  "parentId": "HALCYON_B1_HRSG1_SCR",
+  "name": "Ammonia Skid",
+  "assetType": "ammonia_skid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_SCR_CAT",
+  "parentId": "HALCYON_B1_HRSG1_SCR",
+  "name": "Catalyst",
+  "assetType": "scr_catalyst",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG1_SCR_CEMS",
+  "parentId": "HALCYON_B1_HRSG1_SCR",
+  "name": "Stack CEMS",
+  "assetType": "cems_analyzer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2",
+  "parentId": "HALCYON_B1",
+  "name": "CTG-2",
+  "assetType": "gas_turbine",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_INLET",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Inlet Filter House",
+  "assetType": "gt_inlet_filter",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_COMP",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Compressor",
+  "assetType": "gt_compressor",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_COMB",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Combustion System",
+  "assetType": "dln_combustor",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_COMB_GCV",
+  "parentId": "HALCYON_B1_CTG2_COMB",
+  "name": "Gas Control Valve",
+  "assetType": "gas_control_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_TURB",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Turbine Section",
+  "assetType": "gt_turbine_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_TURB_BRG1",
+  "parentId": "HALCYON_B1_CTG2_TURB",
+  "name": "Bearing #1",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_TURB_BRG2",
+  "parentId": "HALCYON_B1_CTG2_TURB",
+  "name": "Bearing #2",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_LUBE",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Lube Oil System",
+  "assetType": "lube_oil_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_LUBE_LOPA",
+  "parentId": "HALCYON_B1_CTG2_LUBE",
+  "name": "Lube Oil Pump A",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_LUBE_LOPB",
+  "parentId": "HALCYON_B1_CTG2_LUBE",
+  "name": "Lube Oil Pump B",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_LUBE_LOC",
+  "parentId": "HALCYON_B1_CTG2_LUBE",
+  "name": "Lube Oil Cooler",
+  "assetType": "lube_oil_cooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_GEN",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "Generator",
+  "assetType": "h2_cooled_generator",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_GEN_H2",
+  "parentId": "HALCYON_B1_CTG2_GEN",
+  "name": "Hydrogen System",
+  "assetType": "h2_cooling_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_GEN_EXC",
+  "parentId": "HALCYON_B1_CTG2_GEN",
+  "name": "Exciter",
+  "assetType": "static_exciter",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_CTG2_GSU",
+  "parentId": "HALCYON_B1_CTG2",
+  "name": "GSU Transformer",
+  "assetType": "gsu_transformer",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2",
+  "parentId": "HALCYON_B1",
+  "name": "HRSG-2",
+  "assetType": "hrsg",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_HP",
+  "parentId": "HALCYON_B1_HRSG2",
+  "name": "HP Section",
+  "assetType": "hrsg_hp_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_HP_DRUM",
+  "parentId": "HALCYON_B1_HRSG2_HP",
+  "name": "HP Drum",
+  "assetType": "hp_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_HP_DRUM_FCV",
+  "parentId": "HALCYON_B1_HRSG2_HP_DRUM",
+  "name": "Feedwater Control Valve",
+  "assetType": "feedwater_control_valve",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_HP_SH",
+  "parentId": "HALCYON_B1_HRSG2_HP",
+  "name": "HP Superheater",
+  "assetType": "hp_superheater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_HP_SH_ATT",
+  "parentId": "HALCYON_B1_HRSG2_HP_SH",
+  "name": "HP Attemperator",
+  "assetType": "attemperator",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_IP",
+  "parentId": "HALCYON_B1_HRSG2",
+  "name": "IP / Reheat Section",
+  "assetType": "hrsg_ip_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_IP_DRUM",
+  "parentId": "HALCYON_B1_HRSG2_IP",
+  "name": "IP Drum",
+  "assetType": "ip_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_IP_RH",
+  "parentId": "HALCYON_B1_HRSG2_IP",
+  "name": "Reheater",
+  "assetType": "reheater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_LP",
+  "parentId": "HALCYON_B1_HRSG2",
+  "name": "LP Section",
+  "assetType": "hrsg_lp_section",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_LP_DRUM",
+  "parentId": "HALCYON_B1_HRSG2_LP",
+  "name": "LP Drum",
+  "assetType": "lp_drum",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW",
+  "parentId": "HALCYON_B1_HRSG2",
+  "name": "Feedwater System",
+  "assetType": "feedwater_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPA",
+  "parentId": "HALCYON_B1_HRSG2_FW",
+  "name": "BFP-A",
+  "assetType": "boiler_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPA_MTR",
+  "parentId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "name": "Motor",
+  "assetType": "pump_motor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPA_BRG",
+  "parentId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "name": "Pump Bearings",
+  "assetType": "pump_bearings",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPB",
+  "parentId": "HALCYON_B1_HRSG2_FW",
+  "name": "BFP-B",
+  "assetType": "boiler_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPB_MTR",
+  "parentId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "name": "Motor",
+  "assetType": "pump_motor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_FW_BFPB_BRG",
+  "parentId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "name": "Pump Bearings",
+  "assetType": "pump_bearings",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_SCR",
+  "parentId": "HALCYON_B1_HRSG2",
+  "name": "SCR / Emissions",
+  "assetType": "scr_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_SCR_NH3",
+  "parentId": "HALCYON_B1_HRSG2_SCR",
+  "name": "Ammonia Skid",
+  "assetType": "ammonia_skid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_SCR_CAT",
+  "parentId": "HALCYON_B1_HRSG2_SCR",
+  "name": "Catalyst",
+  "assetType": "scr_catalyst",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_HRSG2_SCR_CEMS",
+  "parentId": "HALCYON_B1_HRSG2_SCR",
+  "name": "Stack CEMS",
+  "assetType": "cems_analyzer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1",
+  "parentId": "HALCYON_B1",
+  "name": "STG-1",
+  "assetType": "steam_turbine",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_B1_STG1_HPIP",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "HP/IP Turbine",
+  "assetType": "st_hpip_turbine",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_HPIP_BRG1",
+  "parentId": "HALCYON_B1_STG1_HPIP",
+  "name": "Bearing #1",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_HPIP_BRG2",
+  "parentId": "HALCYON_B1_STG1_HPIP",
+  "name": "Bearing #2",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LPT",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "LP Turbine",
+  "assetType": "st_lp_turbine",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LPT_BRG3",
+  "parentId": "HALCYON_B1_STG1_LPT",
+  "name": "Bearing #3",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LPT_BRG4",
+  "parentId": "HALCYON_B1_STG1_LPT",
+  "name": "Bearing #4",
+  "assetType": "journal_bearing",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_BYP",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "Steam Bypass",
+  "assetType": "steam_bypass",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_COND",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "Condenser",
+  "assetType": "condenser",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_COND_VPA",
+  "parentId": "HALCYON_B1_STG1_COND",
+  "name": "Vacuum Pump A",
+  "assetType": "vacuum_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_COND_VPB",
+  "parentId": "HALCYON_B1_STG1_COND",
+  "name": "Vacuum Pump B",
+  "assetType": "vacuum_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_COND_CEPA",
+  "parentId": "HALCYON_B1_STG1_COND",
+  "name": "Condensate Pump A",
+  "assetType": "condensate_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_COND_CEPB",
+  "parentId": "HALCYON_B1_STG1_COND",
+  "name": "Condensate Pump B",
+  "assetType": "condensate_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LUBE",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "Lube Oil System",
+  "assetType": "lube_oil_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LUBE_LOPA",
+  "parentId": "HALCYON_B1_STG1_LUBE",
+  "name": "Lube Oil Pump A",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LUBE_LOPB",
+  "parentId": "HALCYON_B1_STG1_LUBE",
+  "name": "Lube Oil Pump B",
+  "assetType": "lube_oil_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_LUBE_LOC",
+  "parentId": "HALCYON_B1_STG1_LUBE",
+  "name": "Lube Oil Cooler",
+  "assetType": "lube_oil_cooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_GEN",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "Generator",
+  "assetType": "air_cooled_generator",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_B1_STG1_GEN_EXC",
+  "parentId": "HALCYON_B1_STG1_GEN",
+  "name": "Exciter",
+  "assetType": "static_exciter",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_B1_STG1_GSU",
+  "parentId": "HALCYON_B1_STG1",
+  "name": "GSU Transformer",
+  "assetType": "gsu_transformer",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP",
+  "parentId": "HALCYON",
+  "name": "Common Plant",
+  "assetType": "common_plant",
+  "assetLevel": "area"
+ },
+ {
+  "id": "HALCYON_CP_CW",
+  "parentId": "HALCYON_CP",
+  "name": "Circulating Water",
+  "assetType": "circulating_water",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT",
+  "parentId": "HALCYON_CP_CW",
+  "name": "Cooling Tower",
+  "assetType": "cooling_tower",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL1",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 1",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL1_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL1",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL2",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 2",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL2_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL2",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL3",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 3",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL3_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL3",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL4",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 4",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL4_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL4",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL5",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 5",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL5_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL5",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL6",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 6",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL6_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL6",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL7",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 7",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL7_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL7",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL8",
+  "parentId": "HALCYON_CP_CW_CT",
+  "name": "Cell 8",
+  "assetType": "cooling_tower_cell",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CT_CELL8_GBX",
+  "parentId": "HALCYON_CP_CW_CT_CELL8",
+  "name": "Fan Gearbox",
+  "assetType": "ct_fan_gearbox",
+  "assetLevel": "component"
+ },
+ {
+  "id": "HALCYON_CP_CW_CWPS",
+  "parentId": "HALCYON_CP_CW",
+  "name": "CW Pump Station",
+  "assetType": "cw_pump_station",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_CW_CWPS_CWPA",
+  "parentId": "HALCYON_CP_CW_CWPS",
+  "name": "CW Pump A",
+  "assetType": "cw_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CWPS_CWPB",
+  "parentId": "HALCYON_CP_CW_CWPS",
+  "name": "CW Pump B",
+  "assetType": "cw_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_CW_CWPS_CWPC",
+  "parentId": "HALCYON_CP_CW_CWPS",
+  "name": "CW Pump C",
+  "assetType": "cw_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "HALCYON_CP_FG",
+  "parentId": "HALCYON_CP",
+  "name": "Fuel Gas Yard",
+  "assetType": "fuel_gas_yard",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_CP_FG_FSEP",
+  "parentId": "HALCYON_CP_FG",
+  "name": "Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_FG_HTR",
+  "parentId": "HALCYON_CP_FG",
+  "name": "Performance Heater",
+  "assetType": "performance_heater",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_FG_GC",
+  "parentId": "HALCYON_CP_FG",
+  "name": "Gas Chromatograph",
+  "assetType": "gas_chromatograph",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_SWYD",
+  "parentId": "HALCYON_CP",
+  "name": "Switchyard",
+  "assetType": "switchyard",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "HALCYON_CP_SWYD_BUS",
+  "parentId": "HALCYON_CP_SWYD",
+  "name": "345 kV Bus",
+  "assetType": "hv_bus",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_SWYD_LINE1",
+  "parentId": "HALCYON_CP_SWYD",
+  "name": "Line 1 Terminal",
+  "assetType": "line_terminal",
+  "assetLevel": "system"
+ },
+ {
+  "id": "HALCYON_CP_SWYD_LINE2",
+  "parentId": "HALCYON_CP_SWYD",
+  "name": "Line 2 Terminal",
+  "assetType": "line_terminal",
+  "assetLevel": "system"
+ }
+]

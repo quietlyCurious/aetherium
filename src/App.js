@@ -88,6 +88,7 @@ import DevicePicker from './DevicePicker';
 import WidgetConfigPanel from './WidgetConfigPanel';
 import WidgetPreview from './WidgetPreview';
 import notify from 'devextreme/ui/notify';
+import { useHasUnsavedChanges } from './unsavedChangesStore';
 
 // ── Template helpers used in left panel
 // Sorts a flat parentId-based hierarchy (categories + items, the shape both
@@ -304,8 +305,18 @@ function AetheriumEditor() {
   // does) — this is a deliberate "don't forget to save" nudge, not a data-loss
   // prevention in the strict sense, though it's built the same way for a
   // consistent, predictable habit either way.
-  const handleNavigate = (view) => {
+  // Leaving the Operator workspace (another app area, the other persona,
+  // or another model) unmounts whatever Configurator editor is open, so
+  // any unsaved changes there get the same Save/Discard prompt that
+  // switching types or assets inside the workspace gives. Resolves
+  // immediately when there's nothing unsaved.
+  const resolveOperatorUnsaved = () => (currentView === 'operator'
+    ? (operatorWorkspaceRef.current?.resolveUnsavedChanges?.() ?? Promise.resolve())
+    : Promise.resolve());
+
+  const handleNavigate = async (view) => {
     if (!confirmDiscardIfDirty()) return;
+    if (view !== currentView) await resolveOperatorUnsaved();
     setCurrentView(view);
     setMenuOpen(false);
   };
@@ -313,8 +324,9 @@ function AetheriumEditor() {
   // Operator Interface and Configurator Interface both land on the same
   // underlying workspace (currentView stays 'operator') — only the persona
   // changes, which controls which rail items that workspace shows.
-  const handleNavigateOperatorPersona = (persona) => {
+  const handleNavigateOperatorPersona = async (persona) => {
     if (!confirmDiscardIfDirty()) return;
+    if (currentView !== 'operator' || persona !== operatorPersona) await resolveOperatorUnsaved();
     setCurrentView('operator');
     setOperatorPersona(persona);
     setMenuOpen(false);
@@ -533,6 +545,7 @@ function AetheriumEditor() {
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
+  const operatorHasUnsavedChanges = useHasUnsavedChanges(); // drives the Save button's unsaved marker (Configurator only)
   const [operatorSaveAvailable, setOperatorSaveAvailable] = useState(false); // whether a type is currently selected (Now area's Types tab) — mirrors the same static, per-context enablement pattern the other workspaces already use, not new dirty-tracking
 
   React.useEffect(() => {
@@ -1528,7 +1541,11 @@ function AetheriumEditor() {
                   <div
                     key={m.id}
                     className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
-                    onClick={() => { setSelectedModel(m.id); setModelMenuOpen(false); }}
+                    onClick={async () => {
+                      setModelMenuOpen(false);
+                      if (m.id !== selectedModel) await resolveOperatorUnsaved();
+                      setSelectedModel(m.id);
+                    }}
                   >
                     {m.label}
                   </div>
@@ -1584,9 +1601,11 @@ function AetheriumEditor() {
           const saveInfo = currentView === 'operator'
             ? {
                 enabled: operatorSaveAvailable,
-                label: operatorSaveAvailable
-                  ? "Save this type or asset's display template"
-                  : 'Select a type or asset in the Now area to save its display template',
+                label: !operatorSaveAvailable
+                  ? 'Select a type or asset in the Now area to save its display template'
+                  : operatorHasUnsavedChanges
+                    ? 'You have unsaved changes — save them'
+                    : "Save this type or asset's display template (no unsaved changes)",
               }
             : {
                 screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },
@@ -1630,6 +1649,12 @@ function AetheriumEditor() {
               }}
             >
               💾 Save
+              {/* Unsaved marker — same amber dot convention as a modified
+                  editor tab. Operator workspace only; the page builder has
+                  its own dirty handling. */}
+              {currentView === 'operator' && operatorHasUnsavedChanges && (
+                <span className="app-titlebar-unsaved-dot" aria-label="Unsaved changes" />
+              )}
             </button>
           );
         })()}

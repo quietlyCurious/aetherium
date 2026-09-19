@@ -22,8 +22,10 @@
 // separate chat surface — this is the thing the brainstorm doc keeps
 // calling out as the actual differentiator vs. a traditional HMI+chatbot.
 
-import React, { useState, useMemo, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle, useSyncExternalStore } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle, useSyncExternalStore } from 'react';
 import { Popover } from 'devextreme-react/popover';
+import { custom as customDialog } from 'devextreme/ui/dialog';
+import { useUnsavedTracker, unsavedChangesStore } from './unsavedChangesStore';
 import { CheckBox } from 'devextreme-react/check-box';
 import { Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
@@ -630,6 +632,9 @@ function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs,
 // fresh props — so rather than thread this through ~6 components and
 // force those widgets to repaint, anything that needs it subscribes here.
 // OperatorWorkspaceInner is the only writer.
+// How long a revert's Undo stays offered.
+const UNDO_TOAST_MS = 10000;
+
 const EMPTY_CUSTOMIZATIONS = { byAsset: {}, byType: {}, byTypeProperty: {}, containsCustomized: {}, actions: {} };
 const assetCustomizationStore = {
   snapshot: EMPTY_CUSTOMIZATIONS,
@@ -679,7 +684,7 @@ function TypeCustomizedCount({ typeId }) {
 // checked, since the common case is "all of them"; unchecking is there
 // for the exceptions. Rows open the asset on click, so the list doubles as
 // the answer to "which assets are customized?".
-function AssetRevertPopover({ target, visible, onHide, title, rows, revertLabel, confirmText, onRevert, onOpenAsset }) {
+function AssetRevertPopover({ target, visible, onHide, title, rows, revertLabel, onRevert, onOpenAsset }) {
   const [checked, setChecked] = useState(() => new Set(rows.map(r => r.id)));
   const rowIdsSignature = rows.map(r => r.id).join('|');
   useEffect(() => {
@@ -695,12 +700,10 @@ function AssetRevertPopover({ target, visible, onHide, title, rows, revertLabel,
     if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   });
+  // No confirm dialog — the revert shows an Undo toast instead.
   const handleRevert = () => {
-    confirm(confirmText(selectedIds.length), 'Revert to type').then(ok => {
-      if (!ok) return;
-      onRevert(selectedIds);
-      onHide();
-    });
+    onRevert(selectedIds);
+    onHide();
   };
 
   return (
@@ -750,14 +753,11 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
   if (isAssetEntity) {
     const info = byAsset[entityId];
     if (!info?.hasOwn) return null;
-    const handleRevert = () => {
-      const what = info.differs
-        ? `Its own settings (${info.summary}) will be discarded.`
-        : 'Its stored settings currently match the type, but they stop it from following future type changes.';
-      confirm(`Revert this asset to its type's settings? ${what} This can't be undone.`, 'Revert to type').then(ok => {
-        if (ok) actions.revertAssetsToType?.([entityId]);
-      });
-    };
+    // No confirm dialog — the revert shows an Undo toast instead.
+    const handleRevert = () => actions.revertAssetsToType?.([entityId]);
+    const revertHint = info.differs
+      ? `Discard this asset's own settings (${info.summary}) and follow its type again`
+      : "This asset's stored settings match its type today, but stop it from following future type changes — revert to follow the type again";
     return (
       <span className="op-title-customization">
         {info.differs && (
@@ -765,7 +765,7 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
             <span className="op-customized-dot" />Customized
           </span>
         )}
-        <button type="button" className="op-title-link-btn" onClick={handleRevert}>Revert to type</button>
+        <button type="button" className="op-title-link-btn" onClick={handleRevert} title={revertHint}>Revert to type</button>
       </span>
     );
   }
@@ -785,7 +785,6 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
         title="Customized assets"
         rows={rows}
         revertLabel={n => `Revert ${n} to type`}
-        confirmText={n => `Revert ${n} asset${n > 1 ? 's' : ''} completely to this type's settings? All of their own settings will be discarded. This can't be undone.`}
         onRevert={selectedIds => actions.revertAssetsToType?.(selectedIds)}
         onOpenAsset={actions.openAsset}
       />
@@ -1649,14 +1648,45 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
     onViewModeChange?.(kpiViewMode);
   }, [kpiViewMode]);
 
+  // Unsaved-changes tracking (title-bar Save marker + the Save/Discard
+  // prompt on navigation) — see useUnsavedTracker. Configurator editing
+  // only; everywhere else this component renders there's nothing to save.
+  const unsavedTracker = useUnsavedTracker(
+    {
+      viewMode: kpiViewMode,
+      flowDirection,
+      flowWrap,
+      alignContent,
+      layoutMode: propertyLayoutMode,
+      propertyViewModes: propertyViewModes ?? {},
+    },
+    { tiles: propertyLayoutMode === 'manual' ? manualPositions : null },
+    !!(typeVisibilityMode && activeSaveHandlerRef),
+  );
+  // Stable identity matters: the canvases re-report positions from an
+  // effect keyed on their callback, so a fresh function every render
+  // loops (report → setState → render → new callback → report …).
+  const handleManualPositionsChange = useCallback(positions => {
+    unsavedTracker.notePositionsReported('tiles', positions);
+    setManualPositions(positions);
+  }, [unsavedTracker]);
+
   // Registers "save the current draft" into the shared ref the global
   // title-bar Save button ultimately calls — kept in sync with the same
   // logic the in-panel Save Template button already uses. Cleared on
   // unmount (switching types remounts this component via NowTypeMainPreview's
-  // key) so a stale handler for the previous type can't linger.
+  // key) so a stale handler for the previous type can't linger. A save
+  // also makes the current state the new unsaved-changes baseline.
   useEffect(() => {
     if (!typeVisibilityMode || !activeSaveHandlerRef) return undefined;
-    activeSaveHandlerRef.current = () => onSaveTypeDisplayTemplate?.(typeId, {
+    activeSaveHandlerRef.current = () => {
+      onSaveTypeDisplayTemplate?.(typeId, buildSavePayload());
+      unsavedTracker.markSaved();
+    };
+    return () => { activeSaveHandlerRef.current = null; };
+  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent, propertyLayoutMode, manualPositions, propertyViewModes]);
+  function buildSavePayload() {
+    return {
       viewMode: kpiViewMode,
       flowDirection,
       flowWrap,
@@ -1668,9 +1698,8 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
       // Default/From type — so later changes to the default or to the
       // type still reach every property this entity never set itself.
       propertyViewModes: propertyViewModes ?? {},
-    });
-    return () => { activeSaveHandlerRef.current = null; };
-  }, [typeVisibilityMode, typeId, kpiViewMode, flowDirection, flowWrap, alignContent, propertyLayoutMode, manualPositions, propertyViewModes]);
+    };
+  }
 
   // Selecting a row in the Details panel scrolls its tile into view here
   // (flex layout only — the manual canvas is freely pannable, so there's
@@ -1786,7 +1815,11 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   const typeFlowActive = typeVisibilityMode;
 
   return (
-    <div className={`op-hmiprops-wrap${typeFlowActive ? ' op-hmiprops-wrap--typeflow' : ''}`}>
+    <div
+      className={`op-hmiprops-wrap${typeFlowActive ? ' op-hmiprops-wrap--typeflow' : ''}`}
+      onPointerDownCapture={unsavedTracker.noteUserInput}
+      onKeyDownCapture={unsavedTracker.noteUserInput}
+    >
       {typeVisibilityMode ? (
         showToolbar && (
           <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
@@ -1963,7 +1996,7 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
               ref={propertyLayoutCanvasRef}
               tiles={flatTiles.map(p => ({ key: p.key, tileProps: buildTileProps(p), selected: p.key === selectedPropertyKey }))}
               manualPositions={manualPositions}
-              onPositionsChange={setManualPositions}
+              onPositionsChange={handleManualPositionsChange}
               onSelectTile={onSelectProperty}
             />
           </div>
@@ -4987,13 +5020,42 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
     [relatedAssetRows, densityFilter]
   );
 
+  // Unsaved-changes tracking — same as HmiPropertiesListing's, with two
+  // position channels since both Cards and Diagram have a manual mode.
+  const relatedUnsavedFields = {
+    layoutMode, cardsLayoutMode, cardsFlowDirection, cardsFlowWrap, cardsAlignContent,
+    diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing,
+    diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode,
+  };
+  const unsavedTracker = useUnsavedTracker(
+    relatedUnsavedFields,
+    {
+      cards: cardsLayoutMode === 'manual' ? cardsManualPositions : null,
+      diagram: diagramLayoutMode === 'manual' ? diagramManualPositions : null,
+    },
+    !!activeSaveHandlerRef,
+  );
+  // The diagram reports positions in auto mode too (every ELK run) — only
+  // a report made while in manual mode may become the manual baseline.
+  const diagramLayoutModeRef = useRef(diagramLayoutMode);
+  diagramLayoutModeRef.current = diagramLayoutMode;
+  // Stable identities — see HmiPropertiesListing's handleManualPositionsChange.
+  const handleCardsPositionsChange = useCallback(positions => {
+    unsavedTracker.notePositionsReported('cards', positions);
+    setCardsManualPositions(positions);
+  }, [unsavedTracker]);
+  const handleDiagramPositionsChange = useCallback(positions => {
+    if (diagramLayoutModeRef.current === 'manual') unsavedTracker.notePositionsReported('diagram', positions);
+    setDiagramManualPositions(positions);
+  }, [unsavedTracker]);
+
   // Registers this tab's save action, same pattern as HmiPropertiesListing's
   // own registration — whichever of the three Details tabs is currently
   // mounted (matching activeTabIndex) is the one the title-bar Save button
   // actually saves. Cleared on unmount so a stale handler can't linger.
   useEffect(() => {
     if (!activeSaveHandlerRef) return undefined;
-    activeSaveHandlerRef.current = () => onSaveTemplate?.(currentTypeId, {
+    activeSaveHandlerRef.current = () => { onSaveTemplate?.(currentTypeId, {
       layoutMode,
       cardsLayoutMode,
       cardsManualPositions: cardsLayoutMode === 'manual' ? cardsManualPositions : {},
@@ -5011,12 +5073,12 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
       diagramConnectionPointMode,
       diagramLayoutMode,
       diagramManualPositions: diagramLayoutMode === 'manual' ? diagramManualPositions : {},
-    });
+    }); unsavedTracker.markSaved(); };
     return () => { activeSaveHandlerRef.current = null; };
   }, [currentTypeId, layoutMode, cardsLayoutMode, cardsManualPositions, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
 
   return (
-    <div className="op-related-assets-preview">
+    <div className="op-related-assets-preview" onPointerDownCapture={unsavedTracker.noteUserInput} onKeyDownCapture={unsavedTracker.noteUserInput}>
       {showToolbar && (
       <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Row 1: unified badge + reset/switch anchored left (switch button
@@ -5282,7 +5344,7 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
             evidencePoints={evidencePoints}
             cardsLayoutMode={cardsLayoutMode}
             cardsManualPositions={cardsManualPositions}
-            onCardsPositionsChange={setCardsManualPositions}
+            onCardsPositionsChange={handleCardsPositionsChange}
             cardsFlexContainerRef={cardsFlexContainerRef}
             cardsFlexTileRefs={cardsFlexTileRefs}
             cardsFlowDirection={cardsFlowDirection}
@@ -5323,7 +5385,7 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
             setDiagramShowLabels={setDiagramShowLabels}
             setDiagramShowArrowheads={setDiagramShowArrowheads}
             setDiagramConnectionPointMode={setDiagramConnectionPointMode}
-            onPositionsChange={setDiagramManualPositions}
+            onPositionsChange={handleDiagramPositionsChange}
             savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
             onTitleClick={onTitleClick}
           />
@@ -5415,13 +5477,31 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
     });
   };
 
+  // Unsaved-changes tracking — same as RelatedAssetsPreview's diagram half,
+  // plus hiddenAssetIds (sorted: a Set's order is just toggle order).
+  const unsavedTracker = useUnsavedTracker(
+    {
+      hiddenAssetIds: [...(hiddenAssetIds ?? [])].sort(),
+      diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing,
+      diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode,
+    },
+    { diagram: diagramLayoutMode === 'manual' ? diagramManualPositions : null },
+    !!activeSaveHandlerRef,
+  );
+  const diagramLayoutModeRef = useRef(diagramLayoutMode);
+  diagramLayoutModeRef.current = diagramLayoutMode;
+  const handleDiagramPositionsChange = useCallback(positions => {
+    if (diagramLayoutModeRef.current === 'manual') unsavedTracker.notePositionsReported('diagram', positions);
+    setDiagramManualPositions(positions);
+  }, [unsavedTracker]);
+
   // Registers this tab's save action, same pattern as RelatedAssetsPreview
   // and HmiPropertiesListing — this is the global, non-per-type template,
   // so hiddenAssetIds (itself lifted state, not owned here) rides along in
   // the same saved payload rather than needing a separate save action.
   useEffect(() => {
     if (!activeSaveHandlerRef) return undefined;
-    activeSaveHandlerRef.current = () => onSaveTemplate?.({
+    activeSaveHandlerRef.current = () => { onSaveTemplate?.({
       hiddenAssetIds: [...(hiddenAssetIds ?? [])],
       diagramAlgorithm,
       diagramDirection,
@@ -5434,12 +5514,12 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
       diagramConnectionPointMode,
       diagramLayoutMode,
       diagramManualPositions: diagramLayoutMode === 'manual' ? diagramManualPositions : {},
-    });
+    }); unsavedTracker.markSaved(); };
     return () => { activeSaveHandlerRef.current = null; };
   }, [hiddenAssetIds, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
 
   return (
-    <div className="op-dashboard-card op-now-type-kpi-card op-related-assets-preview">
+    <div className="op-dashboard-card op-now-type-kpi-card op-related-assets-preview" onPointerDownCapture={unsavedTracker.noteUserInput} onKeyDownCapture={unsavedTracker.noteUserInput}>
       {showToolbar && (
       <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Row 1: badge + reset button, anchored left — no slider here (All
@@ -5614,7 +5694,7 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
         setDiagramShowLabels={setDiagramShowLabels}
         setDiagramShowArrowheads={setDiagramShowArrowheads}
         setDiagramConnectionPointMode={setDiagramConnectionPointMode}
-        onPositionsChange={setDiagramManualPositions}
+        onPositionsChange={handleDiagramPositionsChange}
         savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
         onTitleClick={onTitleClick}
       />
@@ -5913,7 +5993,6 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
             title={label}
             rows={rows}
             revertLabel={n => `Revert ${label} on ${n}`}
-            confirmText={n => `Revert ${label} to this type's setting on ${n} asset${n > 1 ? 's' : ''}? Only this property changes; their other settings stay as they are.`}
             onRevert={ids => customizationActions.revertPropertyToType?.(ids, key)}
             onOpenAsset={customizationActions.openAsset}
           />
@@ -7483,9 +7562,14 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   // display template save) — a ref rather than state since updating it
   // shouldn't itself trigger a re-render here.
   const activeSaveHandlerRef = useRef(null);
+  // Filled in by OperatorWorkspaceInner: resolves any unsaved Configurator
+  // changes (Save/Discard prompt) before App.js navigates away — switching
+  // model, persona or app area all unmount the editor holding them.
+  const unsavedGuardRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
     save: () => activeSaveHandlerRef.current?.(),
+    resolveUnsavedChanges: () => unsavedGuardRef.current?.() ?? Promise.resolve(),
   }), []);
 
   useEffect(() => {
@@ -7560,6 +7644,7 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   // new persona) would otherwise survive.
   return (
     <OperatorWorkspaceInner
+      unsavedGuardRef={unsavedGuardRef}
       key={`${selectedModel}-${operatorPersona}`}
       operatorPersona={operatorPersona}
       activeSaveHandlerRef={activeSaveHandlerRef}
@@ -7579,7 +7664,7 @@ export default OperatorWorkspace;
 // all sequence, so one mapping serves both.
 const DEEP_LINK_TAB_NAMES = ['properties', 'related', 'all'];
 
-function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }) {
+function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsavedGuardRef, onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }) {
   // A deep link (checked against the current persona) seeds this fresh
   // mount's initial selection. It's read once here, on mount, but it is
   // NOT necessarily fixed for the app's whole lifetime the way a URL-only
@@ -7795,7 +7880,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // variant) — without this, selecting an asset while on that tab would
   // leave the tab switcher pointed at an index NowTypeDetailsList no
   // longer renders for assets at all.
-  const handleSelectNowThing = (thing) => {
+  const handleSelectNowThing = async (thing) => {
+    if (thing?.kind !== selectedNowThing?.kind || thing?.id !== selectedNowThing?.id) {
+      await resolveUnsavedChanges();
+    }
     setSelectedNowThing(thing);
     setNowLeftTabIndex(thing?.kind === 'asset' ? 1 : 0);
     if (thing?.kind === 'asset' && activeTabIndex === 2) {
@@ -7809,7 +7897,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // concrete asset id, matching what's actually on screen in the box
   // rather than introducing a second, different notion of "the asset
   // this box represents."
-  const handleNavigateToType = ({ relatedTypeId }) => {
+  const handleNavigateToType = async ({ relatedTypeId }) => {
+    if (selectedNowThing?.kind !== 'type' || selectedNowThing?.id !== relatedTypeId) {
+      await resolveUnsavedChanges();
+    }
     setSelectedNowThing({ kind: 'type', id: relatedTypeId });
     setNowLeftTabIndex(0);
     setActiveTabIndex(0);
@@ -7872,6 +7963,97 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
     });
   };
 
+  // ─── Unsaved changes ─────────────────────────────────────────────────
+  // Anything that unmounts the open editor (selecting another type or
+  // asset, switching Details tabs, and — via unsavedGuardRef — App.js
+  // switching model, persona or app area) first asks whether to keep its
+  // unsaved changes. Save or Discard only, no Cancel: every one of those
+  // triggers has already updated its own widget's selection by the time
+  // this runs (the tree, the grid, the tab strip), and walking each of
+  // them back would be fragile. Dismissing the dialog (Esc) keeps the
+  // work — it saves — since losing edits is the worse surprise.
+  const describeOpenEditor = () => {
+    if (activeTabIndex === 2) return 'the All Assets view';
+    const tab = activeTabIndex === 1 ? 'Related Assets' : 'display';
+    if (selectedNowThing?.kind === 'asset') return `${getAssetPathLabel(selectedNowThing.id)} (${tab})`;
+    const typeName = nowTypeList.find(t => t.id === selectedNowThing?.id)?.name ?? 'this type';
+    return `the ${typeName} type (${tab})`;
+  };
+  const escapeHtml = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // Drafts that live up here rather than inside the editor survive its
+  // unmount, so Discard has to reset them explicitly — otherwise
+  // reopening the same tab would show the discarded draft as if saved.
+  const discardLiftedDrafts = () => {
+    setPropertyVisualDraft({ entityId: null, modes: {} });
+    setHiddenAssetIds(new Set(allAssetsTemplate?.hiddenAssetIds ?? []));
+  };
+  // One prompt at a time: a single click can fire more than one of the
+  // guarded handlers (DataListGrid reports a row click through both its
+  // selection-changed and row-click events), and each must wait on the
+  // same answer rather than stacking a second dialog.
+  const pendingUnsavedPromptRef = useRef(null);
+  const resolveUnsavedChanges = () => {
+    if (pendingUnsavedPromptRef.current) return pendingUnsavedPromptRef.current;
+    if (operatorPersona !== 'configurator' || !unsavedChangesStore.isDirty()) return Promise.resolve();
+    // Wrapped in a native Promise: DevExtreme's dialog returns its own
+    // Deferred, which has then() but no finally().
+    pendingUnsavedPromptRef.current = Promise.resolve(customDialog({
+      title: 'Unsaved changes',
+      messageHtml: `<div style="max-width:360px">You have unsaved changes to ${escapeHtml(describeOpenEditor())}.</div>`,
+      buttons: [
+        { text: 'Save', type: 'default', stylingMode: 'contained', onClick: () => 'save' },
+        { text: 'Discard', stylingMode: 'outlined', onClick: () => 'discard' },
+      ],
+    }).show()).then(result => {
+      if (result === 'discard') discardLiftedDrafts();
+      else activeSaveHandlerRef.current?.();
+      unsavedChangesStore.setDirty(false);
+    }).finally(() => { pendingUnsavedPromptRef.current = null; });
+    return pendingUnsavedPromptRef.current;
+  };
+  if (unsavedGuardRef) unsavedGuardRef.current = resolveUnsavedChanges;
+
+  const handleActiveTabIndexChange = async (index) => {
+    if (index === activeTabIndex) return;
+    await resolveUnsavedChanges();
+    setActiveTabIndex(index);
+  };
+
+  // Browser refresh/close — the only exit the in-app prompt can't catch.
+  useEffect(() => {
+    const handler = e => {
+      if (operatorPersona === 'configurator' && unsavedChangesStore.isDirty()) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [operatorPersona]);
+
+  // ─── Undo for reverts ────────────────────────────────────────────────
+  // Reverts apply immediately (no confirm dialog); instead, a toast offers
+  // Undo for a few seconds. Each revert snapshots exactly the entries it
+  // touches, and undo puts those entries back as they were — whole
+  // per-asset entries, so an edit made to one of the same assets inside
+  // that short window would be rolled back with it.
+  const [undoToast, setUndoToast] = useState(null); // { id, message, undo }
+  useEffect(() => {
+    if (!undoToast) return undefined;
+    const timer = setTimeout(() => setUndoToast(t => (t?.id === undoToast.id ? null : t)), UNDO_TOAST_MS);
+    return () => clearTimeout(timer);
+  }, [undoToast]);
+  const pickEntries = (map, ids) => {
+    const snapshot = {};
+    ids.forEach(id => { if (map?.[id] !== undefined) snapshot[id] = map[id]; });
+    return snapshot;
+  };
+  const restoreEntries = (prev, ids, snapshot) => {
+    const next = { ...prev };
+    ids.forEach(id => { if (id in snapshot) next[id] = snapshot[id]; else delete next[id]; });
+    return next;
+  };
+
   // Which assets differ from their type (tree dots, Types-list counts,
   // title-row chips, per-property counts) — recomputed whenever any of the
   // eight stores changes, and published to assetCustomizationStore along
@@ -7899,19 +8081,39 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // property visibilities, related-asset visibilities, related-assets
   // template), so each asset follows its type completely again — including
   // any future type changes. Immediate and persisted, like the visibility
-  // toggles, not staged for the title-bar Save: it's confirmed up front
-  // instead, and a revert that waited for Save would be easy to lose.
+  // toggles, not staged for the title-bar Save (a revert that waited for
+  // Save would be easy to lose); the Undo toast is the safety net.
   const revertAssetsToType = (assetIds) => {
     if (!assetIds.length) return;
+    const snapshot = {
+      display: pickEntries(assetDisplayTemplates, assetIds),
+      relatedTemplates: pickEntries(assetRelatedAssetsTemplates, assetIds),
+      propertyConfigs: pickEntries(assetPropertyConfigs, assetIds),
+      relatedConfigs: pickEntries(assetRelatedAssetConfigs, assetIds),
+    };
+    const selectedAffected = selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id) ? selectedNowThing.id : null;
     setAssetDisplayTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetDisplayTemplates(next); return next; });
     setAssetRelatedAssetsTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetRelatedAssetsTemplates(next); return next; });
     setAssetPropertyConfigs(prev => omitKeys(prev, assetIds));
     setAssetRelatedAssetConfigs(prev => omitKeys(prev, assetIds));
-    if (selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id)) {
-      setPropertyVisualDraft({ entityId: selectedNowThing.id, modes: {} });
+    if (selectedAffected) {
+      setPropertyVisualDraft({ entityId: selectedAffected, modes: {} });
       setNowPreviewRevision(r => r + 1);
     }
-    notify(`Reverted ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''} to type`, 'success', 2000);
+    setUndoToast({
+      id: Date.now(),
+      message: `Reverted ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''} to type`,
+      undo: () => {
+        setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.display); saveAssetDisplayTemplates(next); return next; });
+        setAssetRelatedAssetsTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.relatedTemplates); saveAssetRelatedAssetsTemplates(next); return next; });
+        setAssetPropertyConfigs(prev => restoreEntries(prev, assetIds, snapshot.propertyConfigs));
+        setAssetRelatedAssetConfigs(prev => restoreEntries(prev, assetIds, snapshot.relatedConfigs));
+        if (selectedAffected) {
+          setPropertyVisualDraft({ entityId: selectedAffected, modes: snapshot.display[selectedAffected]?.propertyViewModes ?? {} });
+          setNowPreviewRevision(r => r + 1);
+        }
+      },
+    });
   };
 
   // One property, many assets: drops just that property's visibility and
@@ -7920,6 +8122,11 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // Visual column and preview reflect it immediately without a remount.
   const revertPropertyToType = (assetIds, propertyKey) => {
     if (!assetIds.length) return;
+    const snapshot = {
+      display: pickEntries(assetDisplayTemplates, assetIds),
+      propertyConfigs: pickEntries(assetPropertyConfigs, assetIds),
+    };
+    const selectedAffected = selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id) ? selectedNowThing.id : null;
     setAssetPropertyConfigs(prev => {
       const next = { ...prev };
       assetIds.forEach(id => {
@@ -7940,14 +8147,29 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
       saveAssetDisplayTemplates(next);
       return next;
     });
-    if (selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id)) {
+    if (selectedAffected) {
       setPropertyVisualDraft(prev => {
-        if (prev.entityId !== selectedNowThing.id || !(propertyKey in prev.modes)) return prev;
+        if (prev.entityId !== selectedAffected || !(propertyKey in prev.modes)) return prev;
         const { [propertyKey]: _removed, ...rest } = prev.modes;
         return { entityId: prev.entityId, modes: rest };
       });
     }
-    notify(`Reverted ${PROPERTY_LABELS[propertyKey] || propertyKey} on ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''}`, 'success', 2000);
+    setUndoToast({
+      id: Date.now(),
+      message: `Reverted ${PROPERTY_LABELS[propertyKey] || propertyKey} on ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''}`,
+      undo: () => {
+        setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.display); saveAssetDisplayTemplates(next); return next; });
+        setAssetPropertyConfigs(prev => restoreEntries(prev, assetIds, snapshot.propertyConfigs));
+        // Only the reverted property goes back into the open asset's
+        // draft — any other unsaved visual edits there are left alone.
+        const restoredMode = selectedAffected ? snapshot.display[selectedAffected]?.propertyViewModes?.[propertyKey] : undefined;
+        if (restoredMode) {
+          setPropertyVisualDraft(prev => (prev.entityId === selectedAffected
+            ? { entityId: prev.entityId, modes: { ...prev.modes, [propertyKey]: restoredMode } }
+            : prev));
+        }
+      },
+    });
   };
 
   // Published only when the customizations themselves change, so the
@@ -8242,7 +8464,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 setAssetRelatedAssetConfigs={setAssetRelatedAssetConfigs}
                 activeSaveHandlerRef={activeSaveHandlerRef}
                 activeTabIndex={activeTabIndex}
-                onActiveTabIndexChange={setActiveTabIndex}
+                onActiveTabIndexChange={handleActiveTabIndexChange}
                 rightPanelViewMode={rightPanelViewMode}
                 hiddenAssetIds={hiddenAssetIds}
                 onToggleAssetVisibility={handleToggleAssetVisibility}
@@ -8254,6 +8476,13 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
 
         <RightRail mode={rightPanelMode} hidden={rightPanelHidden} onIconClick={handleRightIconClick} hasUnread={hasUnreadContacts} operatorPersona={operatorPersona} />
       </div>
+      {undoToast && (
+        <div className="op-undo-toast" role="status">
+          <span>{undoToast.message}</span>
+          <button type="button" className="op-undo-toast-action" onClick={() => { undoToast.undo(); setUndoToast(null); }}>Undo</button>
+          <button type="button" className="op-undo-toast-close" onClick={() => setUndoToast(null)} title="Dismiss">×</button>
+        </div>
+      )}
     </div>
   );
 }

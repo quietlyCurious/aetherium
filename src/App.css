@@ -1295,3 +1295,14 @@
 .pvt-node--locked .pvt-lock-btn {
   opacity: 1;
 }
+
+/* Title-bar Save: unsaved-changes marker (Operator/Configurator). */
+.app-titlebar-unsaved-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-left: 7px;
+  border-radius: 50%;
+  background: #f5b041;
+  vertical-align: 1px;
+}

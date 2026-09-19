@@ -1,0 +1,674 @@
+[
+ {
+  "sourceAssetId": "HALCYON_CP_FG_FSEP",
+  "targetAssetId": "HALCYON_CP_FG_HTR",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_FG_FSEP",
+  "targetAssetId": "HALCYON_CP_FG_GC",
+  "relationshipType": "feeds_into",
+  "label": "analyzer sample line",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_FG_HTR",
+  "targetAssetId": "HALCYON_B1_CTG1_COMB_GCV",
+  "relationshipType": "feeds_into",
+  "label": "heated fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_FG_HTR",
+  "targetAssetId": "HALCYON_B1_CTG2_COMB_GCV",
+  "relationshipType": "feeds_into",
+  "label": "heated fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_INLET",
+  "targetAssetId": "HALCYON_B1_CTG1_COMP",
+  "relationshipType": "feeds_into",
+  "label": "filtered inlet air",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_COMP",
+  "targetAssetId": "HALCYON_B1_CTG1_COMB",
+  "relationshipType": "feeds_into",
+  "label": "compressor discharge air",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_COMB",
+  "targetAssetId": "HALCYON_B1_CTG1_TURB",
+  "relationshipType": "feeds_into",
+  "label": "hot combustion gas",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_TURB",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP",
+  "relationshipType": "feeds_into",
+  "label": "GT exhaust",
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_HP",
+  "targetAssetId": "HALCYON_B1_HRSG1_SCR",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_SCR",
+  "targetAssetId": "HALCYON_B1_HRSG1_IP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_IP",
+  "targetAssetId": "HALCYON_B1_HRSG1_LP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_SCR_CAT",
+  "targetAssetId": "HALCYON_B1_HRSG1_SCR_CEMS",
+  "relationshipType": "feeds_into",
+  "label": "stack gas sample",
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_SCR_NH3",
+  "targetAssetId": "HALCYON_B1_HRSG1_SCR_CAT",
+  "relationshipType": "feeds_into",
+  "label": "vaporized aqueous ammonia",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_TURB",
+  "targetAssetId": "HALCYON_B1_CTG1_GEN",
+  "relationshipType": "feeds_into",
+  "label": "shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_GEN",
+  "targetAssetId": "HALCYON_B1_CTG1_GSU",
+  "relationshipType": "feeds_into",
+  "label": "18 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_GSU",
+  "targetAssetId": "HALCYON_CP_SWYD_BUS",
+  "relationshipType": "feeds_into",
+  "label": "18 kV → 345 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_HP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP_SH",
+  "relationshipType": "feeds_into",
+  "label": "saturated steam",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_HP_SH",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP",
+  "relationshipType": "feeds_into",
+  "label": "main steam",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_HPIP",
+  "targetAssetId": "HALCYON_B1_HRSG1_IP_RH",
+  "relationshipType": "feeds_into",
+  "label": "cold reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_IP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG1_IP_RH",
+  "relationshipType": "feeds_into",
+  "label": "IP steam joins cold reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_IP_RH",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP",
+  "relationshipType": "feeds_into",
+  "label": "hot reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_STG1_LPT",
+  "relationshipType": "feeds_into",
+  "label": "LP admission",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_HP_SH",
+  "targetAssetId": "HALCYON_B1_STG1_BYP",
+  "relationshipType": "feeds_into",
+  "label": "HP bypass (startup / trip)",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_COND_CEPA",
+  "targetAssetId": "HALCYON_B1_HRSG1_LP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "condensate via LP economizer",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_COND_CEPB",
+  "targetAssetId": "HALCYON_B1_HRSG1_LP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "standby",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "relationshipType": "feeds_into",
+  "label": "BFP suction",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP_DRUM_FCV",
+  "relationshipType": "feeds_into",
+  "label": "HP feedwater",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG1_IP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "IP feedwater (interstage bleed)",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP_SH_ATT",
+  "relationshipType": "feeds_into",
+  "label": "spray water",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "relationshipType": "feeds_into",
+  "label": "BFP suction",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP_DRUM_FCV",
+  "relationshipType": "feeds_into",
+  "label": "HP feedwater",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG1_IP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "IP feedwater (interstage bleed)",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG1_HP_SH_ATT",
+  "relationshipType": "feeds_into",
+  "label": "spray water",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG1_IP",
+  "targetAssetId": "HALCYON_CP_FG_HTR",
+  "relationshipType": "feeds_into",
+  "label": "IP economizer water for fuel heating",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_LUBE_LOPA",
+  "targetAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_LUBE_LOPB",
+  "targetAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "standby",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG1_TURB_BRG1",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG1_TURB_BRG2",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG1_GEN",
+  "relationshipType": "feeds_into",
+  "label": "generator bearings",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS",
+  "targetAssetId": "HALCYON_B1_CTG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "via closed cooling water",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_INLET",
+  "targetAssetId": "HALCYON_B1_CTG2_COMP",
+  "relationshipType": "feeds_into",
+  "label": "filtered inlet air",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_COMP",
+  "targetAssetId": "HALCYON_B1_CTG2_COMB",
+  "relationshipType": "feeds_into",
+  "label": "compressor discharge air",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_COMB",
+  "targetAssetId": "HALCYON_B1_CTG2_TURB",
+  "relationshipType": "feeds_into",
+  "label": "hot combustion gas",
+  "layer": "gas_path"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_TURB",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP",
+  "relationshipType": "feeds_into",
+  "label": "GT exhaust",
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_HP",
+  "targetAssetId": "HALCYON_B1_HRSG2_SCR",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_SCR",
+  "targetAssetId": "HALCYON_B1_HRSG2_IP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_IP",
+  "targetAssetId": "HALCYON_B1_HRSG2_LP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_SCR_CAT",
+  "targetAssetId": "HALCYON_B1_HRSG2_SCR_CEMS",
+  "relationshipType": "feeds_into",
+  "label": "stack gas sample",
+  "layer": "exhaust_gas"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_SCR_NH3",
+  "targetAssetId": "HALCYON_B1_HRSG2_SCR_CAT",
+  "relationshipType": "feeds_into",
+  "label": "vaporized aqueous ammonia",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_TURB",
+  "targetAssetId": "HALCYON_B1_CTG2_GEN",
+  "relationshipType": "feeds_into",
+  "label": "shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_GEN",
+  "targetAssetId": "HALCYON_B1_CTG2_GSU",
+  "relationshipType": "feeds_into",
+  "label": "18 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_GSU",
+  "targetAssetId": "HALCYON_CP_SWYD_BUS",
+  "relationshipType": "feeds_into",
+  "label": "18 kV → 345 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_HP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP_SH",
+  "relationshipType": "feeds_into",
+  "label": "saturated steam",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_HP_SH",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP",
+  "relationshipType": "feeds_into",
+  "label": "main steam",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_HPIP",
+  "targetAssetId": "HALCYON_B1_HRSG2_IP_RH",
+  "relationshipType": "feeds_into",
+  "label": "cold reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_IP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG2_IP_RH",
+  "relationshipType": "feeds_into",
+  "label": "IP steam joins cold reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_IP_RH",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP",
+  "relationshipType": "feeds_into",
+  "label": "hot reheat",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_STG1_LPT",
+  "relationshipType": "feeds_into",
+  "label": "LP admission",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_HP_SH",
+  "targetAssetId": "HALCYON_B1_STG1_BYP",
+  "relationshipType": "feeds_into",
+  "label": "HP bypass (startup / trip)",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_COND_CEPA",
+  "targetAssetId": "HALCYON_B1_HRSG2_LP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "condensate via LP economizer",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_COND_CEPB",
+  "targetAssetId": "HALCYON_B1_HRSG2_LP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "standby",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "relationshipType": "feeds_into",
+  "label": "BFP suction",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP_DRUM_FCV",
+  "relationshipType": "feeds_into",
+  "label": "HP feedwater",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG2_IP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "IP feedwater (interstage bleed)",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPA",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP_SH_ATT",
+  "relationshipType": "feeds_into",
+  "label": "spray water",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_LP_DRUM",
+  "targetAssetId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "relationshipType": "feeds_into",
+  "label": "BFP suction",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP_DRUM_FCV",
+  "relationshipType": "feeds_into",
+  "label": "HP feedwater",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG2_IP_DRUM",
+  "relationshipType": "feeds_into",
+  "label": "IP feedwater (interstage bleed)",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_FW_BFPB",
+  "targetAssetId": "HALCYON_B1_HRSG2_HP_SH_ATT",
+  "relationshipType": "feeds_into",
+  "label": "spray water",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_HRSG2_IP",
+  "targetAssetId": "HALCYON_CP_FG_HTR",
+  "relationshipType": "feeds_into",
+  "label": "IP economizer water for fuel heating",
+  "layer": "feedwater"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_LUBE_LOPA",
+  "targetAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_LUBE_LOPB",
+  "targetAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "standby",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG2_TURB_BRG1",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG2_TURB_BRG2",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_CTG2_GEN",
+  "relationshipType": "feeds_into",
+  "label": "generator bearings",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS",
+  "targetAssetId": "HALCYON_B1_CTG2_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "via closed cooling water",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_HPIP",
+  "targetAssetId": "HALCYON_B1_STG1_LPT",
+  "relationshipType": "feeds_into",
+  "label": "IP exhaust crossover",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LPT",
+  "targetAssetId": "HALCYON_B1_STG1_COND",
+  "relationshipType": "feeds_into",
+  "label": "exhaust steam",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_BYP",
+  "targetAssetId": "HALCYON_B1_STG1_COND",
+  "relationshipType": "feeds_into",
+  "label": "bypass steam to condenser",
+  "layer": "steam"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LPT",
+  "targetAssetId": "HALCYON_B1_STG1_GEN",
+  "relationshipType": "feeds_into",
+  "label": "shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_GEN",
+  "targetAssetId": "HALCYON_B1_STG1_GSU",
+  "relationshipType": "feeds_into",
+  "label": "18 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_GSU",
+  "targetAssetId": "HALCYON_CP_SWYD_BUS",
+  "relationshipType": "feeds_into",
+  "label": "18 kV → 345 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOPA",
+  "targetAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOPB",
+  "targetAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "standby",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP_BRG1",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_STG1_HPIP_BRG2",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_STG1_LPT_BRG3",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "targetAssetId": "HALCYON_B1_STG1_LPT_BRG4",
+  "relationshipType": "feeds_into",
+  "label": "bearing oil",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS",
+  "targetAssetId": "HALCYON_B1_STG1_LUBE_LOC",
+  "relationshipType": "feeds_into",
+  "label": "via closed cooling water",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS_CWPA",
+  "targetAssetId": "HALCYON_B1_STG1_COND",
+  "relationshipType": "feeds_into",
+  "label": "circulating water",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS_CWPB",
+  "targetAssetId": "HALCYON_B1_STG1_COND",
+  "relationshipType": "feeds_into",
+  "label": "circulating water",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CWPS_CWPC",
+  "targetAssetId": "HALCYON_B1_STG1_COND",
+  "relationshipType": "feeds_into",
+  "label": "spare pump",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_B1_STG1_COND",
+  "targetAssetId": "HALCYON_CP_CW_CT",
+  "relationshipType": "feeds_into",
+  "label": "warm water return",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_CW_CT",
+  "targetAssetId": "HALCYON_CP_CW_CWPS",
+  "relationshipType": "feeds_into",
+  "label": "cold water basin",
+  "layer": "cooling_water"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_SWYD_BUS",
+  "targetAssetId": "HALCYON_CP_SWYD_LINE1",
+  "relationshipType": "feeds_into",
+  "label": "345 kV",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "HALCYON_CP_SWYD_BUS",
+  "targetAssetId": "HALCYON_CP_SWYD_LINE2",
+  "relationshipType": "feeds_into",
+  "label": "345 kV",
+  "layer": "power"
+ }
+]

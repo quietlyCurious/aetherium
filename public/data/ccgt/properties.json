@@ -1,0 +1,1714 @@
+{
+ "properties": {
+  "net_output_mw": {
+   "label": "Net Output",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "dispatch_target_mw": {
+   "label": "Dispatch Target (AGC)",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "gross_output_mw": {
+   "label": "Gross Output",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "net_heat_rate_btu_kwh": {
+   "label": "Net Heat Rate (HHV)",
+   "unit": "Btu/kWh",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    5000,
+    8000
+   ],
+   "decimals": 0
+  },
+  "equiv_availability_pct": {
+   "label": "Equivalent Availability (24 h)",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    80,
+    100
+   ],
+   "decimals": 2
+  },
+  "aux_load_mw": {
+   "label": "Auxiliary Load",
+   "unit": "MW",
+   "category": "Events / Losses",
+   "tier": "P3",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 2
+  },
+  "ambient_temp_f": {
+   "label": "Ambient Temperature",
+   "unit": "°F",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    40,
+    110
+   ],
+   "decimals": 1
+  },
+  "block_fuel_input_mmbtu_h": {
+   "label": "Block Fuel Heat Input",
+   "unit": "MMBtu/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    6000
+   ],
+   "decimals": 0
+  },
+  "common_aux_load_mw": {
+   "label": "Common Auxiliary Load",
+   "unit": "MW",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "gen_output_mw": {
+   "label": "Generator Output",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    350
+   ],
+   "decimals": 1
+  },
+  "fuel_heat_input_mmbtu_h": {
+   "label": "Fuel Heat Input (HHV)",
+   "unit": "MMBtu/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    3500
+   ],
+   "decimals": 0
+  },
+  "gt_heat_rate_btu_kwh": {
+   "label": "GT Heat Rate (HHV)",
+   "unit": "Btu/kWh",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    8000,
+    11500
+   ],
+   "decimals": 0
+  },
+  "corrected_output_pct": {
+   "label": "Corrected Output vs New & Clean",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    85,
+    102
+   ],
+   "decimals": 2
+  },
+  "rated_output_mw": {
+   "label": "Rated Output (ISO)",
+   "unit": "MW",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    350
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "inlet_filter_dp_inh2o": {
+   "label": "Inlet Filter DP",
+   "unit": "inH₂O",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "compressor_inlet_temp_f": {
+   "label": "Compressor Inlet Temperature",
+   "unit": "°F",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    40,
+    110
+   ],
+   "decimals": 1
+  },
+  "compressor_discharge_pressure_psig": {
+   "label": "Compressor Discharge Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    100,
+    350
+   ],
+   "decimals": 1
+  },
+  "compressor_discharge_temp_f": {
+   "label": "Compressor Discharge Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 0
+  },
+  "compressor_efficiency_pct": {
+   "label": "Compressor Isentropic Efficiency",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    80,
+    95
+   ],
+   "decimals": 2
+  },
+  "igv_position_deg": {
+   "label": "IGV Position",
+   "unit": "°",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    30,
+    90
+   ],
+   "decimals": 1
+  },
+  "combustion_dynamics_psi": {
+   "label": "Combustion Dynamics (hot tone)",
+   "unit": "psi",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "gt_exit_nox_ppm": {
+   "label": "GT Exit NOx @15% O₂",
+   "unit": "ppm",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 1
+  },
+  "gcv_position_pct": {
+   "label": "Gas Control Valve Position",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "fuel_gas_intervalve_pressure_psig": {
+   "label": "Inter-Valve (P2) Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 1
+  },
+  "exhaust_temp_f": {
+   "label": "Exhaust Temperature (avg)",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    800,
+    1300
+   ],
+   "decimals": 1
+  },
+  "exhaust_temp_spread_f": {
+   "label": "Exhaust Temperature Spread",
+   "unit": "°F",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "wheelspace_temp_f": {
+   "label": "Wheelspace Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 1
+  },
+  "bearing_metal_temp_f": {
+   "label": "Bearing Metal Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    80,
+    300
+   ],
+   "decimals": 1
+  },
+  "shaft_vibration_mils": {
+   "label": "Shaft Vibration",
+   "unit": "mils pk-pk",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "lube_oil_header_pressure_psig": {
+   "label": "Lube Oil Header Pressure",
+   "unit": "psig",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "lube_oil_header_temp_f": {
+   "label": "Lube Oil Header Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    80,
+    160
+   ],
+   "decimals": 1
+  },
+  "lo_pump_discharge_pressure_psig": {
+   "label": "Pump Discharge Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "lo_pump_motor_current_a": {
+   "label": "Pump Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "lo_cooler_oil_dt_f": {
+   "label": "Oil Temperature Drop",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "cooler_water_outlet_temp_f": {
+   "label": "Cooling Water Outlet Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    60,
+    140
+   ],
+   "decimals": 1
+  },
+  "stator_winding_temp_f": {
+   "label": "Stator Winding Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    260
+   ],
+   "decimals": 1
+  },
+  "gen_reactive_mvar": {
+   "label": "Reactive Power",
+   "unit": "Mvar",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    -100,
+    150
+   ],
+   "decimals": 1
+  },
+  "gen_terminal_voltage_kv": {
+   "label": "Terminal Voltage",
+   "unit": "kV",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    15,
+    21
+   ],
+   "decimals": 2
+  },
+  "cold_air_temp_f": {
+   "label": "Cold Air Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    60,
+    140
+   ],
+   "decimals": 1
+  },
+  "h2_purity_pct": {
+   "label": "Hydrogen Purity",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    94,
+    100
+   ],
+   "decimals": 2
+  },
+  "h2_pressure_psig": {
+   "label": "Hydrogen Pressure",
+   "unit": "psig",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    90
+   ],
+   "decimals": 1
+  },
+  "cold_gas_temp_f": {
+   "label": "Cold Gas Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    60,
+    140
+   ],
+   "decimals": 1
+  },
+  "field_current_a": {
+   "label": "Field Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    4000
+   ],
+   "decimals": 0
+  },
+  "field_voltage_v": {
+   "label": "Field Voltage",
+   "unit": "V",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 0
+  },
+  "gsu_top_oil_temp_f": {
+   "label": "Top Oil Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    240
+   ],
+   "decimals": 1
+  },
+  "gsu_winding_hotspot_f": {
+   "label": "Winding Hot-Spot Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    280
+   ],
+   "decimals": 1
+  },
+  "gsu_load_pct": {
+   "label": "Transformer Load",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "dga_h2_ppm": {
+   "label": "Dissolved Hydrogen (DGA)",
+   "unit": "ppm",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 0
+  },
+  "dga_tdcg_ppm": {
+   "label": "Total Dissolved Combustible Gas",
+   "unit": "ppm",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 0
+  },
+  "hp_steam_flow_klb_h": {
+   "label": "HP Steam Flow",
+   "unit": "klb/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "total_steam_flow_klb_h": {
+   "label": "Total Steam Flow",
+   "unit": "klb/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    1100
+   ],
+   "decimals": 1
+  },
+  "stack_temp_f": {
+   "label": "Stack Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    100,
+    300
+   ],
+   "decimals": 1
+  },
+  "hp_steam_pressure_psig": {
+   "label": "HP Steam Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    2800
+   ],
+   "decimals": 0
+  },
+  "hp_steam_temp_f": {
+   "label": "HP Steam Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    800,
+    1150
+   ],
+   "decimals": 1
+  },
+  "drum_level_in": {
+   "label": "Drum Level (from NWL)",
+   "unit": "in",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    -15,
+    15
+   ],
+   "decimals": 2
+  },
+  "hp_drum_pressure_psig": {
+   "label": "HP Drum Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    2800
+   ],
+   "decimals": 0
+  },
+  "ip_drum_pressure_psig": {
+   "label": "IP Drum Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    700
+   ],
+   "decimals": 1
+  },
+  "lp_drum_pressure_psig": {
+   "label": "LP Drum Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "fcv_position_pct": {
+   "label": "Feedwater Valve Position",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "hp_fw_flow_klb_h": {
+   "label": "HP Feedwater Flow",
+   "unit": "klb/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "sh_interstage_temp_f": {
+   "label": "Superheater Interstage Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    500,
+    1150
+   ],
+   "decimals": 1
+  },
+  "sh_tube_metal_temp_f": {
+   "label": "Superheater Tube Metal Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    700,
+    1300
+   ],
+   "decimals": 1
+  },
+  "attemp_spray_flow_klb_h": {
+   "label": "Spray Water Flow",
+   "unit": "klb/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 2
+  },
+  "attemp_valve_position_pct": {
+   "label": "Spray Valve Position",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "attemp_superheat_margin_f": {
+   "label": "Superheat Margin Downstream",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "ip_steam_pressure_psig": {
+   "label": "IP Steam Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    700
+   ],
+   "decimals": 1
+  },
+  "hot_reheat_temp_f": {
+   "label": "Hot Reheat Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    800,
+    1150
+   ],
+   "decimals": 1
+  },
+  "rh_tube_metal_temp_f": {
+   "label": "Reheater Tube Metal Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    700,
+    1300
+   ],
+   "decimals": 1
+  },
+  "rh_steam_flow_klb_h": {
+   "label": "Reheat Steam Flow",
+   "unit": "klb/h",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    1000
+   ],
+   "decimals": 1
+  },
+  "lp_steam_pressure_psig": {
+   "label": "LP Steam Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "lp_steam_temp_f": {
+   "label": "LP Steam Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    300,
+    700
+   ],
+   "decimals": 1
+  },
+  "fw_header_pressure_psig": {
+   "label": "Feedwater Header Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    3000
+   ],
+   "decimals": 0
+  },
+  "fw_cation_conductivity_us_cm": {
+   "label": "Feedwater Cation Conductivity",
+   "unit": "µS/cm",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    0.5
+   ],
+   "decimals": 3
+  },
+  "bfp_discharge_pressure_psig": {
+   "label": "Discharge Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    3000
+   ],
+   "decimals": 0
+  },
+  "bfp_flow_gpm": {
+   "label": "Pump Flow",
+   "unit": "gpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    2500
+   ],
+   "decimals": 0
+  },
+  "bfp_speed_rpm": {
+   "label": "Pump Speed (VFD)",
+   "unit": "rpm",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    4000
+   ],
+   "decimals": 0
+  },
+  "motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P1",
+   "range": [
+    0,
+    700
+   ],
+   "decimals": 1
+  },
+  "motor_winding_temp_f": {
+   "label": "Motor Winding Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    300
+   ],
+   "decimals": 1
+  },
+  "pump_bearing_temp_f": {
+   "label": "Pump Bearing Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    260
+   ],
+   "decimals": 1
+  },
+  "pump_vibration_ips": {
+   "label": "Pump Vibration",
+   "unit": "in/s",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    0.4
+   ],
+   "decimals": 3
+  },
+  "scr_inlet_nox_ppm": {
+   "label": "SCR Inlet NOx",
+   "unit": "ppm",
+   "category": "Environmental",
+   "tier": "P3",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 2
+  },
+  "nox_removal_pct": {
+   "label": "NOx Removal",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "ammonia_slip_ppm": {
+   "label": "Ammonia Slip",
+   "unit": "ppm",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  },
+  "ammonia_flow_lb_h": {
+   "label": "Aqueous Ammonia Flow",
+   "unit": "lb/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    250
+   ],
+   "decimals": 1
+  },
+  "nh3_nox_ratio": {
+   "label": "NH₃/NOx Molar Ratio",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    1.6
+   ],
+   "decimals": 3
+  },
+  "catalyst_dp_inh2o": {
+   "label": "Catalyst DP",
+   "unit": "inH₂O",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  },
+  "scr_inlet_temp_f": {
+   "label": "Catalyst Inlet Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    400,
+    800
+   ],
+   "decimals": 1
+  },
+  "stack_nox_ppm": {
+   "label": "Stack NOx @15% O₂",
+   "unit": "ppm",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "stack_co_ppm": {
+   "label": "Stack CO @15% O₂",
+   "unit": "ppm",
+   "category": "Environmental",
+   "tier": "P3",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "stack_o2_pct": {
+   "label": "Stack O₂",
+   "unit": "%",
+   "category": "Environmental",
+   "tier": "P3",
+   "range": [
+    0,
+    21
+   ],
+   "decimals": 2
+  },
+  "hours_since_cal_h": {
+   "label": "Hours Since Daily Calibration",
+   "unit": "h",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    36
+   ],
+   "decimals": 2
+  },
+  "throttle_pressure_psig": {
+   "label": "Throttle Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    2800
+   ],
+   "decimals": 0
+  },
+  "throttle_temp_f": {
+   "label": "Throttle Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    800,
+    1150
+   ],
+   "decimals": 1
+  },
+  "hp_exhaust_temp_f": {
+   "label": "HP Exhaust Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    400,
+    900
+   ],
+   "decimals": 1
+  },
+  "rotor_stress_pct": {
+   "label": "Rotor Stress (of limit)",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "lp_exhaust_hood_temp_f": {
+   "label": "LP Exhaust Hood Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    200
+   ],
+   "decimals": 1
+  },
+  "crossover_pressure_psig": {
+   "label": "Crossover Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "hp_bypass_position_pct": {
+   "label": "HP Bypass Valve Position",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "hp_bypass_downstream_temp_f": {
+   "label": "HP Bypass Downstream Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    100,
+    900
+   ],
+   "decimals": 1
+  },
+  "hrh_bypass_position_pct": {
+   "label": "Hot Reheat Bypass Position",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "condenser_backpressure_inhga": {
+   "label": "Condenser Backpressure",
+   "unit": "inHgA",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    1,
+    4
+   ],
+   "decimals": 3
+  },
+  "hotwell_level_in": {
+   "label": "Hotwell Level",
+   "unit": "in",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    48
+   ],
+   "decimals": 1
+  },
+  "condenser_ttd_f": {
+   "label": "Terminal Temperature Difference",
+   "unit": "°F",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "air_inleakage_scfm": {
+   "label": "Air In-leakage",
+   "unit": "scfm",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "cleanliness_factor_pct": {
+   "label": "Cleanliness Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "vacuum_pump_current_a": {
+   "label": "Vacuum Pump Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    160
+   ],
+   "decimals": 1
+  },
+  "vp_seal_water_temp_f": {
+   "label": "Seal Water Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    50,
+    130
+   ],
+   "decimals": 1
+  },
+  "cep_discharge_pressure_psig": {
+   "label": "Discharge Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    500
+   ],
+   "decimals": 1
+  },
+  "cep_flow_gpm": {
+   "label": "Condensate Flow",
+   "unit": "gpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    5000
+   ],
+   "decimals": 0
+  },
+  "cep_motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    300
+   ],
+   "decimals": 1
+  },
+  "cw_supply_temp_f": {
+   "label": "CW Supply Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    110
+   ],
+   "decimals": 2
+  },
+  "cw_return_temp_f": {
+   "label": "CW Return Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    130
+   ],
+   "decimals": 2
+  },
+  "cw_flow_kgpm": {
+   "label": "CW Flow",
+   "unit": "kgpm",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    300
+   ],
+   "decimals": 1
+  },
+  "ct_approach_f": {
+   "label": "Tower Approach",
+   "unit": "°F",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "wet_bulb_temp_f": {
+   "label": "Wet-Bulb Temperature",
+   "unit": "°F",
+   "category": "Environmental",
+   "tier": "P2",
+   "range": [
+    40,
+    90
+   ],
+   "decimals": 1
+  },
+  "basin_level_pct": {
+   "label": "Basin Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "ct_fan_power_kw": {
+   "label": "Total Fan Power",
+   "unit": "kW",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    2000
+   ],
+   "decimals": 1
+  },
+  "ct_cell_fan_power_kw": {
+   "label": "Fan Power",
+   "unit": "kW",
+   "category": "Electrical",
+   "tier": "P1",
+   "range": [
+    0,
+    250
+   ],
+   "decimals": 1
+  },
+  "cell_outlet_temp_f": {
+   "label": "Cell Outlet Water Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    110
+   ],
+   "decimals": 1
+  },
+  "ct_gearbox_vibration_ips": {
+   "label": "Gearbox Vibration",
+   "unit": "in/s",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    0.6
+   ],
+   "decimals": 3
+  },
+  "ct_gearbox_oil_temp_f": {
+   "label": "Gearbox Oil Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    220
+   ],
+   "decimals": 1
+  },
+  "cw_header_pressure_psig": {
+   "label": "CW Header Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 2
+  },
+  "cwp_flow_kgpm": {
+   "label": "Pump Flow",
+   "unit": "kgpm",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "cwp_motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "fuel_gas_supply_pressure_psig": {
+   "label": "Fuel Gas Supply Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    800
+   ],
+   "decimals": 1
+  },
+  "fuel_gas_flow_kscfh": {
+   "label": "Fuel Gas Flow",
+   "unit": "kscf/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    7000
+   ],
+   "decimals": 0
+  },
+  "filter_sep_dp_psid": {
+   "label": "Filter/Separator DP",
+   "unit": "psid",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    15
+   ],
+   "decimals": 2
+  },
+  "separator_liquid_level_pct": {
+   "label": "Liquid Sump Level",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "fuel_gas_temp_f": {
+   "label": "Fuel Gas Temperature",
+   "unit": "°F",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    60,
+    500
+   ],
+   "decimals": 1
+  },
+  "modified_wobbe_index": {
+   "label": "Modified Wobbe Index",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    35,
+    60
+   ],
+   "decimals": 2
+  },
+  "heater_water_flow_gpm": {
+   "label": "Heating Water Flow",
+   "unit": "gpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    300
+   ],
+   "decimals": 1
+  },
+  "gas_hhv_btu_scf": {
+   "label": "Gas Heating Value (HHV)",
+   "unit": "Btu/scf",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    950,
+    1100
+   ],
+   "decimals": 1
+  },
+  "wobbe_index_btu_scf": {
+   "label": "Wobbe Index",
+   "unit": "Btu/scf",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    1250,
+    1450
+   ],
+   "decimals": 1
+  },
+  "hc_dew_point_f": {
+   "label": "Hydrocarbon Dew Point",
+   "unit": "°F",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    -20,
+    80
+   ],
+   "decimals": 1
+  },
+  "net_export_mw": {
+   "label": "Net Export",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    900
+   ],
+   "decimals": 1
+  },
+  "bus_voltage_kv": {
+   "label": "Bus Voltage",
+   "unit": "kV",
+   "category": "Electrical",
+   "tier": "P1",
+   "range": [
+    330,
+    370
+   ],
+   "decimals": 2
+  },
+  "grid_frequency_hz": {
+   "label": "Grid Frequency",
+   "unit": "Hz",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    59.9,
+    60.1
+   ],
+   "decimals": 3
+  },
+  "line_flow_mw": {
+   "label": "Line Flow",
+   "unit": "MW",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 1
+  },
+  "line_mvar": {
+   "label": "Line Reactive Flow",
+   "unit": "Mvar",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    -200,
+    200
+   ],
+   "decimals": 1
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "cc_plant",
+   "property": "gross_output_mw",
+   "fn": "sum",
+   "of": "gen_output_mw",
+   "fromType": "gas_turbine|steam_turbine",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "power_block",
+   "property": "gross_output_mw",
+   "fn": "sum",
+   "of": "gen_output_mw",
+   "fromType": "gas_turbine|steam_turbine",
+   "scope": "children"
+  },
+  {
+   "assetType": "power_block",
+   "property": "block_fuel_input_mmbtu_h",
+   "fn": "sum",
+   "of": "fuel_heat_input_mmbtu_h",
+   "fromType": "gas_turbine",
+   "scope": "children"
+  },
+  {
+   "assetType": "cc_plant",
+   "property": "equiv_availability_pct",
+   "fn": "mean",
+   "of": "equiv_availability_pct",
+   "fromType": "gas_turbine|steam_turbine",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "power_block",
+   "property": "equiv_availability_pct",
+   "fn": "mean",
+   "of": "equiv_availability_pct",
+   "fromType": "gas_turbine|steam_turbine",
+   "scope": "children"
+  },
+  {
+   "assetType": "cooling_tower",
+   "property": "ct_fan_power_kw",
+   "fn": "sum",
+   "of": "ct_cell_fan_power_kw",
+   "fromType": "cooling_tower_cell",
+   "scope": "children"
+  },
+  {
+   "assetType": "cw_pump_station",
+   "property": "cw_flow_kgpm",
+   "fn": "sum",
+   "of": "cwp_flow_kgpm",
+   "fromType": "cw_pump",
+   "scope": "children"
+  },
+  {
+   "assetType": "circulating_water",
+   "property": "cw_flow_kgpm",
+   "fn": "sum",
+   "of": "cwp_flow_kgpm",
+   "fromType": "cw_pump",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "switchyard",
+   "property": "net_export_mw",
+   "fn": "sum",
+   "of": "line_flow_mw",
+   "fromType": "line_terminal",
+   "scope": "children"
+  },
+  {
+   "assetType": "cc_plant",
+   "property": "net_output_mw",
+   "fn": "formula",
+   "note": "gross_output_mw − aux_load_mw (equals Switchyard net_export_mw)"
+  },
+  {
+   "assetType": "cc_plant",
+   "property": "aux_load_mw",
+   "fn": "formula",
+   "note": "block auxiliaries (BFPs ~4.6 MW + 1.2% of gross + 3 MW misc) + Common Plant common_aux_load_mw"
+  },
+  {
+   "assetType": "common_plant",
+   "property": "common_aux_load_mw",
+   "fn": "formula",
+   "note": "(CW pump motor power + cooling tower fan power) / 1000 + 0.6 MW fuel yard and buildings"
+  },
+  {
+   "assetType": "cc_plant",
+   "property": "net_heat_rate_btu_kwh",
+   "fn": "formula",
+   "note": "Power Block block_fuel_input_mmbtu_h × 1,000 / net_output_mw (HHV basis)"
+  },
+  {
+   "assetType": "gas_turbine",
+   "property": "gt_heat_rate_btu_kwh",
+   "fn": "formula",
+   "note": "fuel_heat_input_mmbtu_h × 1,000 / gen_output_mw (simple-cycle, HHV)"
+  },
+  {
+   "assetType": "gas_turbine",
+   "property": "equiv_availability_pct",
+   "fn": "formula",
+   "note": "NERC GADS EAF over a rolling 24 h: (1 − Σ equivalent derated hours / 24 h) × 100; derated fraction = 1 − load limit / capability"
+  },
+  {
+   "assetType": "steam_turbine",
+   "property": "equiv_availability_pct",
+   "fn": "formula",
+   "note": "as for gas_turbine; the ST is derated whenever its HRSG steam is (GT runback)"
+  },
+  {
+   "assetType": "gas_turbine",
+   "property": "corrected_output_pct",
+   "fn": "formula",
+   "note": "base-load capability corrected to ISO ambient / new-and-clean capability × 100"
+  },
+  {
+   "assetType": "hrsg",
+   "property": "total_steam_flow_klb_h",
+   "fn": "formula",
+   "note": "HP + IP + LP steam flow (IP ≈ 16% and LP ≈ 13% of HP at these loads)"
+  },
+  {
+   "assetType": "scr_system",
+   "property": "nox_removal_pct",
+   "fn": "formula",
+   "note": "(1 − stack_nox_ppm / scr_inlet_nox_ppm) × 100"
+  },
+  {
+   "assetType": "scr_system",
+   "property": "scr_inlet_nox_ppm",
+   "fn": "formula",
+   "note": "equals the paired GT Combustion System gt_exit_nox_ppm (exhaust_gas edge)"
+  },
+  {
+   "assetType": "fuel_gas_yard",
+   "property": "fuel_gas_flow_kscfh",
+   "fn": "formula",
+   "note": "sum of both CTGs fuel_heat_input_mmbtu_h × 1,000 / gas_hhv_btu_scf"
+  },
+  {
+   "assetType": "cooling_tower",
+   "property": "ct_approach_f",
+   "fn": "formula",
+   "note": "Circulating Water cw_supply_temp_f − wet_bulb_temp_f"
+  }
+ ],
+ "typeLabels": {
+  "cc_plant": "Combined-Cycle Plant",
+  "hrsg": "HRSG",
+  "gt_inlet_filter": "GT Inlet Filter House",
+  "gt_compressor": "GT Compressor",
+  "dln_combustor": "DLN Combustion System",
+  "gt_turbine_section": "GT Turbine Section",
+  "h2_cooled_generator": "Generator (Hydrogen-Cooled)",
+  "air_cooled_generator": "Generator (Air-Cooled, TEWAC)",
+  "h2_cooling_system": "Hydrogen Cooling System",
+  "gsu_transformer": "GSU Transformer",
+  "hrsg_hp_section": "HRSG HP Section",
+  "hrsg_ip_section": "HRSG IP / Reheat Section",
+  "hrsg_lp_section": "HRSG LP Section",
+  "hp_drum": "HP Drum",
+  "ip_drum": "IP Drum",
+  "lp_drum": "LP Drum",
+  "hp_superheater": "HP Superheater",
+  "scr_system": "SCR / Emissions",
+  "scr_catalyst": "SCR Catalyst",
+  "cems_analyzer": "CEMS Analyzer",
+  "st_hpip_turbine": "ST HP/IP Turbine",
+  "st_lp_turbine": "ST LP Turbine",
+  "cw_pump": "CW Pump",
+  "cw_pump_station": "CW Pump Station",
+  "ct_fan_gearbox": "CT Fan Gearbox",
+  "hv_bus": "HV Bus"
+ }
+}

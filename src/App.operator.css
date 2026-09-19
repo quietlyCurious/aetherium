@@ -3076,3 +3076,58 @@
 .op-customized-dot--contains {
   background: #a9cff0;
 }
+
+/* Revert's Undo toast — bottom-center, dark so it reads as transient
+   feedback rather than part of the page. Timed out by OperatorWorkspace
+   (UNDO_TOAST_MS). */
+.op-undo-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 6px;
+  background: #2b2f36;
+  color: #fff;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  animation: op-undo-toast-in 0.15s ease-out;
+}
+
+@keyframes op-undo-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.op-undo-toast-action {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  color: #6cb8f6;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.op-undo-toast-action:hover {
+  text-decoration: underline;
+}
+
+.op-undo-toast-close {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: #aab0ba;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.op-undo-toast-close:hover {
+  color: #fff;
+}

@@ -1,0 +1,50 @@
+{
+ "HALCYON_B1_CTG1": {
+  "state": "attention",
+  "statusSinceMinutes": 165,
+  "mode": "STEADY",
+  "product": "Grid export (AGC)"
+ },
+ "HALCYON_B1_HRSG1": {
+  "state": "attention",
+  "statusSinceMinutes": 45,
+  "mode": "STEADY",
+  "product": "HP / IP / LP steam"
+ },
+ "HALCYON_B1_CTG2": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export (AGC)"
+ },
+ "HALCYON_B1_HRSG2": {
+  "state": "attention",
+  "statusSinceMinutes": 275,
+  "mode": "STEADY",
+  "product": "HP / IP / LP steam"
+ },
+ "HALCYON_B1_STG1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Grid export (AGC)"
+ },
+ "HALCYON_CP_CW": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Cooling water"
+ },
+ "HALCYON_CP_FG": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Fuel gas to CTGs"
+ },
+ "HALCYON_CP_SWYD": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "345 kV export"
+ }
+}
