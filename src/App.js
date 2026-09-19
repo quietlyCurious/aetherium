@@ -1567,8 +1567,8 @@ function AetheriumEditor() {
             ? {
                 enabled: operatorSaveAvailable,
                 label: operatorSaveAvailable
-                  ? "Save this type's display template"
-                  : 'Select a type in the Now area to save its display template',
+                  ? "Save this type or asset's display template"
+                  : 'Select a type or asset in the Now area to save its display template',
               }
             : {
                 screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },

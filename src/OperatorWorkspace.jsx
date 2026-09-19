@@ -36,6 +36,10 @@ import { loadAllAssetsTemplate, saveAllAssetsTemplate } from './allAssetsTemplat
 import { loadNowSelection, saveNowSelection } from './nowSelectionStorage';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from './typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from './typeRelatedAssetConfigsStorage';
+import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from './assetDisplayTemplatesStorage';
+import { loadAssetPropertyConfigs, saveAssetPropertyConfigs } from './assetPropertyConfigsStorage';
+import { loadAssetRelatedAssetConfigs, saveAssetRelatedAssetConfigs } from './assetRelatedAssetConfigsStorage';
+import { loadAssetRelatedAssetsTemplates, saveAssetRelatedAssetsTemplates } from './assetRelatedAssetsTemplatesStorage';
 import notify from 'devextreme/ui/notify';
 import { confirm } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
@@ -2269,7 +2273,7 @@ function AttentionCard({ item, selected, pinned, onSelect, onTogglePin }) {
 // Left panel for the new Now work area — the real asset hierarchy
 // (ASSET_DATA), not a separate operator-only copy of it, via the same
 // HierarchyTree component the Data tab already uses elsewhere in the app.
-const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing, onSelectThing, typeList }, ref) {
+const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing, onSelectThing, typeList, tabIndex, onTabIndexChange }, ref) {
   const typesGridRef = useRef(null);
   useImperativeHandle(ref, () => ({
     updateDimensions: () => typesGridRef.current?.instance()?.updateDimensions(),
@@ -2279,7 +2283,13 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
     <div className="op-panel op-now-tree-panel">
       <div className="op-zone-label">Now</div>
       <div className="op-now-tree-wrap">
-        <TabPanel height="100%" animationEnabled={false} swipeEnabled={false}>
+        <TabPanel
+          height="100%"
+          animationEnabled={false}
+          swipeEnabled={false}
+          selectedIndex={tabIndex}
+          onSelectionChanged={e => onTabIndexChange(e.component.option('selectedIndex'))}
+        >
           <TabPanelItem title="Types">
             <div className="left-panel-tab-content op-now-tree-tab-content">
               <DataListGrid
@@ -2293,10 +2303,6 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
               />
             </div>
           </TabPanelItem>
-          {/* Assets tab hidden for now — see TODO.md ("Now area: Assets tab").
-              Types and Assets exist as concepts, but Assets isn't being
-              built out yet; commented rather than removed so the real
-              hierarchy wiring below is easy to restore later.
           <TabPanelItem title="Assets">
             <div className="left-panel-tab-content op-now-tree-tab-content">
               <HierarchyTree
@@ -2308,7 +2314,6 @@ const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing,
               />
             </div>
           </TabPanelItem>
-          */}
         </TabPanel>
       </div>
     </div>
@@ -2354,7 +2359,7 @@ const ASSET_DETAIL_TAB_ITEMS = [
   { text: 'Related Assets', value: 'related' },
   { text: 'All Assets', value: 'all' },
 ];
-function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, allAssetsTemplate, hiddenAssetIds, activeTab, onActiveTabChange, onTitleClick, onGearClick }) {
+function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, allAssetsTemplate, hiddenAssetIds, activeTab, onActiveTabChange, onTitleClick, onGearClick }) {
   if (!selectedAssetId) {
     return (
       <div className="op-panel op-investigate-panel op-operator-asset-detail op-now-detail-empty">
@@ -2387,13 +2392,15 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
       </div>
       <div className="op-now-type-detail-main">
         {activeTab === 'properties' && (
-          <div className={`op-hmiprops-singlebox${typeDisplayTemplates?.[typeId]?.layoutMode === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+          <div className={`op-hmiprops-singlebox${(assetDisplayTemplates?.[selectedAssetId]?.layoutMode ?? typeDisplayTemplates?.[typeId]?.layoutMode) === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
             <RelatedAssetBoxContent
               relatedTypeId={typeId}
               relatedTypeName={typeName}
               relatedTypeExampleAssetId={selectedAssetId}
               typeDisplayTemplates={typeDisplayTemplates}
               typePropertyConfigs={typePropertyConfigs}
+              assetDisplayTemplates={assetDisplayTemplates}
+              assetPropertyConfigs={assetPropertyConfigs}
               evidencePoints={evidencePoints}
               onTitleClick={onTitleClick}
               onGearClick={onGearClick}
@@ -2403,12 +2410,16 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
         {activeTab === 'related' && (
           <ReadOnlyRelatedAssetsView
             typeId={typeId}
+            assetId={selectedAssetId}
             typeList={typeList}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
             typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
+            assetRelatedAssetConfigs={assetRelatedAssetConfigs}
             evidencePoints={evidencePoints}
-            savedTemplate={relatedAssetsTemplates[typeId]}
+            savedTemplate={assetRelatedAssetsTemplates?.[selectedAssetId] ?? relatedAssetsTemplates[typeId]}
             onTitleClick={onTitleClick}
             onGearClick={onGearClick}
           />
@@ -2419,6 +2430,8 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
             hiddenAssetIds={hiddenAssetIds}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
             evidencePoints={evidencePoints}
             savedTemplate={allAssetsTemplate}
             onTitleClick={onTitleClick}
@@ -2430,10 +2443,10 @@ function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, 
   );
 }
 
-// Center placeholder — proves selection is wired end-to-end (name, type,
-// and level all come from the real selected node) ahead of the actual
-// per-asset view engine, which is separate, larger work.
-function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick }) {
+// Center preview for the Now area's own Assets tab, mirroring the type
+// side's NowTypeMainPreview exactly (same component, generalized) — full
+// per-asset visual-preference editing, not a placeholder.
+function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, assetDisplayTemplates, onSaveAssetDisplayTemplate, assetRelatedAssetsTemplates, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, activeTabIndex, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick }) {
   // Lifted up here (rather than local state inside NowTypeMainPreview,
   // which remounts on every type switch via its own key={selectedThing.id})
   // so the toolbar's open/closed state survives flipping between types —
@@ -2449,9 +2462,10 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
     );
   }
 
-  let title, assetIdForProperties;
+  const isAssetEntity = selectedThing.kind === 'asset';
+  let title, assetIdForProperties, relationshipTypeId, thisAssetExampleId;
 
-  if (selectedThing.kind === 'type') {
+  if (!isAssetEntity) {
     const typeEntry = typeList.find(t => t.id === selectedThing.id);
     if (!typeEntry) {
       return (
@@ -2462,6 +2476,8 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
     }
     title = typeEntry.name;
     assetIdForProperties = typeEntry.exampleAssetId;
+    relationshipTypeId = selectedThing.id;
+    thisAssetExampleId = typeEntry.exampleAssetId;
   } else {
     const asset = CURRENT_ASSET_MAP[selectedThing.id];
     if (!asset) {
@@ -2473,6 +2489,11 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
     }
     title = asset.name;
     assetIdForProperties = selectedThing.id;
+    // This asset's own real type — used for relationship lookups and as
+    // the type-level fallback key, same TYPE_<level>_<type> shape
+    // attentionAssetToTypeId uses elsewhere for the same purpose.
+    relationshipTypeId = `TYPE_${asset.assetLevel}_${asset.assetType}`;
+    thisAssetExampleId = selectedThing.id;
   }
 
   // No single narrative/event window here (unlike Investigate) — show the
@@ -2486,47 +2507,49 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
   // Main preview area — the visual playground matching whichever Details-
   // panel tab is active (Properties/Related Assets/All Assets). Editing
   // the underlying config lists happens in the Details panel (right
-  // rail) instead of here — this is the "play with layout" half.
-  if (selectedThing.kind === 'type') {
-    return (
-      <NowTypeMainPreview
-        key={selectedThing.id}
-        activeTabIndex={activeTabIndex}
-        title={title}
-        typeId={selectedThing.id}
-        typeList={typeList}
-        properties={properties}
-        sparklineSource={sparklineSource}
-        evidencePoints={fullRangeEvidencePoints}
-        typePropertyConfigs={typePropertyConfigs}
-        typeRelatedAssetConfigs={typeRelatedAssetConfigs}
-        typeDisplayTemplates={typeDisplayTemplates}
-        onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
-        activeSaveHandlerRef={activeSaveHandlerRef}
-        onViewModeChange={onViewModeChange}
-        hiddenAssetIds={hiddenAssetIds}
-        relatedAssetsTemplates={relatedAssetsTemplates}
-        onSaveRelatedAssetsTemplate={onSaveRelatedAssetsTemplate}
-        allAssetsTemplate={allAssetsTemplate}
-        onSaveAllAssetsTemplate={onSaveAllAssetsTemplate}
-        onTitleClick={onTitleClick}
-        toolbarExpanded={toolbarExpanded}
-        onToolbarExpandedChange={setToolbarExpanded}
-      />
-    );
-  }
-
+  // rail) instead of here — this is the "play with layout" half. One
+  // shared component for both types and real assets now: entityId is the
+  // storage key (type id or asset id) for this thing's own saved
+  // preferences, while typeDisplayTemplates/typePropertyConfigs/
+  // typeRelatedAssetConfigs stay the real type-level maps regardless
+  // (every OTHER related box shown alongside this one is always a type-
+  // level thing), and the asset-level maps ride along so
+  // RelatedAssetBoxContent's own fallback can apply to every box,
+  // including this one's.
   return (
-    <div className="op-panel op-investigate-panel op-now-asset-detail">
-      <div className="op-now-asset-detail-title">{title}</div>
-      <div className="op-dashboard-card op-now-asset-kpi-card">
-        {properties ? (
-          <HmiPropertiesListing properties={properties} sparklineSource={sparklineSource} evidencePoints={fullRangeEvidencePoints} />
-        ) : (
-          <div className="op-dash-text op-dash-text--muted">No properties available yet for this asset.</div>
-        )}
-      </div>
-    </div>
+    <NowTypeMainPreview
+      key={selectedThing.id}
+      activeTabIndex={activeTabIndex}
+      title={title}
+      entityId={selectedThing.id}
+      isAssetEntity={isAssetEntity}
+      relationshipTypeId={relationshipTypeId}
+      thisAssetExampleId={thisAssetExampleId}
+      typeList={typeList}
+      properties={properties}
+      sparklineSource={sparklineSource}
+      evidencePoints={fullRangeEvidencePoints}
+      typePropertyConfigs={typePropertyConfigs}
+      typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+      typeDisplayTemplates={typeDisplayTemplates}
+      typeRelatedAssetsTemplates={relatedAssetsTemplates}
+      onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
+      onSaveTypeRelatedAssetsTemplate={onSaveRelatedAssetsTemplate}
+      assetPropertyConfigs={assetPropertyConfigs}
+      assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+      assetDisplayTemplates={assetDisplayTemplates}
+      assetRelatedAssetsTemplates={assetRelatedAssetsTemplates}
+      onSaveAssetDisplayTemplate={onSaveAssetDisplayTemplate}
+      onSaveAssetRelatedAssetsTemplate={onSaveAssetRelatedAssetsTemplate}
+      activeSaveHandlerRef={activeSaveHandlerRef}
+      onViewModeChange={onViewModeChange}
+      hiddenAssetIds={hiddenAssetIds}
+      allAssetsTemplate={allAssetsTemplate}
+      onSaveAllAssetsTemplate={onSaveAllAssetsTemplate}
+      onTitleClick={onTitleClick}
+      toolbarExpanded={toolbarExpanded}
+      onToolbarExpandedChange={setToolbarExpanded}
+    />
   );
 }
 
@@ -2555,12 +2578,13 @@ function VisibilityStateIcon({ visibility }) {
 // property of a type — explicit overrides where a user has actually
 // changed one, 'always' by default otherwise. Nothing is written to state
 // until a user actually changes something.
-function getPropertyVisibilityForType(typeId, properties, typePropertyConfigs) {
-  const overrides = typePropertyConfigs[typeId] || {};
+function getPropertyVisibilityForType(typeId, properties, typePropertyConfigs, assetId, assetPropertyConfigs) {
+  const typeOverrides = typePropertyConfigs[typeId] || {};
+  const assetOverrides = (assetId && assetPropertyConfigs?.[assetId]) || {};
   return Object.keys(properties || {}).map(key => ({
     key,
     label: PROPERTY_LABELS[key] || key,
-    visibility: overrides[key] || 'always',
+    visibility: assetOverrides[key] || typeOverrides[key] || 'always',
   }));
 }
 
@@ -3091,7 +3115,8 @@ const RELATED_ASSETS_EDGE_TYPES = { floatingEdge: RelatedAssetsFloatingEdge };
 // use both in the current graph, since the same node reused elsewhere
 // might need the other one.
 function RelatedAssetDiagramNode({ data }) {
-  const isManual = data.typeDisplayTemplates?.[data.relatedTypeId]?.layoutMode === 'manual';
+  const effectiveTemplate = data.assetDisplayTemplates?.[data.relatedTypeExampleAssetId] ?? data.typeDisplayTemplates?.[data.relatedTypeId];
+  const isManual = effectiveTemplate?.layoutMode === 'manual';
   return (
     <div className={`op-related-asset-box${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
       <Handle type="target" position={data.targetHandlePosition} />
@@ -3101,6 +3126,8 @@ function RelatedAssetDiagramNode({ data }) {
         relatedTypeExampleAssetId={data.relatedTypeExampleAssetId}
         typeDisplayTemplates={data.typeDisplayTemplates}
         typePropertyConfigs={data.typePropertyConfigs}
+        assetDisplayTemplates={data.assetDisplayTemplates}
+        assetPropertyConfigs={data.assetPropertyConfigs}
         evidencePoints={data.evidencePoints}
         onTitleClick={data.onTitleClick}
         onGearClick={data.onGearClick}
@@ -3131,7 +3158,8 @@ const PROPERTY_LAYOUT_NODE_TYPES = { propertyLayoutNode: PropertyLayoutNode };
 // cards don't relate to each other spatially the way Diagram's types
 // do — that's what Diagram itself is for).
 function CardsLayoutNode({ data }) {
-  const isManual = data.boxProps?.typeDisplayTemplates?.[data.boxProps?.relatedTypeId]?.layoutMode === 'manual';
+  const effectiveTemplate = data.boxProps?.assetDisplayTemplates?.[data.boxProps?.relatedTypeExampleAssetId] ?? data.boxProps?.typeDisplayTemplates?.[data.boxProps?.relatedTypeId];
+  const isManual = effectiveTemplate?.layoutMode === 'manual';
   return (
     <div className={`op-related-asset-box op-property-layout-node${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
       <RelatedAssetBoxContent {...data.boxProps} />
@@ -3144,7 +3172,7 @@ const CARDS_LAYOUT_NODE_TYPES = { cardsLayoutNode: CardsLayoutNode };
 // related assets as a node-link diagram, auto-laid-out via ELK. Self-
 // contained ReactFlowProvider so this can be dropped in anywhere without
 // the caller needing to remember to wrap it.
-const RelatedAssetsDiagram = forwardRef(function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
+const RelatedAssetsDiagram = forwardRef(function RelatedAssetsDiagram({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
   return (
     <ReactFlowProvider>
       <RelatedAssetsDiagramInner
@@ -3158,6 +3186,8 @@ const RelatedAssetsDiagram = forwardRef(function RelatedAssetsDiagram({ currentT
         hiddenAssetIds={hiddenAssetIds}
         typeDisplayTemplates={typeDisplayTemplates}
         typePropertyConfigs={typePropertyConfigs}
+        assetDisplayTemplates={assetDisplayTemplates}
+        assetPropertyConfigs={assetPropertyConfigs}
         evidencePoints={evidencePoints}
         diagramAlgorithm={diagramAlgorithm}
         diagramDirection={diagramDirection}
@@ -3183,7 +3213,7 @@ const RelatedAssetsDiagram = forwardRef(function RelatedAssetsDiagram({ currentT
   );
 });
 
-const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
+const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, allTypesMode, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutResetSignal, onManualEdit, setDiagramShowLabels, setDiagramShowArrowheads, setDiagramConnectionPointMode, onPositionsChange, savedManualPositions, readOnly, onTitleClick, onGearClick }, ref) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   // NodePositionChange (dragging:false marks the drag settling) is a
   // completely distinct change type from NodeDimensionChange (React
@@ -3257,6 +3287,8 @@ const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner(
           relatedTypeExampleAssetId: n.assetId,
           typeDisplayTemplates,
           typePropertyConfigs,
+          assetDisplayTemplates,
+          assetPropertyConfigs,
           evidencePoints,
           targetHandlePosition,
           sourceHandlePosition,
@@ -3287,6 +3319,8 @@ const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner(
             relatedTypeExampleAssetId: currentTypeExampleAssetId,
             typeDisplayTemplates,
             typePropertyConfigs,
+            assetDisplayTemplates,
+            assetPropertyConfigs,
             evidencePoints,
             targetHandlePosition,
             sourceHandlePosition,
@@ -3306,6 +3340,8 @@ const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner(
             relatedTypeExampleAssetId: row.relatedTypeExampleAssetId,
             typeDisplayTemplates,
             typePropertyConfigs,
+            assetDisplayTemplates,
+            assetPropertyConfigs,
             evidencePoints,
             targetHandlePosition,
             sourceHandlePosition,
@@ -3336,7 +3372,7 @@ const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner(
     // layout choice is handled by the effect below, reusing these same
     // nodes rather than re-seeding (and re-hiding) them.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allTypesMode, hiddenAssetIds, currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, typeDisplayTemplates, typePropertyConfigs, evidencePoints, setNodes, setEdges]);
+  }, [allTypesMode, hiddenAssetIds, currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeList, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, setNodes, setEdges]);
 
   // Layout effect: runs ELK and reveals the result whenever either (a) a
   // fresh generation just got seeded above and needs its first layout, or
@@ -3595,7 +3631,7 @@ const STAT_TILE_SIZE_ESTIMATES = {
   all: { width: 280, height: 80 },
 };
 
-function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, evidencePoints, onTitleClick, onGearClick }) {
+function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, onTitleClick, onGearClick }) {
   // Only set when this box renders inside InvestigatePanel's Related
   // Assets tab with its time-track scrubber active — null (the default,
   // everywhere else this component is used) means no override, render the
@@ -3638,9 +3674,19 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
     </button>
   ) : null;
 
+  // This asset's own saved template wins over its type's, when one
+  // exists — an all-or-nothing choice per template (not merged field by
+  // field), since flowDirection/viewMode/etc. are saved together as one
+  // cohesive layout choice via the Save Template button, and mixing an
+  // asset's flowDirection with its type's viewMode would be more
+  // confusing than useful. Undefined/empty assetDisplayTemplates (every
+  // call site outside the Now area's own Assets tab) falls through to
+  // the type-level template exactly as before.
+  const effectiveTemplate = assetDisplayTemplates?.[relatedTypeExampleAssetId] ?? typeDisplayTemplates?.[relatedTypeId];
+
   // "None" — just the name, nothing else. Checked first, ahead of even
   // resolving properties, since None's whole point is not needing them.
-  const boxViewMode = typeDisplayTemplates?.[relatedTypeId]?.viewMode ?? 'text';
+  const boxViewMode = effectiveTemplate?.viewMode ?? 'text';
   if (boxViewMode === 'none') {
     return <>{titleElement}{gearElement}</>;
   }
@@ -3673,19 +3719,20 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
   // to their own choice. Falls back to the same defaults
   // HmiPropertiesListing itself uses for a type that's never been
   // explicitly saved.
-  const template = typeDisplayTemplates?.[relatedTypeId];
+  const template = effectiveTemplate;
   const boxFlowDirection = template?.flowDirection ?? 'row';
   const boxFlowWrap = template?.flowWrap ?? 'wrap';
   const boxAlignContent = template?.alignContent ?? 'flex-start';
 
   // Shows the properties this type has actually been configured as
   // "always" visible via the Properties tab's own visibility toggle
-  // (typePropertyConfigs) — not the data-driven P1/P2/P3 tier, which is a
-  // fixed classification independent of what the user has customized for
-  // this specific type. A property with no explicit override defaults to
-  // "always" too, matching getPropertyVisibilityForType's own default
-  // elsewhere.
-  const visibilityRows = getPropertyVisibilityForType(relatedTypeId, properties, typePropertyConfigs);
+  // (typePropertyConfigs), merged with this specific asset's own overrides
+  // when it has any (asset-level wins per property) — not the data-driven
+  // P1/P2/P3 tier, which is a fixed classification independent of what the
+  // user has customized. A property with no explicit override at either
+  // level defaults to "always" too, matching getPropertyVisibilityForType's
+  // own default elsewhere.
+  const visibilityRows = getPropertyVisibilityForType(relatedTypeId, properties, typePropertyConfigs, relatedTypeExampleAssetId, assetPropertyConfigs);
   const alwaysEntries = visibilityRows
     .filter(p => p.visibility === 'always')
     .map(p => [p.key, properties[p.key]]);
@@ -4063,7 +4110,7 @@ const CardsLayoutCanvasInner = forwardRef(function CardsLayoutCanvasInner({ tile
 // above when 'manual'. cardsFlexContainerRef/cardsFlexTileRefs are
 // populated here so RelatedAssetsPreview's handleSwitchCardsToManual can
 // measure real current positions at the moment of switching.
-function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick }) {
+function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick }) {
   // This asset's own box, always shown first regardless of layout mode —
   // same reasoning as the Diagram view's own isCenter node: the point of
   // "related assets" is seeing them in context of the asset they're
@@ -4075,6 +4122,8 @@ function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExample
     relatedTypeExampleAssetId: currentTypeExampleAssetId,
     typeDisplayTemplates,
     typePropertyConfigs,
+    assetDisplayTemplates,
+    assetPropertyConfigs,
     evidencePoints,
     onTitleClick,
     onGearClick,
@@ -4096,6 +4145,8 @@ function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExample
                 relatedTypeExampleAssetId: row.relatedTypeExampleAssetId,
                 typeDisplayTemplates,
                 typePropertyConfigs,
+                assetDisplayTemplates,
+                assetPropertyConfigs,
                 evidencePoints,
                 onTitleClick,
                 onGearClick,
@@ -4133,6 +4184,8 @@ function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExample
             relatedTypeExampleAssetId={row.relatedTypeExampleAssetId}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
             evidencePoints={evidencePoints}
             onTitleClick={onTitleClick}
             onGearClick={onGearClick}
@@ -4150,7 +4203,7 @@ function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExample
 // Mirrors RelatedAssetsPreview's own relatedAssetRows/visibleRows
 // computation exactly, just without any of the state that exists there
 // only to support editing.
-function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
+function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
   // RelatedAssetsCards' flex-mode rendering writes to these unconditionally
   // (its tile ref callback needs somewhere to write to regardless of
   // whether the manual-switch feature — irrelevant here — is ever used),
@@ -4158,12 +4211,25 @@ function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typ
   // from them.
   const cardsFlexContainerRef = useRef(null);
   const cardsFlexTileRefs = useRef({});
-  const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
+  // Per-related-type visibility, merged the same way property visibility
+  // is elsewhere: this specific asset's own override wins when it has one,
+  // otherwise fall back to its type's. assetId is optional (undefined for
+  // any caller still passing only a type, e.g. the Now area's own type-
+  // level preview reusing this same component) — a missing assetId simply
+  // means no asset-level entry can ever match, so behavior is identical to
+  // before for those callers.
+  const typeRelatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
+  const assetRelatedAssetOverrides = (assetId && assetRelatedAssetConfigs?.[assetId]) || {};
   const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
     ...row,
-    visibility: relatedAssetOverrides[row.key] || 'always',
+    visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
   }));
   const visibleRows = relatedAssetRows.filter(r => r.visibility === 'always');
+  // savedTemplate here is already whichever one applies (asset-level
+  // override or type-level default) — resolved by the caller, which has
+  // both maps and the same all-or-nothing reasoning RelatedAssetBoxContent's
+  // own display template fallback uses (a cohesive layout choice saved as
+  // one unit, not merged field by field).
   const layoutMode = savedTemplate?.layoutMode ?? 'cards';
 
   if (visibleRows.length === 0) {
@@ -4174,10 +4240,12 @@ function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typ
     <RelatedAssetsCards
       currentTypeId={typeId}
       currentTypeName={typeList.find(t => t.id === typeId)?.name}
-      currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+      currentTypeExampleAssetId={assetId || typeList.find(t => t.id === typeId)?.exampleAssetId}
       visibleRows={visibleRows}
       typeDisplayTemplates={typeDisplayTemplates}
       typePropertyConfigs={typePropertyConfigs}
+      assetDisplayTemplates={assetDisplayTemplates}
+      assetPropertyConfigs={assetPropertyConfigs}
       evidencePoints={evidencePoints}
       cardsLayoutMode={savedTemplate?.cardsLayoutMode ?? 'auto'}
       cardsManualPositions={savedTemplate?.cardsManualPositions ?? {}}
@@ -4195,12 +4263,14 @@ function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typ
     <RelatedAssetsDiagram
       currentTypeId={typeId}
       currentTypeName={typeList.find(t => t.id === typeId)?.name}
-      currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+      currentTypeExampleAssetId={assetId || typeList.find(t => t.id === typeId)?.exampleAssetId}
       visibleRows={visibleRows}
       typeList={typeList}
       allTypesMode={false}
       typeDisplayTemplates={typeDisplayTemplates}
       typePropertyConfigs={typePropertyConfigs}
+      assetDisplayTemplates={assetDisplayTemplates}
+      assetPropertyConfigs={assetPropertyConfigs}
       evidencePoints={evidencePoints}
       diagramAlgorithm={savedTemplate?.diagramAlgorithm ?? 'layered'}
       diagramDirection={savedTemplate?.diagramDirection ?? 'RIGHT'}
@@ -4228,7 +4298,7 @@ function ReadOnlyRelatedAssetsView({ typeId, typeList, typeDisplayTemplates, typ
 // Read-only All Assets view for the new Operator-only Assets area —
 // same global saved template and hiddenAssetIds the configurator's own
 // All Assets diagram uses, no toolbar, no editing capability.
-function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
+function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
   return (
     <RelatedAssetsDiagram
       typeList={typeList}
@@ -4236,6 +4306,8 @@ function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates,
       hiddenAssetIds={hiddenAssetIds}
       typeDisplayTemplates={typeDisplayTemplates}
       typePropertyConfigs={typePropertyConfigs}
+      assetDisplayTemplates={assetDisplayTemplates}
+      assetPropertyConfigs={assetPropertyConfigs}
       evidencePoints={evidencePoints}
       diagramAlgorithm={savedTemplate?.diagramAlgorithm ?? 'layered'}
       diagramDirection={savedTemplate?.diagramDirection ?? 'RIGHT'}
@@ -4260,7 +4332,7 @@ function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates,
   );
 }
 
-function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
+function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
   const [densityFilter, setDensityFilter] = useState('always');
   // Cards (flex-wrapped boxes, genuinely responsive — reflows on resize,
   // unlike the ELK/React Flow diagram canvas which uses fixed pixel
@@ -4646,6 +4718,8 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
             visibleRows={visibleRows}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
             evidencePoints={evidencePoints}
             cardsLayoutMode={cardsLayoutMode}
             cardsManualPositions={cardsManualPositions}
@@ -4673,6 +4747,8 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
             allTypesMode={false}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
             evidencePoints={evidencePoints}
             diagramAlgorithm={diagramAlgorithm}
             diagramDirection={diagramDirection}
@@ -4752,7 +4828,7 @@ function AllAssetsTypeList({ hiddenAssetIds, onToggleAssetVisibility }) {
 // preview now. Owns its own diagram settings locally (algorithm, spacing,
 // etc. — purely "how to render," not persisted configuration), but
 // hiddenAssetIds itself is a prop, shared with AllAssetsTypeList above.
-function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, evidencePoints, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
+function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
   const [diagramAlgorithm, setDiagramAlgorithm] = useState(savedTemplate?.diagramAlgorithm ?? 'layered');
   const [diagramDirection, setDiagramDirection] = useState(savedTemplate?.diagramDirection ?? 'RIGHT');
   const [diagramEdgeRouting, setDiagramEdgeRouting] = useState(savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL');
@@ -4962,6 +5038,8 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
         hiddenAssetIds={hiddenAssetIds}
         typeDisplayTemplates={typeDisplayTemplates}
         typePropertyConfigs={typePropertyConfigs}
+        assetDisplayTemplates={assetDisplayTemplates}
+        assetPropertyConfigs={assetPropertyConfigs}
         evidencePoints={evidencePoints}
         diagramAlgorithm={diagramAlgorithm}
         diagramDirection={diagramDirection}
@@ -4990,7 +5068,7 @@ function AllAssetsDiagram({ typeList, currentTypeId, hiddenAssetIds, typeDisplay
 // NowTypeMainPreview, in the center, as its own separate component now).
 // rightPanelViewMode/hiddenAssetIds are lifted state (OperatorWorkspaceInner),
 // read here for display/editing but actually driven by the center preview.
-function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange }) {
+function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeList, properties, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, activeTabIndex, onActiveTabIndexChange }) {
   // DevExtreme's DataGrid does not automatically recalculate column widths
   // when its container is resized (documented requirement, not a bug) —
   // without this, a narrower Details panel can leave columns at their
@@ -5002,18 +5080,24 @@ function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs,
   const relatedGridRef = useRef(null);
 
   if (!properties) {
-    return <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>;
+    return <div className="op-dash-text op-dash-text--muted">No properties available yet for this {isAssetEntity ? 'asset' : 'type'}.</div>;
   }
 
   const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
 
-  const propertyRows = getPropertyVisibilityForType(typeId, properties, typePropertyConfigs)
+  // Merged the same way RelatedAssetBoxContent's own fallback works: this
+  // asset's own override wins per property when it has one, otherwise its
+  // type's, otherwise "always" — so the grid shown here always reflects
+  // what would actually display, not just this asset's own overrides in
+  // isolation.
+  const propertyRows = getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs)
     .map(row => ({ ...row, visualMode: visualModeLabel }));
 
   const handleVisibilityChange = (key, visibility) => {
-    setTypePropertyConfigs(prev => ({
+    const setConfigs = isAssetEntity ? setAssetPropertyConfigs : setTypePropertyConfigs;
+    setConfigs(prev => ({
       ...prev,
-      [typeId]: { ...(prev[typeId] || {}), [key]: visibility },
+      [entityId]: { ...(prev[entityId] || {}), [key]: visibility },
     }));
   };
 
@@ -5041,19 +5125,22 @@ function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs,
     },
   ];
 
-  // Related Assets tab — every asset-relationship edge touching this type,
-  // collapsed to one row per (related type, relationship) pair, with a
-  // simpler always/never visibility toggle than the properties table above.
-  const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
-  const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+  // Related Assets tab — every asset-relationship edge touching this
+  // entity's own type, collapsed to one row per (related type,
+  // relationship) pair, with a simpler always/never visibility toggle than
+  // the properties table above. Same asset-over-type merge as propertyRows.
+  const typeRelatedAssetOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
+  const assetRelatedAssetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
+  const relatedAssetRows = getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
     ...row,
-    visibility: relatedAssetOverrides[row.key] || 'always',
+    visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
   }));
 
   const handleRelatedAssetVisibilityChange = (key, visibility) => {
-    setTypeRelatedAssetConfigs(prev => ({
+    const setConfigs = isAssetEntity ? setAssetRelatedAssetConfigs : setTypeRelatedAssetConfigs;
+    setConfigs(prev => ({
       ...prev,
-      [typeId]: { ...(prev[typeId] || {}), [key]: visibility },
+      [entityId]: { ...(prev[entityId] || {}), [key]: visibility },
     }));
   };
 
@@ -5096,7 +5183,7 @@ function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs,
               selectedId={null}
               onSelect={() => {}}
               searchEnabled={false}
-              noDataText="No properties for this type."
+              noDataText={`No properties for this ${isAssetEntity ? 'asset' : 'type'}.`}
             />
           </div>
         </TabPanelItem>
@@ -5110,13 +5197,15 @@ function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs,
               selectedId={null}
               onSelect={() => {}}
               searchEnabled={false}
-              noDataText="No related assets for this type."
+              noDataText={`No related assets for this ${isAssetEntity ? 'asset' : 'type'}.`}
             />
           </div>
         </TabPanelItem>
-        <TabPanelItem title="All Assets">
-          <AllAssetsTypeList hiddenAssetIds={hiddenAssetIds} onToggleAssetVisibility={onToggleAssetVisibility} />
-        </TabPanelItem>
+        {!isAssetEntity && (
+          <TabPanelItem title="All Assets">
+            <AllAssetsTypeList hiddenAssetIds={hiddenAssetIds} onToggleAssetVisibility={onToggleAssetVisibility} />
+          </TabPanelItem>
+        )}
       </TabPanel>
     </div>
   );
@@ -5127,7 +5216,7 @@ function NowTypeDetailsList({ typeId, typeList, properties, typePropertyConfigs,
 // Persists across Details being hidden/shown: closing the Details panel
 // doesn't blank this out or reset it, it just keeps showing whichever
 // was last active.
-function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange }) {
+function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, relationshipTypeId, thisAssetExampleId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, typeRelatedAssetsTemplates, onSaveTypeDisplayTemplate, onSaveTypeRelatedAssetsTemplate, assetPropertyConfigs, assetRelatedAssetConfigs, assetDisplayTemplates, assetRelatedAssetsTemplates, onSaveAssetDisplayTemplate, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange }) {
   const titleRow = (
     <div className="op-now-asset-detail-title op-now-asset-detail-title--with-caret">
       <button
@@ -5147,34 +5236,46 @@ function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, propertie
       <div className="op-panel op-investigate-panel op-now-asset-detail">
         <div className="op-now-asset-detail-title">{title}</div>
         <div className="op-dashboard-card op-now-asset-kpi-card">
-          <div className="op-dash-text op-dash-text--muted">No properties available yet for this type.</div>
+          <div className="op-dash-text op-dash-text--muted">No properties available yet for this {isAssetEntity ? 'asset' : 'type'}.</div>
         </div>
       </div>
     );
   }
 
   if (activeTabIndex === 1) {
-    const relatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
-    const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+    // Per-related-type visibility, merged the same way RelatedAssetBoxContent's
+    // own property visibility is: this specific asset's own override wins
+    // when it has one, otherwise its type's, otherwise "always".
+    const typeOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
+    const assetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
+    const relatedAssetRows = getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
       ...row,
-      visibility: relatedAssetOverrides[row.key] || 'always',
+      visibility: assetOverrides[row.key] || typeOverrides[row.key] || 'always',
     }));
+    // This asset's own saved Related Assets view template wins over its
+    // type's, when one exists — same all-or-nothing reasoning as the
+    // display template below (a cohesive layout choice saved as one unit).
+    const effectiveRelatedTemplate = isAssetEntity
+      ? (assetRelatedAssetsTemplates?.[entityId] ?? typeRelatedAssetsTemplates?.[relationshipTypeId])
+      : typeRelatedAssetsTemplates?.[entityId];
     return (
       <div className="op-panel op-investigate-panel op-now-asset-detail">
         {titleRow}
         <div className="op-dashboard-card op-now-type-kpi-card">
           <RelatedAssetsPreview
-            key={typeId}
+            key={entityId}
             relatedAssetRows={relatedAssetRows}
             evidencePoints={evidencePoints}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
-            currentTypeId={typeId}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
+            currentTypeId={entityId}
             currentTypeName={title}
-            currentTypeExampleAssetId={typeList.find(t => t.id === typeId)?.exampleAssetId}
+            currentTypeExampleAssetId={thisAssetExampleId}
             typeList={typeList}
-            savedTemplate={relatedAssetsTemplates?.[typeId]}
-            onSaveTemplate={onSaveRelatedAssetsTemplate}
+            savedTemplate={effectiveRelatedTemplate}
+            onSaveTemplate={isAssetEntity ? onSaveAssetRelatedAssetsTemplate : onSaveTypeRelatedAssetsTemplate}
             activeSaveHandlerRef={activeSaveHandlerRef}
             onTitleClick={onTitleClick}
             showToolbar={toolbarExpanded}
@@ -5184,16 +5285,22 @@ function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, propertie
     );
   }
 
+  // All Assets is a single shared, model-wide view (not per-type, let alone
+  // per-asset) — activeTabIndex never reaches 2 for an asset entity, since
+  // the Details panel's own tab switcher only offers Properties/Related
+  // Assets when one is selected.
   if (activeTabIndex === 2) {
     return (
       <div className="op-panel op-investigate-panel op-now-asset-detail">
         {titleRow}
         <AllAssetsDiagram
           typeList={typeList}
-          currentTypeId={typeId}
+          currentTypeId={entityId}
           hiddenAssetIds={hiddenAssetIds}
           typeDisplayTemplates={typeDisplayTemplates}
           typePropertyConfigs={typePropertyConfigs}
+          assetDisplayTemplates={assetDisplayTemplates}
+          assetPropertyConfigs={assetPropertyConfigs}
           evidencePoints={evidencePoints}
           savedTemplate={allAssetsTemplate}
           onSaveTemplate={onSaveAllAssetsTemplate}
@@ -5205,6 +5312,24 @@ function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, propertie
     );
   }
 
+  // HmiPropertiesListing itself only ever does a direct typeDisplayTemplates
+  // ?.[typeId] / typePropertyConfigs?.[typeId] lookup — no fallback logic of
+  // its own. So the asset-aware fallback (this asset's own override if it
+  // has one, else its type's current settings as a starting point to tweak
+  // from, not blank defaults) is built here instead, as a synthetic single-
+  // key map under entityId, keeping HmiPropertiesListing itself unchanged
+  // and exactly as before for every type-only caller (assetPropertyConfigs
+  // undefined there, so effectivePropertyConfigs reduces to typePropertyConfigs
+  // unchanged).
+  const effectiveDisplayTemplate = isAssetEntity
+    ? (assetDisplayTemplates?.[entityId] ?? typeDisplayTemplates?.[relationshipTypeId])
+    : typeDisplayTemplates?.[entityId];
+  const effectiveDisplayTemplates = { [entityId]: effectiveDisplayTemplate };
+  const effectivePropertyOverrides = isAssetEntity
+    ? { ...(typePropertyConfigs[relationshipTypeId] || {}), ...(assetPropertyConfigs?.[entityId] || {}) }
+    : (typePropertyConfigs[entityId] || {});
+  const effectivePropertyConfigs = { [entityId]: effectivePropertyOverrides };
+
   return (
     <div className="op-panel op-investigate-panel op-now-asset-detail">
       {titleRow}
@@ -5214,10 +5339,10 @@ function NowTypeMainPreview({ activeTabIndex, title, typeId, typeList, propertie
           sparklineSource={sparklineSource}
           evidencePoints={evidencePoints}
           typeVisibilityMode
-          typeId={typeId}
-          typePropertyConfigs={typePropertyConfigs}
-          typeDisplayTemplates={typeDisplayTemplates}
-          onSaveTypeDisplayTemplate={onSaveTypeDisplayTemplate}
+          typeId={entityId}
+          typePropertyConfigs={effectivePropertyConfigs}
+          typeDisplayTemplates={effectiveDisplayTemplates}
+          onSaveTypeDisplayTemplate={isAssetEntity ? onSaveAssetDisplayTemplate : onSaveTypeDisplayTemplate}
           activeSaveHandlerRef={activeSaveHandlerRef}
           onViewModeChange={onViewModeChange}
           showToolbar={toolbarExpanded}
@@ -5467,7 +5592,7 @@ function WorkListPanel({ items, selectedId, onSelect, onToggleDone, onAdd }) {
 // Investigate — detail for the selected Attention item
 // ─────────────────────────────────────────────────────────────────────────────
 
-function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, activeSaveHandlerRef, onTitleClick, onGearClick }) {
+function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, activeSaveHandlerRef, onTitleClick, onGearClick }) {
   // This Asset vs. Related Assets sub-toggle, within the Related Assets
   // tab. Declared before the early return below (not alongside the other
   // computed values further down, which only run once item is known) so
@@ -5668,13 +5793,15 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
               <div className="op-investigate-relatedassets-body">
                 {relatedAssetsTypeId ? (
                   relatedAssetsSubview === 'thisAsset' ? (
-                    <div className={`op-hmiprops-singlebox op-investigate-related-template${typeDisplayTemplates?.[relatedAssetsTypeId]?.layoutMode === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+                    <div className={`op-hmiprops-singlebox op-investigate-related-template${(assetDisplayTemplates?.[relatedAssetsAssetEntry?.id]?.layoutMode ?? typeDisplayTemplates?.[relatedAssetsTypeId]?.layoutMode) === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
                       <RelatedAssetBoxContent
                         relatedTypeId={relatedAssetsTypeId}
                         relatedTypeName={relatedAssetsTypeEntry?.name}
                         relatedTypeExampleAssetId={relatedAssetsAssetEntry?.id}
                         typeDisplayTemplates={typeDisplayTemplates}
                         typePropertyConfigs={typePropertyConfigs}
+                        assetDisplayTemplates={assetDisplayTemplates}
+                        assetPropertyConfigs={assetPropertyConfigs}
                         evidencePoints={d.evidencePoints}
                         onTitleClick={onTitleClick}
                         onGearClick={onGearClick}
@@ -5690,12 +5817,16 @@ function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceVie
                     // which is why the gear icon was missing).
                     <ReadOnlyRelatedAssetsView
                       typeId={relatedAssetsTypeId}
+                      assetId={relatedAssetsAssetEntry?.id}
                       typeList={typeList}
                       typeDisplayTemplates={typeDisplayTemplates}
                       typePropertyConfigs={typePropertyConfigs}
                       typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                      assetDisplayTemplates={assetDisplayTemplates}
+                      assetPropertyConfigs={assetPropertyConfigs}
+                      assetRelatedAssetConfigs={assetRelatedAssetConfigs}
                       evidencePoints={d.evidencePoints}
-                      savedTemplate={relatedAssetsTemplates?.[relatedAssetsTypeId]}
+                      savedTemplate={assetRelatedAssetsTemplates?.[relatedAssetsAssetEntry?.id] ?? relatedAssetsTemplates?.[relatedAssetsTypeId]}
                       onTitleClick={onTitleClick}
                       onGearClick={onGearClick}
                     />
@@ -6283,7 +6414,7 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operato
 }
 
 
-function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility }) {
+function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility }) {
   return (
     <div className="op-panel op-side-panel">
       <div className="op-side-tab-content">
@@ -6308,7 +6439,9 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
               return (
                 <NowTypeDetailsList
                   key={selectedNowThing.id}
-                  typeId={selectedNowThing.id}
+                  entityId={selectedNowThing.id}
+                  isAssetEntity={false}
+                  relationshipTypeId={selectedNowThing.id}
                   typeList={nowTypeList}
                   properties={properties}
                   typePropertyConfigs={typePropertyConfigs}
@@ -6323,8 +6456,40 @@ function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, o
                 />
               );
             })()
+          ) : selectedNowThing?.kind === 'asset' ? (
+            (() => {
+              const asset = CURRENT_ASSET_MAP[selectedNowThing.id];
+              if (!asset) {
+                return <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>;
+              }
+              const relationshipTypeId = `TYPE_${asset.assetLevel}_${asset.assetType}`;
+              const { properties } = resolveAssetProperties(selectedNowThing.id);
+              return (
+                <NowTypeDetailsList
+                  key={selectedNowThing.id}
+                  entityId={selectedNowThing.id}
+                  isAssetEntity
+                  relationshipTypeId={relationshipTypeId}
+                  typeList={nowTypeList}
+                  properties={properties}
+                  typePropertyConfigs={typePropertyConfigs}
+                  setTypePropertyConfigs={setTypePropertyConfigs}
+                  typeRelatedAssetConfigs={typeRelatedAssetConfigs}
+                  setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
+                  assetPropertyConfigs={assetPropertyConfigs}
+                  setAssetPropertyConfigs={setAssetPropertyConfigs}
+                  assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+                  setAssetRelatedAssetConfigs={setAssetRelatedAssetConfigs}
+                  rightPanelViewMode={rightPanelViewMode}
+                  hiddenAssetIds={hiddenAssetIds}
+                  onToggleAssetVisibility={onToggleAssetVisibility}
+                  activeTabIndex={activeTabIndex}
+                  onActiveTabIndexChange={onActiveTabIndexChange}
+                />
+              );
+            })()
           ) : (
-            <div className="op-now-detail-placeholder-note">Select a type from the tree to view its details.</div>
+            <div className="op-now-detail-placeholder-note">Select a type or asset from the tree to view its details.</div>
           )
         )}
       </div>
@@ -6669,7 +6834,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
       : 'properties'
   );
   useEffect(() => {
-    onSaveAvailabilityChange?.(selectedNowThing?.kind === 'type');
+    onSaveAvailabilityChange?.(selectedNowThing?.kind === 'type' || selectedNowThing?.kind === 'asset');
   }, [selectedNowThing]);
   useEffect(() => {
     saveNowSelection(CURRENT_MODEL, selectedNowThing);
@@ -6730,6 +6895,39 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
     });
     notify('Template saved', 'success', 2000);
   };
+  // Per-asset overrides — the Now area's Assets tab equivalents of the four
+  // per-type blocks above, keyed by real asset id instead of type id. A
+  // specific asset only ever has an entry here once a user has actually
+  // saved/changed something for that asset; RelatedAssetBoxContent (and the
+  // Details-panel grids above) are what actually apply the asset-over-type
+  // fallback at render time — these four are pure storage, identical
+  // persistence shape to their type-level counterparts.
+  const [assetPropertyConfigs, setAssetPropertyConfigs] = useState(() => loadAssetPropertyConfigs());
+  useEffect(() => {
+    saveAssetPropertyConfigs(assetPropertyConfigs);
+  }, [assetPropertyConfigs]);
+  const [assetRelatedAssetConfigs, setAssetRelatedAssetConfigs] = useState(() => loadAssetRelatedAssetConfigs());
+  useEffect(() => {
+    saveAssetRelatedAssetConfigs(assetRelatedAssetConfigs);
+  }, [assetRelatedAssetConfigs]);
+  const [assetDisplayTemplates, setAssetDisplayTemplates] = useState(() => loadAssetDisplayTemplates());
+  const handleSaveAssetDisplayTemplate = (assetId, template) => {
+    setAssetDisplayTemplates(prev => {
+      const next = { ...prev, [assetId]: template };
+      saveAssetDisplayTemplates(next);
+      return next;
+    });
+    notify('Template saved', 'success', 2000);
+  };
+  const [assetRelatedAssetsTemplates, setAssetRelatedAssetsTemplates] = useState(() => loadAssetRelatedAssetsTemplates());
+  const handleSaveAssetRelatedAssetsTemplate = (assetId, template) => {
+    setAssetRelatedAssetsTemplates(prev => {
+      const next = { ...prev, [assetId]: template };
+      saveAssetRelatedAssetsTemplates(next);
+      return next;
+    });
+    notify('Template saved', 'success', 2000);
+  };
   // The single global All Assets template — not keyed by type, since this
   // is one shared view regardless of which type is selected. Hydrated from
   // storage on mount, same as the two per-type templates above, including
@@ -6756,6 +6954,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
       ? DEEP_LINK_TAB_NAMES.indexOf(initialDeepLink.tab)
       : 0
   );
+  // Which Now-area left-panel tab (Types/Assets) is active — same lifted-
+  // state reasoning as activeTabIndex above, just for the sibling tab
+  // switcher one panel over.
+  const [nowLeftTabIndex, setNowLeftTabIndex] = useState(() => (selectedNowThing?.kind === 'asset' ? 1 : 0));
   // Keeps the URL in sync with whatever's currently selected, so the
   // address bar always reflects a link back to the current view. Only
   // fires while the user is actually in a deep-linkable area — a type
@@ -6774,6 +6976,21 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // title renders (Properties/Related Assets/All Assets, both Cards and
   // Diagram) — always jumps to that thing's own Properties view. Every
   // box already carries relatedTypeId (the type) and
+  // The left tree's own selection callback — clamps activeTabIndex back to
+  // a valid tab whenever the newly-selected thing is an asset and the
+  // Details panel was sitting on tab 2 (All Assets), which only ever
+  // exists for a type (a shared, model-wide view with no per-asset
+  // variant) — without this, selecting an asset while on that tab would
+  // leave the tab switcher pointed at an index NowTypeDetailsList no
+  // longer renders for assets at all.
+  const handleSelectNowThing = (thing) => {
+    setSelectedNowThing(thing);
+    setNowLeftTabIndex(thing?.kind === 'asset' ? 1 : 0);
+    if (thing?.kind === 'asset' && activeTabIndex === 2) {
+      setActiveTabIndex(0);
+    }
+  };
+
   // relatedTypeExampleAssetId (the concrete asset whose real values the
   // box is showing), so Visualization navigates by type — its whole
   // mental model is type-level — while the Assets area navigates by that
@@ -6782,6 +6999,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
   // this box represents."
   const handleNavigateToType = ({ relatedTypeId }) => {
     setSelectedNowThing({ kind: 'type', id: relatedTypeId });
+    setNowLeftTabIndex(0);
     setActiveTabIndex(0);
   };
   const handleNavigateToAsset = ({ relatedTypeExampleAssetId }) => {
@@ -6963,7 +7181,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
           {!leftPanelHidden && (
             <SplitterItem size="320px" minSize="240px" resizable={true}>
               {railMode === 'now' ? (
-                <NowAssetTreePanel ref={nowTreePanelRef} selectedThing={selectedNowThing} onSelectThing={setSelectedNowThing} typeList={nowTypeList} />
+                <NowAssetTreePanel ref={nowTreePanelRef} selectedThing={selectedNowThing} onSelectThing={handleSelectNowThing} typeList={nowTypeList} tabIndex={nowLeftTabIndex} onTabIndexChange={setNowLeftTabIndex} />
               ) : railMode === 'attention' ? (
                 <AttentionPanel selectedId={selectedAttentionId} onSelect={setSelectedAttentionId} />
               ) : railMode === 'assets' ? (
@@ -6990,6 +7208,14 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
                 typeDisplayTemplates={typeDisplayTemplates}
                 onSaveTypeDisplayTemplate={handleSaveTypeDisplayTemplate}
+                assetPropertyConfigs={assetPropertyConfigs}
+                setAssetPropertyConfigs={setAssetPropertyConfigs}
+                assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+                setAssetRelatedAssetConfigs={setAssetRelatedAssetConfigs}
+                assetDisplayTemplates={assetDisplayTemplates}
+                onSaveAssetDisplayTemplate={handleSaveAssetDisplayTemplate}
+                assetRelatedAssetsTemplates={assetRelatedAssetsTemplates}
+                onSaveAssetRelatedAssetsTemplate={handleSaveAssetRelatedAssetsTemplate}
                 activeSaveHandlerRef={activeSaveHandlerRef}
                 activeTabIndex={activeTabIndex}
                 onViewModeChange={setRightPanelViewMode}
@@ -7012,6 +7238,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 typeRelatedAssetConfigs={typeRelatedAssetConfigs}
                 relatedAssetsTemplates={relatedAssetsTemplates}
                 onSaveRelatedAssetsTemplate={handleSaveRelatedAssetsTemplate}
+                assetDisplayTemplates={assetDisplayTemplates}
+                assetPropertyConfigs={assetPropertyConfigs}
+                assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+                assetRelatedAssetsTemplates={assetRelatedAssetsTemplates}
                 activeSaveHandlerRef={activeSaveHandlerRef}
                 onTitleClick={handleNavigateToType}
                 onGearClick={handleNavigateToConfig}
@@ -7024,6 +7254,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 typePropertyConfigs={typePropertyConfigs}
                 typeRelatedAssetConfigs={typeRelatedAssetConfigs}
                 relatedAssetsTemplates={relatedAssetsTemplates}
+                assetDisplayTemplates={assetDisplayTemplates}
+                assetPropertyConfigs={assetPropertyConfigs}
+                assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+                assetRelatedAssetsTemplates={assetRelatedAssetsTemplates}
                 allAssetsTemplate={allAssetsTemplate}
                 hiddenAssetIds={hiddenAssetIds}
                 activeTab={selectedAssetTab}
@@ -7052,6 +7286,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, onSaveA
                 setTypeRelatedAssetConfigs={setTypeRelatedAssetConfigs}
                 typeDisplayTemplates={typeDisplayTemplates}
                 onSaveTypeDisplayTemplate={handleSaveTypeDisplayTemplate}
+                assetPropertyConfigs={assetPropertyConfigs}
+                setAssetPropertyConfigs={setAssetPropertyConfigs}
+                assetRelatedAssetConfigs={assetRelatedAssetConfigs}
+                setAssetRelatedAssetConfigs={setAssetRelatedAssetConfigs}
                 activeSaveHandlerRef={activeSaveHandlerRef}
                 activeTabIndex={activeTabIndex}
                 onActiveTabIndexChange={setActiveTabIndex}
