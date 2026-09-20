@@ -1,0 +1,1101 @@
+[
+ {
+  "id": "PSIT01",
+  "assetId": "SOLACE_USP_PROD_PBR1_AGIT",
+  "unitId": "SOLACE_USP_PROD_PBR1",
+  "primaryProperty": "gearbox_vibration_mms",
+  "asset": "PBR-1 · Agitation",
+  "line": "PBR-1",
+  "severity": "medium",
+  "signal": "PBR-1 agitator gearbox vibration climbing at constant speed",
+  "aiInterpretation": "Gearbox vibration on PBR-1's agitator has more than doubled since about 09:20 while speed stayed at 48 rpm, and the mechanical seal is running warmer. PBR-2's identical drive is flat. The batch has one day left before harvest.",
+  "since": "4h 45m ago",
+  "sinceMinutes": 285,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Gearbox vibration 4.5 mm/s at 14:05, up from 1.9 at 09:20 (alert 4.5, alarm 7.1). Seal temperature 44 → 52 °C.",
+   "observed": "Agitator speed steady at 48 rpm; power up slightly (14.2 → 14.68 kW). DO, pH and temperature control normal. PBR-2's gearbox, same model, reads 1.7 mm/s.",
+   "derived": "Vibration, seal temperature and power are rising together at unchanged speed, so it is the drive, not the process. The rise is accelerating: 0.9 mm/s in the last hour, which would reach the 7.1 alarm in about 3 hours if it continues.",
+   "inferred": "Possible gearbox bearing wear or lubrication loss, with heat reaching the bottom-mounted mechanical seal. Not yet confirmed.",
+   "recommendation": "Take a portable vibration spectrum and check gearbox oil level and seal barrier condensate. Do not stop the agitator mid-batch; agree a plan with MS&T to reach tomorrow's 08:00 harvest, or harvest early if the seal barrier pressure drops.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-03-11",
+     "summary": "PBR-3 agitator gearbox bearing replaced at turnaround after a slow vibration rise over one batch."
+    }
+   ],
+   "whatChangedSummary": "No speed, setpoint or maintenance change on PBR-1 today.",
+   "whatChanged": [
+    {
+     "time": "09:20",
+     "source": "Event",
+     "description": "PBR-1 gearbox vibration leaves its normal band.",
+     "related": true
+    },
+    {
+     "time": "12:40",
+     "source": "Alarm",
+     "description": "Seal temperature high (advisory, 50 °C).",
+     "related": true
+    }
+   ],
+   "confidence": "Three related signals agree; cause not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — a seal failure mid-batch is a sterility breach and loses ~64 kg of antibody",
+   "riskLevel": "medium",
+   "expectedOutcome": "Batch reaches harvest; gearbox inspected at turnaround",
+   "evidence": [
+    1.87,
+    2.17,
+    2.65,
+    3.06,
+    3.73,
+    4.3,
+    4.52
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:20",
+     "value": "1.87 mm/s",
+     "label": "Divergence begins"
+    },
+    {
+     "time": "10:30",
+     "value": "2.17 mm/s",
+     "label": ""
+    },
+    {
+     "time": "11:30",
+     "value": "2.65 mm/s",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "3.06 mm/s",
+     "label": ""
+    },
+    {
+     "time": "13:15",
+     "value": "3.73 mm/s",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "4.30 mm/s",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "4.52 mm/s",
+     "label": "Current — PBR-2 reads 1.7 mm/s"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "PSIT02",
+  "assetId": "SOLACE_USP_SEED_SBR1_GAS_DOB",
+  "unitId": "SOLACE_USP_SEED_SBR1",
+  "primaryProperty": "do_pct",
+  "asset": "SBR-1 · Gas Control · DO Probe B (monitor)",
+  "line": "SBR-1",
+  "severity": "medium",
+  "signal": "SBR-1 DO probe B jumping — probe A, O₂ flow and cells all say otherwise",
+  "aiInterpretation": "The seed bioreactor's monitoring DO probe swung between 14% and 64% for an hour. Control probe A held 40%, the O₂ sparge never moved and the culture kept growing, so the process was fine: a loose probe cable connector.",
+  "since": "Resolved 3h 20m ago",
+  "sinceMinutes": 200,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "DO probe B read between 14% and 64% from 09:35 to 10:40; probe A stayed between 39.5% and 40.7%.",
+   "observed": "O₂ sparge flow varied by only 0.6 slpm over the window; pCO₂, pH and viable cell density on trend. Probe B's own signal-quality index fell to 57 (normal ~96).",
+   "derived": "A real DO swing of that size would move the DO cascade and both probes together. Only one probe moved, and its diagnostic dropped with it — an instrument fault, not the culture.",
+   "inferred": "Intermittent connection in the probe B cable; confirmed when the connector was found loose.",
+   "recommendation": "Record the probe B excursion in the batch record as an instrument event (no process impact); check the connector strain relief before the next SIP.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Instrument technician reseated the probe B connector at 10:40; readings normal from 10:45.",
+   "whatChanged": [
+    {
+     "time": "09:35",
+     "source": "Alarm",
+     "description": "SBR-1 DO B deviation from DO A (> 5 %).",
+     "related": true
+    },
+    {
+     "time": "09:48",
+     "source": "Operator Action",
+     "description": "Operator confirmed control is on probe A; O₂ flow unchanged.",
+     "related": true
+    },
+    {
+     "time": "10:40",
+     "source": "Maintenance",
+     "description": "Probe B cable connector found loose and reseated.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by field check",
+   "confidenceLevel": "high",
+   "risk": "Low — control never used probe B; the seed was unaffected",
+   "riskLevel": "low",
+   "expectedOutcome": "Probe B tracking probe A; event documented",
+   "evidence": [
+    40.4,
+    27.0,
+    17.9,
+    63.8,
+    13.7,
+    51.2,
+    40.7
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:30",
+     "value": "40.4%",
+     "label": "Normal"
+    },
+    {
+     "time": "09:35",
+     "value": "27.0%",
+     "label": "First jump"
+    },
+    {
+     "time": "09:50",
+     "value": "17.9%",
+     "label": ""
+    },
+    {
+     "time": "10:10",
+     "value": "63.8%",
+     "label": ""
+    },
+    {
+     "time": "10:25",
+     "value": "13.7%",
+     "label": "Lowest reading"
+    },
+    {
+     "time": "10:35",
+     "value": "51.2%",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "40.7%",
+     "label": "Connector reseated"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "PSIT03",
+  "assetId": "SOLACE_USP_PROD_PBR3_TEMP",
+  "unitId": "SOLACE_USP_PROD_PBR3",
+  "primaryProperty": "drain_temp_c",
+  "asset": "PBR-3 · Temperature Control",
+  "line": "PBR-3",
+  "severity": "high",
+  "signal": "PBR-3 SIP failed on the drain cold point — the cause was the clean steam supply",
+  "aiInterpretation": "PBR-3's first sterilization never got its drain thermocouple to 121.1 °C and was aborted. The vessel was fine: the clean steam header had sagged from 3.0 to about 1.7 bar(g) because CSG-1's feed pump was cavitating. After the strainer was cleaned the second SIP passed.",
+  "since": "Resolved 40m ago",
+  "sinceMinutes": 40,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Drain (cold point) temperature peaked at 115.5 °C at 10:40 during SIP #1 (target ≥ 121.1 °C for the hold); vessel reached 119.5 °C.",
+   "observed": "CSG-1 generator level began hunting between 42% and 69% at 10:10; header pressure fell to 1.66 bar(g) from 10:20; vessel pressure dropped from 1.10 to 0.92 bar(g) at the same time. Steam traps on PBR-3 checked OK.",
+   "derived": "The steam supply problem started 10–20 minutes before the cold spot and explains it: lower steam pressure means a lower saturation temperature and slower purging of air and condensate from the drain leg.",
+   "inferred": "Clean steam generator feed pump cavitation (blocked suction strainer); confirmed when the strainer was cleaned at 11:10.",
+   "recommendation": "Close the deviation with CSG-1 as root cause; add the feed-pump strainer to the CSG-1 PM route. PBR-3 SIP #2 passed and can proceed to the pressure hold.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-05-21",
+     "summary": "HRV-1 SIP extended 20 min when clean steam pressure dipped during a simultaneous VIN-1 SIP."
+    }
+   ],
+   "whatChangedSummary": "CSG-1 strainer cleaned 11:10; SIP #2 held all points ≥ 121.1 °C from 12:10 to 13:10 (drain min 121.9 °C, F₀ ≈ 74 min).",
+   "whatChanged": [
+    {
+     "time": "10:10",
+     "source": "Event",
+     "description": "CSG-1 generator level starts hunting.",
+     "related": true
+    },
+    {
+     "time": "10:20",
+     "source": "Alarm",
+     "description": "Clean steam header pressure low (2.5 bar(g)).",
+     "related": true
+    },
+    {
+     "time": "10:45",
+     "source": "Event",
+     "description": "PBR-3 SIP #1 aborted — cold point below 121.1 °C at hold start. Deviation raised.",
+     "related": true
+    },
+    {
+     "time": "11:10",
+     "source": "Maintenance",
+     "description": "CSG-1 feed pump suction strainer cleaned; level steady.",
+     "related": true
+    },
+    {
+     "time": "11:40",
+     "source": "Operator Action",
+     "description": "PBR-3 SIP #2 started.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — steam supply restored, SIP #2 passed",
+   "confidenceLevel": "high",
+   "risk": "Low now, but the lost 95 minutes put the 26-117 seed transfer at risk (PSIT11)",
+   "riskLevel": "low",
+   "expectedOutcome": "PBR-3 sterile and ready for pressure hold",
+   "evidence": [
+    23.9,
+    109.9,
+    115.5,
+    112.1,
+    96.0,
+    122.1,
+    92.1
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:00",
+     "value": "23.9 °C",
+     "label": "SIP #1 starts"
+    },
+    {
+     "time": "10:25",
+     "value": "109.9 °C",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "115.5 °C",
+     "label": "Stalls below 121.1 °C"
+    },
+    {
+     "time": "10:45",
+     "value": "112.1 °C",
+     "label": "SIP aborted"
+    },
+    {
+     "time": "11:40",
+     "value": "96.0 °C",
+     "label": "SIP #2 starts"
+    },
+    {
+     "time": "12:10",
+     "value": "122.1 °C",
+     "label": "Hold achieved"
+    },
+    {
+     "time": "13:25",
+     "value": "92.1 °C",
+     "label": "SIP complete"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "PSIT04",
+  "assetId": "SOLACE_DSP_PUR_CAP1",
+  "unitId": "SOLACE_DSP_PUR_CAP1",
+  "primaryProperty": "skid_flow_l_min",
+  "asset": "CAP-1",
+  "line": "CAP-1",
+  "severity": "high",
+  "signal": "CAP-1 stopped mid-load — guard filter pressure high-high",
+  "aiInterpretation": "The Protein A skid shut its feed pump during cycle 2 when the guard filter in front of the column hit its 2.5 bar interlock. The column itself was fine. The filter was replaced and the load resumed after 45 minutes, inside the validated 4-hour load hold.",
+  "since": "Resolved 3h 25m ago",
+  "sinceMinutes": 205,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Skid flow went from 26 L/min (second stage of the dual-flow load) to 0 at 09:55; guard filter DP rose from 0.35 bar at 09:30 to 2.18 bar at 09:50.",
+   "observed": "1,278 L of cycle 2 load was on the column when it stopped. Column DP normal before and after; after the filter change the guard filter read 0.30 bar at full flow.",
+   "derived": "Only the guard filter DP rose, and fast (minutes, not cycles) — a filter plugging with fines, not column fouling or a compressed bed.",
+   "inferred": "Guard filter plugged by fines in the clarified harvest; the harvest hold tank sample showed higher-than-usual turbidity (27 NTU vs < 10).",
+   "recommendation": "Record the interruption and the hold time in the batch record; send the used filter and a harvest sample to QC; ask MS&T to review HRV-1 depth-filter performance before tomorrow's harvest.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Guard filter replaced 10:35; cycle 2 load resumed at 10:40 and completed; cycles 3–5 ran normally.",
+   "whatChanged": [
+    {
+     "time": "09:55",
+     "source": "Alarm",
+     "description": "CAP-1 guard filter DP high-high — feed pump interlock.",
+     "related": true
+    },
+    {
+     "time": "10:00",
+     "source": "Operator Action",
+     "description": "Load hold started (validated limit 4 h); deviation raised.",
+     "related": true
+    },
+    {
+     "time": "10:35",
+     "source": "Maintenance",
+     "description": "Guard filter replaced and integrity-checked.",
+     "related": true
+    },
+    {
+     "time": "10:40",
+     "source": "Operator Action",
+     "description": "Cycle 2 load resumed.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — DP normal on the new filter",
+   "confidenceLevel": "high",
+   "risk": "Low — resumed well inside the hold time; about 50 minutes lost on the purification schedule",
+   "riskLevel": "low",
+   "expectedOutcome": "Cycles 3–8 on the new filter; QC result on the filter and harvest sample",
+   "evidence": [
+    38.2,
+    38.0,
+    26.2,
+    0.0,
+    0.0,
+    25.7,
+    38.1
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:30",
+     "value": "38.2 L/min",
+     "label": "Cycle 2 loading"
+    },
+    {
+     "time": "09:45",
+     "value": "38.0 L/min",
+     "label": "Guard filter DP climbing"
+    },
+    {
+     "time": "09:50",
+     "value": "26.2 L/min",
+     "label": ""
+    },
+    {
+     "time": "09:55",
+     "value": "0.0 L/min",
+     "label": "Pump stopped — DP high-high"
+    },
+    {
+     "time": "10:20",
+     "value": "0.0 L/min",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "25.7 L/min",
+     "label": "Restarted on new filter"
+    },
+    {
+     "time": "11:05",
+     "value": "38.1 L/min",
+     "label": "Cycle 3 starts"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "PSIT05",
+  "assetId": "SOLACE_DSP_PUR_CAP1_COL",
+  "unitId": "SOLACE_DSP_PUR_CAP1",
+  "primaryProperty": "breakthrough_pct",
+  "asset": "CAP-1 · Protein A Column",
+  "line": "CAP-1",
+  "severity": "medium",
+  "signal": "Protein A cycles on schedule — but more antibody is going out with the flow-through each cycle",
+  "aiInterpretation": "Every CAP-1 cycle today has loaded the same volume on time, so the purification plan looks on track. But the flow-through breakthrough at the end of each load has risen from about 1% to over 4%, and the step yield has fallen with it.",
+  "since": "2h 15m ago",
+  "sinceMinutes": 135,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "End-of-load breakthrough: 1.1% → 2.0% → 3.1% → 4.6% (cycles 1–4); cycle 5 is already at 4.6% with a sample still to go.",
+   "observed": "Step yield 95.3% → 94.4% → 93.0% → 91.4%. Load volume, flow and residence time are identical every cycle; column DP unchanged (1.34 vs 1.35 bar). Resin is on cycle 191 of its 200-cycle validated lifetime.",
+   "derived": "The headline (volume processed, cycles on time) hides a loss of about 0.5 kg of antibody over cycles 2–4 compared with cycle 1. The trend is cycle-over-cycle, not a one-off, and the guard-filter event (PSIT04) does not explain cycles 3 and 4.",
+   "inferred": "Possible loss of dynamic binding capacity (resin near end of life, or incomplete regeneration), or a higher harvest titer than the load volume assumes. Not yet confirmed.",
+   "recommendation": "Ask QC for a rush titer on the cycle 4 flow-through and the harvest pool; if capacity is down, reduce load per cycle for cycles 6–8 per the batch record's load-challenge range and bring forward the column repack.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-07-02",
+     "summary": "CAP-1 DBC check at cycle 160 was 88% of initial (alert limit 85%)."
+    }
+   ],
+   "whatChangedSummary": "No recipe or buffer change; new buffer lot from BP-1 in use since cycle 3.",
+   "whatChanged": [
+    {
+     "time": "10:40",
+     "source": "Maintenance",
+     "description": "Guard filter replaced (PSIT04).",
+     "related": false
+    },
+    {
+     "time": "11:05",
+     "source": "Event",
+     "description": "Cycle 3 starts on the new BP-1 buffer lot.",
+     "related": false
+    }
+   ],
+   "confidence": "Loss is measured; cause not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — about 0.3 kg of antibody lost per cycle and rising; cycles 6–8 still to run",
+   "riskLevel": "medium",
+   "expectedOutcome": "Breakthrough back under 1.5% on cycles 6–8",
+   "evidence": [
+    1.08,
+    1.97,
+    3.14,
+    4.56,
+    0.79,
+    3.27,
+    4.57
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:45",
+     "value": "1.08%",
+     "label": "Cycle 1 end of load"
+    },
+    {
+     "time": "10:40",
+     "value": "1.97%",
+     "label": "Cycle 2"
+    },
+    {
+     "time": "11:50",
+     "value": "3.14%",
+     "label": "Cycle 3"
+    },
+    {
+     "time": "13:00",
+     "value": "4.56%",
+     "label": "Cycle 4"
+    },
+    {
+     "time": "13:45",
+     "value": "0.79%",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "3.27%",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "4.57%",
+     "label": "Cycle 5 (still loading)"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "PSIT06",
+  "assetId": "SOLACE_UTIL_CU_AHU3",
+  "unitId": "SOLACE_UTIL_CU_AHU3",
+  "primaryProperty": "supply_airflow_m3_h",
+  "asset": "AHU-3",
+  "line": "AHU-3",
+  "severity": "high",
+  "signal": "AHU-3 lost its supply fan — post-viral suite pressures collapsed and POL-1 was stopped",
+  "aiInterpretation": "AHU-3's duty fan tripped on a drive fault at 12:10. Room pressures in the post-viral suite fell to near zero and the airlock reversed, so POL-1 was put on hold. The standby fan was started at 12:22 and pressures recovered by 12:30.",
+  "since": "1h 15m ago",
+  "sinceMinutes": 75,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Supply airflow fell from 18,488 to 1,190 m³/h at 12:10. Chromatography room DP 15.3 → 1.1 Pa; airlock AL-7 reversed to -1.3 Pa.",
+   "observed": "Room temperature peaked at 21.3 °C. POL-1 on hold 12:10–12:50 (about 1,200 L of load deferred). Room DPs back above 5 Pa at 12:30.",
+   "derived": "One cause (the fan) produced every downstream symptom in order: airflow, then room pressures, then the processing hold. UF/DF CIP and the DS freezer were not affected.",
+   "inferred": "Fan A variable-speed drive tripped on overcurrent; drive fault log confirms.",
+   "recommendation": "Keep Fan B on duty. Wait for the post-excursion EM plates (read at 48–72 h) before dispositioning POL-1's hold; raise a work order on the Fan A drive.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Standby Fan B started 12:22; pressures normal from 12:30; POL-1 resumed 12:50 after a room clearance check. EM results pending.",
+   "whatChanged": [
+    {
+     "time": "12:10",
+     "source": "Alarm",
+     "description": "AHU-3 Fan A drive fault; post-viral suite DP low alarms.",
+     "related": true
+    },
+    {
+     "time": "12:12",
+     "source": "Operator Action",
+     "description": "POL-1 placed on hold; open connections suspended.",
+     "related": true
+    },
+    {
+     "time": "12:15",
+     "source": "Event",
+     "description": "Deviation raised for the pressure-cascade excursion.",
+     "related": true
+    },
+    {
+     "time": "12:22",
+     "source": "Operator Action",
+     "description": "Standby Fan B started.",
+     "related": true
+    },
+    {
+     "time": "12:40",
+     "source": "Field Check",
+     "description": "Post-excursion EM air and surface samples taken.",
+     "related": true
+    },
+    {
+     "time": "12:50",
+     "source": "Operator Action",
+     "description": "POL-1 resumed after QA clearance.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — drive fault log",
+   "confidenceLevel": "high",
+   "risk": "Medium until the EM results are in — POL-1 disposition waits on them",
+   "riskLevel": "medium",
+   "expectedOutcome": "EM results within limits; Fan A drive repaired",
+   "evidence": [
+    18488.0,
+    1190.0,
+    1232.0,
+    1238.0,
+    19022.0,
+    18979.0,
+    19001.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "12:05",
+     "value": "18,488 m³/h",
+     "label": "Normal"
+    },
+    {
+     "time": "12:10",
+     "value": "1,190 m³/h",
+     "label": "Fan A trips"
+    },
+    {
+     "time": "12:15",
+     "value": "1,232 m³/h",
+     "label": ""
+    },
+    {
+     "time": "12:20",
+     "value": "1,238 m³/h",
+     "label": ""
+    },
+    {
+     "time": "12:25",
+     "value": "19,022 m³/h",
+     "label": "Fan B running"
+    },
+    {
+     "time": "12:35",
+     "value": "18,979 m³/h",
+     "label": ""
+    },
+    {
+     "time": "12:50",
+     "value": "19,001 m³/h",
+     "label": "POL-1 resumed"
+    }
+   ],
+   "outcomeStatus": "recovering"
+  }
+ },
+ {
+  "id": "PSIT07",
+  "assetId": "SOLACE_USP_PROD_PBR2_GAS_PCO2",
+  "unitId": "SOLACE_USP_PROD_PBR2",
+  "primaryProperty": "pco2_mmhg",
+  "asset": "PBR-2 · Gas Control · pCO₂ Probe",
+  "line": "PBR-2",
+  "severity": "high",
+  "signal": "PBR-2 dissolved CO₂ building up — past its normal range and heading for the proven acceptable limit",
+  "aiInterpretation": "pCO₂ in PBR-2 has risen steadily since about 10:15 and left its normal operating range (≤ 120 mmHg) at 12:20. The pH has sunk to the bottom of its dead band, the pH loop has all but stopped sparging CO₂ and is pumping more base, and osmolality is creeping up. At this rate pCO₂ reaches the 160 mmHg PAR limit around 15:05.",
+  "since": "3h 50m ago",
+  "sinceMinutes": 230,
+  "attentionState": "act",
+  "detail": {
+   "signal": "pCO₂ 146 mmHg at 14:05, up from 90 at 10:15; rising about 13 mmHg/h (NOR ≤ 120, PAR ≤ 160).",
+   "observed": "Culture pH 7.00 → 6.93; CO₂ sparge 13 → 2 slpm; base pump 26 → 63 mL/min; osmolality 357 → 361 mOsm/kg; off-gas CO₂ 5.3 → 8.5%. VCD 22.1 ×10⁶/mL (near peak). DO steady at 40%. PBR-1 pCO₂ steady at 86 mmHg.",
+   "derived": "CO₂ is being produced faster than it is being stripped. The pH loop is already doing what it can (CO₂ sparge almost off); the extra base it adds raises osmolality, so waiting makes two CPPs worse.",
+   "inferred": "Hypotheses: reduced CO₂ stripping (headspace overlay or sparge air lower than the recipe), or higher CO₂ production at peak cell density. Not yet diagnosed.",
+   "recommendation": "Check the overlay and air-sparge flows against the day-7 recipe values and restore them if they differ; if pCO₂ is still rising in 30 minutes, raise air sparge within its NOR per SOP. Take an offline blood-gas sample to confirm the probe. Notify QA of the NOR excursion.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-06-19",
+     "summary": "PBR-1 pCO₂ reached 135 mmHg on day 8; recovered after overlay was increased."
+    }
+   ],
+   "whatChangedSummary": "Planned exhaust filter swap at 10:05; pCO₂ began rising about 10 minutes later.",
+   "whatChanged": [
+    {
+     "time": "10:05",
+     "source": "Maintenance",
+     "description": "PBR-2 exhaust filter swapped (planned, during batch).",
+     "related": true
+    },
+    {
+     "time": "12:20",
+     "source": "Alarm",
+     "description": "pCO₂ above NOR (120 mmHg) — minor deviation raised.",
+     "related": true
+    },
+    {
+     "time": "13:10",
+     "source": "Alarm",
+     "description": "pH at low dead-band edge for 60 min.",
+     "related": true
+    }
+   ],
+   "confidence": "Trend is clear; cause not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "High — above 150 mmHg glycosylation and titer suffer; crossing the PAR puts batch 26-116 disposition at risk",
+   "riskLevel": "high",
+   "expectedOutcome": "pCO₂ back under 120 mmHg within 2 hours of the fix",
+   "evidence": [
+    90.3,
+    90.1,
+    104.6,
+    120.1,
+    132.1,
+    142.3,
+    146.4
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:10",
+     "value": "90.3 mmHg",
+     "label": "Normal"
+    },
+    {
+     "time": "10:15",
+     "value": "90.1 mmHg",
+     "label": "Starts rising"
+    },
+    {
+     "time": "11:15",
+     "value": "104.6 mmHg",
+     "label": ""
+    },
+    {
+     "time": "12:20",
+     "value": "120.1 mmHg",
+     "label": "Above NOR (120)"
+    },
+    {
+     "time": "13:00",
+     "value": "132.1 mmHg",
+     "label": ""
+    },
+    {
+     "time": "13:35",
+     "value": "142.3 mmHg",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "146.4 mmHg",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "PSIT08",
+  "assetId": "SOLACE_UTIL_CU_WFI1_STILL",
+  "unitId": "SOLACE_UTIL_CU_WFI1",
+  "primaryProperty": "still_output_l_h",
+  "asset": "WFI-1 · Multi-Effect Still",
+  "line": "WFI-1",
+  "severity": "low",
+  "signal": "WFI still making less water for more steam",
+  "aiInterpretation": "WFI-1's still output slid about 11% over the morning while its plant-steam use crept up. It was a non-condensable gas vent valve left partly closed after yesterday's PM, which blankets the condensing surfaces. Output was back to normal 40 minutes after it was opened.",
+  "since": "Resolved 45m ago",
+  "sinceMinutes": 45,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Distillate output fell from 3,058 to 2,708 L/h by 12:40 while plant steam rose from 778 to 819 kg/h.",
+   "observed": "Distillate conductivity, TOC and loop temperature all normal. The WFI tank dipped to 62% during the afternoon media-prep and CIP draws; no user was limited.",
+   "derived": "Steam per litre of WFI rose about 19% — a heat-transfer loss inside the still, not a feed or demand problem.",
+   "inferred": "Non-condensable vent valve on effect 1 left half-closed after yesterday's PM; confirmed and opened at 12:40.",
+   "recommendation": "Add a vent-valve position check to the post-PM return-to-service checklist.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Vent valve opened 12:40; output back to 3,050 L/h by 13:20.",
+   "whatChanged": [
+    {
+     "time": "08:00",
+     "source": "Event",
+     "description": "Still returned to service after PM (yesterday 17:30).",
+     "related": true
+    },
+    {
+     "time": "12:25",
+     "source": "Field Check",
+     "description": "Utilities tech finds the effect-1 vent valve half-closed.",
+     "related": true
+    },
+    {
+     "time": "12:40",
+     "source": "Maintenance",
+     "description": "Vent valve opened.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed in the field",
+   "confidenceLevel": "high",
+   "risk": "Low — caught before WFI supply limited any user",
+   "riskLevel": "none",
+   "expectedOutcome": "Still at rated output",
+   "evidence": [
+    3058.0,
+    2911.0,
+    2847.0,
+    2729.0,
+    2708.0,
+    2979.0,
+    3050.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "3,058 L/h",
+     "label": "Shift start"
+    },
+    {
+     "time": "09:30",
+     "value": "2,911 L/h",
+     "label": ""
+    },
+    {
+     "time": "11:00",
+     "value": "2,847 L/h",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "2,729 L/h",
+     "label": ""
+    },
+    {
+     "time": "12:40",
+     "value": "2,708 L/h",
+     "label": "Vent valve opened"
+    },
+    {
+     "time": "13:00",
+     "value": "2,979 L/h",
+     "label": ""
+    },
+    {
+     "time": "13:20",
+     "value": "3,050 L/h",
+     "label": "Output restored"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "PSIT09",
+  "assetId": "SOLACE_USP_PROD_PBR2_FEED_PUMP",
+  "unitId": "SOLACE_USP_PROD_PBR2",
+  "primaryProperty": "feed_pump_rate_l_h",
+  "asset": "PBR-2 · Feed Addition · Feed Pump",
+  "line": "PBR-2",
+  "severity": "medium",
+  "signal": "PBR-2 feed pump stopping every 20–30 minutes",
+  "aiInterpretation": "PBR-2's continuous feed pump stopped eight times on its flow alarm before 11:30. Each stop was short and restarted automatically, but together they left the batch about 27 L behind the feed recipe and glucose dipped. The peristaltic tubing was worn and was replaced at 11:50.",
+  "since": "Resolved 1h 25m ago",
+  "sinceMinutes": 85,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "8 flow-alarm stops between 08:40 and 11:30 (up to 3 in one hour); normal is none.",
+   "observed": "Feed fell up to 27 L behind recipe; glucose went from 4.1 to 3.0 g/L; now 3.3 g/L. No other PBR-2 loop affected.",
+   "derived": "The stops were regular and self-clearing, which points to the pump head rather than the feed line or the medium.",
+   "inferred": "Worn peristaltic tubing slipping in the pump head; confirmed when replaced.",
+   "recommendation": "Record the feed shortfall and catch-up in the batch record; check tubing change interval on all feed pumps.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Tubing replaced 11:45–11:55; catch-up at 40 L/h until 12:40.",
+   "whatChanged": [
+    {
+     "time": "08:40",
+     "source": "Alarm",
+     "description": "PBR-2 feed flow low (first of eight).",
+     "related": true
+    },
+    {
+     "time": "11:45",
+     "source": "Maintenance",
+     "description": "Feed pump tubing replaced.",
+     "related": true
+    },
+    {
+     "time": "11:55",
+     "source": "Setpoint Change",
+     "description": "Catch-up rate 40 L/h until the recipe total is met.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by maintenance",
+   "confidenceLevel": "high",
+   "risk": "Low — glucose stayed above 3 g/L",
+   "riskLevel": "low",
+   "expectedOutcome": "Feed on recipe; glucose back above 3.5 g/L",
+   "evidence": [
+    32.1,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    32.3
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:35",
+     "value": "32.1 L/h",
+     "label": "Normal"
+    },
+    {
+     "time": "08:40",
+     "value": "0.0 L/h",
+     "label": "Stop 1"
+    },
+    {
+     "time": "09:25",
+     "value": "0.0 L/h",
+     "label": "Stop 3"
+    },
+    {
+     "time": "10:20",
+     "value": "0.0 L/h",
+     "label": "Stop 5"
+    },
+    {
+     "time": "11:30",
+     "value": "0.0 L/h",
+     "label": "Stop 8"
+    },
+    {
+     "time": "11:50",
+     "value": "0.0 L/h",
+     "label": "Tubing replaced"
+    },
+    {
+     "time": "12:45",
+     "value": "32.3 L/h",
+     "label": "Back on recipe"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "PSIT10",
+  "assetId": "SOLACE_USP_PROD_PBR1",
+  "unitId": "SOLACE_USP_PROD_PBR1",
+  "primaryProperty": "viability_pct",
+  "asset": "PBR-1",
+  "line": "PBR-1",
+  "severity": "medium",
+  "signal": "PBR-1 viability falling faster than forecast while titer still looks healthy",
+  "aiInterpretation": "PBR-1 is on day 13 and its titer is still climbing, but viability has been dropping about 1.0 points an hour — roughly three times the forecast. At this rate it reaches the 70% harvest criterion around 22:10 tonight, before the planned 08:00 harvest.",
+  "since": "4h 5m ago",
+  "sinceMinutes": 245,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Viability 78.5% at 14:05, down from 84.1% at 08:00 (forecast 81.9%).",
+   "observed": "Titer 5.62 → 5.78 g/L; VCD 17.3 → 16.4 ×10⁶/mL; pCO₂, DO, pH, temperature and glucose on target. The agitator drive is also showing rising vibration (PSIT01).",
+   "derived": "Output (titer) is fine, so the headline does not show it; the product quality risk grows as cells lyse (host cell protein, DNA and proteases rise, and harvest gets harder to clarify).",
+   "inferred": "Possible causes: end-of-culture decline arriving early, or added shear from the agitator drive issue. Not yet diagnosed.",
+   "recommendation": "Take an extra viability sample at 16:00 and ask MS&T whether to bring the harvest forward to this evening; confirm HRV-1 and a harvest crew are available.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-04-08",
+     "summary": "Batch 26-071 harvested 10 h early at 71% viability; DS met specifications."
+    }
+   ],
+   "whatChangedSummary": "No process change on PBR-1 today; agitator vibration rising since 09:20.",
+   "whatChanged": [
+    {
+     "time": "09:12",
+     "source": "Field Check",
+     "description": "Daily sample: viability 83.6% (forecast 83.8%).",
+     "related": true
+    },
+    {
+     "time": "10:00",
+     "source": "Event",
+     "description": "Online capacitance viability drops below forecast band.",
+     "related": true
+    },
+    {
+     "time": "09:20",
+     "source": "Event",
+     "description": "Agitator gearbox vibration starts rising (PSIT01).",
+     "related": false
+    }
+   ],
+   "confidence": "Trend is clear; cause not yet diagnosed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — harvest below 70% viability needs a deviation and extra clearance testing",
+   "riskLevel": "medium",
+   "expectedOutcome": "Harvest decision made before viability reaches 72%",
+   "evidence": [
+    84.1,
+    82.9,
+    81.9,
+    80.8,
+    79.6,
+    78.7,
+    78.5
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "84.1%",
+     "label": "Shift start"
+    },
+    {
+     "time": "10:00",
+     "value": "82.9%",
+     "label": "Below forecast"
+    },
+    {
+     "time": "11:00",
+     "value": "81.9%",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "80.8%",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "79.6%",
+     "label": ""
+    },
+    {
+     "time": "13:30",
+     "value": "78.7%",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "78.5%",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "PSIT11",
+  "assetId": "SOLACE_USP_SEED_SBR1",
+  "unitId": "SOLACE_USP_SEED_SBR1",
+  "primaryProperty": "seed_vcd_e6_ml",
+  "asset": "SBR-1",
+  "line": "SBR-1",
+  "severity": "medium",
+  "signal": "Seed for batch 26-117 will outgrow its transfer window before PBR-3 is ready",
+  "aiInterpretation": "SBR-1's cells will pass the 6.0 ×10⁶/mL transfer limit around 18:35. PBR-3 still needs a pressure hold, media fill, QA release and equilibration after its repeated SIP, which puts it ready around 19:55. The time needed is longer than the time left.",
+  "since": "25m ago",
+  "sinceMinutes": 25,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Seed VCD 5.13 ×10⁶/mL at 14:05, doubling about every 20 h; it reaches 6.0 at about 18:35 (planned transfer 18:00, when it would be 5.88).",
+   "observed": "PBR-3 SIP finished at 13:25, 95 minutes later than planned because SIP #1 was aborted (PSIT03). Remaining steps: Post-SIP pressure hold test 60 min; Cool down and fill 9,500 L medium 180 min; QA equipment and media release 30 min; Medium equilibration (37 °C, pH 7.0, DO 40 %) 120 min. Seed viability 97–98%.",
+   "derived": "Time needed: about 5h 50m (ready 19:55). Time left: about 4h 31m (window closes 18:35). Short by about 80 minutes.",
+   "inferred": "n/a — a schedule conflict, not a fault.",
+   "recommendation": "Decide by 15:00 with MS&T and QA: apply the approved seed-hold contingency (drop SBR-1 to 33 °C to slow growth) or re-sequence media fill and QA review in parallel where the procedure allows. Do not let the seed pass 6.0 ×10⁶/mL without a decision.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-02-17",
+     "summary": "Seed-hold contingency used for batch 26-031 after a PBR-1 SIP repeat; transfer 3 h late, batch normal."
+    }
+   ],
+   "whatChangedSummary": "PBR-3 SIP repeated (PSIT03); readiness moved from 18:00 to about 20:00.",
+   "whatChanged": [
+    {
+     "time": "10:45",
+     "source": "Event",
+     "description": "PBR-3 SIP #1 aborted.",
+     "related": true
+    },
+    {
+     "time": "13:25",
+     "source": "Event",
+     "description": "PBR-3 SIP #2 complete — 95 min behind plan.",
+     "related": true
+    },
+    {
+     "time": "13:40",
+     "source": "Scheduling",
+     "description": "Production scheduler flags the seed-window conflict.",
+     "related": true
+    }
+   ],
+   "confidence": "n/a — schedule arithmetic, not a diagnosis",
+   "confidenceLevel": "n/a",
+   "risk": "Medium — an overgrown seed means a failed transfer criterion and a lost production slot",
+   "riskLevel": "medium",
+   "expectedOutcome": "Contingency agreed and seed transferred inside its criteria",
+   "evidence": [
+    4.13,
+    4.43,
+    4.63,
+    4.83,
+    5.0,
+    5.01,
+    5.13
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "4.13 ×10⁶ cells/mL",
+     "label": "Shift start"
+    },
+    {
+     "time": "10:00",
+     "value": "4.43 ×10⁶ cells/mL",
+     "label": ""
+    },
+    {
+     "time": "11:30",
+     "value": "4.63 ×10⁶ cells/mL",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "4.83 ×10⁶ cells/mL",
+     "label": ""
+    },
+    {
+     "time": "13:25",
+     "value": "5.00 ×10⁶ cells/mL",
+     "label": "PBR-3 SIP complete"
+    },
+    {
+     "time": "13:40",
+     "value": "5.01 ×10⁶ cells/mL",
+     "label": "Schedule check flags gap"
+    },
+    {
+     "time": "14:05",
+     "value": "5.13 ×10⁶ cells/mL",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ }
+]

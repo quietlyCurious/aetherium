@@ -45,6 +45,10 @@ import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from './assetDis
 import { loadAssetPropertyConfigs, saveAssetPropertyConfigs } from './assetPropertyConfigsStorage';
 import { loadAssetRelatedAssetConfigs, saveAssetRelatedAssetConfigs } from './assetRelatedAssetConfigsStorage';
 import { loadAssetRelatedAssetsTemplates, saveAssetRelatedAssetsTemplates } from './assetRelatedAssetsTemplatesStorage';
+import { loadTypePropertyOrders, saveTypePropertyOrders } from './typePropertyOrderStorage';
+import { loadAssetPropertyOrders, saveAssetPropertyOrders } from './assetPropertyOrderStorage';
+import { loadTypeRelatedAssetOrders, saveTypeRelatedAssetOrders } from './typeRelatedAssetOrderStorage';
+import { loadAssetRelatedAssetOrders, saveAssetRelatedAssetOrders } from './assetRelatedAssetOrderStorage';
 import notify from 'devextreme/ui/notify';
 import { confirm } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
@@ -490,6 +494,10 @@ const KPI_VIEW_MODE_ITEMS = [
 // reads naturally alongside overrides: "show nothing, except the
 // properties I've explicitly given a visual."
 const PROPERTY_VIEW_MODE_DEFAULT = 'default';
+// Not a visual — the Visual dropdown's action item for an asset row that
+// sets its own visual: "↑ Update type to <that visual>". Intercepted in
+// onValueChanged and never stored.
+const PROPERTY_VIEW_MODE_UPDATE_TYPE = '__update_type__';
 const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i => i.value !== 'none');
 
 // The one place a single property's effective visual is decided —
@@ -514,6 +522,76 @@ function resolvePropertyViewMode(propertyViewModes, key, defaultViewMode) {
 // Same shape as property visibility, which has always merged this way.
 function mergePropertyViewModes(typeTemplate, assetTemplate) {
   return { ...(typeTemplate?.propertyViewModes || {}), ...(assetTemplate?.propertyViewModes || {}) };
+}
+
+// ─── Display order: properties and related assets ──────────────────────
+//
+// Both lists can be reordered (drag rows in the Details panel), at the
+// type level and per asset. An asset's own order replaces its type's as a
+// whole — an order is one list, there's nothing to merge key by key. With
+// no saved order at either level, properties keep their default grouping
+// by category (the order the Configurator preview has always used) and
+// related assets their natural order. Keys a saved order doesn't mention
+// (a property or relationship that appeared after it was saved) follow at
+// the end, in their default order; keys it mentions that no longer exist
+// are simply skipped.
+
+// Default property order: grouped by HMI category, known categories first
+// in HMI_CATEGORY_ORDER, then any others in first-seen order — exactly the
+// grouping HmiPropertiesListing has always rendered in.
+function categoryOrderedPropertyKeys(keys) {
+  const byCategory = new Map();
+  keys.forEach(key => {
+    const category = PROPERTY_CATEGORIES[key] || 'Other';
+    if (!byCategory.has(category)) byCategory.set(category, []);
+    byCategory.get(category).push(key);
+  });
+  const known = HMI_CATEGORY_ORDER.filter(c => byCategory.has(c));
+  const extra = [...byCategory.keys()].filter(c => !HMI_CATEGORY_ORDER.includes(c));
+  return [...known, ...extra].flatMap(c => byCategory.get(c));
+}
+
+function applySavedOrder(keys, order) {
+  if (!order || !order.length) return keys;
+  const present = new Set(keys);
+  const ordered = order.filter(k => present.has(k));
+  const orderedSet = new Set(ordered);
+  return [...ordered, ...keys.filter(k => !orderedSet.has(k))];
+}
+
+function sortRowsByOrder(rows, order) {
+  if (!order || !order.length) return rows;
+  const byKey = new Map(rows.map(r => [r.key, r]));
+  return applySavedOrder(rows.map(r => r.key), order).map(k => byKey.get(k));
+}
+
+// Asset's own order if it has one, else its type's (else undefined =
+// default order).
+function resolveEntityOrder(typeOrders, assetOrders, typeId, assetId) {
+  return (assetId && assetOrders?.[assetId]) || typeOrders?.[typeId];
+}
+
+// Same module-level store pattern as assetCustomizationStore below, for
+// the same reason: RelatedAssetBoxContent renders inside React Flow nodes
+// and a dozen other places, and threading four more maps through every one
+// of them would touch most of this file. OperatorWorkspaceInner is the
+// only writer.
+const EMPTY_DISPLAY_ORDERS = { typeProperty: {}, assetProperty: {}, typeRelated: {}, assetRelated: {}, setOrder: () => {} };
+const displayOrderStore = {
+  snapshot: EMPTY_DISPLAY_ORDERS,
+  listeners: new Set(),
+  set(next) {
+    this.snapshot = next;
+    this.listeners.forEach(listener => listener());
+  },
+  subscribe: listener => {
+    displayOrderStore.listeners.add(listener);
+    return () => displayOrderStore.listeners.delete(listener);
+  },
+  getSnapshot: () => displayOrderStore.snapshot,
+};
+function useDisplayOrders() {
+  return useSyncExternalStore(displayOrderStore.subscribe, displayOrderStore.getSnapshot);
 }
 
 // ─── Asset customizations: which assets differ from their type ─────────
@@ -566,7 +644,24 @@ function getAssetPathLabel(assetId) {
 //   byType[typeId] = [assetIds that differ]
 //   byTypeProperty[typeId][propertyKey] = [assetIds whose visual or
 //                        visibility for that one property differs]
-function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates }) {
+function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, typePropertyOrders, assetPropertyOrders, typeRelatedAssetOrders, assetRelatedAssetOrders, typeList }) {
+  // An asset's own order differs from its type's when, over the keys the
+  // asset's order lists, the type's effective order (its saved one, else
+  // the default) puts them differently. Default related-asset order is per
+  // type, so it's worked out once per type, on demand.
+  const defaultRelatedOrderByType = new Map();
+  const defaultRelatedOrder = typeId => {
+    if (!defaultRelatedOrderByType.has(typeId)) {
+      defaultRelatedOrderByType.set(typeId, typeList ? getRelatedAssetsForType(typeId, typeList).map(r => r.key) : []);
+    }
+    return defaultRelatedOrderByType.get(typeId);
+  };
+  const orderDiffers = (own, typeKeysInOrder) => {
+    const ownSet = new Set(own);
+    const typeSeq = typeKeysInOrder.filter(k => ownSet.has(k));
+    const ownSeq = own.filter(k => typeSeq.includes(k));
+    return ownSeq.join('|') !== typeSeq.join('|');
+  };
   const byAsset = {};
   const byType = {};
   const byTypeProperty = {};
@@ -577,10 +672,21 @@ function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs,
     const ownVisibility = assetPropertyConfigs?.[id] || {};
     const ownRelated = assetRelatedAssetConfigs?.[id] || {};
     const ownRelatedTemplate = assetRelatedAssetsTemplates?.[id];
-    const hasOwn = !!assetTemplate || Object.keys(ownVisibility).length > 0 || Object.keys(ownRelated).length > 0 || !!ownRelatedTemplate;
+    const ownPropertyOrder = assetPropertyOrders?.[id];
+    const ownRelatedOrder = assetRelatedAssetOrders?.[id];
+    const hasOwn = !!assetTemplate || Object.keys(ownVisibility).length > 0 || Object.keys(ownRelated).length > 0 || !!ownRelatedTemplate
+      || !!ownPropertyOrder || !!ownRelatedOrder;
     if (!hasOwn) return;
 
     const typeId = assetTypeIdOf(asset);
+    const propertyOrder = !!ownPropertyOrder && orderDiffers(
+      ownPropertyOrder,
+      applySavedOrder(categoryOrderedPropertyKeys(ownPropertyOrder), typePropertyOrders?.[typeId]),
+    );
+    const relatedOrder = !!ownRelatedOrder && orderDiffers(
+      ownRelatedOrder,
+      applySavedOrder(defaultRelatedOrder(typeId), typeRelatedAssetOrders?.[typeId]),
+    );
     const typeTemplate = typeDisplayTemplates?.[typeId];
     const layout = !!assetTemplate && normalizedLayout(assetTemplate) !== normalizedLayout(typeTemplate);
     const typeDefaultView = typeTemplate?.viewMode ?? 'text';
@@ -594,18 +700,20 @@ function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs,
     const typeRelated = typeRelatedAssetConfigs?.[typeId] || {};
     const related = Object.entries(ownRelated).some(([key, v]) => v !== (typeRelated[key] || 'always'))
       || (!!ownRelatedTemplate && JSON.stringify(ownRelatedTemplate) !== JSON.stringify(relatedAssetsTemplates?.[typeId] ?? null));
-    const differs = layout || visuals.length > 0 || visibility.length > 0 || related;
+    const differs = layout || visuals.length > 0 || visibility.length > 0 || related || propertyOrder || relatedOrder;
 
     const summaryParts = [];
     if (layout) summaryParts.push('layout');
     if (visuals.length) summaryParts.push(`${visuals.length} property visual${visuals.length > 1 ? 's' : ''}`);
     if (visibility.length) summaryParts.push(`${visibility.length} property visibilit${visibility.length > 1 ? 'ies' : 'y'}`);
     if (related) summaryParts.push('related assets');
+    if (propertyOrder) summaryParts.push('property order');
+    if (relatedOrder) summaryParts.push('related asset order');
     const propertyDetails = {};
     new Set([...visuals, ...visibility]).forEach(key => {
       propertyDetails[key] = describePropertyDifference(id, key, assetDisplayTemplates, assetPropertyConfigs);
     });
-    byAsset[id] = { typeId, layout, visuals, visibility, related, differs, hasOwn, summary: summaryParts.join(', '), propertyDetails };
+    byAsset[id] = { typeId, layout, visuals, visibility, related, propertyOrder, relatedOrder, differs, hasOwn, summary: summaryParts.join(', '), propertyDetails };
 
     if (differs) {
       (byType[typeId] = byType[typeId] || []).push(id);
@@ -763,12 +871,12 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
     const followers = asset
       ? (CURRENT_ASSET_DATA || []).filter(a => a.id !== entityId && assetTypeIdOf(a) === info.typeId && !byAsset[a.id]?.differs).length
       : 0;
-    const applyHint = `Make this asset's settings (${info.summary}) the ${typeName} type's. `
+    const applyHint = `Update the ${typeName} type to use this asset's settings (${info.summary}). `
       + `${followers} other ${typeName} asset${followers === 1 ? '' : 's'} follow${followers === 1 ? 's' : ''} the type and will change too; `
       + 'assets with their own settings keep them. This asset then just follows the type.';
     const revertHint = info.differs
-      ? `Discard this asset's own settings (${info.summary}) and follow its type again`
-      : "This asset's stored settings match its type today, but stop it from following future type changes — revert to follow the type again";
+      ? `Make this asset match its type again: its own settings (${info.summary}) are discarded`
+      : "This asset's stored settings match its type today, but stop it from following future type changes — match the type to follow it again";
     return (
       <span className="op-title-customization">
         {info.differs && (
@@ -776,11 +884,14 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
             <span className="op-customized-dot" />Customized
           </span>
         )}
-        {info.differs && (
-          <button type="button" className="op-title-link-btn" onClick={handleApply} title={applyHint}>Apply to type</button>
-        )}
+        {/* Same pair, same words and order as an asset row's Visual
+            dropdown: ↓ Match type (take the type's), ↑ Update type (give
+            it this asset's). */}
+        <button type="button" className="op-title-link-btn" onClick={handleRevert} title={revertHint}>↓ Match type</button>
         {info.differs && <span className="op-title-link-sep" aria-hidden="true">·</span>}
-        <button type="button" className="op-title-link-btn" onClick={handleRevert} title={revertHint}>Revert to type</button>
+        {info.differs && (
+          <button type="button" className="op-title-link-btn" onClick={handleApply} title={applyHint}>↑ Update type</button>
+        )}
       </span>
     );
   }
@@ -799,7 +910,7 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
         onHide={() => setPopoverTarget(null)}
         title="Customized assets"
         rows={rows}
-        revertLabel={n => `Revert ${n} to type`}
+        revertLabel={n => `↓ Match type on ${n}`}
         onRevert={selectedIds => actions.revertAssetsToType?.(selectedIds)}
         onOpenAsset={actions.openAsset}
       />
@@ -1622,7 +1733,7 @@ function sliceSeriesToRange(series, startTime, endTime) {
 // visual map and shares the same selected property, and it's a sibling of
 // this component, not a child. Undefined everywhere else this renders
 // (Investigate, Line Detail), which then behaves exactly as before.
-function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty }) {
+function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty, propertyOrder }) {
   const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
   const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
   const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
@@ -1789,7 +1900,16 @@ function HmiPropertiesListing({ asset, stationId: stationIdProp, properties: pro
   // overrides that's all-or-nothing, same as before (toolbar None hides
   // everything); with overrides, toolbar None + a few explicit visuals
   // shows just those few.
-  const flatTiles = categories.flatMap(cat => grouped[cat]).filter(p => (
+  // In type mode, the entity's saved display order (if any) rearranges
+  // the category-grouped default — see "Display order".
+  const categoryOrderedTiles = categories.flatMap(cat => grouped[cat]);
+  const orderedTiles = typeVisibilityMode && propertyOrder
+    ? (() => {
+      const byKey = new Map(categoryOrderedTiles.map(p => [p.key, p]));
+      return applySavedOrder(categoryOrderedTiles.map(p => p.key), propertyOrder).map(k => byKey.get(k));
+    })()
+    : categoryOrderedTiles;
+  const flatTiles = orderedTiles.filter(p => (
     kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) !== 'none')
   ));
 
@@ -4223,6 +4343,8 @@ const STAT_TILE_SIZE_ESTIMATES = {
 };
 
 function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, onTitleClick, onGearClick }) {
+  // Before any early return — hooks can't be conditional.
+  const displayOrders = useDisplayOrders();
   // Only set when this box renders inside InvestigatePanel's Related
   // Assets tab with its time-track scrubber active — null (the default,
   // everywhere else this component is used) means no override, render the
@@ -4331,7 +4453,13 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
     .filter(p => p.visibility === 'always')
     .map(p => [p.key, properties[p.key]]);
   const tileViewMode = key => resolvePropertyViewMode(boxPropertyViewModes, key, boxViewMode);
-  const entriesToShow = (alwaysEntries.length ? alwaysEntries : Object.entries(properties))
+  // Same order the Configurator preview shows: category-grouped by
+  // default, rearranged by this asset's (else its type's) saved order.
+  const unorderedEntries = alwaysEntries.length ? alwaysEntries : Object.entries(properties);
+  const entryValueByKey = new Map(unorderedEntries);
+  const boxOrder = resolveEntityOrder(displayOrders.typeProperty, displayOrders.assetProperty, relatedTypeId, relatedTypeExampleAssetId);
+  const entriesToShow = applySavedOrder(categoryOrderedPropertyKeys(unorderedEntries.map(([key]) => key)), boxOrder)
+    .map(key => [key, entryValueByKey.get(key)])
     .filter(([key]) => tileViewMode(key) !== 'none');
   const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
 
@@ -4783,6 +4911,7 @@ function RelatedAssetsCards({ currentTypeId, currentTypeName, currentTypeExample
         <div
           key={row.key}
           className="op-related-asset-box"
+          data-related-key={row.key}
           ref={el => { cardsFlexTileRefs.current[row.key] = el; }}
         >
           <RelatedAssetBoxContent
@@ -4827,10 +4956,11 @@ function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDisplayTempl
   // before for those callers.
   const typeRelatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
   const assetRelatedAssetOverrides = (assetId && assetRelatedAssetConfigs?.[assetId]) || {};
-  const relatedAssetRows = getRelatedAssetsForType(typeId, typeList).map(row => ({
+  const displayOrders = useDisplayOrders();
+  const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(typeId, typeList).map(row => ({
     ...row,
     visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
-  }));
+  })), resolveEntityOrder(displayOrders.typeRelated, displayOrders.assetRelated, typeId, assetId));
   const visibleRows = relatedAssetRows.filter(r => r.visibility === 'always');
   // savedTemplate here is already whichever one applies (asset-level
   // override or type-level default) — resolved by the caller, which has
@@ -4939,7 +5069,11 @@ function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates,
   );
 }
 
-function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar }) {
+// selectedRelatedKey/onSelectRelated: the Details panel's selected Related
+// Assets row, shared both ways — selecting a row highlights its box here,
+// clicking a box here selects its row there. Same pattern as the
+// Properties tab's tile/row selection.
+function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, currentTypeId, currentTypeName, currentTypeExampleAssetId, typeList, savedTemplate, onSaveTemplate, activeSaveHandlerRef, onTitleClick, showToolbar, selectedRelatedKey, onSelectRelated }) {
   const [densityFilter, setDensityFilter] = useState('always');
   // Cards (flex-wrapped boxes, genuinely responsive — reflows on resize,
   // unlike the ELK/React Flow diagram canvas which uses fixed pixel
@@ -5092,8 +5226,72 @@ function RelatedAssetsPreview({ relatedAssetRows, evidencePoints, typeDisplayTem
     return () => { activeSaveHandlerRef.current = null; };
   }, [currentTypeId, layoutMode, cardsLayoutMode, cardsManualPositions, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
 
+  // ── Box selection ──
+  // Which box a row is depends on the layout: Cards (flex and manual) has
+  // one box per row, keyed by the row's key; Diagram has one node per
+  // related TYPE (rows sharing a type — two different relationships to
+  // it — share a node), keyed by relatedTypeId.
+  //
+  // The highlight is pure CSS, generated for the one selected box, rather
+  // than a prop threaded into each box: the Diagram and the Cards manual
+  // canvas are React Flow graphs whose nodes are seeded from their props,
+  // and feeding the selection through there would re-seed them (and, for
+  // the Diagram, re-run its layout) on every click. React Flow already
+  // stamps each node's id on its wrapper (data-id), and flex cards carry
+  // data-related-key, so a selector finds the box without touching it.
+  const selectedRow = selectedRelatedKey ? relatedAssetRows.find(r => r.key === selectedRelatedKey) : null;
+  const attr = value => JSON.stringify(String(value));
+  const selectedBoxSelectors = selectedRow ? (layoutMode === 'diagram'
+    ? [`.op-related-assets-preview .react-flow__node[data-id=${attr(selectedRow.relatedTypeId)}] > .op-related-asset-box`]
+    : [
+      `.op-related-assets-preview .op-related-asset-box[data-related-key=${attr(selectedRow.key)}]`,
+      `.op-related-assets-preview .react-flow__node[data-id=${attr(selectedRow.key)}] > .op-related-asset-box`,
+    ]) : [];
+
+  // Selecting a row scrolls its box into view (flex cards only — the
+  // canvases pan freely, same reasoning as property tiles).
+  const previewRootRef = useRef(null);
+  useEffect(() => {
+    if (!selectedRow || layoutMode === 'diagram' || cardsLayoutMode === 'manual') return;
+    previewRootRef.current
+      ?.querySelector(`.op-related-asset-box[data-related-key=${attr(selectedRow.key)}]`)
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRelatedKey]);
+
+  // Clicking a box selects its row (or clears the selection, for this
+  // asset's own box). Not when the click was really the end of a drag —
+  // the canvases move a node under the pointer, so the browser still fires
+  // a click on it — and not on a box's title, which navigates to that type.
+  const pointerDownAtRef = useRef(null);
+  const handleBoxPointerDown = e => { pointerDownAtRef.current = { x: e.clientX, y: e.clientY }; };
+  const handleBoxClick = e => {
+    if (!onSelectRelated) return;
+    const start = pointerDownAtRef.current;
+    if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 4) return;
+    if (e.target.closest?.('.op-hmiprops-card-title--clickable, button, .op-hmiprops-toolbar')) return;
+    const box = e.target.closest?.('.op-related-asset-box');
+    if (!box) return;
+    if (box.classList.contains('op-related-asset-box--center')) { onSelectRelated(null); return; }
+    const flexKey = box.getAttribute('data-related-key');
+    const nodeId = box.closest('.react-flow__node')?.getAttribute('data-id');
+    const row = flexKey
+      ? relatedAssetRows.find(r => r.key === flexKey)
+      : relatedAssetRows.find(r => r.key === nodeId) || relatedAssetRows.find(r => r.relatedTypeId === nodeId);
+    if (row) onSelectRelated(row.key === selectedRelatedKey ? null : row.key);
+  };
+
   return (
-    <div className="op-related-assets-preview" onPointerDownCapture={unsavedTracker.noteUserInput} onKeyDownCapture={unsavedTracker.noteUserInput}>
+    <div
+      ref={previewRootRef}
+      className={`op-related-assets-preview${onSelectRelated ? ' op-related-assets-preview--selectable' : ''}`}
+      onPointerDownCapture={e => { unsavedTracker.noteUserInput(); handleBoxPointerDown(e); }}
+      onKeyDownCapture={unsavedTracker.noteUserInput}
+      onClick={handleBoxClick}
+    >
+      {selectedBoxSelectors.length > 0 && (
+        <style>{`${selectedBoxSelectors.join(',\n')} { border-color: #0078d4; box-shadow: 0 0 0 2px #0078d4; }`}</style>
+      )}
       {showToolbar && (
       <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Row 1: unified badge + reset/switch anchored left (switch button
@@ -5741,6 +5939,13 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
     if (selectedPropertyKey == null) return;
     propsGridRef.current?.instance()?.navigateToRow(selectedPropertyKey);
   }, [selectedPropertyKey]);
+  // Same for the Related Assets table, selected by clicking a box in the
+  // preview's Related Assets view.
+  const selectedRelatedKey = propertyVisuals?.selectedRelatedKey ?? null;
+  useEffect(() => {
+    if (selectedRelatedKey == null) return;
+    relatedGridRef.current?.instance()?.navigateToRow(selectedRelatedKey);
+  }, [selectedRelatedKey]);
 
   const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
   // The draft is keyed by entity so a stale map left over from whatever
@@ -5763,12 +5968,50 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   // type's, otherwise "always" — so the grid shown here always reflects
   // what would actually display, not just this asset's own overrides in
   // isolation.
+  // Display order (see "Display order"): this entity's own saved order if
+  // it has one, else (for an asset) its type's, else the category-grouped
+  // default — the same order the preview renders tiles/rows in.
+  const displayOrders = useDisplayOrders();
+  const orderTypeId = isAssetEntity ? relationshipTypeId : entityId;
+  const orderAssetId = isAssetEntity ? entityId : null;
+  const effectivePropertyOrder = resolveEntityOrder(displayOrders.typeProperty, displayOrders.assetProperty, orderTypeId, orderAssetId);
+  const effectiveRelatedOrder = resolveEntityOrder(displayOrders.typeRelated, displayOrders.assetRelated, orderTypeId, orderAssetId);
+  const hasOwnPropertyOrder = !!(isAssetEntity ? displayOrders.assetProperty[entityId] : displayOrders.typeProperty[entityId]);
+  const hasOwnRelatedOrder = !!(isAssetEntity ? displayOrders.assetRelated[entityId] : displayOrders.typeRelated[entityId]);
+  const orderLevel = isAssetEntity ? 'asset' : 'type';
+  // Stable onReorder callbacks for the two grids. A fresh function each
+  // render changes DataGrid's RowDragging option, which repaints every row
+  // — closing an open Visual dropdown the moment the click that opened it
+  // re-renders this component (same failure the stable rows/columns below
+  // guard against). They forward to this render's handlers via a ref.
+  const reorderLatestRef = useRef({});
+  const stableReorderRef = useRef(null);
+  if (!stableReorderRef.current) {
+    stableReorderRef.current = {
+      property: items => reorderLatestRef.current.property?.(items),
+      related: items => reorderLatestRef.current.related?.(items),
+    };
+  }
+  const orderedPropertyVisibilityRows = properties
+    ? (() => {
+      const rows = getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs);
+      const byKey = new Map(rows.map(r => [r.key, r]));
+      return applySavedOrder(categoryOrderedPropertyKeys(rows.map(r => r.key)), effectivePropertyOrder).map(k => byKey.get(k));
+    })()
+    : [];
+
   const rawPropertyRows = properties
-    ? getPropertyVisibilityForType(relationshipTypeId, properties, typePropertyConfigs, isAssetEntity ? entityId : null, assetPropertyConfigs)
+    ? orderedPropertyVisibilityRows
       .map(row => ({
         ...row,
         visualMode: propertyViewModes[row.key] ?? PROPERTY_VIEW_MODE_DEFAULT,
         inheritedVisual: inheritedPropertyViewModes[row.key] ?? null,
+        // What the type itself shows for this property (its own choice, else
+        // its default) — an asset's own visual only offers "Update type"
+        // when it differs from this, since otherwise there's nothing to push.
+        typeVisual: isAssetEntity
+          ? (inheritedPropertyViewModes[row.key] ?? typeDisplayTemplates?.[relationshipTypeId]?.viewMode ?? 'text')
+          : null,
         customizedCount: customizedByProperty[row.key]?.length ?? 0,
       }))
     : [];
@@ -5809,6 +6052,7 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
     handleVisualChange,
     handleVisibilityChange,
     openPropertyPopover: (key, target) => setPropertyPopover({ key, target }),
+    handleUpdateTypeVisual: (key, mode) => customizationActions.applyPropertyToType?.(entityId, key, mode),
   };
   const rowsSignature = JSON.stringify(rawPropertyRows);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -5828,7 +6072,7 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
               <button
                 type="button"
                 className="op-customized-count op-customized-count--button"
-                title={`${cellInfo.data.customizedCount} asset${cellInfo.data.customizedCount > 1 ? 's' : ''} set this differently — click to review or revert`}
+                title={`${cellInfo.data.customizedCount} asset${cellInfo.data.customizedCount > 1 ? 's' : ''} set this differently — click to review, or make them match the type`}
                 onClick={e => { e.stopPropagation(); handlersRef.current.openPropertyPopover(cellInfo.data.key, e.currentTarget); }}
               >
                 {cellInfo.data.customizedCount}
@@ -5859,27 +6103,41 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
       {
         dataField: 'visualMode',
         caption: 'Visual',
-        width: 84,
-        minWidth: 84,
+        // 76 rather than 84 since the rows gained a drag handle — the
+        // longest closed value ("Indicator") still fits.
+        width: 76,
+        minWidth: 76,
         cellRender: (cellInfo) => {
           const overridden = cellInfo.data.visualMode !== PROPERTY_VIEW_MODE_DEFAULT;
           // Three states per row: this entity's own choice (bold, filled
-          // dot); not set here but set by the asset's type ("From type",
-          // hollow dot — only possible on an asset); or set nowhere,
-          // following the toolbar's view mode (muted, no dot). The first
-          // list item always means "don't set it here", and its label says
-          // which of the latter two that falls back to.
+          // dot); not set here but set by the asset's type (hollow dot —
+          // only possible on an asset); or set nowhere, following the
+          // toolbar's view mode (muted, no dot).
+          //
+          // The two type actions sit together at the top of the list, in
+          // the same mirrored words the title row uses for the whole asset:
+          //   ↓ Match type (Spark)       — drop this asset's own visual and
+          //                                use the type's (a normal edit,
+          //                                kept until Save)
+          //   ↑ Update type to Indicator — make this asset's visual the
+          //                                type's (immediate, with Undo)
+          // "Match type" only reads that way when the type actually sets
+          // this property; otherwise the same item is "Default (Text)",
+          // since there's nothing type-specific to match.
           const inherited = cellInfo.data.inheritedVisual;
           const inheritLabel = inherited ? modeText(inherited) : visualModeLabel;
+          const canUpdateType = overridden && cellInfo.data.typeVisual != null && cellInfo.data.visualMode !== cellInfo.data.typeVisual;
           const visualSelectItems = [
-            { text: inherited ? `From type (${inheritLabel})` : `Default (${inheritLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT },
+            { text: inherited ? `↓ Match type (${inheritLabel})` : `Default (${inheritLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT, typeAction: !!inherited },
+            ...(canUpdateType ? [{ text: `↑ Update type to ${modeText(cellInfo.data.visualMode)}`, value: PROPERTY_VIEW_MODE_UPDATE_TYPE, typeAction: true, dividerAfter: true }] : []),
             ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
           ];
+          if (!canUpdateType) visualSelectItems[0].dividerAfter = true;
           const stateClass = overridden ? ' op-prop-visual-select--override' : inherited ? ' op-prop-visual-select--inherited' : '';
           const hint = overridden
-            ? 'Set for this property only'
+            ? 'Set on this asset only'
             : inherited
-              ? 'Set on this asset\'s type — changes there apply here too'
+              ? 'Comes from this asset\'s type — changes there apply here too'
               : 'Follows the view mode chosen in the preview toolbar';
           return (
             <SelectBox
@@ -5887,16 +6145,26 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
               items={visualSelectItems}
               // The closed field shows just the mode name to fit the
               // narrow column (styled by state, above); the open list
-              // spells out "Default (Text)" / "From type (Spark)" so the
-              // choice is explicit.
+              // spells the type actions out.
               displayExpr={item => (item ? (item.value === PROPERTY_VIEW_MODE_DEFAULT ? inheritLabel : item.text) : '')}
-              itemRender={item => item.text}
+              itemRender={item => (
+                <span className={`op-visual-item${item.typeAction ? ' op-visual-item--type-action' : ''}${item.dividerAfter ? ' op-visual-item--divider' : ''}`}>{item.text}</span>
+              )}
               valueExpr="value"
               value={cellInfo.data.visualMode}
-              onValueChanged={e => { if (e.event) handlersRef.current.handleVisualChange(cellInfo.data.key, e.value); }}
+              onValueChanged={e => {
+                if (!e.event) return;
+                if (e.value === PROPERTY_VIEW_MODE_UPDATE_TYPE) {
+                  // An action, not a value: put the field back, then act.
+                  e.component.option('value', e.previousValue);
+                  handlersRef.current.handleUpdateTypeVisual(cellInfo.data.key, e.previousValue);
+                  return;
+                }
+                handlersRef.current.handleVisualChange(cellInfo.data.key, e.value);
+              }}
               stylingMode="underlined"
               showDropDownButton={false}
-              dropDownOptions={{ width: 150 }}
+              dropDownOptions={{ width: 190 }}
               hint={hint}
             />
           );
@@ -5915,10 +6183,28 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
   // the properties table above. Same asset-over-type merge as propertyRows.
   const typeRelatedAssetOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
   const assetRelatedAssetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
-  const relatedAssetRows = getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
+  const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
     ...row,
     visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
-  }));
+  })), effectiveRelatedOrder);
+
+  // Dragging a row saves the whole new order at this entity's level
+  // (immediately, like the Show column). The footer under each table only
+  // appears once this entity has an order of its own, and removes it —
+  // for an asset that's "↓ Match type order", same words as the other
+  // match-the-type actions; a type goes back to the default order.
+  reorderLatestRef.current = {
+    property: items => displayOrders.setOrder('property', orderLevel, entityId, items.map(r => r.key)),
+    related: items => displayOrders.setOrder('related', orderLevel, entityId, items.map(r => r.key)),
+  };
+  const orderFooter = (hasOwn, kind) => hasOwn && (
+    <div className="op-order-footer">
+      <span>Custom order</span>
+      <button type="button" className="op-title-link-btn" onClick={() => displayOrders.setOrder(kind, orderLevel, entityId, null)}>
+        {isAssetEntity ? '↓ Match type order' : 'Reset to default order'}
+      </button>
+    </div>
+  );
 
   const handleRelatedAssetVisibilityChange = (key, visibility) => {
     const setConfigs = isAssetEntity ? setAssetRelatedAssetConfigs : setTypeRelatedAssetConfigs;
@@ -5958,32 +6244,44 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
         onSelectionChanged={e => onActiveTabIndexChange(e.component.option('selectedIndex'))}
       >
         <TabPanelItem title="Properties">
-          <div className="op-now-type-props-list">
-            <DataListGrid
-              ref={propsGridRef}
-              items={propertyRows}
-              columns={propertyColumns}
-              keyExpr="key"
-              selectedId={selectedPropertyKey}
-              onSelect={key => propertyVisuals?.setSelectedKey(key)}
-              columnAutoWidth={false}
-              searchEnabled={false}
-              noDataText={`No properties for this ${isAssetEntity ? 'asset' : 'type'}.`}
-            />
+          <div className="op-now-type-props-list op-now-type-props-list--orderable">
+            <div className="op-now-type-props-grid">
+              <DataListGrid
+                ref={propsGridRef}
+                items={propertyRows}
+                columns={propertyColumns}
+                keyExpr="key"
+                selectedId={selectedPropertyKey}
+                onSelect={key => propertyVisuals?.setSelectedKey(key)}
+                columnAutoWidth={false}
+                searchEnabled={false}
+                reorderable
+                onReorder={stableReorderRef.current.property}
+                dragColumnWidth={24}
+                noDataText={`No properties for this ${isAssetEntity ? 'asset' : 'type'}.`}
+              />
+            </div>
+            {orderFooter(hasOwnPropertyOrder, 'property')}
           </div>
         </TabPanelItem>
         <TabPanelItem title="Related Assets">
-          <div className="op-now-type-props-list">
-            <DataListGrid
-              ref={relatedGridRef}
-              items={relatedAssetRows}
-              columns={relatedAssetColumns}
-              keyExpr="key"
-              selectedId={null}
-              onSelect={() => {}}
-              searchEnabled={false}
-              noDataText={`No related assets for this ${isAssetEntity ? 'asset' : 'type'}.`}
-            />
+          <div className="op-now-type-props-list op-now-type-props-list--orderable">
+            <div className="op-now-type-props-grid">
+              <DataListGrid
+                ref={relatedGridRef}
+                items={relatedAssetRows}
+                columns={relatedAssetColumns}
+                keyExpr="key"
+                selectedId={selectedRelatedKey}
+                onSelect={key => propertyVisuals?.setSelectedRelatedKey(key)}
+                searchEnabled={false}
+                reorderable
+                onReorder={stableReorderRef.current.related}
+                dragColumnWidth={24}
+                noDataText={`No related assets for this ${isAssetEntity ? 'asset' : 'type'}.`}
+              />
+            </div>
+            {orderFooter(hasOwnRelatedOrder, 'related')}
           </div>
         </TabPanelItem>
         {!isAssetEntity && (
@@ -6007,7 +6305,7 @@ function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId, typeL
             onHide={() => setPropertyPopover(null)}
             title={label}
             rows={rows}
-            revertLabel={n => `Revert ${label} on ${n}`}
+            revertLabel={n => `↓ Match type on ${n}`}
             onRevert={ids => customizationActions.revertPropertyToType?.(ids, key)}
             onOpenAsset={customizationActions.openAsset}
           />
@@ -6044,6 +6342,11 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityId]);
   const draftPropertyViewModes = propertyVisuals?.entityId === entityId ? propertyVisuals.modes : savedPropertyViewModes;
+  const displayOrders = useDisplayOrders();
+  const ownTypeId = isAssetEntity ? relationshipTypeId : entityId;
+  const ownAssetId = isAssetEntity ? entityId : null;
+  const effectivePropertyOrder = resolveEntityOrder(displayOrders.typeProperty, displayOrders.assetProperty, ownTypeId, ownAssetId);
+  const effectiveRelatedOrder = resolveEntityOrder(displayOrders.typeRelated, displayOrders.assetRelated, ownTypeId, ownAssetId);
 
   const titleRow = (
     <div className="op-now-asset-detail-title op-now-asset-detail-title--with-caret">
@@ -6077,10 +6380,10 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
     // when it has one, otherwise its type's, otherwise "always".
     const typeOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
     const assetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
-    const relatedAssetRows = getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
+    const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
       ...row,
       visibility: assetOverrides[row.key] || typeOverrides[row.key] || 'always',
-    }));
+    })), effectiveRelatedOrder);
     // This asset's own saved Related Assets view template wins over its
     // type's, when one exists — same all-or-nothing reasoning as the
     // display template below (a cohesive layout choice saved as one unit).
@@ -6108,6 +6411,8 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
             activeSaveHandlerRef={activeSaveHandlerRef}
             onTitleClick={onTitleClick}
             showToolbar={toolbarExpanded}
+            selectedRelatedKey={propertyVisuals?.selectedRelatedKey ?? null}
+            onSelectRelated={propertyVisuals?.setSelectedRelatedKey}
           />
         </div>
       </div>
@@ -6177,6 +6482,7 @@ function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, re
           showToolbar={toolbarExpanded}
           propertyViewModes={draftPropertyViewModes}
           inheritedPropertyViewModes={inheritedPropertyViewModes}
+          propertyOrder={effectivePropertyOrder}
           selectedPropertyKey={propertyVisuals?.selectedKey ?? null}
           onSelectProperty={propertyVisuals?.setSelectedKey}
         />
@@ -7831,6 +8137,43 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     });
     notify('Template saved', 'success', 2000);
   };
+  // Display orders (properties and related assets, per type and per
+  // asset) — applied immediately and auto-saved, like visibility. See
+  // "Display order" near the top of this file.
+  const [typePropertyOrders, setTypePropertyOrders] = useState(() => loadTypePropertyOrders());
+  useEffect(() => { saveTypePropertyOrders(typePropertyOrders); }, [typePropertyOrders]);
+  const [assetPropertyOrders, setAssetPropertyOrders] = useState(() => loadAssetPropertyOrders());
+  useEffect(() => { saveAssetPropertyOrders(assetPropertyOrders); }, [assetPropertyOrders]);
+  const [typeRelatedAssetOrders, setTypeRelatedAssetOrders] = useState(() => loadTypeRelatedAssetOrders());
+  useEffect(() => { saveTypeRelatedAssetOrders(typeRelatedAssetOrders); }, [typeRelatedAssetOrders]);
+  const [assetRelatedAssetOrders, setAssetRelatedAssetOrders] = useState(() => loadAssetRelatedAssetOrders());
+  useEffect(() => { saveAssetRelatedAssetOrders(assetRelatedAssetOrders); }, [assetRelatedAssetOrders]);
+  // One setter for all four: kind 'property' | 'related', level 'type' |
+  // 'asset'; a null order removes the entry (back to the type's order, or
+  // for a type, the default order).
+  const setDisplayOrder = (kind, level, id, order) => {
+    const setter = kind === 'property'
+      ? (level === 'asset' ? setAssetPropertyOrders : setTypePropertyOrders)
+      : (level === 'asset' ? setAssetRelatedAssetOrders : setTypeRelatedAssetOrders);
+    setter(prev => {
+      const next = { ...prev };
+      if (order && order.length) next[id] = order; else delete next[id];
+      return next;
+    });
+  };
+  const setDisplayOrderRef = useRef(setDisplayOrder);
+  setDisplayOrderRef.current = setDisplayOrder;
+  const stableSetDisplayOrder = useCallback((...args) => setDisplayOrderRef.current(...args), []);
+  useEffect(() => {
+    displayOrderStore.set({
+      typeProperty: typePropertyOrders,
+      assetProperty: assetPropertyOrders,
+      typeRelated: typeRelatedAssetOrders,
+      assetRelated: assetRelatedAssetOrders,
+      setOrder: stableSetDisplayOrder,
+    });
+  }, [typePropertyOrders, assetPropertyOrders, typeRelatedAssetOrders, assetRelatedAssetOrders, stableSetDisplayOrder]);
+  useEffect(() => () => displayOrderStore.set(EMPTY_DISPLAY_ORDERS), []);
   const [assetRelatedAssetsTemplates, setAssetRelatedAssetsTemplates] = useState(() => loadAssetRelatedAssetsTemplates());
   const handleSaveAssetRelatedAssetsTemplate = (assetId, template) => {
     setAssetRelatedAssetsTemplates(prev => {
@@ -7952,17 +8295,24 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
   // title-bar Save persists it as part of that display template.
   const [propertyVisualDraft, setPropertyVisualDraft] = useState({ entityId: null, modes: {} });
   const [selectedPropertyKey, setSelectedPropertyKey] = useState(null);
+  // Same idea for the Related Assets tab: the Details panel's selected row
+  // (a related-asset row key) and the box it highlights in the preview.
+  const [selectedRelatedKey, setSelectedRelatedKey] = useState(null);
   const propertyVisuals = {
     entityId: propertyVisualDraft.entityId,
     modes: propertyVisualDraft.modes,
     setModes: (entityId, modes) => setPropertyVisualDraft({ entityId, modes }),
     selectedKey: selectedPropertyKey,
     setSelectedKey: setSelectedPropertyKey,
+    selectedRelatedKey,
+    setSelectedRelatedKey,
   };
-  // A selected property belongs to the selected type/asset — drop it when
-  // that changes rather than highlighting a same-named property elsewhere.
+  // A selected property/related row belongs to the selected type/asset —
+  // drop it when that changes rather than highlighting a same-keyed row
+  // elsewhere.
   useEffect(() => {
     setSelectedPropertyKey(null);
+    setSelectedRelatedKey(null);
   }, [selectedNowThing?.kind, selectedNowThing?.id]);
   // All Assets' per-asset show/hide choice — shared between the visibility
   // tree (Details panel) and the diagram (center preview), same reasoning
@@ -8076,7 +8426,8 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
   const assetCustomizations = useMemo(() => computeAssetCustomizations({
     typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates,
     assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates,
-  }), [typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates]);
+    typePropertyOrders, assetPropertyOrders, typeRelatedAssetOrders, assetRelatedAssetOrders, typeList: nowTypeList,
+  }), [typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, typePropertyOrders, assetPropertyOrders, typeRelatedAssetOrders, assetRelatedAssetOrders, nowTypeList]);
 
   // Bumped whenever the selected asset's saved settings are reverted out
   // from under its open preview. The preview's editors (view mode, flow,
@@ -8105,8 +8456,12 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
       relatedTemplates: pickEntries(assetRelatedAssetsTemplates, assetIds),
       propertyConfigs: pickEntries(assetPropertyConfigs, assetIds),
       relatedConfigs: pickEntries(assetRelatedAssetConfigs, assetIds),
+      propertyOrders: pickEntries(assetPropertyOrders, assetIds),
+      relatedOrders: pickEntries(assetRelatedAssetOrders, assetIds),
     };
     const selectedAffected = selectedNowThing?.kind === 'asset' && assetIds.includes(selectedNowThing.id) ? selectedNowThing.id : null;
+    setAssetPropertyOrders(prev => omitKeys(prev, assetIds));
+    setAssetRelatedAssetOrders(prev => omitKeys(prev, assetIds));
     setAssetDisplayTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetDisplayTemplates(next); return next; });
     setAssetRelatedAssetsTemplates(prev => { const next = omitKeys(prev, assetIds); saveAssetRelatedAssetsTemplates(next); return next; });
     setAssetPropertyConfigs(prev => omitKeys(prev, assetIds));
@@ -8117,12 +8472,14 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     }
     setUndoToast({
       id: Date.now(),
-      message: `Reverted ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''} to type`,
+      message: `${assetIds.length} asset${assetIds.length > 1 ? 's' : ''} now match${assetIds.length > 1 ? '' : 'es'} the type`,
       undo: () => {
         setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.display); saveAssetDisplayTemplates(next); return next; });
         setAssetRelatedAssetsTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.relatedTemplates); saveAssetRelatedAssetsTemplates(next); return next; });
         setAssetPropertyConfigs(prev => restoreEntries(prev, assetIds, snapshot.propertyConfigs));
         setAssetRelatedAssetConfigs(prev => restoreEntries(prev, assetIds, snapshot.relatedConfigs));
+        setAssetPropertyOrders(prev => restoreEntries(prev, assetIds, snapshot.propertyOrders));
+        setAssetRelatedAssetOrders(prev => restoreEntries(prev, assetIds, snapshot.relatedOrders));
         if (selectedAffected) {
           setPropertyVisualDraft({ entityId: selectedAffected, modes: snapshot.display[selectedAffected]?.propertyViewModes ?? {} });
           setNowPreviewRevision(r => r + 1);
@@ -8171,7 +8528,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     }
     setUndoToast({
       id: Date.now(),
-      message: `Reverted ${PROPERTY_LABELS[propertyKey] || propertyKey} on ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''}`,
+      message: `${PROPERTY_LABELS[propertyKey] || propertyKey} now matches the type on ${assetIds.length} asset${assetIds.length > 1 ? 's' : ''}`,
       undo: () => {
         setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, assetIds, snapshot.display); saveAssetDisplayTemplates(next); return next; });
         setAssetPropertyConfigs(prev => restoreEntries(prev, assetIds, snapshot.propertyConfigs));
@@ -8230,6 +8587,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
       relatedTemplates: pickEntries(assetRelatedAssetsTemplates, ids),
       propertyConfigs: pickEntries(assetPropertyConfigs, ids),
       relatedConfigs: pickEntries(assetRelatedAssetConfigs, ids),
+      typePropertyOrder: typePropertyOrders[typeId],
+      typeRelatedOrder: typeRelatedAssetOrders[typeId],
+      propertyOrders: pickEntries(assetPropertyOrders, ids),
+      relatedOrders: pickEntries(assetRelatedAssetOrders, ids),
     };
     const assetTemplate = assetDisplayTemplates[assetId];
     const assetProps = assetPropertyConfigs[assetId];
@@ -8267,6 +8628,11 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     if (assetRelatedTemplate) {
       setRelatedAssetsTemplates(prev => { const next = putEntry(prev, typeId, assetRelatedTemplate); saveRelatedAssetsTemplates(next); return next; });
     }
+    // Orders: the asset's own order (a whole list) becomes the type's.
+    if (assetPropertyOrders[assetId]) setTypePropertyOrders(prev => putEntry(prev, typeId, assetPropertyOrders[assetId]));
+    if (assetRelatedAssetOrders[assetId]) setTypeRelatedAssetOrders(prev => putEntry(prev, typeId, assetRelatedAssetOrders[assetId]));
+    setAssetPropertyOrders(prev => omitKeys(prev, ids));
+    setAssetRelatedAssetOrders(prev => omitKeys(prev, ids));
     // The asset now matches its type exactly — clear its own entries so it
     // keeps following the type from here on.
     setAssetDisplayTemplates(prev => { const next = omitKeys(prev, ids); saveAssetDisplayTemplates(next); return next; });
@@ -8282,7 +8648,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     const typeName = nowTypeList.find(t => t.id === typeId)?.name ?? deslugifyType(asset.assetType);
     setUndoToast({
       id: Date.now(),
-      message: `Applied to the ${typeName} type`,
+      message: `Updated the ${typeName} type from this asset`,
       undo: () => {
         setTypeDisplayTemplates(prev => { const next = putEntry(prev, typeId, snapshot.typeDisplay); saveTypeDisplayTemplates(next); return next; });
         setTypePropertyConfigs(prev => putEntry(prev, typeId, snapshot.typeProps));
@@ -8292,6 +8658,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
         setAssetRelatedAssetsTemplates(prev => { const next = restoreEntries(prev, ids, snapshot.relatedTemplates); saveAssetRelatedAssetsTemplates(next); return next; });
         setAssetPropertyConfigs(prev => restoreEntries(prev, ids, snapshot.propertyConfigs));
         setAssetRelatedAssetConfigs(prev => restoreEntries(prev, ids, snapshot.relatedConfigs));
+        setTypePropertyOrders(prev => putEntry(prev, typeId, snapshot.typePropertyOrder));
+        setTypeRelatedAssetOrders(prev => putEntry(prev, typeId, snapshot.typeRelatedOrder));
+        setAssetPropertyOrders(prev => restoreEntries(prev, ids, snapshot.propertyOrders));
+        setAssetRelatedAssetOrders(prev => restoreEntries(prev, ids, snapshot.relatedOrders));
         if (selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId) {
           setPropertyVisualDraft({ entityId: assetId, modes: snapshot.display[assetId]?.propertyViewModes ?? {} });
           setNowPreviewRevision(r => r + 1);
@@ -8300,6 +8670,89 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingApplyAssetId]);
+
+  // Per-property "↑ Update type" from an asset's Visual dropdown — the
+  // one-property version of applyAssetToType: the type's visual for that
+  // property becomes this asset's, and the asset's own entry for it is
+  // dropped (saved template and unsaved draft both), so the asset now
+  // just follows the type for it. Immediate, with Undo.
+  //
+  // Same two-step as applyAssetToType: resolve unsaved changes first, then
+  // act on the next render. Here that also matters for a second reason —
+  // the open editor treats what it loaded as "saved", so this changes the
+  // saved template underneath it; it's remounted (nowPreviewRevision)
+  // afterwards to re-read it, which is only safe once nothing is unsaved.
+  const [pendingPropertyApply, setPendingPropertyApply] = useState(null); // { assetId, key, mode }
+  const applyPropertyToType = async (assetId, key, mode) => {
+    if (selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId) {
+      await resolveUnsavedChanges();
+    }
+    setPendingPropertyApply({ assetId, key, mode });
+  };
+  useEffect(() => {
+    if (!pendingPropertyApply) return;
+    const { assetId, key, mode } = pendingPropertyApply;
+    setPendingPropertyApply(null);
+    const asset = CURRENT_ASSET_MAP[assetId];
+    if (!asset || !mode || mode === PROPERTY_VIEW_MODE_DEFAULT) return;
+    const typeId = assetTypeIdOf(asset);
+    const ids = [assetId];
+    const snapshot = {
+      typeDisplay: typeDisplayTemplates[typeId],
+      display: pickEntries(assetDisplayTemplates, ids),
+    };
+    const putEntry = (prev, k, value) => {
+      const next = { ...prev };
+      if (value === undefined) delete next[k]; else next[k] = value;
+      return next;
+    };
+    // A type with no template yet gets one holding the renderers' own
+    // defaults (normalizedLayout), so nothing else about it changes.
+    setTypeDisplayTemplates(prev => {
+      const base = prev[typeId] || { viewMode: 'text', flowDirection: 'row', flowWrap: 'wrap', alignContent: 'flex-start', layoutMode: 'auto', manualPositions: {} };
+      const next = putEntry(prev, typeId, { ...base, propertyViewModes: { ...(base.propertyViewModes || {}), [key]: mode } });
+      saveTypeDisplayTemplates(next);
+      return next;
+    });
+    const dropKey = template => {
+      if (!template?.propertyViewModes || !(key in template.propertyViewModes)) return template;
+      const { [key]: _removed, ...rest } = template.propertyViewModes;
+      return { ...template, propertyViewModes: rest };
+    };
+    setAssetDisplayTemplates(prev => {
+      if (!prev[assetId]) return prev;
+      const next = { ...prev, [assetId]: dropKey(prev[assetId]) };
+      saveAssetDisplayTemplates(next);
+      return next;
+    });
+    const isOpen = selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId;
+    if (isOpen) {
+      setPropertyVisualDraft(prev => (prev.entityId === assetId ? { entityId: assetId, modes: dropKey({ propertyViewModes: prev.modes }).propertyViewModes } : prev));
+      setNowPreviewRevision(r => r + 1);
+    }
+
+    const typeName = nowTypeList.find(t => t.id === typeId)?.name ?? deslugifyType(asset.assetType);
+    const propertyLabel = PROPERTY_LABELS[key] || key;
+    const modeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === mode)?.text ?? mode;
+    setUndoToast({
+      id: Date.now(),
+      message: `Updated the ${typeName} type: ${propertyLabel} → ${modeLabel}`,
+      undo: () => {
+        setTypeDisplayTemplates(prev => { const next = putEntry(prev, typeId, snapshot.typeDisplay); saveTypeDisplayTemplates(next); return next; });
+        setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, ids, snapshot.display); saveAssetDisplayTemplates(next); return next; });
+        if (selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId) {
+          // The asset's own visual for this property comes back into the
+          // draft too (it was its own choice before), leaving any other
+          // draft entries alone.
+          setPropertyVisualDraft(prev => (prev.entityId === assetId
+            ? { entityId: assetId, modes: { ...prev.modes, [key]: mode } }
+            : prev));
+          setNowPreviewRevision(r => r + 1);
+        }
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPropertyApply]);
 
   // Published only when the customizations themselves change, so the
   // (many) subscribed tree rows don't re-render on every unrelated render
@@ -8311,12 +8764,14 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     revertAssetsToType,
     revertPropertyToType,
     applyAssetToType,
+    applyPropertyToType,
     openAsset: (assetId) => handleSelectNowThing({ kind: 'asset', id: assetId }),
   };
   const customizationActions = useMemo(() => ({
     revertAssetsToType: (...args) => customizationActionsRef.current.revertAssetsToType(...args),
     revertPropertyToType: (...args) => customizationActionsRef.current.revertPropertyToType(...args),
     applyAssetToType: (...args) => customizationActionsRef.current.applyAssetToType(...args),
+    applyPropertyToType: (...args) => customizationActionsRef.current.applyPropertyToType(...args),
     openAsset: (...args) => customizationActionsRef.current.openAsset(...args),
   }), []);
   useEffect(() => {

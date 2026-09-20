@@ -1,0 +1,555 @@
+[
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1",
+  "relationshipType": "feeds_into",
+  "label": "seed transfer",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR1",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1",
+  "relationshipType": "feeds_into",
+  "label": "harvest",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2",
+  "relationshipType": "feeds_into",
+  "label": "seed transfer",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR2",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1",
+  "relationshipType": "feeds_into",
+  "label": "harvest",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3",
+  "relationshipType": "feeds_into",
+  "label": "seed transfer (next: batch 26-117 → PBR-3)",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR3",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1",
+  "relationshipType": "feeds_into",
+  "label": "harvest",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_REC_HRV1",
+  "targetAssetId": "SOLACE_DSP_PUR_CAP1",
+  "relationshipType": "feeds_into",
+  "label": "clarified harvest",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_CAP1",
+  "targetAssetId": "SOLACE_DSP_PUR_VIN1",
+  "relationshipType": "feeds_into",
+  "label": "Protein A eluate",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VIN1",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1",
+  "relationshipType": "feeds_into",
+  "label": "neutralized VI pool",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_POL1",
+  "targetAssetId": "SOLACE_DSP_PUR_VF1",
+  "relationshipType": "feeds_into",
+  "label": "CEX pool",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VF1",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1",
+  "relationshipType": "feeds_into",
+  "label": "virus-filtered pool",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_UFDF1",
+  "targetAssetId": "SOLACE_DSP_BDS_BDS1",
+  "relationshipType": "feeds_into",
+  "label": "formulated bulk",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_REC_HRV1_CENT",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1_DF",
+  "relationshipType": "feeds_into",
+  "label": "centrate",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_REC_HRV1_DF",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1_HOLD",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_REC_HRV1_HOLD",
+  "targetAssetId": "SOLACE_DSP_PUR_CAP1_GF",
+  "relationshipType": "feeds_into",
+  "label": "clarified harvest",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_CAP1_GF",
+  "targetAssetId": "SOLACE_DSP_PUR_CAP1_COL",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_CAP1_COL",
+  "targetAssetId": "SOLACE_DSP_PUR_CAP1_DET",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_CAP1_DET",
+  "targetAssetId": "SOLACE_DSP_PUR_VIN1_TANK",
+  "relationshipType": "feeds_into",
+  "label": "eluate peak only (UV-gated)",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VIN1_DOSE",
+  "targetAssetId": "SOLACE_DSP_PUR_VIN1_TANK",
+  "relationshipType": "feeds_into",
+  "label": "acid to pH 3.6, base to neutralize",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VIN1_TANK",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1_AEX",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_POL1_AEX",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1_CEX",
+  "relationshipType": "feeds_into",
+  "label": "AEX flow-through loads CEX",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_POL1_CEX",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1_DET",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_POL1_DET",
+  "targetAssetId": "SOLACE_DSP_PUR_VF1_PRE",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VF1_PRE",
+  "targetAssetId": "SOLACE_DSP_PUR_VF1_VF",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_VF1_VF",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1_RET",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_UFDF1_RET",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1_TFF",
+  "relationshipType": "feeds_into",
+  "label": "retentate feed",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_UFDF1_TFF",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1_RET",
+  "relationshipType": "feeds_into",
+  "label": "retentate return (recirculation loop)",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_PUR_UFDF1_RET",
+  "targetAssetId": "SOLACE_DSP_BDS_BDS1_FF",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_DSP_BDS_BDS1_FF",
+  "targetAssetId": "SOLACE_DSP_BDS_BDS1_FRZ",
+  "relationshipType": "feeds_into",
+  "label": "filled DS bottles",
+  "layer": "process_flow"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1_GAS_DOA",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1_GAS",
+  "relationshipType": "feeds_into",
+  "label": "DO cascade (air → O₂)",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1_PH_BASE",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1_PH",
+  "relationshipType": "feeds_into",
+  "label": "base addition",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_SEED_SBR1_GAS",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1_PH",
+  "relationshipType": "feeds_into",
+  "label": "CO₂ sparge is the acid-side pH actuator",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR1_GAS_DOA",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1_GAS",
+  "relationshipType": "feeds_into",
+  "label": "DO cascade (air → O₂)",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR1_PH_BASE",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1_PH",
+  "relationshipType": "feeds_into",
+  "label": "base addition",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR1_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1_PH",
+  "relationshipType": "feeds_into",
+  "label": "CO₂ sparge is the acid-side pH actuator",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR2_GAS_DOA",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2_GAS",
+  "relationshipType": "feeds_into",
+  "label": "DO cascade (air → O₂)",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR2_PH_BASE",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2_PH",
+  "relationshipType": "feeds_into",
+  "label": "base addition",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR2_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2_PH",
+  "relationshipType": "feeds_into",
+  "label": "CO₂ sparge is the acid-side pH actuator",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR3_GAS_DOA",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3_GAS",
+  "relationshipType": "feeds_into",
+  "label": "DO cascade (air → O₂)",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR3_PH_BASE",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3_PH",
+  "relationshipType": "feeds_into",
+  "label": "base addition",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR3_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3_PH",
+  "relationshipType": "feeds_into",
+  "label": "CO₂ sparge is the acid-side pH actuator",
+  "layer": "control"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR1_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1_EXH",
+  "relationshipType": "feeds_into",
+  "label": "sparge + overlay off-gas",
+  "layer": "off_gas"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_MP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1_FEED",
+  "relationshipType": "feeds_into",
+  "label": "feed medium",
+  "layer": "media"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR2_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2_EXH",
+  "relationshipType": "feeds_into",
+  "label": "sparge + overlay off-gas",
+  "layer": "off_gas"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_MP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2_FEED",
+  "relationshipType": "feeds_into",
+  "label": "feed medium",
+  "layer": "media"
+ },
+ {
+  "sourceAssetId": "SOLACE_USP_PROD_PBR3_GAS",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3_EXH",
+  "relationshipType": "feeds_into",
+  "label": "sparge + overlay off-gas",
+  "layer": "off_gas"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_MP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3_FEED",
+  "relationshipType": "feeds_into",
+  "label": "feed medium",
+  "layer": "media"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_MP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3",
+  "relationshipType": "feeds_into",
+  "label": "batch medium fill (26-117)",
+  "layer": "media"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_MP1",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1",
+  "relationshipType": "feeds_into",
+  "label": "seed medium",
+  "layer": "media"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_BP1",
+  "targetAssetId": "SOLACE_DSP_PUR_CAP1",
+  "relationshipType": "feeds_into",
+  "label": "process buffers",
+  "layer": "buffer"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_BP1",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1",
+  "relationshipType": "feeds_into",
+  "label": "process buffers",
+  "layer": "buffer"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_BP1",
+  "targetAssetId": "SOLACE_DSP_PUR_VIN1",
+  "relationshipType": "feeds_into",
+  "label": "process buffers",
+  "layer": "buffer"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_PREP_BP1",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1",
+  "relationshipType": "feeds_into",
+  "label": "process buffers",
+  "layer": "buffer"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_STILL",
+  "targetAssetId": "SOLACE_UTIL_CU_WFI1_TANK",
+  "relationshipType": "feeds_into",
+  "label": "distillate",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_TANK",
+  "targetAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "relationshipType": "feeds_into",
+  "label": "loop supply",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "targetAssetId": "SOLACE_UTIL_CU_WFI1_TANK",
+  "relationshipType": "feeds_into",
+  "label": "loop return (≥ 80 °C)",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "targetAssetId": "SOLACE_UTIL_PREP_MP1",
+  "relationshipType": "feeds_into",
+  "label": "point of use",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "targetAssetId": "SOLACE_UTIL_PREP_BP1",
+  "relationshipType": "feeds_into",
+  "label": "point of use",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "targetAssetId": "SOLACE_UTIL_CU_CIP1",
+  "relationshipType": "feeds_into",
+  "label": "point of use",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "targetAssetId": "SOLACE_DSP_PUR_VF1",
+  "relationshipType": "feeds_into",
+  "label": "point of use",
+  "layer": "wfi"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CSG1",
+  "targetAssetId": "SOLACE_DSP_PUR_VIN1",
+  "relationshipType": "feeds_into",
+  "label": "SIP",
+  "layer": "clean_steam"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_USP_SEED_SBR1",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR1",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR2",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_USP_PROD_PBR3",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_DSP_REC_HRV1",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_CIP1",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1",
+  "relationshipType": "feeds_into",
+  "label": "CIP supply / return",
+  "layer": "cip"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3_FANA",
+  "targetAssetId": "SOLACE_UTIL_CU_AHU3_HEPA",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3_FANB",
+  "targetAssetId": "SOLACE_UTIL_CU_AHU3_HEPA",
+  "relationshipType": "feeds_into",
+  "label": "standby fan",
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3_HEPA",
+  "targetAssetId": "SOLACE_UTIL_CU_AHU3_ROOMS",
+  "relationshipType": "feeds_into",
+  "label": "supply air to Rm 2.14, 2.16, AL-7",
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3",
+  "targetAssetId": "SOLACE_DSP_PUR_POL1",
+  "relationshipType": "feeds_into",
+  "label": "post-viral suite air",
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3",
+  "targetAssetId": "SOLACE_DSP_PUR_VF1",
+  "relationshipType": "feeds_into",
+  "label": "post-viral suite air",
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3",
+  "targetAssetId": "SOLACE_DSP_PUR_UFDF1",
+  "relationshipType": "feeds_into",
+  "label": "post-viral suite air",
+  "layer": "hvac"
+ },
+ {
+  "sourceAssetId": "SOLACE_UTIL_CU_AHU3",
+  "targetAssetId": "SOLACE_DSP_BDS_BDS1",
+  "relationshipType": "feeds_into",
+  "label": "post-viral suite air",
+  "layer": "hvac"
+ }
+]

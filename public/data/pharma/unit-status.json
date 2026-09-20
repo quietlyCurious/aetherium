@@ -1,0 +1,104 @@
+{
+ "SOLACE_USP_SEED_SBR1": {
+  "state": "attention",
+  "statusSinceMinutes": 25,
+  "mode": "STEADY",
+  "product": "N-1 seed · batch 26-117"
+ },
+ "SOLACE_USP_PROD_PBR1": {
+  "state": "attention",
+  "statusSinceMinutes": 285,
+  "mode": "STEADY",
+  "product": "SLP-201 · batch 26-114 (day 13)"
+ },
+ "SOLACE_USP_PROD_PBR2": {
+  "state": "attention",
+  "statusSinceMinutes": 230,
+  "mode": "STEADY",
+  "product": "SLP-201 · batch 26-116 (day 7)"
+ },
+ "SOLACE_USP_PROD_PBR3": {
+  "state": "changeover",
+  "statusSinceMinutes": 1175,
+  "mode": "CHANGEOVER",
+  "product": "Turnaround → batch 26-117"
+ },
+ "SOLACE_DSP_REC_HRV1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STANDBY",
+  "product": "Ready · harvest 26-114 tomorrow"
+ },
+ "SOLACE_DSP_PUR_CAP1": {
+  "state": "attention",
+  "statusSinceMinutes": 135,
+  "mode": "STEADY",
+  "product": "Batch 26-113 · Protein A cycle 5/8"
+ },
+ "SOLACE_DSP_PUR_VIN1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Batch 26-113 · eluate pool"
+ },
+ "SOLACE_DSP_PUR_POL1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Batch 26-112 · AEX/CEX polish"
+ },
+ "SOLACE_DSP_PUR_VF1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STANDBY",
+  "product": "Pre-use flush done · 26-112 next"
+ },
+ "SOLACE_DSP_PUR_UFDF1": {
+  "state": "changeover",
+  "statusSinceMinutes": 125,
+  "mode": "CHANGEOVER",
+  "product": "CIP complete · NWP test"
+ },
+ "SOLACE_DSP_BDS_BDS1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Frozen DS · 4 lots"
+ },
+ "SOLACE_UTIL_CU_WFI1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "WFI hot loop (80 °C)"
+ },
+ "SOLACE_UTIL_CU_CSG1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Clean steam 3 bar(g)"
+ },
+ "SOLACE_UTIL_CU_CIP1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "CIP circuits"
+ },
+ "SOLACE_UTIL_CU_AHU3": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Post-viral suite (Grade C)"
+ },
+ "SOLACE_UTIL_PREP_MP1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Production medium · 26-117"
+ },
+ "SOLACE_UTIL_PREP_BP1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Protein A buffers · 26-113"
+ }
+}

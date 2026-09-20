@@ -1036,8 +1036,15 @@
    blanket-suppresses every TreeView's background state app-wide,
    including this one. Without matching !important here, this override
    could never win regardless of how specific its own selector is. */
-.op-operator-asset-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item {
-  background-color: #ebf3fc !important;
+.op-operator-asset-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item,
+.op-now-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item {
+  /* Same as the Types table's selected row (App.data.css,
+     .data-list-grid .dx-selection): light blue fill plus a 3px accent bar
+     on the left edge. The Configurator's Now tree was missing from this
+     rule entirely (only the Operator tree had it), so a selected asset
+     there showed no highlight at all. */
+  background-color: #e3eaf6 !important;
+  box-shadow: inset 3px 0 0 #0078d4;
   color: #242424;
 }
 
@@ -3135,4 +3142,50 @@
 .op-title-link-sep {
   color: #b0b5bd;
   margin: 0 -4px;
+}
+
+/* Visual dropdown: the ↓ Match type / ↑ Update type actions read as
+   actions (accent color) and sit above the plain visual choices,
+   separated by a rule. */
+.op-visual-item--type-action {
+  color: #0078d4;
+}
+
+/* The rule goes on DevExtreme's own list item (the span inside it is
+   padded away from the item's edges). */
+.dx-list-item:has(.op-visual-item--divider) {
+  border-bottom: 1px solid #e3e5e8;
+}
+
+/* Details panel tables that can be reordered by dragging: the grid takes
+   the remaining height, with the "Custom order · ↓ Match type order"
+   footer (only present once an order has been set) pinned below it. */
+.op-now-type-props-list--orderable {
+  display: flex;
+  flex-direction: column;
+}
+
+.op-now-type-props-grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.op-order-footer {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border-top: 1px solid #eee;
+  font-size: 11px;
+  color: #8a8f99;
+}
+
+/* Related Assets preview: boxes are clickable to select their row in the
+   Details panel (the selected box's highlight is generated inline by
+   RelatedAssetsPreview). */
+.op-related-assets-preview--selectable .op-related-asset-box:not(.op-related-asset-box--center) {
+  cursor: pointer;
 }

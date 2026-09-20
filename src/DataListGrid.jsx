@@ -22,17 +22,26 @@ const DataListGrid = React.forwardRef(function DataListGrid({
   toolbarExtra,       // optional React node — rendered anchored left, inline with the search box
   reorderable = false, // opt-in — enables drag-to-reorder rows via the built-in drag handle
   onReorder,          // (newItemsArray) => void — called with the full items array in its new order
+  dragColumnWidth,    // optional — narrower drag-handle column when reorderable (DevExtreme's default is fairly wide for tight side panels)
   columnAutoWidth = true, // opt-out — false lets columns without a fixed width share the leftover space (ellipsis-truncated) instead of sizing to content, which can force a horizontal scrollbar in narrow panels
 }, ref) {
-  const handleReorder = (e) => {
+  // Stable identity: RowDragging's onReorder is a DataGrid option, and a
+  // new function on every render makes the grid repaint all its rows —
+  // which, for a grid with interactive cells (a SelectBox, say), closes
+  // anything open in them whenever the parent re-renders. Reads the latest
+  // items/onReorder through a ref instead.
+  const reorderLatestRef = React.useRef({ items, onReorder, keyExpr });
+  reorderLatestRef.current = { items, onReorder, keyExpr };
+  const handleReorder = React.useCallback((e) => {
+    const { items: currentItems, onReorder: currentOnReorder, keyExpr: key } = reorderLatestRef.current;
     const visibleRows = e.component.getVisibleRows();
-    const newItems = [...items];
-    const toIndex = newItems.findIndex(item => item[keyExpr] === visibleRows[e.toIndex].data[keyExpr]);
-    const fromIndex = newItems.findIndex(item => item[keyExpr] === e.itemData[keyExpr]);
+    const newItems = [...currentItems];
+    const toIndex = newItems.findIndex(item => item[key] === visibleRows[e.toIndex].data[key]);
+    const fromIndex = newItems.findIndex(item => item[key] === e.itemData[key]);
     newItems.splice(fromIndex, 1);
     newItems.splice(toIndex, 0, e.itemData);
-    onReorder(newItems);
-  };
+    currentOnReorder?.(newItems);
+  }, []);
 
   return (
     <DataGrid
@@ -63,6 +72,7 @@ const DataListGrid = React.forwardRef(function DataListGrid({
       )}
       <Scrolling mode="virtual" />
       <Paging defaultPageSize={pageSize} />
+      {reorderable && dragColumnWidth && <Column type="drag" width={dragColumnWidth} minWidth={dragColumnWidth} />}
       {columns.map(col => (
         <Column
           key={col.dataField}

@@ -107,5 +107,37 @@
       }
     ],
     "unitLevel": "facility"
+  },
+  {
+    "id": "pharma",
+    "label": "Biologics (mAb)",
+    "shape": "generic",
+    "levels": [
+      {
+        "id": "site",
+        "label": "Site"
+      },
+      {
+        "id": "area",
+        "label": "Area"
+      },
+      {
+        "id": "process_cell",
+        "label": "Process Cell"
+      },
+      {
+        "id": "unit",
+        "label": "Unit"
+      },
+      {
+        "id": "equipment_module",
+        "label": "Equipment Module"
+      },
+      {
+        "id": "control_module",
+        "label": "Control Module"
+      }
+    ],
+    "unitLevel": "unit"
   }
 ]

@@ -1,0 +1,1367 @@
+{
+ "properties": {
+  "active_culture_volume_l": {
+   "label": "Production Culture Volume",
+   "unit": "L",
+   "category": "Cell Culture",
+   "tier": "P2",
+   "range": [
+    0,
+    40000
+   ],
+   "decimals": 0
+  },
+  "batches_in_process_count": {
+   "label": "Batches in Process",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0
+  },
+  "open_deviations_count": {
+   "label": "Open Deviations",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    0,
+    12
+   ],
+   "decimals": 0
+  },
+  "area_product_mass_kg": {
+   "label": "Product in Bioreactors",
+   "unit": "kg",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "area_o2_demand_slpm": {
+   "label": "Total O₂ Demand",
+   "unit": "slpm",
+   "category": "Cell Culture",
+   "tier": "P3",
+   "range": [
+    0,
+    800
+   ],
+   "decimals": 1
+  },
+  "units_in_service_count": {
+   "label": "Units in Service",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0
+  },
+  "units_total_count": {
+   "label": "Units in Cell",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "dsp_load_flow_l_min": {
+   "label": "Purification Load Flow",
+   "unit": "L/min",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "wfi_draw_l_h": {
+   "label": "WFI Draw",
+   "unit": "L/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    10000
+   ],
+   "decimals": 0
+  },
+  "suite_min_dp_pa": {
+   "label": "Lowest Room Differential Pressure",
+   "unit": "Pa",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    -10,
+    40
+   ],
+   "decimals": 1
+  },
+  "seed_volume_l": {
+   "label": "Working Volume",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    2000
+   ],
+   "decimals": 0
+  },
+  "seed_vcd_e6_ml": {
+   "label": "Viable Cell Density",
+   "unit": "×10⁶ cells/mL",
+   "category": "Cell Culture",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "seed_culture_day": {
+   "label": "Culture Day",
+   "unit": "d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    7
+   ],
+   "decimals": 2
+  },
+  "transfer_vcd_max_e6_ml": {
+   "label": "Transfer VCD Limit",
+   "unit": "×10⁶ cells/mL",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 1,
+   "static": true
+  },
+  "working_volume_l": {
+   "label": "Working Volume",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    14000
+   ],
+   "decimals": 0
+  },
+  "vcd_e6_ml": {
+   "label": "Viable Cell Density",
+   "unit": "×10⁶ cells/mL",
+   "category": "Cell Culture",
+   "tier": "P1",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 2
+  },
+  "viability_pct": {
+   "label": "Viability",
+   "unit": "%",
+   "category": "Cell Culture",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "titer_g_l": {
+   "label": "Titer",
+   "unit": "g/L",
+   "category": "Cell Culture",
+   "tier": "P1",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "product_mass_kg": {
+   "label": "Product in Vessel",
+   "unit": "kg",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    80
+   ],
+   "decimals": 1
+  },
+  "culture_day": {
+   "label": "Culture Day",
+   "unit": "d",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    16
+   ],
+   "decimals": 2
+  },
+  "osmolality_mosm_kg": {
+   "label": "Osmolality",
+   "unit": "mOsm/kg",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    500
+   ],
+   "decimals": 0
+  },
+  "agitator_speed_rpm": {
+   "label": "Agitator Speed",
+   "unit": "rpm",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "agitator_power_kw": {
+   "label": "Agitator Power",
+   "unit": "kW",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 2
+  },
+  "gearbox_vibration_mms": {
+   "label": "Gearbox Vibration",
+   "unit": "mm/s",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "seal_temp_c": {
+   "label": "Mechanical Seal Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    20,
+    90
+   ],
+   "decimals": 1
+  },
+  "o2_flow_slpm": {
+   "label": "O₂ Sparge Flow",
+   "unit": "slpm",
+   "category": "Cell Culture",
+   "tier": "P2",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "air_sparge_slpm": {
+   "label": "Air Sparge Flow",
+   "unit": "slpm",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "co2_flow_slpm": {
+   "label": "CO₂ Sparge Flow (pH)",
+   "unit": "slpm",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 1
+  },
+  "overlay_air_slpm": {
+   "label": "Headspace Overlay Air",
+   "unit": "slpm",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 0
+  },
+  "do_pct": {
+   "label": "Dissolved Oxygen",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "probe_quality_index": {
+   "label": "Probe Signal Quality",
+   "unit": "",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 0
+  },
+  "pco2_mmhg": {
+   "label": "Dissolved CO₂ (pCO₂)",
+   "unit": "mmHg",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "culture_ph": {
+   "label": "Culture pH",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    6.0,
+    8.0
+   ],
+   "decimals": 3
+  },
+  "base_added_l": {
+   "label": "Base Added (batch)",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "base_pump_rate_ml_min": {
+   "label": "Base Pump Rate",
+   "unit": "mL/min",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "base_tank_level_pct": {
+   "label": "Base Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "culture_temp_c": {
+   "label": "Vessel Temperature",
+   "unit": "°C",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    140
+   ],
+   "decimals": 2
+  },
+  "jacket_inlet_temp_c": {
+   "label": "Jacket Inlet Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    140
+   ],
+   "decimals": 1
+  },
+  "drain_temp_c": {
+   "label": "Drain (Cold Point) Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    140
+   ],
+   "decimals": 1
+  },
+  "feed_added_l": {
+   "label": "Feed Added (batch)",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    3000
+   ],
+   "decimals": 0
+  },
+  "glucose_g_l": {
+   "label": "Glucose",
+   "unit": "g/L",
+   "category": "Cell Culture",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "feed_pump_rate_l_h": {
+   "label": "Feed Pump Rate",
+   "unit": "L/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 1
+  },
+  "feed_interruptions_1h": {
+   "label": "Feed Interruptions (last hour)",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0
+  },
+  "exhaust_filter_dp_mbar": {
+   "label": "Exhaust Filter DP",
+   "unit": "mbar",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 1
+  },
+  "vessel_pressure_barg": {
+   "label": "Vessel Pressure",
+   "unit": "bar(g)",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    1.5
+   ],
+   "decimals": 3
+  },
+  "exhaust_co2_pct": {
+   "label": "Off-gas CO₂",
+   "unit": "%",
+   "category": "Cell Culture",
+   "tier": "P3",
+   "range": [
+    0,
+    15
+   ],
+   "decimals": 2
+  },
+  "harvest_flow_l_h": {
+   "label": "Harvest Flow",
+   "unit": "L/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    6000
+   ],
+   "decimals": 0
+  },
+  "clarified_volume_l": {
+   "label": "Clarified Volume",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    14000
+   ],
+   "decimals": 0
+  },
+  "bowl_speed_rpm": {
+   "label": "Bowl Speed",
+   "unit": "rpm",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    8000
+   ],
+   "decimals": 0
+  },
+  "centrate_turbidity_ntu": {
+   "label": "Centrate Turbidity",
+   "unit": "NTU",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "filter_dp_bar": {
+   "label": "Filter Differential Pressure",
+   "unit": "bar",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "hold_tank_level_pct": {
+   "label": "Hold Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "hold_tank_temp_c": {
+   "label": "Hold Tank Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "skid_flow_l_min": {
+   "label": "Skid Flow",
+   "unit": "L/min",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 1
+  },
+  "cycle_number": {
+   "label": "Cycle",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 0
+  },
+  "step_yield_pct": {
+   "label": "Step Yield (last cycle)",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    70,
+    100
+   ],
+   "decimals": 1
+  },
+  "load_processed_l": {
+   "label": "Load Processed This Batch",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    14000
+   ],
+   "decimals": 0
+  },
+  "column_dp_bar": {
+   "label": "Column Pressure Drop",
+   "unit": "bar",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    4
+   ],
+   "decimals": 2
+  },
+  "breakthrough_pct": {
+   "label": "Flow-through Breakthrough",
+   "unit": "%",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "resin_cycles": {
+   "label": "Resin Cycles Used",
+   "unit": "",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    250
+   ],
+   "decimals": 0
+  },
+  "uv280_au": {
+   "label": "UV 280 nm",
+   "unit": "AU",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 3
+  },
+  "conductivity_ms_cm": {
+   "label": "Conductivity",
+   "unit": "mS/cm",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 2
+  },
+  "effluent_ph": {
+   "label": "Effluent pH",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0,
+    14
+   ],
+   "decimals": 2
+  },
+  "vi_pool_volume_l": {
+   "label": "Eluate Pool Volume",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    3000
+   ],
+   "decimals": 0
+  },
+  "vi_pool_ph": {
+   "label": "Pool pH",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    2,
+    9
+   ],
+   "decimals": 2
+  },
+  "vi_tank_level_pct": {
+   "label": "Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "vi_tank_temp_c": {
+   "label": "Pool Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "acid_added_l": {
+   "label": "Acid Added (batch)",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 2
+  },
+  "adsorber_loading_g_ml": {
+   "label": "Adsorber Loading",
+   "unit": "g/mL",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "vf_flux_lmh": {
+   "label": "Flux",
+   "unit": "LMH",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "vf_throughput_l_m2": {
+   "label": "Throughput",
+   "unit": "L/m²",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 0
+  },
+  "vf_pressure_bar": {
+   "label": "Feed Pressure",
+   "unit": "bar",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    4
+   ],
+   "decimals": 2
+  },
+  "tmp_bar": {
+   "label": "Transmembrane Pressure",
+   "unit": "bar",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "permeate_flux_lmh": {
+   "label": "Permeate Flux",
+   "unit": "LMH",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "retentate_conc_g_l": {
+   "label": "Retentate Concentration",
+   "unit": "g/L",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 1
+  },
+  "membrane_nwp_lmh_bar": {
+   "label": "Normalized Water Permeability",
+   "unit": "LMH/bar",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    80
+   ],
+   "decimals": 1
+  },
+  "ret_tank_level_pct": {
+   "label": "Retentate Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "bds_inventory_kg": {
+   "label": "Frozen DS Inventory",
+   "unit": "kg",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 1
+  },
+  "bds_lots_stored": {
+   "label": "Lots in Storage",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0
+  },
+  "freezer_temp_c": {
+   "label": "Freezer Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    -80,
+    0
+   ],
+   "decimals": 1
+  },
+  "freezer_compressor_duty_pct": {
+   "label": "Compressor Duty",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 0
+  },
+  "wfi_available_l": {
+   "label": "WFI Available",
+   "unit": "L",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    30000
+   ],
+   "decimals": 0
+  },
+  "still_output_l_h": {
+   "label": "Distillate Output",
+   "unit": "L/h",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    4000
+   ],
+   "decimals": 0
+  },
+  "still_steam_kg_h": {
+   "label": "Plant Steam Consumption",
+   "unit": "kg/h",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 0
+  },
+  "wfi_tank_level_pct": {
+   "label": "Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "wfi_tank_temp_c": {
+   "label": "Tank Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    60,
+    100
+   ],
+   "decimals": 1
+  },
+  "loop_return_temp_c": {
+   "label": "Loop Return Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    60,
+    95
+   ],
+   "decimals": 1
+  },
+  "loop_conductivity_us_cm": {
+   "label": "Conductivity",
+   "unit": "µS/cm",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    2
+   ],
+   "decimals": 3
+  },
+  "loop_toc_ppb": {
+   "label": "TOC",
+   "unit": "ppb",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 0
+  },
+  "loop_velocity_m_s": {
+   "label": "Return Velocity",
+   "unit": "m/s",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "cs_header_pressure_barg": {
+   "label": "Clean Steam Header Pressure",
+   "unit": "bar(g)",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "cs_flow_kg_h": {
+   "label": "Clean Steam Flow",
+   "unit": "kg/h",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 0
+  },
+  "cs_generator_level_pct": {
+   "label": "Generator Level",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "cip_step_code": {
+   "label": "CIP Step",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 0
+  },
+  "cip_supply_temp_c": {
+   "label": "Supply Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    95
+   ],
+   "decimals": 1
+  },
+  "cip_supply_flow_l_min": {
+   "label": "Supply Flow",
+   "unit": "L/min",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 0
+  },
+  "cip_return_conductivity_ms_cm": {
+   "label": "Return Conductivity",
+   "unit": "mS/cm",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    80
+   ],
+   "decimals": 3
+  },
+  "supply_airflow_m3_h": {
+   "label": "Supply Airflow",
+   "unit": "m³/h",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    0,
+    25000
+   ],
+   "decimals": 0
+  },
+  "supply_air_temp_c": {
+   "label": "Supply Air Temperature",
+   "unit": "°C",
+   "category": "Environmental",
+   "tier": "P3",
+   "range": [
+    10,
+    25
+   ],
+   "decimals": 1
+  },
+  "fan_speed_pct": {
+   "label": "Fan Speed",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "fan_motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 1
+  },
+  "hepa_dp_pa": {
+   "label": "HEPA Bank DP",
+   "unit": "Pa",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    500
+   ],
+   "decimals": 0
+  },
+  "room_temp_c": {
+   "label": "Room Temperature",
+   "unit": "°C",
+   "category": "Environmental",
+   "tier": "P3",
+   "range": [
+    15,
+    30
+   ],
+   "decimals": 1
+  },
+  "room_dp_pa": {
+   "label": "Room Differential Pressure",
+   "unit": "Pa",
+   "category": "Environmental",
+   "tier": "P1",
+   "range": [
+    -10,
+    40
+   ],
+   "decimals": 1
+  },
+  "media_tank_level_pct": {
+   "label": "Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "media_temp_c": {
+   "label": "Media Temperature",
+   "unit": "°C",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0,
+    40
+   ],
+   "decimals": 1
+  },
+  "buffer_tank_level_pct": {
+   "label": "Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "buffer_ph": {
+   "label": "Buffer pH",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    14
+   ],
+   "decimals": 2
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "biologics_site",
+   "property": "active_culture_volume_l",
+   "fn": "sum",
+   "of": "working_volume_l",
+   "fromType": "production_bioreactor",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "upstream_area",
+   "property": "area_product_mass_kg",
+   "fn": "sum",
+   "of": "product_mass_kg",
+   "fromType": "production_bioreactor",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "upstream_area",
+   "property": "area_o2_demand_slpm",
+   "fn": "sum",
+   "of": "o2_flow_slpm",
+   "fromType": "gas_control_module",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "upstream_area",
+   "property": "units_in_service_count",
+   "fn": "sum",
+   "of": "units_in_service_count",
+   "fromType": "process_cell",
+   "scope": "children"
+  },
+  {
+   "assetType": "downstream_area",
+   "property": "units_in_service_count",
+   "fn": "sum",
+   "of": "units_in_service_count",
+   "fromType": "process_cell",
+   "scope": "children"
+  },
+  {
+   "assetType": "utilities_area",
+   "property": "units_in_service_count",
+   "fn": "sum",
+   "of": "units_in_service_count",
+   "fromType": "process_cell",
+   "scope": "children"
+  },
+  {
+   "assetType": "downstream_area",
+   "property": "dsp_load_flow_l_min",
+   "fn": "sum",
+   "of": "skid_flow_l_min",
+   "fromType": "capture_skid|polish_skid",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "utilities_area",
+   "property": "wfi_draw_l_h",
+   "fn": "sum",
+   "of": "wfi_draw_l_h",
+   "fromType": "wfi_system",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "utilities_area",
+   "property": "suite_min_dp_pa",
+   "fn": "min",
+   "of": "room_dp_pa",
+   "fromType": "room_dp_sensor",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "room_monitoring",
+   "property": "suite_min_dp_pa",
+   "fn": "min",
+   "of": "room_dp_pa",
+   "fromType": "room_dp_sensor",
+   "scope": "children"
+  },
+  {
+   "assetType": "production_bioreactor",
+   "property": "product_mass_kg",
+   "fn": "formula",
+   "note": "titer_g_l × working_volume_l / 1000 (product still in the vessel, before harvest losses)"
+  },
+  {
+   "assetType": "process_cell",
+   "property": "units_in_service_count",
+   "fn": "formula",
+   "note": "count of child units processing product or supplying a utility at that time step (standby, CIP/SIP turnaround and trips excluded); precomputed in generate.py"
+  },
+  {
+   "assetType": "biologics_site",
+   "property": "batches_in_process_count",
+   "fn": "formula",
+   "note": "distinct SLP-201 batches between inoculation of the N-1 seed and DS freeze (26-112, -113, -114, -116, -117)"
+  },
+  {
+   "assetType": "biologics_site",
+   "property": "open_deviations_count",
+   "fn": "formula",
+   "note": "deviation records open in the QMS for batches on site; steps up when a deviation is raised"
+  },
+  {
+   "assetType": "capture_skid",
+   "property": "load_processed_l",
+   "fn": "formula",
+   "note": "Σ skid_flow_l_min × 5 min over load phases of this batch"
+  },
+  {
+   "assetType": "polish_skid",
+   "property": "load_processed_l",
+   "fn": "formula",
+   "note": "Σ skid_flow_l_min × 5 min since the load started (08:30)"
+  },
+  {
+   "assetType": "ph_control_module",
+   "property": "base_added_l",
+   "fn": "formula",
+   "note": "batch total so far + Σ base_pump_rate_ml_min × 5 min / 1000"
+  },
+  {
+   "assetType": "feed_module",
+   "property": "feed_added_l",
+   "fn": "formula",
+   "note": "batch total so far + Σ feed_pump_rate_l_h × 5/60"
+  },
+  {
+   "assetType": "wfi_system",
+   "property": "wfi_available_l",
+   "fn": "formula",
+   "note": "wfi_tank_level_pct × 30,000 L tank / 100"
+  },
+  {
+   "assetType": "feed_pump",
+   "property": "feed_interruptions_1h",
+   "fn": "formula",
+   "note": "count of 5-minute samples with the pump stopped by a flow alarm in the trailing 60 minutes"
+  }
+ ],
+ "typeLabels": {
+  "biologics_site": "Biologics DS Site",
+  "upstream_area": "Upstream (Cell Culture) Area",
+  "downstream_area": "Downstream (Purification) Area",
+  "utilities_area": "Utilities & Support Area",
+  "process_cell": "Process Cell",
+  "seed_bioreactor": "Seed Bioreactor (N-1)",
+  "production_bioreactor": "Production Bioreactor (12,000 L)",
+  "capture_skid": "Protein A Capture Skid",
+  "polish_skid": "Polishing Chromatography Skid",
+  "viral_inactivation_unit": "Low-pH Viral Inactivation",
+  "virus_filtration_unit": "Virus Filtration (Nanofiltration)",
+  "ufdf_skid": "UF/DF Skid",
+  "bds_unit": "Bulk Drug Substance Fill & Freeze",
+  "wfi_system": "WFI System",
+  "cip_skid": "CIP Skid",
+  "air_handling_unit": "Air Handling Unit (HVAC)",
+  "ph_control_module": "pH Control",
+  "do_probe": "DO Probe",
+  "pco2_probe": "pCO₂ Probe",
+  "chrom_column": "Chromatography Column",
+  "vi_tank": "Inactivation Tank",
+  "tff_module": "TFF Membrane Cassettes",
+  "bds_freezer": "DS Freezer (−45 °C)",
+  "multi_effect_still": "Multi-Effect Still",
+  "wfi_tank": "WFI Storage Tank",
+  "wfi_loop": "WFI Hot Loop",
+  "ahu_fan": "AHU Supply Fan",
+  "hepa_bank": "HEPA Filter Bank",
+  "room_dp_sensor": "Room DP Sensor"
+ }
+}

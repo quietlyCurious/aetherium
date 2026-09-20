@@ -1,0 +1,674 @@
+[
+ {
+  "id": "SOLACE",
+  "parentId": null,
+  "name": "Solace Park",
+  "assetType": "biologics_site",
+  "assetLevel": "site"
+ },
+ {
+  "id": "SOLACE_USP",
+  "parentId": "SOLACE",
+  "name": "Upstream",
+  "assetType": "upstream_area",
+  "assetLevel": "area"
+ },
+ {
+  "id": "SOLACE_DSP",
+  "parentId": "SOLACE",
+  "name": "Downstream",
+  "assetType": "downstream_area",
+  "assetLevel": "area"
+ },
+ {
+  "id": "SOLACE_UTIL",
+  "parentId": "SOLACE",
+  "name": "Utilities & Support",
+  "assetType": "utilities_area",
+  "assetLevel": "area"
+ },
+ {
+  "id": "SOLACE_USP_SEED",
+  "parentId": "SOLACE_USP",
+  "name": "Seed Train",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_USP_PROD",
+  "parentId": "SOLACE_USP",
+  "name": "Production Bioreactors",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1",
+  "parentId": "SOLACE_USP_SEED",
+  "name": "SBR-1",
+  "assetType": "seed_bioreactor",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_AGIT",
+  "parentId": "SOLACE_USP_SEED_SBR1",
+  "name": "Agitation",
+  "assetType": "agitation_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_GAS",
+  "parentId": "SOLACE_USP_SEED_SBR1",
+  "name": "Gas Control",
+  "assetType": "gas_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_GAS_DOA",
+  "parentId": "SOLACE_USP_SEED_SBR1_GAS",
+  "name": "DO Probe A (control)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_GAS_DOB",
+  "parentId": "SOLACE_USP_SEED_SBR1_GAS",
+  "name": "DO Probe B (monitor)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_GAS_PCO2",
+  "parentId": "SOLACE_USP_SEED_SBR1_GAS",
+  "name": "pCO₂ Probe",
+  "assetType": "pco2_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_PH",
+  "parentId": "SOLACE_USP_SEED_SBR1",
+  "name": "pH Control",
+  "assetType": "ph_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_PH_BASE",
+  "parentId": "SOLACE_USP_SEED_SBR1_PH",
+  "name": "Base Pump",
+  "assetType": "base_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_SEED_SBR1_TEMP",
+  "parentId": "SOLACE_USP_SEED_SBR1",
+  "name": "Temperature Control",
+  "assetType": "temperature_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1",
+  "parentId": "SOLACE_USP_PROD",
+  "name": "PBR-1",
+  "assetType": "production_bioreactor",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_AGIT",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "Agitation",
+  "assetType": "agitation_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_GAS",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "Gas Control",
+  "assetType": "gas_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_GAS_DOA",
+  "parentId": "SOLACE_USP_PROD_PBR1_GAS",
+  "name": "DO Probe A (control)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_GAS_DOB",
+  "parentId": "SOLACE_USP_PROD_PBR1_GAS",
+  "name": "DO Probe B (monitor)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_GAS_PCO2",
+  "parentId": "SOLACE_USP_PROD_PBR1_GAS",
+  "name": "pCO₂ Probe",
+  "assetType": "pco2_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_PH",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "pH Control",
+  "assetType": "ph_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_PH_BASE",
+  "parentId": "SOLACE_USP_PROD_PBR1_PH",
+  "name": "Base Pump",
+  "assetType": "base_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_TEMP",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "Temperature Control",
+  "assetType": "temperature_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_FEED",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "Feed Addition",
+  "assetType": "feed_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_FEED_PUMP",
+  "parentId": "SOLACE_USP_PROD_PBR1_FEED",
+  "name": "Feed Pump",
+  "assetType": "feed_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR1_EXH",
+  "parentId": "SOLACE_USP_PROD_PBR1",
+  "name": "Exhaust",
+  "assetType": "exhaust_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2",
+  "parentId": "SOLACE_USP_PROD",
+  "name": "PBR-2",
+  "assetType": "production_bioreactor",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_AGIT",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "Agitation",
+  "assetType": "agitation_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_GAS",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "Gas Control",
+  "assetType": "gas_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_GAS_DOA",
+  "parentId": "SOLACE_USP_PROD_PBR2_GAS",
+  "name": "DO Probe A (control)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_GAS_DOB",
+  "parentId": "SOLACE_USP_PROD_PBR2_GAS",
+  "name": "DO Probe B (monitor)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_GAS_PCO2",
+  "parentId": "SOLACE_USP_PROD_PBR2_GAS",
+  "name": "pCO₂ Probe",
+  "assetType": "pco2_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_PH",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "pH Control",
+  "assetType": "ph_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_PH_BASE",
+  "parentId": "SOLACE_USP_PROD_PBR2_PH",
+  "name": "Base Pump",
+  "assetType": "base_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_TEMP",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "Temperature Control",
+  "assetType": "temperature_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_FEED",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "Feed Addition",
+  "assetType": "feed_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_FEED_PUMP",
+  "parentId": "SOLACE_USP_PROD_PBR2_FEED",
+  "name": "Feed Pump",
+  "assetType": "feed_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR2_EXH",
+  "parentId": "SOLACE_USP_PROD_PBR2",
+  "name": "Exhaust",
+  "assetType": "exhaust_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3",
+  "parentId": "SOLACE_USP_PROD",
+  "name": "PBR-3",
+  "assetType": "production_bioreactor",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_AGIT",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "Agitation",
+  "assetType": "agitation_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_GAS",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "Gas Control",
+  "assetType": "gas_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_GAS_DOA",
+  "parentId": "SOLACE_USP_PROD_PBR3_GAS",
+  "name": "DO Probe A (control)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_GAS_DOB",
+  "parentId": "SOLACE_USP_PROD_PBR3_GAS",
+  "name": "DO Probe B (monitor)",
+  "assetType": "do_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_GAS_PCO2",
+  "parentId": "SOLACE_USP_PROD_PBR3_GAS",
+  "name": "pCO₂ Probe",
+  "assetType": "pco2_probe",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_PH",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "pH Control",
+  "assetType": "ph_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_PH_BASE",
+  "parentId": "SOLACE_USP_PROD_PBR3_PH",
+  "name": "Base Pump",
+  "assetType": "base_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_TEMP",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "Temperature Control",
+  "assetType": "temperature_control_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_FEED",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "Feed Addition",
+  "assetType": "feed_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_FEED_PUMP",
+  "parentId": "SOLACE_USP_PROD_PBR3_FEED",
+  "name": "Feed Pump",
+  "assetType": "feed_pump",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_USP_PROD_PBR3_EXH",
+  "parentId": "SOLACE_USP_PROD_PBR3",
+  "name": "Exhaust",
+  "assetType": "exhaust_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_REC",
+  "parentId": "SOLACE_DSP",
+  "name": "Recovery",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_DSP_REC_HRV1",
+  "parentId": "SOLACE_DSP_REC",
+  "name": "HRV-1",
+  "assetType": "harvest_train",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_REC_HRV1_CENT",
+  "parentId": "SOLACE_DSP_REC_HRV1",
+  "name": "Disk-Stack Centrifuge",
+  "assetType": "centrifuge_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_REC_HRV1_DF",
+  "parentId": "SOLACE_DSP_REC_HRV1",
+  "name": "Depth Filtration",
+  "assetType": "depth_filter_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_REC_HRV1_HOLD",
+  "parentId": "SOLACE_DSP_REC_HRV1",
+  "name": "Harvest Hold Tank",
+  "assetType": "harvest_hold_tank",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR",
+  "parentId": "SOLACE_DSP",
+  "name": "Purification",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_CAP1",
+  "parentId": "SOLACE_DSP_PUR",
+  "name": "CAP-1",
+  "assetType": "capture_skid",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_CAP1_GF",
+  "parentId": "SOLACE_DSP_PUR_CAP1",
+  "name": "Guard Filter",
+  "assetType": "guard_filter",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_CAP1_COL",
+  "parentId": "SOLACE_DSP_PUR_CAP1",
+  "name": "Protein A Column",
+  "assetType": "chrom_column",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_CAP1_DET",
+  "parentId": "SOLACE_DSP_PUR_CAP1",
+  "name": "Detector Block",
+  "assetType": "detector_block",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VIN1",
+  "parentId": "SOLACE_DSP_PUR",
+  "name": "VIN-1",
+  "assetType": "viral_inactivation_unit",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VIN1_TANK",
+  "parentId": "SOLACE_DSP_PUR_VIN1",
+  "name": "Inactivation Tank",
+  "assetType": "vi_tank",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VIN1_DOSE",
+  "parentId": "SOLACE_DSP_PUR_VIN1",
+  "name": "Acid / Base Titrant",
+  "assetType": "titrant_dosing",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_POL1",
+  "parentId": "SOLACE_DSP_PUR",
+  "name": "POL-1",
+  "assetType": "polish_skid",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_POL1_AEX",
+  "parentId": "SOLACE_DSP_PUR_POL1",
+  "name": "AEX Membrane Adsorber",
+  "assetType": "membrane_adsorber",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_POL1_CEX",
+  "parentId": "SOLACE_DSP_PUR_POL1",
+  "name": "CEX Column",
+  "assetType": "chrom_column",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_POL1_DET",
+  "parentId": "SOLACE_DSP_PUR_POL1",
+  "name": "Detector Block",
+  "assetType": "detector_block",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VF1",
+  "parentId": "SOLACE_DSP_PUR",
+  "name": "VF-1",
+  "assetType": "virus_filtration_unit",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VF1_PRE",
+  "parentId": "SOLACE_DSP_PUR_VF1",
+  "name": "Prefilter",
+  "assetType": "prefilter",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_VF1_VF",
+  "parentId": "SOLACE_DSP_PUR_VF1",
+  "name": "Virus Filter",
+  "assetType": "virus_filter",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_UFDF1",
+  "parentId": "SOLACE_DSP_PUR",
+  "name": "UFDF-1",
+  "assetType": "ufdf_skid",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_UFDF1_TFF",
+  "parentId": "SOLACE_DSP_PUR_UFDF1",
+  "name": "TFF Cassettes",
+  "assetType": "tff_module",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_PUR_UFDF1_RET",
+  "parentId": "SOLACE_DSP_PUR_UFDF1",
+  "name": "Retentate Tank",
+  "assetType": "retentate_tank",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_BDS",
+  "parentId": "SOLACE_DSP",
+  "name": "Bulk Drug Substance",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_DSP_BDS_BDS1",
+  "parentId": "SOLACE_DSP_BDS",
+  "name": "BDS-1",
+  "assetType": "bds_unit",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_DSP_BDS_BDS1_FF",
+  "parentId": "SOLACE_DSP_BDS_BDS1",
+  "name": "Final 0.2 µm Filter",
+  "assetType": "final_filter",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_DSP_BDS_BDS1_FRZ",
+  "parentId": "SOLACE_DSP_BDS_BDS1",
+  "name": "DS Freezer",
+  "assetType": "bds_freezer",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU",
+  "parentId": "SOLACE_UTIL",
+  "name": "Clean Utilities",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_WFI1",
+  "parentId": "SOLACE_UTIL_CU",
+  "name": "WFI-1",
+  "assetType": "wfi_system",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_WFI1_STILL",
+  "parentId": "SOLACE_UTIL_CU_WFI1",
+  "name": "Multi-Effect Still",
+  "assetType": "multi_effect_still",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_WFI1_TANK",
+  "parentId": "SOLACE_UTIL_CU_WFI1",
+  "name": "Storage Tank",
+  "assetType": "wfi_tank",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_WFI1_LOOP",
+  "parentId": "SOLACE_UTIL_CU_WFI1",
+  "name": "Hot Loop",
+  "assetType": "wfi_loop",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_CSG1",
+  "parentId": "SOLACE_UTIL_CU",
+  "name": "CSG-1",
+  "assetType": "clean_steam_generator",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_CIP1",
+  "parentId": "SOLACE_UTIL_CU",
+  "name": "CIP-1",
+  "assetType": "cip_skid",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3",
+  "parentId": "SOLACE_UTIL_CU",
+  "name": "AHU-3",
+  "assetType": "air_handling_unit",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_FANA",
+  "parentId": "SOLACE_UTIL_CU_AHU3",
+  "name": "Supply Fan A",
+  "assetType": "ahu_fan",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_FANB",
+  "parentId": "SOLACE_UTIL_CU_AHU3",
+  "name": "Supply Fan B",
+  "assetType": "ahu_fan",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_HEPA",
+  "parentId": "SOLACE_UTIL_CU_AHU3",
+  "name": "HEPA Bank",
+  "assetType": "hepa_bank",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_ROOMS",
+  "parentId": "SOLACE_UTIL_CU_AHU3",
+  "name": "Post-Viral Suite Rooms",
+  "assetType": "room_monitoring",
+  "assetLevel": "equipment_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_ROOMS_R214",
+  "parentId": "SOLACE_UTIL_CU_AHU3_ROOMS",
+  "name": "Chromatography Rm 2.14 DP",
+  "assetType": "room_dp_sensor",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_ROOMS_R216",
+  "parentId": "SOLACE_UTIL_CU_AHU3_ROOMS",
+  "name": "UF/DF Rm 2.16 DP",
+  "assetType": "room_dp_sensor",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_UTIL_CU_AHU3_ROOMS_AL7",
+  "parentId": "SOLACE_UTIL_CU_AHU3_ROOMS",
+  "name": "Airlock AL-7 DP",
+  "assetType": "room_dp_sensor",
+  "assetLevel": "control_module"
+ },
+ {
+  "id": "SOLACE_UTIL_PREP",
+  "parentId": "SOLACE_UTIL",
+  "name": "Solution Prep",
+  "assetType": "process_cell",
+  "assetLevel": "process_cell"
+ },
+ {
+  "id": "SOLACE_UTIL_PREP_MP1",
+  "parentId": "SOLACE_UTIL_PREP",
+  "name": "MP-1",
+  "assetType": "media_prep_unit",
+  "assetLevel": "unit"
+ },
+ {
+  "id": "SOLACE_UTIL_PREP_BP1",
+  "parentId": "SOLACE_UTIL_PREP",
+  "name": "BP-1",
+  "assetType": "buffer_prep_unit",
+  "assetLevel": "unit"
+ }
+]
