@@ -154,7 +154,16 @@ either mode without extra work.
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
-  stores those publish through.
+  stores those publish through, and the toolbar option lists
+  (`layoutOptions.js`).
+- `src/operator/properties/` — `StatTile` and the sparklines (every
+  property tile in the app), the Configurator's Properties editor
+  (`HmiPropertiesListing`) and its manual-layout canvas.
+- `src/operator/relatedAssets/` — `RelatedAssetBoxContent` (the
+  fallback resolution point above), the Cards and Diagram engines, the
+  Cards manual canvas, ELK auto-layout, and the read-only views.
+- `src/operator/canvas/canvasGeometry.js` — node bounds, floating-edge
+  geometry, align/distribute; shared by all three React Flow canvases.
 - `src/operator/icons.jsx` — every inline-SVG icon.
 - `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
   now, kept on purpose for future use. Leave it in place.

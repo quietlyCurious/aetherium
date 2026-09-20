@@ -269,18 +269,18 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ fa4310e + refactor phase 1</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ c88749b + refactor phase 2</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
-      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 1 done</span> model data, settings logic and icons now live in <code>src/operator/</code>. The UI components are next.</p>
+      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 2 done</span> model data, settings logic, icons and the shared rendering components (tiles, boxes, Cards, Diagram, canvases) now live in <code>src/operator/</code>. The Configurator panels and Operator views are next.</p>
     </header>
 
     <section id="glance">
       <h2>At a glance</h2>
       <p>The app has two halves. The original <strong>page builder</strong> (Screens, Widgets, Theme, Data Sources, Entities, Queries) is spread across about twenty well-sized files. The <strong>Operator / Configurator</strong> interface, where almost all recent work has happened, lives in <code>OperatorWorkspace.jsx</code> plus a new <code>src/operator/</code> folder that the refactor is gradually moving code into.</p>
       <div class="glance" role="list">
-        <div role="listitem"><strong>7,270</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
-        <div role="listitem"><strong>6</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>4,926</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
+        <div role="listitem"><strong>18</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
         <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
@@ -685,7 +685,7 @@
           <text x="224" y="226" font-size="11" fill="currentColor" opacity="0.7">tiles directly</text>
         </svg>
         </div>
-        <figcaption>The Configurator's Properties editor (<code>HmiPropertiesListing</code>) lays out tiles itself; everything else goes through <code>RelatedAssetBoxContent</code>. Cards and Diagram are two interchangeable layout engines over the same boxes, which is why a per-asset setting shows up identically in both.</figcaption>
+        <figcaption>The Configurator's Properties editor (<code>HmiPropertiesListing</code>) lays out tiles itself; everything else goes through <code>RelatedAssetBoxContent</code>. Cards and Diagram are two interchangeable layout engines over the same boxes, which is why a per-asset setting shows up identically in both. The tile and listing layers live in <code>operator/properties/</code>; the box, both engines and the read-only views in <code>operator/relatedAssets/</code>.</figcaption>
       </figure>
     </section>
 
@@ -739,6 +739,18 @@
             <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
             <tr><td class="mono">settings/customizations.js</td><td class="num">175</td><td>"Differs from type" detection and the customization store</td></tr>
             <tr><td class="mono">icons.jsx</td><td class="num">578</td><td>All 49 inline-SVG icons and <span class="mono">IconButtonGroupItem</span></td></tr>
+            <tr><td class="mono">settings/layoutOptions.js</td><td class="num">138</td><td>Toolbar option lists: tier/visibility filters, flow and wrap, alignment, Cards/Diagram switch, connection points, arrowheads, labels, density</td></tr>
+            <tr><td class="mono">properties/StatTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
+            <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class="mono">MiniSparkline</span> and <span class="mono">ResponsiveSparkline</span></td></tr>
+            <tr><td class="mono">properties/HmiPropertiesListing.jsx</td><td class="num">472</td><td>The Configurator's Properties editor: grouped tiles, filter and layout toolbar, its own Save</td></tr>
+            <tr><td class="mono">properties/PropertyLayoutCanvas.jsx</td><td class="num">178</td><td>Manual-layout canvas for property tiles</td></tr>
+            <tr><td class="mono">canvas/canvasGeometry.js</td><td class="num">184</td><td>Node bounds, floating-edge geometry, align and distribute, shared by all three canvases</td></tr>
+            <tr><td class="mono">relatedAssets/RelatedAssetBoxContent.jsx</td><td class="num">268</td><td>One asset's box, and the single place asset-over-type display settings resolve; also <span class="mono">TimeScrubContext</span></td></tr>
+            <tr><td class="mono">relatedAssets/RelatedAssetsCards.jsx</td><td class="num">100</td><td>The Cards engine (flex, or the canvas below)</td></tr>
+            <tr><td class="mono">relatedAssets/CardsLayoutCanvas.jsx</td><td class="num">155</td><td>Manual-layout canvas for Cards</td></tr>
+            <tr><td class="mono">relatedAssets/RelatedAssetsDiagram.jsx</td><td class="num">510</td><td>The Diagram engine: nodes, floating edges, auto or manual layout</td></tr>
+            <tr><td class="mono">relatedAssets/elkLayout.js</td><td class="num">144</td><td>ELK auto-layout and the diagram's algorithm, direction and routing choices</td></tr>
+            <tr><td class="mono">relatedAssets/ReadOnlyViews.jsx</td><td class="num">148</td><td>Read-only Related Assets and All Assets views for the Operator side</td></tr>
           </tbody>
         </table>
       </div>
@@ -749,22 +761,18 @@
         <table>
           <thead><tr><th>Lines</th><th>What's there</th><th>Main names</th></tr></thead>
           <tbody>
-            <tr><td class="num">1–319</td><td>Imports; Operator constants: state and severity colors, attention and work sorting and grouping</td><td class="mono">STATE_COLORS, sortAttentionItems, ComparisonLineChart</td></tr>
-            <tr><td class="num">320–636</td><td>The customization UI and the toolbar option lists</td><td class="mono">CustomizationTitleControls, AssetRevertPopover, FLOW_DIRECTION_ITEMS</td></tr>
-            <tr><td class="num">637–1079</td><td>The Configurator's Properties editor</td><td class="mono">HmiPropertiesListing</td></tr>
-            <tr><td class="num">1080–1697</td><td>Operator widgets: evidence, timeline, NowStrip, issue map, sparklines, StatTile</td><td class="mono">NowStrip, IssueMap, StatTile, AttentionCard</td></tr>
-            <tr><td class="num">1698–1986</td><td>Tree panels and the two center "asset detail" views</td><td class="mono">NowAssetTreePanel, OperatorAssetDetail, NowAssetDetail</td></tr>
-            <tr><td class="num">1987–2305</td><td>ELK layout, diagram option lists, align/distribute, floating-edge geometry</td><td class="mono">getElkLayoutedElements</td></tr>
-            <tr><td class="num">2306–3369</td><td>Diagram and canvas nodes, the Diagram engine, the box, the two manual canvases</td><td class="mono">RelatedAssetsDiagram, RelatedAssetBoxContent, PropertyLayoutCanvas, CardsLayoutCanvas</td></tr>
-            <tr><td class="num">3370–3597</td><td>Cards engine and the read-only views</td><td class="mono">RelatedAssetsCards, ReadOnlyRelatedAssetsView</td></tr>
-            <tr><td class="num">3598–4151</td><td>The Related Assets editor</td><td class="mono">RelatedAssetsPreview</td></tr>
-            <tr><td class="num">4152–4445</td><td>All Assets: visibility list and diagram editor</td><td class="mono">AllAssetsTypeList, AllAssetsDiagram</td></tr>
-            <tr><td class="num">4446–4845</td><td>The Details panel grids</td><td class="mono">NowTypeDetailsList</td></tr>
-            <tr><td class="num">4846–5016</td><td>The center preview that picks an editor per tab</td><td class="mono">NowTypeMainPreview</td></tr>
-            <tr><td class="num">5017–5688</td><td>Operator panels: Attention list, Work list, Investigate, task detail</td><td class="mono">AttentionPanel, WorkListPanel, InvestigatePanel</td></tr>
-            <tr><td class="num">5689–6097</td><td>Contacts and AI chat, the rails and side panel</td><td class="mono">NavRail, SidePanel, RightRail</td></tr>
-            <tr><td class="num">6098–6183</td><td>The outer component: fetch the model, show errors, key the inner one</td><td class="mono">OperatorWorkspace</td></tr>
-            <tr><td class="num">6184–7270</td><td>All state and handlers, and the slot layout</td><td class="mono">OperatorWorkspaceInner</td></tr>
+            <tr><td class="num">1–325</td><td>Imports; Operator constants: state and severity colors, attention and work sorting and grouping</td><td class="mono">STATE_COLORS, sortAttentionItems, ComparisonLineChart</td></tr>
+            <tr><td class="num">326–512</td><td>The customization UI and the Types list columns</td><td class="mono">CustomizationTitleControls, AssetRevertPopover, TYPE_LIST_COLUMNS</td></tr>
+            <tr><td class="num">513–964</td><td>Operator widgets: evidence, timeline, NowStrip, issue map, Line Detail</td><td class="mono">NowStrip, IssueMap, LineDetail, AttentionCard</td></tr>
+            <tr><td class="num">965–1253</td><td>Tree panels and the two center "asset detail" views</td><td class="mono">NowAssetTreePanel, OperatorAssetDetail, NowAssetDetail</td></tr>
+            <tr><td class="num">1254–1807</td><td>The Related Assets editor</td><td class="mono">RelatedAssetsPreview</td></tr>
+            <tr><td class="num">1808–2101</td><td>All Assets: visibility list and diagram editor</td><td class="mono">AllAssetsTypeList, AllAssetsDiagram</td></tr>
+            <tr><td class="num">2102–2501</td><td>The Details panel grids</td><td class="mono">NowTypeDetailsList</td></tr>
+            <tr><td class="num">2502–2672</td><td>The center preview that picks an editor per tab</td><td class="mono">NowTypeMainPreview</td></tr>
+            <tr><td class="num">2673–3344</td><td>Operator panels: Attention list, Work list, Investigate, task detail</td><td class="mono">AttentionPanel, WorkListPanel, InvestigatePanel</td></tr>
+            <tr><td class="num">3345–3753</td><td>Contacts and AI chat, the rails and side panel</td><td class="mono">NavRail, SidePanel, RightRail</td></tr>
+            <tr><td class="num">3754–3839</td><td>The outer component: fetch the model, show errors, key the inner one</td><td class="mono">OperatorWorkspace</td></tr>
+            <tr><td class="num">3840–4926</td><td>All state and handlers, and the slot layout</td><td class="mono">OperatorWorkspaceInner</td></tr>
           </tbody>
         </table>
       </div>
@@ -812,8 +820,8 @@
           <thead><tr><th>Phase</th><th>Moves</th><th>Status</th></tr></thead>
           <tbody>
             <tr><td>1</td><td>Model data and its loader, model queries, settings logic and stores, icons</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip flag">next</span></td></tr>
-            <tr><td>3</td><td>Configurator panels (tree, preview, editors, Details grids, customization UI) and Operator views (Attention, Work, Investigate, NowStrip, issue map)</td><td>planned</td></tr>
+            <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>3</td><td>Configurator panels (tree, preview, editors, Details grids, customization UI) and Operator views (Attention, Work, Investigate, NowStrip, issue map)</td><td><span class="chip flag">next</span></td></tr>
             <tr><td>4</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way</td><td>planned</td></tr>
           </tbody>
         </table>
@@ -821,10 +829,13 @@
       <pre class="tree"><span class="c">src/operator/                      target layout</span>
   OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      (phase 4)</span>
   model/                         <span class="c">modelData, assetQueries                    ✓</span>
-  settings/                      <span class="c">propertyDisplay, displayOrder, customizations ✓</span>
+  settings/                      <span class="c">propertyDisplay, displayOrder, customizations,
+                                 layoutOptions                              ✓</span>
   icons.jsx                      <span class="c">                                            ✓</span>
-  tiles/                         <span class="c">StatTile, sparklines, HmiPropertiesListing  (phase 2)</span>
-  relatedAssets/                 <span class="c">box, Cards, Diagram, canvases, read-only    (phase 2)</span>
+  properties/                    <span class="c">StatTile, sparklines, HmiPropertiesListing,
+                                 PropertyLayoutCanvas                       ✓</span>
+  relatedAssets/                 <span class="c">box, Cards, Diagram, ELK, read-only views   ✓</span>
+  canvas/                        <span class="c">geometry shared by the three canvases       ✓</span>
   configurator/                  <span class="c">tree, preview, Details grids, popovers      (phase 3)</span>
   operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip      (phase 3)</span>
   chrome/                        <span class="c">rails, side panel, contacts, AI chat        (phase 3)</span>
