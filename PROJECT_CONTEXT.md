@@ -35,10 +35,11 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   switcher hides, since models only drive the Operator side). Active work
   is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept, almost entirely contained in one very large file,
-  `src/OperatorWorkspace.jsx` (~7,300 lines). This is where essentially
-  all recent work has happened, and is very likely where new work will
-  continue.
+  concept: `src/OperatorWorkspace.jsx` plus the modules in
+  `src/operator/`. This is where essentially all recent work has
+  happened, and is very likely where new work will continue. It's being
+  split out of one very large file in phases (see `docs/CODE_MAP.html`,
+  the full map of how it fits together).
 
 Four simulated industry models exist — **refinery**, **water**,
 **wastewater** and **wind** (Boreas Ridge, the first generic pack, built
@@ -141,9 +142,22 @@ either mode without extra work.
 
 ## Where things live
 
-- `src/OperatorWorkspace.jsx` — almost everything described above. Huge;
-  search for the specific component name rather than trying to read it
-  top to bottom.
+- `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
+  is wired, the settings chain, the rendering stack, the patterns to know,
+  and where each piece lives. Start here when orienting.
+- `src/OperatorWorkspace.jsx` — the workspace component and the UI
+  components not yet split out (still large; search for a component name
+  rather than reading it top to bottom).
+- `src/operator/model/` — the active model's data (`modelData.js`: the
+  module-level variables and the loader that writes them; nothing else
+  assigns them) and read-only questions about it (`assetQueries.js`).
+- `src/operator/settings/` — per-property visuals and visibility
+  (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
+  assets differ from their type" (`customizations.js`), plus the shared
+  stores those publish through.
+- `src/operator/icons.jsx` — every inline-SVG icon.
+- `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
+  now, kept on purpose for future use. Leave it in place.
 - `src/App.js` — the outer shell: title bar, nav dropdown, model
   switcher, the title-bar Save button's enablement logic.
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of

@@ -22,16 +22,15 @@
 // separate chat surface — this is the thing the brainstorm doc keeps
 // calling out as the actual differentiator vs. a traditional HMI+chatbot.
 
-import React, { useState, useMemo, useCallback, useEffect, useRef, useContext, createContext, forwardRef, useImperativeHandle, useSyncExternalStore } from 'react';
+import { useMemo, useState, useEffect, createContext, useRef, useCallback, forwardRef, useImperativeHandle, useContext } from 'react';
 import { Popover } from 'devextreme-react/popover';
-import { custom as customDialog } from 'devextreme/ui/dialog';
+import { confirm, custom as customDialog } from 'devextreme/ui/dialog';
 import { useUnsavedTracker, unsavedChangesStore } from './unsavedChangesStore';
 import { CheckBox } from 'devextreme-react/check-box';
-import { Splitter } from 'devextreme-react';
+import { TabPanel, Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { SelectBox } from 'devextreme-react/select-box';
 import ButtonGroup, { Item as ButtonGroupItem } from 'devextreme-react/button-group';
-import { TabPanel } from 'devextreme-react';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import DataListGrid from './DataListGrid';
 import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from './typeDisplayTemplatesStorage';
@@ -50,61 +49,21 @@ import { loadAssetPropertyOrders, saveAssetPropertyOrders } from './assetPropert
 import { loadTypeRelatedAssetOrders, saveTypeRelatedAssetOrders } from './typeRelatedAssetOrderStorage';
 import { loadAssetRelatedAssetOrders, saveAssetRelatedAssetOrders } from './assetRelatedAssetOrderStorage';
 import notify from 'devextreme/ui/notify';
-import { confirm } from 'devextreme/ui/dialog';
 import Button from 'devextreme-react/button';
-import {
-  Chart, Series, Point, ArgumentAxis, ValueAxis,
-  Grid as ChartGrid, Legend as ChartLegend, Tooltip as ChartTooltip,
-  Export as ChartExport, CommonSeriesSettings, Aggregation,
-} from 'devextreme-react/chart';
+import { Chart, CommonSeriesSettings, Series, Point, Aggregation, ArgumentAxis, Grid as ChartGrid, ValueAxis, Legend as ChartLegend, Tooltip as ChartTooltip, Export as ChartExport } from 'devextreme-react/chart';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import ELK from 'elkjs/lib/elk.bundled.js';
-import {
-  ReactFlow,
-  ReactFlowProvider,
-  Background,
-  useNodesState,
-  useEdgesState,
-  useNodesInitialized,
-  useReactFlow,
-  useInternalNode,
-  Handle,
-  BaseEdge,
-  getBezierPath,
-  getSmoothStepPath,
-  getStraightPath,
-  ConnectionMode,
-  MarkerType,
-  Panel,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import RangeSelector, {
-  Size as RsSize, Scale as RsScale, Chart as RsChart, ValueAxis as RsValueAxis,
-  Series as RsSeries, Behavior as RsBehavior, Aggregation as RsAggregation,
-} from 'devextreme-react/range-selector';
+import { useInternalNode, getStraightPath, getSmoothStepPath, getBezierPath, BaseEdge, Handle, ReactFlowProvider, useNodesState, useEdgesState, useNodesInitialized, useReactFlow, MarkerType, ReactFlow, Background, Panel } from '@xyflow/react';
+import RangeSelector, { Size as RsSize, Chart as RsChart, ValueAxis as RsValueAxis, Series as RsSeries, Aggregation as RsAggregation, Scale as RsScale, Behavior as RsBehavior } from 'devextreme-react/range-selector';
 import Sparkline from 'devextreme-react/sparkline';
 import HierarchyTree from './HierarchyTree';
-import { ASSET_DATA, ASSET_MAP } from './assetData';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock data — "Now" (line status strip)
-// ─────────────────────────────────────────────────────────────────────────────
-
-// LineThroughputRate at 2026-08-28 14:05 from the nextgen simulation
-// workbook, against each line's target rate from OperatingContext.
-// FER_L02 is flagged 'attention' (Component Degradation + Recurring
-// Micro-stops both live there right now); FER_L04 is 'changeover' — its
-// low output is expected mid-transition, not a problem, so it gets a
-// duration indicator instead of a percent gauge, same as before.
-// statusSinceMinutes = how long each line has held its CURRENT state, as of
-// the shared 14:05 reference — real numbers, not estimates:
-//   - Running lines: minutes since their last situation actually resolved
-//     (A2 never had one at all, so it's running since shift start, 08:00).
-//   - F2 (attention): minutes since the EARLIER of its two situations'
-//     real AttentionRequired timestamp (SIT05, 10:25 — SIT12 didn't
-//     require attention until 13:55, so SIT05 is the one that set this).
-//   - F4 (changeover): minutes since the changeover actually began, 13:50.
-let LINE_STATUS = [];
+import '@xyflow/react/dist/style.css';
+import { AiTabIcon, AlignBottomIcon, AlignCenterHIcon, AlignLeftIcon, AlignMiddleIcon, AlignRightIcon, AlignTopIcon, AllFilterIcon, AlwaysFilterIcon, ArrowOffIcon, ArrowOnIcon, AssetsRailIcon, AttentionRailIcon, CardsLayoutIcon, CaretIcon, ChatTabIcon, ClusterIcon, ColumnFlowIcon, ConfidenceIcon, ConnectionAnywhereIcon, ConnectionCenterIcon, DashIcon, DetailsTabIcon, DiagramLayoutIcon, DistributeHorizontalIcon, DistributeIcon, DistributeVerticalIcon, ForceAlgorithmIcon, GearIcon, IconButtonGroupItem, LabelOffIcon, LabelOnIcon, LayeredAlgorithmIcon, NoWrapIcon, NowStatusIcon, OrthogonalRoutingIcon, PlayPauseIcon, PolylineRoutingIcon, RadialAlgorithmIcon, RiskAlertIcon, RowFlowIcon, ShieldCheckIcon, SometimesFilterIcon, TreeAlgorithmIcon, TrendUpIcon, VisibilityStateIcon, VisualizationRailIcon, WorkTabIcon, WrapIcon } from './operator/icons';
+import { CONTAINMENT_EDGE_STYLE, HMI_CATEGORY_ORDER, assetTypeIdOf, attentionAssetToStationId, buildTypeList, deslugifyType, getAllAssetRelationshipsForModel, getAssetDisplayLabel, getAssetPathLabel, getAttentionItemAssetEntry, getAttentionItemPrimarySeries, getAttentionItemTypeId, getPropertySeriesForSource, getPropertyVisibilityForType, getRelatedAssetsForType, isAttentionItemActiveAtTime, nowTileIdToAssetId, resolveAssetProperties, sliceSeriesToRange } from './operator/model/assetQueries';
+import { ATTENTION_ITEMS, CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_MODEL, CURRENT_MODEL_SHAPE, CURRENT_TIMESTAMPS, INITIAL_WORK_ITEMS, LINE_ROLLUPS, LINE_SPARKLINES, LINE_STATUS, OPERATING_CONTEXT_BY_LINE, PROPERTY_CATEGORIES, PROPERTY_DECIMALS, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_TIERS, PROPERTY_UNITS, STATION_FULL_PROPERTIES, STATION_METRICS, STATION_SPARKLINES, WORK_NOW_REFERENCE, activateLoadedModel, minutesToShiftDate, padEvidenceAcrossShift, timeStrToMinutes } from './operator/model/modelData';
+import { EMPTY_CUSTOMIZATIONS, UNDO_TOAST_MS, assetCustomizationStore, computeAssetCustomizations, normalizedLayout, useAssetCustomizations } from './operator/settings/customizations';
+import { EMPTY_DISPLAY_ORDERS, applySavedOrder, categoryOrderedPropertyKeys, displayOrderStore, resolveEntityOrder, sortRowsByOrder, useDisplayOrders } from './operator/settings/displayOrder';
+import { KPI_VIEW_MODE_ITEMS, PROPERTY_VIEW_MODE_DEFAULT, PROPERTY_VIEW_MODE_OVERRIDE_ITEMS, PROPERTY_VIEW_MODE_UPDATE_TYPE, RELATED_ASSET_VISIBILITY_CYCLE, VISIBILITY_CYCLE, VISIBILITY_LABEL, mergePropertyViewModes, resolvePropertyViewMode } from './operator/settings/propertyDisplay';
 
 const STATE_COLORS = {
   running:    '#4ade80',
@@ -120,34 +79,6 @@ const STATE_LABELS = {
   down: 'Down',
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Attention items — migrated from the real Jan 1 historian window to the
-// nextgen scenario dataset (aetherium_nextgen_simulation_v1.xlsx), so the
-// whole interface now runs on one timeline instead of two. 13 of the 14
-// scenarios are represented (SIT02–SIT14 — SIT01 "Normal Shift" is
-// deliberately excluded: it has no real situation, and the whole point of
-// that scenario is proving the system stays quiet, which an Attention
-// item for it would undercut).
-//
-// All content — signal, evidence, hypotheses, events, outcomes — is pulled
-// from the workbook's real records (Situations/SituationEvidence/
-// SituationHypotheses/Events/GroundTruth sheets) at the shared 2026-08-28
-// 14:05 reference point, not invented. Two adaptations worth knowing about:
-//   - SituationHypotheses is really "competing explanations for this one
-//     situation," not "similar past occurrences" — repurposed into the
-//     Similar card as ruled-out alternatives, which is close in spirit but
-//     not identical to what that card originally meant.
-//   - For situations still active at 14:05 (SIT05, SIT12), the eventual
-//     OperationalMemory record (confirmed cause, successful fix) is
-//     deliberately withheld, since the AI shouldn't know the answer before
-//     its own diagnosis has actually gotten there — this is the exact
-//     "detection confidence vs. diagnosis maturity" distinction from the
-//     Aug 27 design conversation.
-// ─────────────────────────────────────────────────────────────────────────────
-
-let ATTENTION_ITEMS = [];
-
-
 const SEVERITY_COLORS = {
   high: '#d64545',
   medium: '#e0a336',
@@ -155,6 +86,7 @@ const SEVERITY_COLORS = {
 };
 
 const SEVERITY_ORDER = { high: 0, medium: 1, low: 2 };
+
 const SEVERITY_LABELS = { high: 'High', medium: 'Medium', low: 'Low' };
 
 // A second, independent axis from severity — "how bad is this" vs "what's
@@ -167,6 +99,7 @@ const ATTENTION_STATE_COLORS = {
   act: '#0e8a7d',
   urgent: '#b91c3c',
 };
+
 const ATTENTION_STATE_LABELS = {
   watch: 'Watch',
   investigate: 'Investigate',
@@ -232,33 +165,13 @@ function groupAttentionItems(items, groupBy) {
   }));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Mock data — "Work" items
-//
-// Real content mined from aetherium_nextgen_simulation_v1.xlsx (WorkItems +
-// WorkDependencies sheets) — the Aug 28 scenario-driven simulation. This is
-// now the SAME dataset the Attention items above are grounded in (both
-// migrated together), replacing the old real Jan 1 historian window
-// entirely — one timeline for the whole interface, not two.
-//
-// "Now" for the whole interface is pinned to 2026-08-28 14:05 — the middle
-// of Ferrum F4's real changeover window, which is what actually produces a
-// good planned/unplanned + time-margin story (11 of 14 items already done,
-// 3 genuinely live: one overdue by 5 min, one due right now, one with 15
-// min left).
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Reassigned by applyTimeline() whenever a model finishes loading — the
-// legacy packs all share the 2026-08-28 08:00–14:05 shift below; a generic
-// pack declares its own timeline in asset-telemetry.json.
-let WORK_NOW_REFERENCE = new Date('2026-08-28T14:05:00');
-
 const WORK_PRIORITY_ORDER = { urgent: 0, important: 1, routine: 2 };
-const WORK_PRIORITY_COLORS = { urgent: '#d64545', important: '#e0a336', routine: '#8c8c8c' };
-const WORK_PRIORITY_LABELS = { urgent: 'Urgent', important: 'Important', routine: 'Routine' };
-const WORK_SOURCE_TYPE_LABELS = { planned: 'Planned', situation: 'Unplanned' };
 
-let INITIAL_WORK_ITEMS = [];
+const WORK_PRIORITY_COLORS = { urgent: '#d64545', important: '#e0a336', routine: '#8c8c8c' };
+
+const WORK_PRIORITY_LABELS = { urgent: 'Urgent', important: 'Important', routine: 'Routine' };
+
+const WORK_SOURCE_TYPE_LABELS = { planned: 'Planned', situation: 'Unplanned' };
 
 function formatCreatedAt(date) {
   if (!date) return null;
@@ -350,68 +263,6 @@ function AiPill() {
   return <span className="op-ai-pill">AI</span>;
 }
 
-// One of two chart-type options for the Evidence card (toggled via a
-// ButtonGroup) — a conventional line chart with a visible axis, gridlines,
-// and point markers at each reading.
-let SHIFT_START_MIN = 8 * 60;   // 08:00 — see applyTimeline()
-let NOW_REFERENCE_MIN = 14 * 60 + 5; // 14:05, the active model's "now"
-const PAD_STEP_MIN = 15;
-
-// The active model's timeline. Legacy packs don't declare one, so they get
-// the shared demo shift they were all generated on; generic packs declare
-// theirs in asset-telemetry.json (INDUSTRY_PACK_SPEC.md §4.2).
-const LEGACY_TIMELINE = { date: '2026-08-28', start: '08:00', end: '14:05', stepMinutes: 5 };
-let CURRENT_TIMELINE = LEGACY_TIMELINE;
-// The active model's "HH:MM" sample grid — every series in the model has
-// exactly one value per entry. Everything that scrubs, slices or labels
-// time reads this rather than a specific telemetry file.
-let CURRENT_TIMESTAMPS = [];
-
-function applyTimeline(timeline, timestamps) {
-  CURRENT_TIMELINE = timeline || LEGACY_TIMELINE;
-  CURRENT_TIMESTAMPS = timestamps || [];
-  SHIFT_START_MIN = timeStrToMinutes(CURRENT_TIMELINE.start);
-  NOW_REFERENCE_MIN = timeStrToMinutes(CURRENT_TIMELINE.end);
-  WORK_NOW_REFERENCE = new Date(`${CURRENT_TIMELINE.date}T${CURRENT_TIMELINE.end}:00`);
-}
-
-function timeStrToMinutes(t) {
-  const [h, m] = t.split(':').map(Number);
-  return h * 60 + m;
-}
-
-function minutesToShiftDate(mins) {
-  const [y, mo, d] = CURRENT_TIMELINE.date.split('-').map(Number);
-  return new Date(y, mo - 1, d, Math.floor(mins / 60), mins % 60);
-}
-
-// The chart used to be scoped to ONLY the event's own evidencePoints —
-// honest, but too little data for the RangeSelector to zoom out into
-// (nothing existed outside that narrow window to zoom out TO). This pads
-// the real event data with flat baseline values spanning the rest of the
-// shift, so there's an actual full-shift dataset to work with. It's a
-// stand-in, not real telemetry outside the event window — flagged here so
-// it's not mistaken for one later. Real per-property full-shift samples
-// (like STATION_TELEMETRY already has for other views) would replace this
-// properly once this attention-item data model records which property
-// each item's evidence actually corresponds to.
-function padEvidenceAcrossShift(evidencePoints, evidence) {
-  const real = evidencePoints.map((p, i) => ({ minutes: timeStrToMinutes(p.time), value: evidence[i] }));
-  const first = real[0];
-  const last = real[real.length - 1];
-  const padded = [];
-  for (let m = SHIFT_START_MIN; m < first.minutes - PAD_STEP_MIN; m += PAD_STEP_MIN) {
-    padded.push({ minutes: m, value: first.value });
-  }
-  padded.push(...real);
-  for (let m = last.minutes + PAD_STEP_MIN; m <= NOW_REFERENCE_MIN; m += PAD_STEP_MIN) {
-    padded.push({ minutes: m, value: last.value });
-  }
-  return padded
-    .sort((a, b) => a.minutes - b.minutes)
-    .map(p => ({ time: minutesToShiftDate(p.minutes), value: p.value }));
-}
-
 // fullSeries (optional): the item's real primary-property series, one value
 // per CURRENT_TIMESTAMPS entry. When present it replaces the padded
 // stand-in entirely — the chart then shows the actual whole-timeline trend,
@@ -476,290 +327,6 @@ const RELATED_ASSETS_SUBVIEW_ITEMS = [
   { text: 'This Asset', value: 'thisAsset' },
   { text: 'Related Assets', value: 'related' },
 ];
-
-const KPI_VIEW_MODE_ITEMS = [
-  { text: 'None', value: 'none' },
-  { text: 'Text', value: 'text' },
-  { text: 'Indicator', value: 'indicator' },
-  { text: 'Spark', value: 'spark' },
-  { text: 'All', value: 'all' },
-];
-
-// Per-property visual overrides — the Details panel's Visual column. The
-// toolbar's view mode (KPI_VIEW_MODE_ITEMS above) stays the default for
-// every property without one of these. "None" is deliberately not offered
-// per property: hiding a single property is what the Visibility column
-// already does, and two separate ways to hide the same thing would just
-// be confusing. "None" as the toolbar default still works, though, and
-// reads naturally alongside overrides: "show nothing, except the
-// properties I've explicitly given a visual."
-const PROPERTY_VIEW_MODE_DEFAULT = 'default';
-// Not a visual — the Visual dropdown's action item for an asset row that
-// sets its own visual: "↑ Update type to <that visual>". Intercepted in
-// onValueChanged and never stored.
-const PROPERTY_VIEW_MODE_UPDATE_TYPE = '__update_type__';
-const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i => i.value !== 'none');
-
-// The one place a single property's effective visual is decided —
-// explicit per-property override first, else the template's (or toolbar's)
-// shared default. Used by both HmiPropertiesListing (the Configurator's
-// editing preview) and RelatedAssetBoxContent (every read-only box), so
-// the two can't drift apart.
-function resolvePropertyViewMode(propertyViewModes, key, defaultViewMode) {
-  return propertyViewModes?.[key] ?? defaultViewMode;
-}
-
-// Per-property visuals merge property by property, asset over type —
-// unlike the rest of the display template (viewMode, flow, manual
-// layout), which is still all-or-nothing. An asset stores only the
-// properties it has explicitly set itself; every other property keeps
-// following its type's per-property choice, even after the asset saves a
-// template of its own, and even if the type's choice changes later. A
-// property set at neither level falls back to the effective template's
-// viewMode (the asset's own if it has a template, else its type's). So
-// the full precedence for one property is:
-//   asset's own choice > type's choice > effective default viewMode.
-// Same shape as property visibility, which has always merged this way.
-function mergePropertyViewModes(typeTemplate, assetTemplate) {
-  return { ...(typeTemplate?.propertyViewModes || {}), ...(assetTemplate?.propertyViewModes || {}) };
-}
-
-// ─── Display order: properties and related assets ──────────────────────
-//
-// Both lists can be reordered (drag rows in the Details panel), at the
-// type level and per asset. An asset's own order replaces its type's as a
-// whole — an order is one list, there's nothing to merge key by key. With
-// no saved order at either level, properties keep their default grouping
-// by category (the order the Configurator preview has always used) and
-// related assets their natural order. Keys a saved order doesn't mention
-// (a property or relationship that appeared after it was saved) follow at
-// the end, in their default order; keys it mentions that no longer exist
-// are simply skipped.
-
-// Default property order: grouped by HMI category, known categories first
-// in HMI_CATEGORY_ORDER, then any others in first-seen order — exactly the
-// grouping HmiPropertiesListing has always rendered in.
-function categoryOrderedPropertyKeys(keys) {
-  const byCategory = new Map();
-  keys.forEach(key => {
-    const category = PROPERTY_CATEGORIES[key] || 'Other';
-    if (!byCategory.has(category)) byCategory.set(category, []);
-    byCategory.get(category).push(key);
-  });
-  const known = HMI_CATEGORY_ORDER.filter(c => byCategory.has(c));
-  const extra = [...byCategory.keys()].filter(c => !HMI_CATEGORY_ORDER.includes(c));
-  return [...known, ...extra].flatMap(c => byCategory.get(c));
-}
-
-function applySavedOrder(keys, order) {
-  if (!order || !order.length) return keys;
-  const present = new Set(keys);
-  const ordered = order.filter(k => present.has(k));
-  const orderedSet = new Set(ordered);
-  return [...ordered, ...keys.filter(k => !orderedSet.has(k))];
-}
-
-function sortRowsByOrder(rows, order) {
-  if (!order || !order.length) return rows;
-  const byKey = new Map(rows.map(r => [r.key, r]));
-  return applySavedOrder(rows.map(r => r.key), order).map(k => byKey.get(k));
-}
-
-// Asset's own order if it has one, else its type's (else undefined =
-// default order).
-function resolveEntityOrder(typeOrders, assetOrders, typeId, assetId) {
-  return (assetId && assetOrders?.[assetId]) || typeOrders?.[typeId];
-}
-
-// Same module-level store pattern as assetCustomizationStore below, for
-// the same reason: RelatedAssetBoxContent renders inside React Flow nodes
-// and a dozen other places, and threading four more maps through every one
-// of them would touch most of this file. OperatorWorkspaceInner is the
-// only writer.
-const EMPTY_DISPLAY_ORDERS = { typeProperty: {}, assetProperty: {}, typeRelated: {}, assetRelated: {}, setOrder: () => {} };
-const displayOrderStore = {
-  snapshot: EMPTY_DISPLAY_ORDERS,
-  listeners: new Set(),
-  set(next) {
-    this.snapshot = next;
-    this.listeners.forEach(listener => listener());
-  },
-  subscribe: listener => {
-    displayOrderStore.listeners.add(listener);
-    return () => displayOrderStore.listeners.delete(listener);
-  },
-  getSnapshot: () => displayOrderStore.snapshot,
-};
-function useDisplayOrders() {
-  return useSyncExternalStore(displayOrderStore.subscribe, displayOrderStore.getSnapshot);
-}
-
-// ─── Asset customizations: which assets differ from their type ─────────
-//
-// "Customized" deliberately means "renders differently from its type",
-// not merely "has asset-level entries stored". Saving an asset writes its
-// whole display template — layout fields copied straight from the type —
-// so an asset whose only change was one property's visual would otherwise
-// also read as having a customized layout. Comparing against the type
-// keeps the indicators honest. (Revert still clears every asset-level
-// entry, matching or not — see hasOwn below — so a reverted asset follows
-// all future type changes again.)
-
-// A display template's layout fields with the same defaults every
-// renderer uses, so "no template" and "a template holding the defaults"
-// compare equal. Manual positions only matter in manual mode.
-function normalizedLayout(template) {
-  const layoutMode = template?.layoutMode ?? 'auto';
-  return JSON.stringify({
-    viewMode: template?.viewMode ?? 'text',
-    flowDirection: template?.flowDirection ?? 'row',
-    flowWrap: template?.flowWrap ?? 'wrap',
-    alignContent: template?.alignContent ?? 'flex-start',
-    layoutMode,
-    manualPositions: layoutMode === 'manual' ? (template?.manualPositions ?? {}) : {},
-  });
-}
-
-function assetTypeIdOf(asset) {
-  return `TYPE_${asset.assetLevel}_${asset.assetType}`;
-}
-
-// "Aurelia › A1 › Buffer" — the full path, since sibling assets of the
-// same type (every line's Buffer) otherwise read identically in a list.
-function getAssetPathLabel(assetId) {
-  const names = [];
-  const seen = new Set();
-  let current = CURRENT_ASSET_MAP[assetId];
-  while (current && !seen.has(current.id)) {
-    seen.add(current.id);
-    names.unshift(current.name);
-    current = current.parentId != null ? CURRENT_ASSET_MAP[current.parentId] : null;
-  }
-  return names.length ? names.join(' › ') : assetId;
-}
-
-// One pass over the current model's assets. Returns:
-//   byAsset[assetId] = { typeId, layout, visuals: [keys], visibility: [keys],
-//                        related, differs, hasOwn, summary }
-//   byType[typeId] = [assetIds that differ]
-//   byTypeProperty[typeId][propertyKey] = [assetIds whose visual or
-//                        visibility for that one property differs]
-function computeAssetCustomizations({ typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, typePropertyOrders, assetPropertyOrders, typeRelatedAssetOrders, assetRelatedAssetOrders, typeList }) {
-  // An asset's own order differs from its type's when, over the keys the
-  // asset's order lists, the type's effective order (its saved one, else
-  // the default) puts them differently. Default related-asset order is per
-  // type, so it's worked out once per type, on demand.
-  const defaultRelatedOrderByType = new Map();
-  const defaultRelatedOrder = typeId => {
-    if (!defaultRelatedOrderByType.has(typeId)) {
-      defaultRelatedOrderByType.set(typeId, typeList ? getRelatedAssetsForType(typeId, typeList).map(r => r.key) : []);
-    }
-    return defaultRelatedOrderByType.get(typeId);
-  };
-  const orderDiffers = (own, typeKeysInOrder) => {
-    const ownSet = new Set(own);
-    const typeSeq = typeKeysInOrder.filter(k => ownSet.has(k));
-    const ownSeq = own.filter(k => typeSeq.includes(k));
-    return ownSeq.join('|') !== typeSeq.join('|');
-  };
-  const byAsset = {};
-  const byType = {};
-  const byTypeProperty = {};
-  const containsCustomized = {}; // ancestor asset id -> count of customized descendants
-  (CURRENT_ASSET_DATA || []).forEach(asset => {
-    const id = asset.id;
-    const assetTemplate = assetDisplayTemplates?.[id];
-    const ownVisibility = assetPropertyConfigs?.[id] || {};
-    const ownRelated = assetRelatedAssetConfigs?.[id] || {};
-    const ownRelatedTemplate = assetRelatedAssetsTemplates?.[id];
-    const ownPropertyOrder = assetPropertyOrders?.[id];
-    const ownRelatedOrder = assetRelatedAssetOrders?.[id];
-    const hasOwn = !!assetTemplate || Object.keys(ownVisibility).length > 0 || Object.keys(ownRelated).length > 0 || !!ownRelatedTemplate
-      || !!ownPropertyOrder || !!ownRelatedOrder;
-    if (!hasOwn) return;
-
-    const typeId = assetTypeIdOf(asset);
-    const propertyOrder = !!ownPropertyOrder && orderDiffers(
-      ownPropertyOrder,
-      applySavedOrder(categoryOrderedPropertyKeys(ownPropertyOrder), typePropertyOrders?.[typeId]),
-    );
-    const relatedOrder = !!ownRelatedOrder && orderDiffers(
-      ownRelatedOrder,
-      applySavedOrder(defaultRelatedOrder(typeId), typeRelatedAssetOrders?.[typeId]),
-    );
-    const typeTemplate = typeDisplayTemplates?.[typeId];
-    const layout = !!assetTemplate && normalizedLayout(assetTemplate) !== normalizedLayout(typeTemplate);
-    const typeDefaultView = typeTemplate?.viewMode ?? 'text';
-    const visuals = Object.entries(assetTemplate?.propertyViewModes || {})
-      .filter(([key, mode]) => mode !== (typeTemplate?.propertyViewModes?.[key] ?? typeDefaultView))
-      .map(([key]) => key);
-    const typeVisibility = typePropertyConfigs?.[typeId] || {};
-    const visibility = Object.entries(ownVisibility)
-      .filter(([key, v]) => v !== (typeVisibility[key] || 'always'))
-      .map(([key]) => key);
-    const typeRelated = typeRelatedAssetConfigs?.[typeId] || {};
-    const related = Object.entries(ownRelated).some(([key, v]) => v !== (typeRelated[key] || 'always'))
-      || (!!ownRelatedTemplate && JSON.stringify(ownRelatedTemplate) !== JSON.stringify(relatedAssetsTemplates?.[typeId] ?? null));
-    const differs = layout || visuals.length > 0 || visibility.length > 0 || related || propertyOrder || relatedOrder;
-
-    const summaryParts = [];
-    if (layout) summaryParts.push('layout');
-    if (visuals.length) summaryParts.push(`${visuals.length} property visual${visuals.length > 1 ? 's' : ''}`);
-    if (visibility.length) summaryParts.push(`${visibility.length} property visibilit${visibility.length > 1 ? 'ies' : 'y'}`);
-    if (related) summaryParts.push('related assets');
-    if (propertyOrder) summaryParts.push('property order');
-    if (relatedOrder) summaryParts.push('related asset order');
-    const propertyDetails = {};
-    new Set([...visuals, ...visibility]).forEach(key => {
-      propertyDetails[key] = describePropertyDifference(id, key, assetDisplayTemplates, assetPropertyConfigs);
-    });
-    byAsset[id] = { typeId, layout, visuals, visibility, related, propertyOrder, relatedOrder, differs, hasOwn, summary: summaryParts.join(', '), propertyDetails };
-
-    if (differs) {
-      (byType[typeId] = byType[typeId] || []).push(id);
-      const seen = new Set([id]);
-      let parentId = asset.parentId;
-      while (parentId != null && CURRENT_ASSET_MAP[parentId] && !seen.has(parentId)) {
-        seen.add(parentId);
-        containsCustomized[parentId] = (containsCustomized[parentId] || 0) + 1;
-        parentId = CURRENT_ASSET_MAP[parentId].parentId;
-      }
-      const perProperty = (byTypeProperty[typeId] = byTypeProperty[typeId] || {});
-      new Set([...visuals, ...visibility]).forEach(key => {
-        (perProperty[key] = perProperty[key] || []).push(id);
-      });
-    }
-  });
-  return { byAsset, byType, byTypeProperty, containsCustomized };
-}
-
-// A tiny module-level store for the result above, plus the actions that
-// act on it (revert, open an asset). Some consumers are DevExtreme item
-// and cell templates (the Assets tree's rows, the Types grid's cells),
-// whose render functions are handed to DevExtreme once and can't take
-// fresh props — so rather than thread this through ~6 components and
-// force those widgets to repaint, anything that needs it subscribes here.
-// OperatorWorkspaceInner is the only writer.
-// How long a revert's Undo stays offered.
-const UNDO_TOAST_MS = 10000;
-
-const EMPTY_CUSTOMIZATIONS = { byAsset: {}, byType: {}, byTypeProperty: {}, containsCustomized: {}, actions: {} };
-const assetCustomizationStore = {
-  snapshot: EMPTY_CUSTOMIZATIONS,
-  listeners: new Set(),
-  set(next) {
-    this.snapshot = next;
-    this.listeners.forEach(listener => listener());
-  },
-  subscribe: listener => {
-    assetCustomizationStore.listeners.add(listener);
-    return () => assetCustomizationStore.listeners.delete(listener);
-  },
-  getSnapshot: () => assetCustomizationStore.snapshot,
-};
-function useAssetCustomizations() {
-  return useSyncExternalStore(assetCustomizationStore.subscribe, assetCustomizationStore.getSnapshot);
-}
 
 // Filled blue dot — the same "set on this asset" mark the Details panel's
 // Visual column uses, so the one visual language means "this asset
@@ -918,18 +485,6 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
   );
 }
 
-// Details panel, type view: "N" next to a property that some of this
-// type's assets set differently (visual and/or visibility), opening the
-// same checklist scoped to just that property.
-function describePropertyDifference(assetId, propertyKey, assetDisplayTemplates, assetPropertyConfigs) {
-  const parts = [];
-  const visual = assetDisplayTemplates?.[assetId]?.propertyViewModes?.[propertyKey];
-  if (visual) parts.push(`Visual: ${KPI_VIEW_MODE_ITEMS.find(i => i.value === visual)?.text ?? visual}`);
-  const vis = assetPropertyConfigs?.[assetId]?.[propertyKey];
-  if (vis) parts.push(`Show: ${VISIBILITY_LABEL[vis] ?? vis}`);
-  return parts.join(' · ');
-}
-
 // Selecting a tier shows that tier plus everything more important than it —
 // picking P1 shows only P1; picking P3 shows P3, P2, and P1 (everything).
 const TIER_FILTER_ITEMS = [
@@ -937,336 +492,8 @@ const TIER_FILTER_ITEMS = [
   { text: 'P2', value: 'P2' },
   { text: 'P3', value: 'P3' },
 ];
+
 const TIER_RANK = { P1: 1, P2: 2, P3: 3 };
-
-// Icon components for the flow-control button groups below — 16px,
-// currentColor stroke, matching the convention already used elsewhere in
-// this file (VisualizationRailIcon, VisibilityStateIcon, etc.) so they pick up the
-// button's active/inactive text color automatically.
-function ColumnFlowIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="3" y1="4" x2="13" y2="4" />
-      <line x1="3" y1="8" x2="13" y2="8" />
-      <line x1="3" y1="12" x2="13" y2="12" />
-    </svg>
-  );
-}
-function RowFlowIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="4" y1="3" x2="4" y2="13" />
-      <line x1="8" y1="3" x2="8" y2="13" />
-      <line x1="12" y1="3" x2="12" y2="13" />
-    </svg>
-  );
-}
-function WrapIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 5h7a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H6" />
-      <path d="M8.5 6.5 6 9l2.5 2.5" />
-    </svg>
-  );
-}
-function NoWrapIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="2" y1="8" x2="11" y2="8" />
-      <path d="M8.5 5.5 11 8l-2.5 2.5" />
-      <line x1="14" y1="4" x2="14" y2="12" />
-    </svg>
-  );
-}
-function DistributeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="2" y1="3" x2="2" y2="13" />
-      <line x1="8" y1="3" x2="8" y2="13" />
-      <line x1="14" y1="3" x2="14" y2="13" />
-    </svg>
-  );
-}
-function ClusterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="3" y1="3" x2="3" y2="13" />
-      <line x1="6" y1="3" x2="6" y2="13" />
-      <line x1="9" y1="3" x2="9" y2="13" />
-    </svg>
-  );
-}
-// Diagram algorithm icons — nodes as small filled circles, edges as thin
-// lines, each shape suggesting the algorithm's characteristic structure
-// (layered = rows connected top-to-bottom, tree = a branching hierarchy,
-// radial = a hub-and-spoke ring, force = an irregular organic cluster
-// with no clear center or hierarchy, unlike the other three).
-function LayeredAlgorithmIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-      <line x1="5" y1="3" x2="5" y2="8" />
-      <line x1="11" y1="3" x2="11" y2="8" />
-      <line x1="5" y1="8" x2="5" y2="13" />
-      <line x1="11" y1="8" x2="11" y2="13" />
-      <circle cx="5" cy="3" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="11" cy="3" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="5" cy="8" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="11" cy="8" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="5" cy="13" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="11" cy="13" r="1.3" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function TreeAlgorithmIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-      <line x1="8" y1="3" x2="3" y2="9" />
-      <line x1="8" y1="3" x2="8" y2="9" />
-      <line x1="8" y1="3" x2="13" y2="9" />
-      <circle cx="8" cy="3" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="3" cy="9" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="8" cy="9" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="13" cy="9" r="1.3" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function RadialAlgorithmIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-      <line x1="8" y1="8" x2="8" y2="2.5" />
-      <line x1="8" y1="8" x2="13" y2="5.5" />
-      <line x1="8" y1="8" x2="13" y2="10.5" />
-      <line x1="8" y1="8" x2="8" y2="13.5" />
-      <line x1="8" y1="8" x2="3" y2="10.5" />
-      <line x1="8" y1="8" x2="3" y2="5.5" />
-      <circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none" />
-      <circle cx="8" cy="2.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="13" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="13" cy="10.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="8" cy="13.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="3" cy="10.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="3" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function ForceAlgorithmIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-      <line x1="2.5" y1="5" x2="7" y2="3" />
-      <line x1="7" y1="3" x2="11.5" y2="5.5" />
-      <line x1="2.5" y1="5" x2="6" y2="10" />
-      <line x1="11.5" y1="5.5" x2="13" y2="11" />
-      <line x1="6" y1="10" x2="9.5" y2="13" />
-      <line x1="13" y1="11" x2="9.5" y2="13" />
-      <line x1="6" y1="10" x2="11.5" y2="5.5" />
-      <circle cx="2.5" cy="5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="7" cy="3" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="11.5" cy="5.5" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="6" cy="10" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="13" cy="11" r="1.1" fill="currentColor" stroke="none" />
-      <circle cx="9.5" cy="13" r="1.1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function CardsLayoutIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="1" y="4" width="4" height="8" rx="0.5" />
-      <rect x="6" y="4" width="4" height="8" rx="0.5" />
-      <rect x="11" y="4" width="4" height="8" rx="0.5" />
-    </svg>
-  );
-}
-function DiagramLayoutIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="1" y="6" width="4" height="4" rx="0.5" />
-      <rect x="11" y="6" width="4" height="4" rx="0.5" />
-      <line x1="5" y1="8" x2="11" y2="8" />
-    </svg>
-  );
-}
-function OrthogonalRoutingIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <polyline points="2,4 9,4 9,12 14,12" />
-    </svg>
-  );
-}
-function PolylineRoutingIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <polyline points="2,4 7,10 14,4" />
-    </svg>
-  );
-}
-function AlignTopIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="1" y1="2" x2="15" y2="2" />
-      <rect x="3" y="4" width="3" height="5" />
-      <rect x="7" y="4" width="3" height="9" />
-      <rect x="11" y="4" width="3" height="3" />
-    </svg>
-  );
-}
-function AlignMiddleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="1" y1="8" x2="15" y2="8" strokeDasharray="2,2" />
-      <rect x="3" y="5.5" width="3" height="5" />
-      <rect x="7" y="3.5" width="3" height="9" />
-      <rect x="11" y="6.5" width="3" height="3" />
-    </svg>
-  );
-}
-function AlignBottomIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="1" y1="14" x2="15" y2="14" />
-      <rect x="3" y="7" width="3" height="5" />
-      <rect x="7" y="3" width="3" height="9" />
-      <rect x="11" y="9" width="3" height="3" />
-    </svg>
-  );
-}
-function AlignLeftIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="2" y1="1" x2="2" y2="15" />
-      <rect x="4" y="3" width="5" height="3" />
-      <rect x="4" y="7" width="9" height="3" />
-      <rect x="4" y="11" width="3" height="3" />
-    </svg>
-  );
-}
-function AlignCenterHIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="8" y1="1" x2="8" y2="15" strokeDasharray="2,2" />
-      <rect x="5.5" y="3" width="5" height="3" />
-      <rect x="3.5" y="7" width="9" height="3" />
-      <rect x="6.5" y="11" width="3" height="3" />
-    </svg>
-  );
-}
-function AlignRightIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="14" y1="1" x2="14" y2="15" />
-      <rect x="7" y="3" width="5" height="3" />
-      <rect x="3" y="7" width="9" height="3" />
-      <rect x="9" y="11" width="3" height="3" />
-    </svg>
-  );
-}
-function DistributeHorizontalIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="1" y="4" width="3" height="8" />
-      <rect x="6.5" y="4" width="3" height="8" />
-      <rect x="12" y="4" width="3" height="8" />
-      <line x1="4" y1="8" x2="6.5" y2="8" strokeDasharray="1,1.5" />
-      <line x1="9.5" y1="8" x2="12" y2="8" strokeDasharray="1,1.5" />
-    </svg>
-  );
-}
-function DistributeVerticalIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="4" y="1" width="8" height="3" />
-      <rect x="4" y="6.5" width="8" height="3" />
-      <rect x="4" y="12" width="8" height="3" />
-      <line x1="8" y1="4" x2="8" y2="6.5" strokeDasharray="1,1.5" />
-      <line x1="8" y1="9.5" x2="8" y2="12" strokeDasharray="1,1.5" />
-    </svg>
-  );
-}
-function ArrowOnIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="2" y1="8" x2="11" y2="8" />
-      <polyline points="8,4 13,8 8,12" />
-    </svg>
-  );
-}
-function ArrowOffIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="2" y1="8" x2="14" y2="8" />
-    </svg>
-  );
-}
-function LabelOnIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="1" y1="12" x2="15" y2="12" />
-      <path d="M5 3 H10 L13 6 L10 9 H5 Z" />
-      <circle cx="7" cy="6" r="0.6" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function LabelOffIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <line x1="1" y1="8" x2="15" y2="8" />
-    </svg>
-  );
-}
-function ConnectionAnywhereIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="7" y="3" width="8" height="10" rx="0.5" />
-      <line x1="1" y1="14" x2="7" y2="9" />
-    </svg>
-  );
-}
-function ConnectionCenterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="7" y="3" width="8" height="10" rx="0.5" />
-      <line x1="1" y1="8" x2="7" y2="8" />
-    </svg>
-  );
-}
-// Filled circle = always, half-filled = sometimes — same family as
-// VisibilityStateIcon below, kept as separate small icons here since this
-// filter's third state ("All", show everything) is a different concept
-// from that component's third state ("Never") and needs a visually
-// distinct icon rather than reusing the plain outline circle.
-function AlwaysFilterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="8" cy="8" r="6" fill="currentColor" />
-    </svg>
-  );
-}
-function SometimesFilterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 2 A6 6 0 0 1 8 14 Z" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-function AllFilterIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
-      <circle cx="5.5" cy="6" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
-      <circle cx="10.5" cy="6" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
-      <circle cx="8" cy="10" r="3.2" fillOpacity="0.35" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-// Shared item template for any ButtonGroup whose items carry an Icon field.
-function IconButtonGroupItem(item) {
-  return (
-    <div className="op-icon-btn-item">
-      {item.Icon && <item.Icon />}
-    </div>
-  );
-}
 
 // Used only in type-properties mode, in place of the P1/P2/P3 tier filter —
 // filters by the type's own always/sometimes/never visibility choices
@@ -1276,14 +503,17 @@ const VISIBILITY_FILTER_ITEMS = [
   { text: 'Sometimes', value: 'sometimes', Icon: SometimesFilterIcon },
   { text: 'All', value: 'all', Icon: AllFilterIcon },
 ];
+
 // Same three states as VISIBILITY_FILTER_ITEMS, presented as a 3-position
 // slider instead of a button group — each step is inclusive of the ones to
 // its left (Always < Always+Sometimes < everything).
 const TIER_FILTER_SLIDER_VALUES = ['always', 'sometimes', 'all'];
+
 // Shared by both the permanent end labels (which only ever render at min
 // and max) and the tooltip that follows the handle (which shows all three
 // positions) — both use the same min/more/max wording.
 const TIER_FILTER_SLIDER_LABELS = { 0: 'min', 1: 'more', 2: 'max' };
+
 const formatTierFilterSliderLabel = (v) => TIER_FILTER_SLIDER_LABELS[v] ?? '';
 
 // Used only in type-properties mode — controls flex-direction/flex-wrap on
@@ -1294,6 +524,7 @@ const FLOW_DIRECTION_ITEMS = [
   { text: 'Column', value: 'column', Icon: ColumnFlowIcon },
   { text: 'Row', value: 'row', Icon: RowFlowIcon },
 ];
+
 const FLOW_WRAP_ITEMS = [
   { text: 'Wrap', value: 'wrap', Icon: WrapIcon },
   { text: 'No Wrap', value: 'nowrap', Icon: NoWrapIcon },
@@ -1340,11 +571,13 @@ const RELATED_ASSETS_ALIGN_VERTICAL_ITEMS = [
   { text: 'Align Middle', value: 'middle', Icon: AlignMiddleIcon },
   { text: 'Align Bottom', value: 'bottom', Icon: AlignBottomIcon },
 ];
+
 const RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS = [
   { text: 'Align Left', value: 'left', Icon: AlignLeftIcon },
   { text: 'Align Center', value: 'center', Icon: AlignCenterHIcon },
   { text: 'Align Right', value: 'right', Icon: AlignRightIcon },
 ];
+
 const RELATED_ASSETS_DISTRIBUTE_ITEMS = [
   { text: 'Distribute Horizontally', value: 'horizontal', Icon: DistributeHorizontalIcon },
   { text: 'Distribute Vertically', value: 'vertical', Icon: DistributeVerticalIcon },
@@ -1371,262 +604,6 @@ const GROUPING_MODE_ITEMS = [
   { text: 'None', value: 'none' },
 ];
 
-// "Refinery · Line · Station" (how attention items name their asset) ->
-// the nextgen workbook's own station id format ("FER_L02_POWERCHARGE").
-// Only resolves for station-level assets — line-wide items (2-part asset
-// strings, e.g. "Ferrum · F4") have no single station to look up.
-function attentionAssetToStationId(asset) {
-  const parts = asset.split(' · ');
-  if (parts.length < 3) return null;
-  const [refinery, line, station] = parts;
-  const prefix = refinery === 'Aurelia' ? 'AUR' : 'FER';
-  const num = line.slice(1).padStart(2, '0');
-  const stationSuffix = station.replace(/\s+/g, '').toUpperCase();
-  return `${prefix}_L${num}_${stationSuffix}`;
-}
-
-// Same "Refinery · Line · Station"-style asset naming as
-// attentionAssetToStationId above, but resolved against CURRENT_ASSET_DATA
-// directly (e.g. "CONFLUENCE_T03_AERATION", "FERRUM_F2_POWER_CHARGE")
-// rather than the refinery-specific STATION_METRICS convention that
-// attentionAssetToStationId targets: segments uppercased with
-// spaces→underscores, joined by underscores, then looked up directly.
-// This resolves for all three models — wastewater and water load theirs
-// from a fetched JSON file, while refinery's is the hardcoded ASSET_DATA
-// constant in assetData.js, but CURRENT_ASSET_DATA points to whichever
-// applies either way. Returns null only if an attention item's asset
-// string doesn't actually match any real asset id.
-function attentionAssetToAssetEntry(asset) {
-  const assetId = asset
-    .split(' · ')
-    .map(segment => segment.trim().toUpperCase().replace(/\s+/g, '_'))
-    .join('_');
-  return CURRENT_ASSET_DATA.find(a => a.id === assetId) || null;
-}
-
-function attentionAssetToTypeId(asset) {
-  const match = attentionAssetToAssetEntry(asset);
-  return match ? `TYPE_${match.assetLevel}_${match.assetType}` : null;
-}
-
-// Item-level entry points — generic packs name the asset directly
-// (item.assetId, spec §6.7), at any level; legacy items only carry the
-// display label, which gets parsed as before.
-function getAttentionItemAssetEntry(item) {
-  if (item.assetId) return CURRENT_ASSET_MAP[item.assetId] || null;
-  return attentionAssetToAssetEntry(item.asset);
-}
-
-function getAttentionItemTypeId(item) {
-  const match = getAttentionItemAssetEntry(item);
-  return match ? `TYPE_${match.assetLevel}_${match.assetType}` : null;
-}
-
-// The real full-timeline series behind an item's evidence, when the item
-// says which property it tracks (generic packs: item.primaryProperty).
-// Null for legacy items, which fall back to the padded evidence below.
-function getAttentionItemPrimarySeries(item) {
-  if (!item.primaryProperty) return null;
-  const entry = getAttentionItemAssetEntry(item);
-  if (!entry) return null;
-  const { sparklineSource } = resolveAssetProperties(entry.id);
-  const series = getPropertySeriesForSource(sparklineSource, item.primaryProperty);
-  return series && series.length === CURRENT_TIMESTAMPS.length ? series : null;
-}
-
-// Whether an attention item's own narrative window — its evidencePoints'
-// first to last reading, in "HH:MM" clock time, the same real window
-// shown on its own Trend/Timeline tabs — contains a given scrubbed time.
-// String comparison works directly since every timestamp here is
-// zero-padded "HH:MM" (lexicographic order matches chronological order).
-// Deliberately independent of the item's current/latest outcomeStatus —
-// an item already "resolved" as of now can still correctly show as
-// active when scrubbed back to a time within its own original window,
-// since it genuinely was active then.
-function isAttentionItemActiveAtTime(attentionItem, timeStr) {
-  const points = attentionItem?.detail?.evidencePoints;
-  if (!points || points.length === 0 || !timeStr) return false;
-  return timeStr >= points[0].time && timeStr <= points[points.length - 1].time;
-}
-
-// ASSET_DATA (the real, shared asset model — e.g. "AURELIA_A1_INTAKE")
-// and STATION_METRICS/STATION_TELEMETRY (this operator view's own data,
-// e.g. "AUR_L01_INTAKE") use genuinely different ID conventions for the
-// exact same stations. This converts the former to the latter by walking
-// up to the station's line and refinery ancestors, rather than routing
-// through a display string the way attentionAssetToStationId does.
-function assetDataIdToStationId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'station') return null;
-  const line = CURRENT_ASSET_MAP[asset.parentId];
-  const refinery = line ? CURRENT_ASSET_MAP[line.parentId] : null;
-  if (!line || !refinery) return null;
-  const prefix = refinery.id.slice(0, 3);
-  const num = line.name.replace(/\D/g, '').padStart(2, '0');
-  const stationSuffix = asset.name.replace(/\s+/g, '').toUpperCase();
-  return `${prefix}_L${num}_${stationSuffix}`;
-}
-
-// Same conversion, one level up — ASSET_DATA's "AURELIA_A1" to
-// LINE_ROLLUPS' own "AUR_L01".
-function assetDataIdToLineId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'line') return null;
-  const refinery = CURRENT_ASSET_MAP[asset.parentId];
-  if (!refinery) return null;
-  const prefix = refinery.id.slice(0, 3);
-  const num = asset.name.replace(/\D/g, '').padStart(2, '0');
-  return `${prefix}_L${num}`;
-}
-
-// The single entry point for "what properties does this asset have" —
-// works for any node in the shared hierarchy, regardless of level. It
-// tries each known dataset in turn; each conversion function above already
-// returns null by itself when the id isn't actually that level, so trying
-// all of them here is safe and requires no level check of its own. The
-// caller passes an assetId and gets back whatever's available (or isn't)
-// — it never needs to know or branch on whether that id is a station, a
-// line, or anything else.
-// ASSET_DATA's refinery id ("AURELIA") already matches REFINERY_ROLLUPS'
-// own key directly — no prefix/number translation needed, unlike stations
-// and lines.
-function assetDataIdToRefineryId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'refinery') return null;
-  return asset.id;
-}
-
-function resolveRefineryAssetProperties(assetId) {
-  const stationId = assetDataIdToStationId(assetId);
-  if (stationId && STATION_FULL_PROPERTIES[stationId]) {
-    return { properties: STATION_FULL_PROPERTIES[stationId], sparklineSource: { type: 'station', id: stationId } };
-  }
-  const lineId = assetDataIdToLineId(assetId);
-  if (lineId && LINE_ROLLUPS[lineId]) {
-    return { properties: LINE_ROLLUPS[lineId], sparklineSource: { type: 'line', id: lineId } };
-  }
-  const refineryId = assetDataIdToRefineryId(assetId);
-  if (refineryId && REFINERY_ROLLUPS[refineryId]) {
-    return { properties: REFINERY_ROLLUPS[refineryId], sparklineSource: { type: 'refinery', id: refineryId } };
-  }
-  // No other dataset exists — genuinely nothing to return, not a
-  // fabricated aggregation.
-  return { properties: null, sparklineSource: null };
-}
-
-// Water's own conversions — a different id scheme (plant name is already
-// abbreviated to 3 letters, train name is already "T01" with no letter
-// prefix to strip) and a 4th level (equipment) refinery doesn't have.
-function waterAssetDataIdToStageId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'stage') return null;
-  const train = CURRENT_ASSET_MAP[asset.parentId];
-  const plant = train ? CURRENT_ASSET_MAP[train.parentId] : null;
-  if (!train || !plant) return null;
-  const prefix = plant.id.slice(0, 3);
-  const stageSuffix = asset.assetType.replace(/_/g, '').toUpperCase();
-  return `${prefix}_${train.name}_${stageSuffix}`;
-}
-
-function waterAssetDataIdToTrainId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'train') return null;
-  const plant = CURRENT_ASSET_MAP[asset.parentId];
-  if (!plant) return null;
-  const prefix = plant.id.slice(0, 3);
-  // line-rollups.json uses this plant-name-plus-abbreviated-id format
-  return `${plant.id}_${prefix}_${asset.name}`;
-}
-
-function waterAssetDataIdToPlantId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'plant') return null;
-  return asset.id;
-}
-
-// Equipment-metrics.json is keyed by the exact same id ASSET_DATA already
-// uses for equipment nodes — no translation needed, unlike every other level.
-function waterAssetDataIdToEquipmentId(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset || asset.assetLevel !== 'equipment') return null;
-  return asset.id;
-}
-
-function resolveWaterAssetProperties(assetId) {
-  const stageId = waterAssetDataIdToStageId(assetId);
-  if (stageId && STATION_FULL_PROPERTIES[stageId]) {
-    return { properties: STATION_FULL_PROPERTIES[stageId], sparklineSource: { type: 'station', id: stageId } };
-  }
-  const trainId = waterAssetDataIdToTrainId(assetId);
-  if (trainId && LINE_ROLLUPS[trainId]) {
-    return { properties: LINE_ROLLUPS[trainId], sparklineSource: { type: 'line', id: trainId } };
-  }
-  const equipmentId = waterAssetDataIdToEquipmentId(assetId);
-  if (equipmentId && EQUIPMENT_METRICS[equipmentId]) {
-    return { properties: EQUIPMENT_METRICS[equipmentId], sparklineSource: { type: 'equipment', id: equipmentId } };
-  }
-  const plantId = waterAssetDataIdToPlantId(assetId);
-  if (plantId && REFINERY_ROLLUPS[plantId]) {
-    return { properties: REFINERY_ROLLUPS[plantId], sparklineSource: { type: 'refinery', id: plantId } };
-  }
-  // No dataset exists at this or any level for this asset — genuinely
-  // nothing to return, not a fabricated aggregation.
-  return { properties: null, sparklineSource: null };
-}
-
-// The single entry point for "what properties does this asset have" —
-// works for any node in the active hierarchy, regardless of level OR
-// which model is currently selected. The caller passes an assetId and
-// gets back whatever's available (or isn't) — it never needs to know or
-// branch on the asset's level, or on which model is active.
-// Human-readable label from a slugified assetType, e.g. "raw_water_pump" ->
-// "Raw Water Pump". Deriving this from the type itself (rather than
-// grabbing an instance's own `name` field) matters because that field is
-// sometimes generic — a station's name literally IS its type, like "Intake"
-// — but sometimes instance-specific, like a line's name being "A1", not
-// "Line". De-slugifying the type works correctly either way.
-function deslugifyType(assetType) {
-  // Generic packs can name a type explicitly (properties.json typeLabels)
-  // where plain de-slugifying reads badly — "HS Bearing", not "Hs Bearing".
-  if (TYPE_LABELS[assetType]) return TYPE_LABELS[assetType];
-  return assetType
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
-// Legacy models' level labels. A generic model declares its own in
-// models.json (CURRENT_LEVEL_LABELS), which win when present.
-const LEGACY_LEVEL_LABELS = {
-  refinery: 'Refinery', line: 'Line', station: 'Station',
-  plant: 'Plant', train: 'Train', stage: 'Stage', equipment: 'Equipment',
-};
-function getLevelLabel(level) {
-  return CURRENT_LEVEL_LABELS?.[level] || LEGACY_LEVEL_LABELS[level] || level;
-}
-
-// Builds a flat, alphabetically-sorted list of every distinct
-// (assetLevel, assetType) combination found in the asset hierarchy. Each
-// entry carries the id of one real, representative asset of that type —
-// resolveAssetProperties already works given any real asset id, so
-// viewing "a type's properties" is just resolving its representative
-// instance, no separate type-specific resolver needed.
-function buildTypeList(assetData) {
-  const seen = new Map();
-  assetData.forEach(a => {
-    const key = `${a.assetLevel}::${a.assetType}`;
-    if (!seen.has(key)) {
-      seen.set(key, {
-        id: `TYPE_${a.assetLevel}_${a.assetType}`,
-        name: deslugifyType(a.assetType),
-        level: getLevelLabel(a.assetLevel),
-        exampleAssetId: a.id,
-      });
-    }
-  });
-  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
-}
-
 const TYPE_LIST_COLUMNS = [
   {
     dataField: 'name',
@@ -1646,82 +623,6 @@ const TYPE_LIST_COLUMNS = [
 // See usage in RelatedAssetBoxContent below and the time-track scrubber in
 // InvestigatePanel's Related Assets tab, the only place this is provided.
 const TimeScrubContext = createContext(null);
-
-// Dispatches on the active model's shape (from models.json), not its id —
-// any four-level pack (water, wastewater, and every future industry) goes
-// through the same plant/train/stage/equipment resolver.
-function resolveAssetProperties(assetId) {
-  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.GENERIC) return resolveGenericAssetProperties(assetId);
-  return CURRENT_MODEL_SHAPE === MODEL_SHAPES.FOUR_LEVEL ? resolveWaterAssetProperties(assetId) : resolveRefineryAssetProperties(assetId);
-}
-
-// Generic packs key values and series by the real asset id, at any level —
-// no conversion, no per-level dataset to try in turn. An asset with no
-// entry in asset-values.json simply has no properties.
-function resolveGenericAssetProperties(assetId) {
-  const properties = ASSET_VALUES[assetId];
-  if (!properties) return { properties: null, sparklineSource: null };
-  return { properties, sparklineSource: { type: 'asset', id: assetId } };
-}
-
-const HMI_CATEGORY_ORDER = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition'];
-
-function timeToMinutes(t) {
-  const [h, m] = t.split(':').map(Number);
-  return h * 60 + m;
-}
-
-// Full property series lives in STATION_TELEMETRY under either typed or
-// measured — checked in that order since a property never appears in both.
-// Generalized across all three levels — dispatches on source.type rather
-// than assuming station-only, the way the original single-level lookup did.
-function getPropertySeriesForSource(source, propKey) {
-  if (!source) return null;
-  if (source.type === 'station') {
-    const station = STATION_TELEMETRY && STATION_TELEMETRY.stations && STATION_TELEMETRY.stations[source.id];
-    if (!station) return null;
-    return (station.typed && station.typed[propKey]) || (station.measured && station.measured[propKey]) || null;
-  }
-  if (source.type === 'line') {
-    const line = LINE_TELEMETRY && LINE_TELEMETRY.lines && LINE_TELEMETRY.lines[source.id];
-    return (line && line[propKey]) || null;
-  }
-  if (source.type === 'refinery') {
-    const refinery = REFINERY_TELEMETRY && REFINERY_TELEMETRY.refineries && REFINERY_TELEMETRY.refineries[source.id];
-    return (refinery && refinery[propKey]) || null;
-  }
-  if (source.type === 'equipment') {
-    const equipment = EQUIPMENT_TELEMETRY && EQUIPMENT_TELEMETRY.equipment && EQUIPMENT_TELEMETRY.equipment[source.id];
-    return (equipment && equipment[propKey]) || null;
-  }
-  if (source.type === 'asset') {
-    // Generic packs — static (nameplate) properties have no series, so
-    // this is null for them and their tiles just show no sparkline.
-    return ASSET_TELEMETRY?.series?.[source.id]?.[propKey] || null;
-  }
-  return null;
-}
-
-// Clips a full series down to [startTime, endTime] using the active model's
-// own timestamp grid — the same window the Line/Candlestick tabs show for
-// this item, via its evidencePoints. If that window reaches past what's
-// actually available (a couple of items' evidence extends past the shared
-// "now" reference as a projection), this naturally clips to real data
-// rather than inventing future readings to match exactly.
-function sliceSeriesToRange(series, startTime, endTime) {
-  if (!series || !CURRENT_TIMESTAMPS.length) return null;
-  const grid = CURRENT_TIMESTAMPS.map(timeToMinutes);
-  const startMin = timeToMinutes(startTime);
-  const endMin = timeToMinutes(endTime);
-  let startIdx = grid.findIndex(m => m >= startMin);
-  if (startIdx === -1) startIdx = grid.length - 1;
-  let endIdx = startIdx;
-  for (let i = grid.length - 1; i >= 0; i--) {
-    if (grid[i] <= endMin) { endIdx = i; break; }
-  }
-  if (endIdx < startIdx) endIdx = startIdx;
-  return series.slice(startIdx, endIdx + 1);
-}
 
 // Every property EXCEPT the universal/common ones already shown elsewhere
 // (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
@@ -2208,74 +1109,18 @@ function EvidenceTable({ evidencePoints }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONFIDENCE_COLORS = { high: '#0078d4', medium: '#5b9bd5', low: '#9db3c9', 'n/a': '#c2c6cc' };
+
 const CONFIDENCE_LABELS = { high: 'High', medium: 'Medium', low: 'Low', 'n/a': 'N/A' };
+
 const CONFIDENCE_BARS = { high: 3, medium: 2, low: 1, 'n/a': 0 };
 
 const RISK_COLORS = { high: '#d64545', medium: '#e0a336', low: '#3fa64c', none: '#9096a3' };
+
 const RISK_LABELS = { high: 'High', medium: 'Medium', low: 'Low', none: 'None' };
 
 const OUTCOME_COLORS = { recovering: '#3fa64c', resolved: '#3fa64c', none: '#9096a3' };
+
 const OUTCOME_LABELS = { recovering: 'Improving', resolved: 'Resolved', none: 'N/A' };
-
-function ConfidenceIcon({ filled }) {
-  const bar = n => (filled >= n ? 'currentColor' : '#e2e5ea');
-  return (
-    <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
-      <rect x="0" y="11" width="5" height="7" rx="1.2" fill={bar(1)} />
-      <rect x="8.5" y="6" width="5" height="12" rx="1.2" fill={bar(2)} />
-      <rect x="17" y="0" width="5" height="18" rx="1.2" fill={bar(3)} />
-    </svg>
-  );
-}
-
-function RiskAlertIcon() {
-  return (
-    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 1.5 18.8 16.3H1.2L10 1.5z" />
-      <line x1="10" y1="7" x2="10" y2="10.8" />
-      <circle cx="10" cy="13.3" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function ShieldCheckIcon() {
-  return (
-    <svg width="18" height="19" viewBox="0 0 18 19" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 1.3 16 3.8v5.1c0 4.4-2.9 7.2-7 8.3-4.1-1.1-7-3.9-7-8.3V3.8L9 1.3z" />
-      <path d="M5.8 9.3 8 11.5l4.2-4.6" />
-    </svg>
-  );
-}
-
-// Two opposing arrows — reads as "switching from one thing to another,"
-// which is what a changeover actually is (grade A to grade B), rather than
-// borrowing an icon meant for a different concept (a clock/duration, or a
-// generic gear/settings icon that doesn't say "in transition" specifically).
-function ChangeoverIcon() {
-  return (
-    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1.5 5.5h14.5l-3.5-3.5" />
-      <path d="M18.5 12.5H4l3.5 3.5" />
-    </svg>
-  );
-}
-
-function TrendUpIcon() {
-  return (
-    <svg width="20" height="16" viewBox="0 0 20 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="1,14 7,7.5 11,10.5 19,1.5" />
-      <polyline points="13,1.5 19,1.5 19,7.5" />
-    </svg>
-  );
-}
-
-function DashIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-      <line x1="4" y1="9" x2="14" y2="9" />
-    </svg>
-  );
-}
 
 function VerticalTimeline({ items, maxItems }) {
   let shown = items;
@@ -2305,21 +1150,6 @@ function VerticalTimeline({ items, maxItems }) {
       ))}
     </div>
   );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Now — line status strip
-// ─────────────────────────────────────────────────────────────────────────────
-
-// One consistent visual language for all three states, rather than the old
-// gauge-for-running/attention + separate duration-for-changeover split. A
-// percent gauge implied a denominator worth reading closely — but with
-// every running line clustered at 99-101%, that precision wasn't actually
-// informative, just noisy. Icon + label reads faster at a glance anyway.
-function NowStatusIcon({ state }) {
-  if (state === 'attention') return <RiskAlertIcon />;
-  if (state === 'changeover') return <ChangeoverIcon />;
-  return <ShieldCheckIcon />;
 }
 
 function formatStatusDuration(minutes) {
@@ -2383,31 +1213,6 @@ function NowStrip({ selectedLine, onSelectLine }) {
   );
 }
 
-// LINE_STATUS uses ids like "AURELIA_A1"; LINE_ROLLUPS/STATION_METRICS use
-// the nextgen workbook's own asset ids like "AUR_L01" — this converts
-// between the two rather than renaming one of two already-established
-// conventions.
-// Generic packs build LINE_STATUS straight from unit-status.json, keyed by
-// the unit's real asset id — no conversion needed. Legacy four-level tiles
-// (water/wastewater) carry a "Plant · Train" label that resolves to the
-// train's asset id; only refinery keeps its own line-id convention, which
-// its Issue Map / Line Detail overlay expects.
-function nowTileIdToAssetId(tileId) {
-  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.GENERIC) return tileId;
-  if (CURRENT_MODEL_SHAPE === MODEL_SHAPES.FOUR_LEVEL) {
-    const tile = LINE_STATUS.find(l => l.id === tileId);
-    return (tile && attentionAssetToAssetEntry(tile.label)?.id) || tileId;
-  }
-  return lineIdToAssetId(tileId);
-}
-
-function lineIdToAssetId(lineStatusId) {
-  const [refinery, code] = lineStatusId.split('_');
-  const prefix = refinery === 'AURELIA' ? 'AUR' : 'FER';
-  const num = code.slice(1).padStart(2, '0'); // "A1" -> "1" -> "01"
-  return `${prefix}_L${num}`;
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Issue map — a plant-wide heatmap of which line/station combinations have a
 // real logged issue (from ATTENTION_ITEMS, which is itself sourced from the
@@ -2418,8 +1223,11 @@ function lineIdToAssetId(lineStatusId) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const AURELIA_LINES = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
+
 const AURELIA_STATIONS = ['Intake', 'Stabilization', 'Refinement', 'Inspection', 'Buffer', 'Output'];
+
 const FERRUM_LINES = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6'];
+
 const FERRUM_STATIONS = ['Bulk Intake', 'Power Charge', 'Shaping', 'Transfer', 'Output'];
 
 const STATION_ABBR = {
@@ -2429,6 +1237,7 @@ const STATION_ABBR = {
 };
 
 const ISSUEMAP_CLEAN_COLOR = '#3fa66c';
+
 const SEVERITY_RANK = { high: 3, medium: 2, low: 1 };
 
 function buildIssueLookup() {
@@ -2539,83 +1348,6 @@ const OPERATING_MODE_COLORS = {
   MAINTENANCE: '#6a3fd6',
   CONTROLLED_HOLD: '#d64545',
 };
-
-// Display labels only — "Grade A/F/B" are the workbook's real ProductID
-// values (GRADE_A, GRADE_F, GRADE_B), left untouched underneath. Renamed
-// here because "Grade F" reads like a failing grade at a glance, which is
-// exactly the wrong impression for a healthy line. F4's changeover target
-// gets "Product C" rather than reusing "Product B", since B is now taken
-// by Ferrum's standard product and reusing it would make the changeover
-// arrow read as "back to Ferrum's own product," which it isn't.
-let OPERATING_CONTEXT_BY_LINE = {};
-
-let LINE_ROLLUPS = {};
-let REFINERY_ROLLUPS = {};
-
-let STATION_METRICS = {};
-// Full 74-point (08:00-14:05, 5-min resolution) time series for every
-// property on all 66 stations — { timestamps: [...], stations: { id: {
-// universal: {prop: [...]}, typed: {...}, measured: {...} } } }. Not
-// consumed by any UI yet — available for whenever that work happens.
-let STATION_TELEMETRY = null;
-let LINE_TELEMETRY = null;
-let REFINERY_TELEMETRY = null;
-
-let PROPERTY_CATEGORIES = {};
-let PROPERTY_LABELS = {};
-let PROPERTY_RANGES = {};
-let PROPERTY_TIERS = {};
-let STATION_FULL_PROPERTIES = {};
-let CURRENT_MODEL = 'refinery';
-// 'refinery' | 'four-level' — see modelRegistry.js. Set alongside
-// CURRENT_MODEL every time a model finishes loading.
-let CURRENT_MODEL_SHAPE = MODEL_SHAPES.REFINERY;
-// Refinery's hierarchy is a static import; every four-level model's is
-// fetched at runtime (the assetData role).
-// These two always point at whichever one is active, so the rest of the
-// code (the Now tree, the resolver) never needs to know which model is
-// selected — it just reads "the current hierarchy."
-let CURRENT_ASSET_DATA = ASSET_DATA;
-let CURRENT_ASSET_MAP = ASSET_MAP;
-let LOADED_ASSET_DATA = [];
-// Asset-to-asset edges: { sourceAssetId, targetAssetId, relationshipType,
-// label, layer }. Same variable name loaded from a different file per
-// model, same pattern as STATION_METRICS etc. — no "CURRENT_" prefix
-// needed since assignModelData already refreshes it on every model switch.
-let ASSET_RELATIONSHIPS = [];
-let EQUIPMENT_METRICS = {};
-let EQUIPMENT_TELEMETRY = null;
-
-// Generic-shape model data (INDUSTRY_PACK_SPEC.md §6) — everything keyed
-// by real asset id, so none of the legacy id conversions above apply.
-// ASSET_VALUES: { assetId: { key: currentValue } }. ASSET_TELEMETRY:
-// { timeline, timestamps, series: { assetId: { key: [values] } } }.
-// UNIT_STATUS: { unitAssetId: { state, statusSinceMinutes, mode, product } },
-// turned into LINE_STATUS/OPERATING_CONTEXT_BY_LINE on load so the Now
-// strip reads one shape regardless of model.
-let ASSET_VALUES = {};
-let ASSET_TELEMETRY = null;
-let UNIT_STATUS = {};
-// Display unit and precision per property key — generic packs only
-// (legacy packs carry units in the key name and have no decimals).
-let PROPERTY_UNITS = {};
-let PROPERTY_DECIMALS = {};
-// Declared rollup rules (spec §3.5). Not used for rendering today —
-// loaded so they're available alongside the values they describe.
-let PROPERTY_DERIVATIONS = [];
-// Optional display names per assetType (properties.json typeLabels) —
-// generic packs only; deslugifyType falls back to the slug otherwise.
-let TYPE_LABELS = {};
-// The active generic model's declared levels and unit level. Null for
-// legacy models, which fall back to LEGACY_LEVEL_LABELS and their own
-// hardcoded structure.
-let CURRENT_LEVEL_LABELS = null;
-let CURRENT_UNIT_LEVEL = null;
-
-let LINE_SPARKLINES = {};
-
-let STATION_SPARKLINES = {};
-
 
 const STATION_TYPE_LABELS = {
   INTAKE: 'Intake', STABILIZATION: 'Stabilization', REFINEMENT: 'Refinement',
@@ -3049,6 +1781,7 @@ const ASSET_DETAIL_TAB_ITEMS = [
   { text: 'Related Assets', value: 'related' },
   { text: 'All Assets', value: 'all' },
 ];
+
 function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, allAssetsTemplate, hiddenAssetIds, activeTab, onActiveTabChange, onTitleClick, onGearClick }) {
   if (!selectedAssetId) {
     return (
@@ -3247,243 +1980,12 @@ function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, setTypeP
   );
 }
 
-const VISIBILITY_CYCLE = { always: 'sometimes', sometimes: 'never', never: 'always' };
-// Related Assets tab uses a deliberately simpler 2-state toggle — no
-// "sometimes". Reuses VISIBILITY_LABEL ('Always'/'Never' are already in
-// there) and VisibilityStateIcon (its 'sometimes' branch just never
-// matches here, so the same icon component works unmodified).
-const RELATED_ASSET_VISIBILITY_CYCLE = { always: 'never', never: 'always' };
-const VISIBILITY_LABEL = { always: 'Always', sometimes: 'Sometimes', never: 'Never' };
-
-// Filled circle = always, half-filled = sometimes, outline only = never —
-// click cycles through the three. currentColor stroke matches the other
-// inline icons in this file (VisualizationRailIcon etc.), so it inherits text color.
-function VisibilityStateIcon({ visibility }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <circle cx="8" cy="8" r="6" />
-      {visibility === 'always' && <circle cx="8" cy="8" r="6" fill="currentColor" stroke="none" />}
-      {visibility === 'sometimes' && <path d="M8 2 A6 6 0 0 1 8 14 Z" fill="currentColor" stroke="none" />}
-    </svg>
-  );
-}
-
-// Returns the current visibility ('always'/'sometimes'/'never') for every
-// property of a type — explicit overrides where a user has actually
-// changed one, 'always' by default otherwise. Nothing is written to state
-// until a user actually changes something.
-function getPropertyVisibilityForType(typeId, properties, typePropertyConfigs, assetId, assetPropertyConfigs) {
-  const typeOverrides = typePropertyConfigs[typeId] || {};
-  const assetOverrides = (assetId && assetPropertyConfigs?.[assetId]) || {};
-  return Object.keys(properties || {}).map(key => ({
-    key,
-    label: PROPERTY_LABELS[key] || key,
-    visibility: assetOverrides[key] || typeOverrides[key] || 'always',
-  }));
-}
-
-const RELATIONSHIP_TYPE_LABELS = { feeds_into: 'Feeds into' };
-const RELATIONSHIP_LAYER_LABELS = {
-  process_flow: 'Process Flow',
-  chemical_dosing: 'Chemical Dosing',
-  backwash: 'Backwash',
-  air_flow: 'Air Flow',
-};
-
-// label is null for most edges — falls back to relationshipType, plus the
-// layer in parentheses when there's more than one kind of connection
-// ("Feeds into (Backwash)" vs "Feeds into (Process Flow)"), since
-// relationshipType alone is "feeds_into" for nearly every edge regardless
-// of layer.
-function formatRelationshipName(edge) {
-  if (edge.label) return edge.label;
-  const typeLabel = RELATIONSHIP_TYPE_LABELS[edge.relationshipType] || edge.relationshipType;
-  const layerLabel = RELATIONSHIP_LAYER_LABELS[edge.layer];
-  return layerLabel ? `${typeLabel} (${layerLabel})` : typeLabel;
-}
-
-// Finds every asset-relationship edge touching any real asset of the given
-// type (as source or target), resolves the OTHER end of each edge to its
-// own type, and collapses duplicates — e.g. six "Raw Water Pump" instances
-// all feeding the same downstream type collapse to a single row, since the
-// table is type-to-type, not instance-to-instance. The arrow in
-// relationshipLabel shows direction: this type -> other, or other -> this
-// type.
-function getRelatedAssetsForType(typeId, typeList) {
-  const typeEntry = typeList.find(t => t.id === typeId);
-  const exampleAsset = typeEntry && CURRENT_ASSET_MAP[typeEntry.exampleAssetId];
-  if (!exampleAsset) return [];
-  const sameTypeAssetIds = new Set(
-    CURRENT_ASSET_DATA
-      .filter(a => a.assetLevel === exampleAsset.assetLevel && a.assetType === exampleAsset.assetType)
-      .map(a => a.id)
-  );
-
-  const rowsByKey = new Map();
-  (ASSET_RELATIONSHIPS || []).forEach(edge => {
-    const sourceIsSelf = sameTypeAssetIds.has(edge.sourceAssetId);
-    const targetIsSelf = sameTypeAssetIds.has(edge.targetAssetId);
-    if (!sourceIsSelf && !targetIsSelf) return;
-    // A same-type-to-same-type edge (rare) counts as outgoing, matching
-    // the source side.
-    const direction = sourceIsSelf ? 'out' : 'in';
-    const otherAssetId = sourceIsSelf ? edge.targetAssetId : edge.sourceAssetId;
-    const otherAsset = CURRENT_ASSET_MAP[otherAssetId];
-    if (!otherAsset) return;
-    const relatedTypeId = `TYPE_${otherAsset.assetLevel}_${otherAsset.assetType}`;
-    const key = `${direction}::${relatedTypeId}::${edge.relationshipType}::${edge.layer}::${edge.label || ''}`;
-    if (rowsByKey.has(key)) return;
-    rowsByKey.set(key, {
-      key,
-      relatedTypeId,
-      relatedTypeName: deslugifyType(otherAsset.assetType),
-      relatedTypeExampleAssetId: otherAsset.id,
-      direction,
-      relationshipLabel: `${direction === 'out' ? '→' : '←'} ${formatRelationshipName(edge)}`,
-      isContainment: false,
-    });
-  });
-
-  // Containment (parentId-derived) — this type's own parent type, if its
-  // instances have one, and any child types (types whose instances'
-  // parentId points to an instance of this type). Deduped by type the
-  // same way the flow rows above are, since e.g. every train's parent is
-  // the same plant type. 'out' here means this type contains the other;
-  // 'in' means this type is contained by the other — same arrow
-  // convention as the flow rows, just for containment instead.
-  CURRENT_ASSET_DATA.forEach(a => {
-    if (!sameTypeAssetIds.has(a.id) || !a.parentId) return;
-    const parent = CURRENT_ASSET_MAP[a.parentId];
-    if (!parent) return;
-    const relatedTypeId = `TYPE_${parent.assetLevel}_${parent.assetType}`;
-    const key = `in::${relatedTypeId}::containment`;
-    if (rowsByKey.has(key)) return;
-    rowsByKey.set(key, {
-      key,
-      relatedTypeId,
-      relatedTypeName: deslugifyType(parent.assetType),
-      relatedTypeExampleAssetId: parent.id,
-      direction: 'in',
-      relationshipLabel: '← Contains',
-      isContainment: true,
-    });
-  });
-  CURRENT_ASSET_DATA.forEach(a => {
-    if (!a.parentId || !sameTypeAssetIds.has(a.parentId)) return;
-    const relatedTypeId = `TYPE_${a.assetLevel}_${a.assetType}`;
-    const key = `out::${relatedTypeId}::containment`;
-    if (rowsByKey.has(key)) return;
-    rowsByKey.set(key, {
-      key,
-      relatedTypeId,
-      relatedTypeName: deslugifyType(a.assetType),
-      relatedTypeExampleAssetId: a.id,
-      direction: 'out',
-      relationshipLabel: '→ Contains',
-      isContainment: true,
-    });
-  });
-
-  return [...rowsByKey.values()].sort((a, b) => a.relatedTypeName.localeCompare(b.relatedTypeName));
-}
-
-// Every same-type sibling shares an identical asset.name (all six "Bar
-// Screen" instances are literally named "Bar Screen", distinguished only
-// by which train they belong to) — so a plain node label would be
-// ambiguous in a diagram showing every instance at once. This walks up
-// parentId to the nearest ancestor whose own parent is the root (the
-// train, for water/wastewater), and prepends its name — "T01 · Bar
-// Screen" — unless the asset itself already IS that top-level ancestor
-// (a train node) or the root itself (the plant), neither of which needs
-// disambiguating.
-// Generic packs (spec §3.2): the names on the asset's path, starting at
-// its unit-level ancestor — "WTG-07 · Gearbox · HS Bearing". The unit
-// level is what an operator thinks in, so it's the natural anchor however
-// deep or shallow the model is. Assets above the unit level (a site, a
-// feeder) have no unit ancestor and just show their own name.
-function getGenericDisplayLabel(asset) {
-  const names = [];
-  let current = asset;
-  while (current) {
-    names.unshift(current.name);
-    if (current.assetLevel === CURRENT_UNIT_LEVEL) return names.join(' · ');
-    current = current.parentId ? CURRENT_ASSET_MAP[current.parentId] : null;
-  }
-  return asset.name;
-}
-
-function getTopLevelAncestor(assetId) {
-  let current = CURRENT_ASSET_MAP[assetId];
-  if (!current) return null;
-  while (current.parentId) {
-    const parent = CURRENT_ASSET_MAP[current.parentId];
-    if (!parent || !parent.parentId) return current;
-    current = parent;
-  }
-  return current;
-}
-function getAssetDisplayLabel(assetId) {
-  const asset = CURRENT_ASSET_MAP[assetId];
-  if (!asset) return assetId;
-  if (CURRENT_UNIT_LEVEL) return getGenericDisplayLabel(asset);
-  const topLevel = getTopLevelAncestor(assetId);
-  if (!topLevel || topLevel.id === asset.id) return asset.name;
-  return `${topLevel.name} · ${asset.name}`;
-}
-
-// Asset-level counterpart to getAllTypeRelationshipsForModel above — one
-// node per real asset instance (127 for the wastewater model) rather than
-// one per type (21), so All Assets shows and lets the user toggle
-// visibility on the actual physical assets, not a type-level abstraction.
-// Flow edges come straight from ASSET_RELATIONSHIPS with no
-// deduplication needed, since it's already asset-to-asset. Containment
-// edges are derived here from parentId — every asset with a parent gets
-// a parent->child edge — giving container-level assets (plant/train/
-// stage) and the handful of equipment with no process-flow edge at all
-// (mixers, sludge collectors, scum skimmers — their relationship to
-// their vessel is containment, not flow) something to actually connect
-// to, rather than floating disconnected. Each edge carries isContainment
-// so the diagram can give the two kinds their own distinct visual
-// treatment, per docs/circuit-board-vision-notes.md's note that
-// containment shouldn't just be folded in indistinguishably from flow.
-// Containment edges (parent->child) get a visibly different treatment
-// from flow edges — lighter and dashed rather than the default solid
-// stroke — so the two relationship kinds read as distinct at a glance
-// rather than being folded into one undifferentiated line style.
-const CONTAINMENT_EDGE_STYLE = { stroke: '#bbb', strokeDasharray: '5 5' };
-
-function getAllAssetRelationshipsForModel() {
-  const nodes = CURRENT_ASSET_DATA.map(a => ({
-    assetId: a.id,
-    assetName: getAssetDisplayLabel(a.id),
-    typeId: `TYPE_${a.assetLevel}_${a.assetType}`,
-  }));
-  const flowEdges = (ASSET_RELATIONSHIPS || [])
-    .filter(e => CURRENT_ASSET_MAP[e.sourceAssetId] && CURRENT_ASSET_MAP[e.targetAssetId])
-    .map(e => ({
-      key: `${e.sourceAssetId}::${e.targetAssetId}::${e.relationshipType}::${e.layer}::${e.label || ''}`,
-      sourceAssetId: e.sourceAssetId,
-      targetAssetId: e.targetAssetId,
-      relationshipLabel: formatRelationshipName(e),
-      isContainment: false,
-    }));
-  const containmentEdges = CURRENT_ASSET_DATA
-    .filter(a => a.parentId)
-    .map(a => ({
-      key: `containment::${a.parentId}::${a.id}`,
-      sourceAssetId: a.parentId,
-      targetAssetId: a.id,
-      relationshipLabel: 'Contains',
-      isContainment: true,
-    }));
-  return { nodes, edges: [...flowEdges, ...containmentEdges] };
-}
-
 // Shown only for type selections — Properties (a list of this type's
 // properties, each with an always/sometimes/never visibility choice,
 // sharing the space with the same KPI visualization used everywhere else)
 // and Children (not yet built — see note in the tab itself).
 const elk = new ELK();
+
 // Algorithm choices offered in the diagram view's toolbar. 'disco' isn't
 // included since elkjs dropped it from this bundled build after 0.8.2
 // (confirmed directly — it throws "Layout algorithm 'disco' not found" on
@@ -3496,21 +1998,25 @@ const RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS = [
   { value: 'radial', label: 'Radial', text: 'Radial', Icon: RadialAlgorithmIcon },
   { value: 'force', label: 'Force', text: 'Force', Icon: ForceAlgorithmIcon },
 ];
+
 // Only 'layered' and 'mrtree' actually respect elk.direction — verified
 // directly by comparing DOWN vs RIGHT output for each algorithm; radial,
 // force, and stress produced byte-identical positions regardless, since
 // they're organic/physics-style layouts with no inherent "flow" direction.
 const RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS = new Set(['layered', 'mrtree']);
+
 const RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS = [
   { text: 'Vertical', value: 'DOWN', Icon: ColumnFlowIcon },
   { text: 'Horizontal', value: 'RIGHT', Icon: RowFlowIcon },
 ];
+
 // Gates the edge routing and both spacing controls below — all three use
 // layered-specific ELK options. Verified directly: the other four
 // algorithms produced byte-identical output regardless of any of these
 // three settings, since each has its own internal routing/spacing logic
 // that doesn't use them at all.
 const RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS = new Set(['layered']);
+
 // Simplified to just the two ELK actually computes distinct bend-point
 // routing for (verified earlier: ORTHOGONAL gives hard right angles,
 // POLYLINE gives angled-but-straight segments — 'Default'/UNDEFINED and
@@ -3519,6 +2025,7 @@ const RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS = [
   { text: 'Orthogonal', value: 'ORTHOGONAL', Icon: OrthogonalRoutingIcon },
   { text: 'Polyline', value: 'POLYLINE', Icon: PolylineRoutingIcon },
 ];
+
 // Direct control over the two spacing settings that actually, always
 // govern compactness — replaced an earlier edge-node/edge-edge spacing
 // pair that turned out to be "floor" constraints only binding once they
@@ -3546,6 +2053,7 @@ const RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS = [
 // Flow's own measurement), not a fixed stub. See the hide → measure →
 // layout → reveal sequence in RelatedAssetsDiagramInner below.
 const RELATED_ASSETS_DIAGRAM_NODE_WIDTH = 160;
+
 const RELATED_ASSETS_DIAGRAM_NODE_HEIGHT = 50;
 
 // Runs nodes/edges through ELK's layered algorithm and returns them in
@@ -3815,6 +2323,7 @@ function RelatedAssetsFloatingEdge({ id, source, target, markerEnd, style, label
 
   return <BaseEdge id={id} path={path} labelX={labelX} labelY={labelY} label={label} markerEnd={markerEnd} style={style} />;
 }
+
 // Defined once at module scope, same reasoning as RELATED_ASSETS_NODE_TYPES below.
 const RELATED_ASSETS_EDGE_TYPES = { floatingEdge: RelatedAssetsFloatingEdge };
 
@@ -3847,6 +2356,7 @@ function RelatedAssetDiagramNode({ data }) {
     </div>
   );
 }
+
 // Defined once at module scope — React Flow warns (and can misbehave) if
 // nodeTypes is a fresh object on every render.
 const RELATED_ASSETS_NODE_TYPES = { relatedAssetNode: RelatedAssetDiagramNode };
@@ -3862,6 +2372,7 @@ function PropertyLayoutNode({ data }) {
     </div>
   );
 }
+
 const PROPERTY_LAYOUT_NODE_TYPES = { propertyLayoutNode: PropertyLayoutNode };
 
 // Cards manual mode's own node type — one related-asset type box per
@@ -3877,6 +2388,7 @@ function CardsLayoutNode({ data }) {
     </div>
   );
 }
+
 const CARDS_LAYOUT_NODE_TYPES = { cardsLayoutNode: CardsLayoutNode };
 
 // Related Assets tab's relational-diagram view — the current type plus its
@@ -4309,7 +2821,9 @@ const RelatedAssetsDiagramInner = forwardRef(function RelatedAssetsDiagramInner(
 // 3-position tier slider, one fewer stop since there's no "sometimes"
 // state here.
 const RELATED_ASSET_DENSITY_VALUES = ['always', 'all'];
+
 const RELATED_ASSET_DENSITY_LABELS = { 0: 'min', 1: 'max' };
+
 const formatRelatedAssetDensityLabel = (v) => RELATED_ASSET_DENSITY_LABELS[v] ?? '';
 
 // Renders every related-asset row as its own box of property tiles,
@@ -4570,11 +3084,15 @@ function RelatedAssetBoxContent({ relatedTypeId, relatedTypeName, relatedTypeExa
 // saved) lands here: "stack in the corner," never an auto-placement
 // search, matching the no-reflow decision for this whole feature.
 const PROPERTY_LAYOUT_DEFAULT_POSITION = { x: 0, y: 0 };
+
 const PROPERTY_LAYOUT_GRID_SIZE = 20;
+
 // "Arrange in Grid" spacing — generous enough for the tallest tile type
 // (indicator, ~110-130px content) without overlap at default sizes.
 const PROPERTY_LAYOUT_ARRANGE_CELL_WIDTH = 150;
+
 const PROPERTY_LAYOUT_ARRANGE_CELL_HEIGHT = 140;
+
 const PROPERTY_LAYOUT_ARRANGE_COLUMNS = 4;
 
 // Manual property-layout canvas — one node per visible property, no
@@ -4719,9 +3237,13 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
 // spacing reasoning as the property-layout constants above, just for
 // asset type boxes (which run somewhat larger than a single StatTile).
 const CARDS_LAYOUT_DEFAULT_POSITION = { x: 0, y: 0 };
+
 const CARDS_LAYOUT_GRID_SIZE = 20;
+
 const CARDS_LAYOUT_ARRANGE_CELL_WIDTH = 300;
+
 const CARDS_LAYOUT_ARRANGE_CELL_HEIGHT = 220;
+
 const CARDS_LAYOUT_ARRANGE_COLUMNS = 3;
 
 // Manual Cards-layout canvas — one node per related-asset type box, no
@@ -5644,6 +4166,7 @@ function AllAssetsVisibilityItem({ hiddenAssetIds, onToggleAssetVisibility }) {
     );
   };
 }
+
 function AllAssetsTypeList({ hiddenAssetIds, onToggleAssetVisibility }) {
   return (
     <div className="op-now-type-props-list">
@@ -7160,110 +5683,6 @@ function TaskDetailPanel({ item, onToggleDone }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Side-panel tab icons — Work / Chat / AI, icon-only (title attr for a11y)
-// ─────────────────────────────────────────────────────────────────────────────
-
-function WorkTabIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="2.5" width="10" height="11" rx="1.5" />
-      <rect x="6" y="1" width="4" height="2" rx="0.6" />
-      <line x1="5.5" y1="7" x2="10.5" y2="7" />
-      <line x1="5.5" y1="9.5" x2="10.5" y2="9.5" />
-      <line x1="5.5" y1="12" x2="9" y2="12" />
-    </svg>
-  );
-}
-
-function AssetsRailIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 1.5 14 4.8V11.2L8 14.5 2 11.2V4.8Z" />
-      <path d="M2 4.8 8 8 14 4.8" />
-      <path d="M8 8V14.5" />
-    </svg>
-  );
-}
-
-function GearIcon() {
-  const toothAngles = [0, 45, 90, 135, 180, 225, 270, 315];
-  return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="4.2" />
-      <circle cx="8" cy="8" r="1.5" />
-      {toothAngles.map(angle => (
-        <rect key={angle} x="7.25" y="1.4" width="1.5" height="2.4" rx="0.4" transform={`rotate(${angle} 8 8)`} fill="currentColor" stroke="none" />
-      ))}
-    </svg>
-  );
-}
-
-// Right when collapsed, rotated to point down when expanded — CSS
-// transform on the same shape rather than two separate icons.
-function CaretIcon({ expanded }) {
-  return (
-    <svg
-      width="10"
-      height="10"
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.12s ease' }}
-    >
-      <path d="M5 2.5 11 8 5 13.5" />
-    </svg>
-  );
-}
-
-function PlayPauseIcon({ playing }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" stroke="none">
-      {playing ? (
-        <>
-          <rect x="3.5" y="2.5" width="3" height="11" rx="0.8" />
-          <rect x="9.5" y="2.5" width="3" height="11" rx="0.8" />
-        </>
-      ) : (
-        <path d="M4 2.3v11.4a0.8 0.8 0 0 0 1.22 0.68l9.1-5.7a0.8 0.8 0 0 0 0-1.36l-9.1-5.7A0.8 0.8 0 0 0 4 2.3z" />
-      )}
-    </svg>
-  );
-}
-
-function ChatTabIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2.5 3.5h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6.7l-2.9 2.35a.4.4 0 0 1-.65-.31V11.5h-.65a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1z" />
-    </svg>
-  );
-}
-
-function AiTabIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" stroke="none">
-      <path d="M8 1.4c.35 3 1.15 4.8 4.1 5.1-2.95.3-3.75 2.1-4.1 5.1-.35-3-1.15-4.8-4.1-5.1 2.95-.3 3.75-2.1 4.1-5.1z" />
-      <path d="M13 9.6c.15 1.1.5 1.5 1.5 1.7-1 .2-1.35.6-1.5 1.7-.15-1.1-.5-1.5-1.5-1.7 1-.2 1.35-.6 1.5-1.7z" />
-    </svg>
-  );
-}
-
-// A small list-with-lines glyph — distinct from Chat's speech bubble and
-// AI's sparkle, reads as "details/properties list" at a glance.
-function DetailsTabIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-      <rect x="2" y="2.5" width="12" height="11" rx="1" />
-      <line x1="4.5" y1="5.5" x2="11.5" y2="5.5" />
-      <line x1="4.5" y1="8" x2="11.5" y2="8" />
-      <line x1="4.5" y1="10.5" x2="8.5" y2="10.5" />
-    </svg>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Mock data — Chat (contacts)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -7471,20 +5890,6 @@ function AiChatPanel() {
 // mean anything (at 15 min, nothing in the new data would ever qualify).
 const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 
-// A live-reading gauge — distinct from Attention's bell and Work's
-// checklist, and consistent with this app's own recurring gauge/indicator
-// visual language.
-function VisualizationRailIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1.8" y="1.8" width="5.2" height="5.2" rx="0.8" />
-      <rect x="9" y="1.8" width="5.2" height="3.2" rx="0.8" />
-      <rect x="9" y="6.6" width="5.2" height="4.4" rx="0.8" />
-      <rect x="1.8" y="8.6" width="5.2" height="5.6" rx="0.8" />
-    </svg>
-  );
-}
-
 // Mirrors App.js's own AssetTreeItemTemplate (not exported from there, so
 // copied rather than restructuring that file for one shared helper) —
 // keeps the asset row's look identical to the existing Data tab hierarchy
@@ -7510,15 +5915,6 @@ function NowAssetTreeItemTemplate(item) {
       <span className="tree-item-name">{item.name}</span>
       <span className="tree-item-badge">{item.assetType}</span>
     </div>
-  );
-}
-
-function AttentionRailIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 1.8c-2 0-3.4 1.6-3.4 3.6v2.1c0 .5-.2 1-.6 1.4L3 9.9c-.5.5-.1 1.3.6 1.3h9c.7 0 1.1-.8.6-1.3l-1-1c-.4-.4-.6-.9-.6-1.4V5.4c0-2-1.4-3.6-3.4-3.6z" />
-      <path d="M6.3 12.3a1.7 1.7 0 0 0 3.4 0" />
-    </svg>
   );
 }
 
@@ -7566,7 +5962,6 @@ function NavRail({ mode, hidden, onIconClick, attentionCount, workCount, operato
     </div>
   );
 }
-
 
 function SidePanel({ mode, contacts, activeContactId, onSelectContact, onBack, onSendMessage, selectedNowThing, nowTypeList, typePropertyConfigs, setTypePropertyConfigs, typeRelatedAssetConfigs, setTypeRelatedAssetConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, assetPropertyConfigs, setAssetPropertyConfigs, assetRelatedAssetConfigs, setAssetRelatedAssetConfigs, activeSaveHandlerRef, activeTabIndex, onActiveTabIndexChange, rightPanelViewMode, hiddenAssetIds, onToggleAssetVisibility, propertyVisuals }) {
   return (
@@ -7666,6 +6061,7 @@ const RIGHT_RAIL_ITEMS = [
   { id: 'chat', label: 'Chat', Icon: ChatTabIcon },
   { id: 'ai', label: 'AI chat', Icon: AiTabIcon },
 ];
+
 // Details (the selected type's Properties/Related Assets/All Assets tabs)
 // is a Configurator-only concern — Operator has no reason to edit a
 // type's templates, so this stays out of their right rail entirely
@@ -7697,183 +6093,6 @@ function RightRail({ mode, hidden, onIconClick, hasUnread, operatorPersona }) {
       })}
     </div>
   );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main workspace
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Data loading — all the per-asset/per-scenario data that used to be
-// hardcoded directly in this file now lives in /public/data/refinery/*.json,
-// fetched once on mount. The module-level `let`s above (ATTENTION_ITEMS,
-// STATION_METRICS, etc.) start empty and get populated here before
-// OperatorWorkspaceInner — which does all the normal rendering work and
-// references these by name exactly as before — ever mounts. Structured as
-// an outer/inner pair rather than an early-return inside one component,
-// since Inner has many hooks of its own and conditionally skipping them
-// would violate the Rules of Hooks.
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Which model-data variable each models.json file role fills. The role
-// names (and each shape's default filenames) live in modelRegistry.js; the
-// per-model file list itself lives in public/data/models.json, so adding an
-// industry never touches this file. Unknown roles are ignored.
-const ROLE_TO_VARIABLE = {
-  attentionItems: 'ATTENTION_ITEMS',
-  workItems: 'INITIAL_WORK_ITEMS',
-  lineStatus: 'LINE_STATUS',
-  operatingContext: 'OPERATING_CONTEXT_BY_LINE',
-  lineRollups: 'LINE_ROLLUPS',
-  plantRollups: 'REFINERY_ROLLUPS',
-  stationMetrics: 'STATION_METRICS',
-  stationTelemetry: 'STATION_TELEMETRY',
-  lineTelemetry: 'LINE_TELEMETRY',
-  plantTelemetry: 'REFINERY_TELEMETRY',
-  lineSparklines: 'LINE_SPARKLINES',
-  stationSparklines: 'STATION_SPARKLINES',
-  propertyCategories: 'PROPERTY_CATEGORIES',
-  propertyLabels: 'PROPERTY_LABELS',
-  propertyRanges: 'PROPERTY_RANGES',
-  propertyTiers: 'PROPERTY_TIERS',
-  stationFullProperties: 'STATION_FULL_PROPERTIES',
-  assetData: 'LOADED_ASSET_DATA',
-  equipmentMetrics: 'EQUIPMENT_METRICS',
-  equipmentTelemetry: 'EQUIPMENT_TELEMETRY',
-  assetRelationships: 'ASSET_RELATIONSHIPS',
-  // Generic-shape roles (spec §6)
-  assets: 'LOADED_ASSET_DATA',
-  properties: 'GENERIC_PROPERTIES',
-  assetValues: 'ASSET_VALUES',
-  assetTelemetry: 'ASSET_TELEMETRY',
-  unitStatus: 'UNIT_STATUS',
-};
-
-// Every model-data variable, reset to empty before each load so switching
-// models never leaves the PREVIOUS model's data lingering in a role the
-// new one doesn't populate. With three shapes (refinery, four-level,
-// generic) sharing almost no files, resetting everything is simpler and
-// safer than tracking which roles differ between which pair.
-function resetModelVaryingData() {
-  ATTENTION_ITEMS = [];
-  INITIAL_WORK_ITEMS = [];
-  LINE_STATUS = [];
-  OPERATING_CONTEXT_BY_LINE = {};
-  LINE_ROLLUPS = {};
-  REFINERY_ROLLUPS = {};
-  STATION_METRICS = {};
-  STATION_TELEMETRY = null;
-  LINE_TELEMETRY = null;
-  REFINERY_TELEMETRY = null;
-  LINE_SPARKLINES = {};
-  STATION_SPARKLINES = {};
-  PROPERTY_CATEGORIES = {};
-  PROPERTY_LABELS = {};
-  PROPERTY_RANGES = {};
-  PROPERTY_TIERS = {};
-  PROPERTY_UNITS = {};
-  PROPERTY_DECIMALS = {};
-  PROPERTY_DERIVATIONS = [];
-  TYPE_LABELS = {};
-  STATION_FULL_PROPERTIES = {};
-  LOADED_ASSET_DATA = [];
-  EQUIPMENT_METRICS = {};
-  EQUIPMENT_TELEMETRY = null;
-  ASSET_RELATIONSHIPS = [];
-  ASSET_VALUES = {};
-  ASSET_TELEMETRY = null;
-  UNIT_STATUS = {};
-}
-
-// properties.json (generic packs) holds what the legacy packs spread over
-// four files — split back into the same per-attribute lookups the rest of
-// the file already reads, plus units/decimals/derivations, which only
-// generic packs have.
-function assignGenericProperties(value) {
-  const props = value?.properties || {};
-  Object.entries(props).forEach(([key, meta]) => {
-    if (meta.label != null) PROPERTY_LABELS[key] = meta.label;
-    if (meta.category != null) PROPERTY_CATEGORIES[key] = meta.category;
-    if (meta.tier != null) PROPERTY_TIERS[key] = meta.tier;
-    if (Array.isArray(meta.range)) PROPERTY_RANGES[key] = meta.range;
-    if (meta.unit) PROPERTY_UNITS[key] = meta.unit;
-    if (meta.decimals != null) PROPERTY_DECIMALS[key] = meta.decimals;
-  });
-  PROPERTY_DERIVATIONS = value?.derivations || [];
-  TYPE_LABELS = value?.typeLabels || {};
-}
-
-// Generic packs describe each unit's status in one file keyed by asset id;
-// the Now strip reads the legacy LINE_STATUS list + OPERATING_CONTEXT_BY_LINE
-// map, so they're built from it here. Tiles follow assets.json order, and
-// each tile's id IS the unit's asset id (see nowTileIdToAssetId).
-function buildGenericUnitStatus() {
-  LINE_STATUS = [];
-  OPERATING_CONTEXT_BY_LINE = {};
-  CURRENT_ASSET_DATA
-    .filter(a => a.assetLevel === CURRENT_UNIT_LEVEL)
-    .forEach(unit => {
-      const status = UNIT_STATUS[unit.id] || {};
-      LINE_STATUS.push({
-        id: unit.id,
-        label: unit.name,
-        state: status.state || 'running',
-        statusSinceMinutes: status.statusSinceMinutes ?? null,
-      });
-      if (status.mode || status.product) {
-        OPERATING_CONTEXT_BY_LINE[unit.id] = { mode: status.mode || 'STEADY', product: status.product || '' };
-      }
-    });
-}
-
-function buildAssetMapFromArray(arr) {
-  const map = {};
-  arr.forEach(a => { map[a.id] = a; });
-  return map;
-}
-
-// Work items carry real Date objects elsewhere in the app (margin math,
-// formatting) — JSON can only carry the ISO strings they were exported as,
-// so they get parsed back into Dates here, once, right after fetch.
-function parseWorkItemDates(items) {
-  return items.map(item => ({
-    ...item,
-    plannedStart: item.plannedStart ? new Date(item.plannedStart) : null,
-    dueAt: item.dueAt ? new Date(item.dueAt) : null,
-    completedAt: item.completedAt ? new Date(item.completedAt) : null,
-    createdAt: item.createdAt ? new Date(item.createdAt) : null,
-  }));
-}
-
-function assignModelData(name, value) {
-  switch (name) {
-    case 'ATTENTION_ITEMS': ATTENTION_ITEMS = value; break;
-    case 'INITIAL_WORK_ITEMS': INITIAL_WORK_ITEMS = parseWorkItemDates(value); break;
-    case 'LINE_STATUS': LINE_STATUS = value; break;
-    case 'OPERATING_CONTEXT_BY_LINE': OPERATING_CONTEXT_BY_LINE = value; break;
-    case 'LINE_ROLLUPS': LINE_ROLLUPS = value; break;
-    case 'REFINERY_ROLLUPS': REFINERY_ROLLUPS = value; break;
-    case 'STATION_METRICS': STATION_METRICS = value; break;
-    case 'STATION_TELEMETRY': STATION_TELEMETRY = value; break;
-    case 'LINE_TELEMETRY': LINE_TELEMETRY = value; break;
-    case 'REFINERY_TELEMETRY': REFINERY_TELEMETRY = value; break;
-    case 'LINE_SPARKLINES': LINE_SPARKLINES = value; break;
-    case 'STATION_SPARKLINES': STATION_SPARKLINES = value; break;
-    case 'PROPERTY_CATEGORIES': PROPERTY_CATEGORIES = value; break;
-    case 'PROPERTY_LABELS': PROPERTY_LABELS = value; break;
-    case 'PROPERTY_RANGES': PROPERTY_RANGES = value; break;
-    case 'PROPERTY_TIERS': PROPERTY_TIERS = value; break;
-    case 'STATION_FULL_PROPERTIES': STATION_FULL_PROPERTIES = value; break;
-    case 'LOADED_ASSET_DATA': LOADED_ASSET_DATA = value; break;
-    case 'EQUIPMENT_METRICS': EQUIPMENT_METRICS = value; break;
-    case 'EQUIPMENT_TELEMETRY': EQUIPMENT_TELEMETRY = value; break;
-    case 'ASSET_RELATIONSHIPS': ASSET_RELATIONSHIPS = value; break;
-    case 'GENERIC_PROPERTIES': assignGenericProperties(value); break;
-    case 'ASSET_VALUES': ASSET_VALUES = value; break;
-    case 'ASSET_TELEMETRY': ASSET_TELEMETRY = value; break;
-    case 'UNIT_STATUS': UNIT_STATUS = value; break;
-    default: break;
-  }
 }
 
 const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }, ref) {
@@ -7914,30 +6133,7 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
       })
       .then(results => {
         if (cancelled) return;
-        // Clear roles the OTHER shape owns before assigning this model's
-        // data — otherwise switching to water would leave refinery's stale
-        // line sparklines sitting in that variable untouched.
-        resetModelVaryingData();
-        files.forEach(([role], i) => assignModelData(ROLE_TO_VARIABLE[role], results[i]));
-        if (model.shape === MODEL_SHAPES.REFINERY) {
-          CURRENT_ASSET_DATA = ASSET_DATA;
-          CURRENT_ASSET_MAP = ASSET_MAP;
-        } else {
-          CURRENT_ASSET_DATA = LOADED_ASSET_DATA;
-          CURRENT_ASSET_MAP = buildAssetMapFromArray(LOADED_ASSET_DATA);
-        }
-        CURRENT_MODEL = selectedModel;
-        CURRENT_MODEL_SHAPE = model.shape;
-        if (model.shape === MODEL_SHAPES.GENERIC) {
-          CURRENT_LEVEL_LABELS = Object.fromEntries(model.levels.map(l => [l.id, l.label]));
-          CURRENT_UNIT_LEVEL = model.unitLevel;
-          buildGenericUnitStatus();
-          applyTimeline(ASSET_TELEMETRY?.timeline, ASSET_TELEMETRY?.timestamps);
-        } else {
-          CURRENT_LEVEL_LABELS = null;
-          CURRENT_UNIT_LEVEL = null;
-          applyTimeline(LEGACY_TIMELINE, STATION_TELEMETRY?.timestamps);
-        }
+        activateLoadedModel(model, files, results);
         setDataState({ loaded: true, error: null, loadedModel: selectedModel });
       })
       .catch(err => {

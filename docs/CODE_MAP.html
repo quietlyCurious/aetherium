@@ -1,0 +1,836 @@
+<!doctype html>
+<!-- docs/CODE_MAP.html — the Aetherium code map. Open it in a browser.
+     Also published as a private Claude artifact; keep the two in sync when
+     the structure changes (see PROJECT_CONTEXT.md). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aetherium Code Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f4f6f5;
+    --surface: #ffffff;
+    --ink: #1a232b;
+    --muted: #5b6873;
+    --faint: #8a96a0;
+    --rule: #d8dee2;
+    --accent: #0a6fb8;
+    --accent-soft: #e3eef8;
+    --save: #a86b12;
+    --save-soft: #f7ecd9;
+    --now: #2f7d4f;
+    --now-soft: #e2f1e7;
+    --code-bg: #eef1f3;
+    --fig-bg: #fbfcfc;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-head: "IBM Plex Sans Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #11161b;
+      --surface: #182028;
+      --ink: #e4eaee;
+      --muted: #9fadb8;
+      --faint: #74828d;
+      --rule: #2c3842;
+      --accent: #5fb0ee;
+      --accent-soft: #1b3346;
+      --save: #e0a54a;
+      --save-soft: #3a2c16;
+      --now: #6cc58f;
+      --now-soft: #1c3526;
+      --code-bg: #212b34;
+      --fig-bg: #151c23;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #11161b;
+    --surface: #182028;
+    --ink: #e4eaee;
+    --muted: #9fadb8;
+    --faint: #74828d;
+    --rule: #2c3842;
+    --accent: #5fb0ee;
+    --accent-soft: #1b3346;
+    --save: #e0a54a;
+    --save-soft: #3a2c16;
+    --now: #6cc58f;
+    --now-soft: #1c3526;
+    --code-bg: #212b34;
+    --fig-bg: #151c23;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 16px;
+    padding-block: 32px 64px;
+  }
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 48px;
+  }
+  @media (max-width: 900px) {
+    .page { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    nav.toc { position: static; }
+  }
+
+  /* Table of contents */
+  nav.toc {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 24px);
+    align-self: start;
+    font-size: 13px;
+  }
+  nav.toc .eyebrow { margin-bottom: 10px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  nav.toc a {
+    display: block;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-left: 2px solid var(--rule);
+  }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+
+  main { min-width: 0; }
+  header.intro { margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  h1 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 1.1;
+    margin: 6px 0 12px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 18px;
+    margin: 28px 0 8px;
+  }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 14px; }
+  .lede { font-size: 17px; color: var(--muted); max-width: 64ch; }
+  a { color: var(--accent); }
+
+  section { padding-block: 36px; border-top: 1px solid var(--rule); scroll-margin-top: 16px; }
+  section:first-of-type { border-top: none; padding-top: 0; }
+
+  code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+  /* At-a-glance numbers */
+  .glance {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 20px 0 8px;
+  }
+  .glance div { background: var(--surface); padding: 14px 16px; }
+  @media (max-width: 560px) { .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .glance strong {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 28px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .glance span { font-size: 13px; color: var(--muted); }
+
+  /* Figures */
+  figure {
+    margin: 20px 0 24px;
+    background: var(--fig-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .fig-scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 640px; color: var(--ink); font-family: var(--font-body); }
+  figcaption { font-size: 13px; color: var(--muted); margin-top: 12px; max-width: 80ch; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 16px 0 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    background: var(--fig-bg);
+  }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); }
+  td .mono { white-space: nowrap; }
+
+  /* Chips for save behaviour */
+  .chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .chip.save { background: var(--save-soft); color: var(--save); }
+  .chip.now { background: var(--now-soft); color: var(--now); }
+  .chip.flag { background: var(--accent-soft); color: var(--accent); }
+
+  /* Notes / gotchas */
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .note h4 { font-family: var(--font-head); font-weight: 600; font-size: 16px; margin: 0 0 6px; }
+  .note p { font-size: 14px; margin: 0 0 8px; color: var(--muted); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .where { font-family: var(--font-mono); font-size: 12px; color: var(--faint); }
+
+  /* File tree */
+  pre.tree {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+    color: var(--ink);
+  }
+  pre.tree .c { color: var(--faint); }
+
+  ul.tight { padding-left: 20px; margin: 0 0 14px; }
+  ul.tight li { margin-bottom: 4px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+<style>body { margin: 0; }</style>
+</head>
+<body>
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <div class="eyebrow">Contents</div>
+    <ol>
+      <li><a href="#glance">At a glance</a></li>
+      <li><a href="#shape">How it's wired</a></li>
+      <li><a href="#screen">Screen → component</a></li>
+      <li><a href="#settings">The settings chain</a></li>
+      <li><a href="#render">The rendering stack</a></li>
+      <li><a href="#mechanisms">Patterns to know</a></li>
+      <li><a href="#bigfile">Where the code lives</a></li>
+      <li><a href="#rest">The rest of src/</a></li>
+      <li><a href="#data">Data &amp; tooling</a></li>
+      <li><a href="#next">Refactor plan</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="intro">
+      <div class="eyebrow">quietlyCurious/aetherium · main @ fa4310e + refactor phase 1</div>
+      <h1>Aetherium Code Map</h1>
+      <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
+      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 1 done</span> model data, settings logic and icons now live in <code>src/operator/</code>. The UI components are next.</p>
+    </header>
+
+    <section id="glance">
+      <h2>At a glance</h2>
+      <p>The app has two halves. The original <strong>page builder</strong> (Screens, Widgets, Theme, Data Sources, Entities, Queries) is spread across about twenty well-sized files. The <strong>Operator / Configurator</strong> interface, where almost all recent work has happened, lives in <code>OperatorWorkspace.jsx</code> plus a new <code>src/operator/</code> folder that the refactor is gradually moving code into.</p>
+      <div class="glance" role="list">
+        <div role="listitem"><strong>7,270</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
+        <div role="listitem"><strong>6</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
+        <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
+        <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
+        <div role="listitem"><strong>7</strong><span>industry models, data only</span></div>
+      </div>
+      <p>Two other files are large: <code>App.operator.css</code> (3,191 lines, all Operator/Configurator styling) and <code>App.js</code> (3,182 lines, mostly the page builder plus the title bar that wraps everything).</p>
+    </section>
+
+    <section id="shape">
+      <h2>How it's wired</h2>
+      <p><code>App.js</code> owns the title bar and decides which half of the app is on screen. For the Operator side it renders one component, <code>OperatorWorkspace</code>, which loads the chosen model's data and then hands off to <code>OperatorWorkspaceInner</code>, where all of the interface's state lives.</p>
+
+      <figure>
+        <div class="fig-scroll">
+        <svg viewBox="0 0 980 470" role="img" aria-label="App.js passes persona and model to OperatorWorkspace, which loads model data into module globals and remounts OperatorWorkspaceInner; the inner component holds all state, reads and writes localStorage through storage files, and renders five layout slots.">
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+
+          <!-- App.js -->
+          <rect x="10" y="40" width="180" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="24" y="66" font-size="15" font-weight="600" fill="currentColor">App.js</text>
+          <text x="24" y="90" font-size="12" fill="currentColor" opacity="0.75">title bar · persona switch</text>
+          <text x="24" y="108" font-size="12" fill="currentColor" opacity="0.75">model switch · Save button</text>
+          <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">page-builder workspaces</text>
+          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">3,182 lines</text>
+
+          <!-- OperatorWorkspace -->
+          <rect x="310" y="40" width="200" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="324" y="66" font-size="15" font-weight="600" fill="currentColor">OperatorWorkspace</text>
+          <text x="324" y="90" font-size="12" fill="currentColor" opacity="0.75">reads models.json</text>
+          <text x="324" y="108" font-size="12" fill="currentColor" opacity="0.75">fetches data/&lt;model&gt;/*.json</text>
+          <text x="324" y="126" font-size="12" fill="currentColor" opacity="0.75">owns activeSaveHandlerRef</text>
+          <text x="324" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">line 6098</text>
+
+          <!-- Inner -->
+          <rect x="590" y="30" width="262" height="150" rx="6" fill="none" style="stroke:var(--accent)" stroke-width="2"/>
+          <text x="604" y="56" font-size="15" font-weight="600" fill="currentColor">OperatorWorkspaceInner</text>
+          <text x="604" y="80" font-size="12" fill="currentColor" opacity="0.75">every settings store (≈40 useState)</text>
+          <text x="604" y="98" font-size="12" fill="currentColor" opacity="0.75">selection, rail &amp; panel modes</text>
+          <text x="604" y="116" font-size="12" fill="currentColor" opacity="0.75">revert / apply / undo, unsaved guard</text>
+          <text x="604" y="134" font-size="12" fill="currentColor" opacity="0.75">publishes the shared stores</text>
+          <text x="604" y="162" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">line 6184 · ~1,100 lines</text>
+
+          <!-- arrows top row -->
+          <line x1="190" y1="92" x2="306" y2="92" stroke="currentColor" stroke-width="1.5" marker-end="url(#a1)"/>
+          <text x="250" y="84" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">persona, model</text>
+          <line x1="306" y1="126" x2="194" y2="126" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+          <text x="250" y="144" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">ref: save(),</text>
+          <text x="250" y="158" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">resolveUnsaved()</text>
+          <line x1="510" y1="100" x2="586" y2="100" stroke="currentColor" stroke-width="1.5" marker-end="url(#a1)"/>
+          <text x="550" y="86" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">remounts</text>
+          <text x="550" y="120" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">per model</text>
+
+          <!-- module globals -->
+          <rect x="310" y="230" width="200" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4"/>
+          <text x="324" y="254" font-size="13" font-weight="600" fill="currentColor">model/modelData.js</text>
+          <text x="324" y="274" font-size="12" fill="currentColor" opacity="0.75">39 live variables:</text>
+          <text x="324" y="292" font-size="12" fill="currentColor" opacity="0.75">CURRENT_ASSET_DATA, …</text>
+          <line x1="410" y1="170" x2="410" y2="226" stroke="currentColor" stroke-width="1.5" marker-end="url(#a1)"/>
+          <text x="420" y="203" font-size="11" fill="currentColor" opacity="0.7">activateLoadedModel()</text>
+          <line x1="514" y1="270" x2="640" y2="270" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <line x1="640" y1="270" x2="640" y2="184" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+          <text x="522" y="262" font-size="11" fill="currentColor" opacity="0.7">read directly by</text>
+          <text x="522" y="290" font-size="11" fill="currentColor" opacity="0.7">most components</text>
+
+          <!-- storage -->
+          <rect x="10" y="230" width="180" height="80" rx="6" fill="none" style="stroke:var(--save)" stroke-width="1.5"/>
+          <text x="24" y="254" font-size="13" font-weight="600" fill="currentColor">localStorage</text>
+          <text x="24" y="274" font-size="12" fill="currentColor" opacity="0.75">via 15 *Storage.js files</text>
+          <text x="24" y="292" font-size="12" fill="currentColor" opacity="0.75">(load / save pairs)</text>
+          <path d="M190 270 Q 240 340 400 340 L 760 340 L 760 184" fill="none" style="stroke:var(--save)" stroke-width="1.5" marker-start="url(#a1)" marker-end="url(#a1)"/>
+          <text x="560" y="332" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.75">load on mount · save on Save or on change</text>
+
+          <!-- layout slots -->
+          <text x="870" y="22" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">RENDERS</text>
+          <g font-size="12" fill="currentColor">
+            <rect x="870" y="30" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="47">NowStrip</text>
+            <rect x="870" y="62" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="79">NavRail</text>
+            <rect x="870" y="94" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="111">left list</text>
+            <rect x="870" y="126" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="143">center detail</text>
+            <rect x="870" y="158" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="175">SidePanel</text>
+            <rect x="870" y="190" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="880" y="207">RightRail</text>
+          </g>
+          <line x1="852" y1="105" x2="866" y2="105" stroke="currentColor" stroke-width="1.5" marker-end="url(#a1)"/>
+
+          <!-- shared stores -->
+          <rect x="590" y="390" width="380" height="64" rx="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          <text x="604" y="414" font-size="13" font-weight="600" fill="currentColor">3 module stores (useSyncExternalStore)</text>
+          <text x="604" y="436" font-size="12" fill="currentColor" opacity="0.75">customizations · display orders · unsaved changes</text>
+          <line x1="700" y1="180" x2="700" y2="386" stroke="currentColor" stroke-width="1.2" marker-end="url(#a1)"/>
+          <text x="708" y="376" font-size="11" fill="currentColor" opacity="0.7">publishes</text>
+          <line x1="920" y1="386" x2="920" y2="220" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+          <text x="912" y="376" font-size="11" text-anchor="end" fill="currentColor" opacity="0.7">deep components subscribe</text>
+          <line x1="590" y1="422" x2="140" y2="422" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <line x1="140" y1="422" x2="140" y2="174" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#a1)"/>
+          <text x="150" y="414" font-size="11" fill="currentColor" opacity="0.7">Save button reads "unsaved"</text>
+        </svg>
+        </div>
+        <figcaption>Solid arrows are props and renders; dashed arrows are the side channels (a ref, module globals, subscribed stores) that let far-apart pieces talk without passing props through every layer. Blue marks where the state lives; amber is persistence.</figcaption>
+      </figure>
+
+      <p>Two things in this picture are unusual and worth knowing before reading code:</p>
+      <ul class="tight">
+        <li><strong>The loaded model lives in module-level variables, not in React state.</strong> They're in <code>operator/model/modelData.js</code>, and only that file writes them: the loader calls <code>activateLoadedModel()</code>, then remounts <code>OperatorWorkspaceInner</code> (its React <code>key</code> is model + persona). Everything else imports and reads them, which is why switching models always starts the interface fresh.</li>
+        <li><strong>Deep components get shared data from three small stores</strong> rather than props passed down every layer. They're covered under <a href="#mechanisms">Patterns to know</a>.</li>
+      </ul>
+    </section>
+
+    <section id="screen">
+      <h2>Screen → component</h2>
+      <p>The workspace is a set of slots. The left rail (<code>NavRail</code>) sets a <code>railMode</code>, and that picks what goes in the left list and the center. The right rail picks what the right panel shows. The persona decides which rail items exist: Configurator sees only <em>Visualization</em> (<code>railMode 'now'</code>); Operator sees Attention, Work and Assets.</p>
+
+      <figure>
+        <div class="fig-scroll">
+        <svg viewBox="0 0 980 380" role="img" aria-label="Wireframe of the workspace: title bar from App.js across the top, NowStrip below it, then left NavRail, left list, center detail, right SidePanel and RightRail, each labeled with the components that fill it in the Configurator.">
+          <!-- frame -->
+          <rect x="10" y="10" width="960" height="360" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <!-- title bar -->
+          <rect x="10" y="10" width="960" height="38" rx="6" fill="currentColor" opacity="0.08"/>
+          <text x="24" y="34" font-size="13" font-weight="600" fill="currentColor">Title bar</text>
+          <text x="96" y="34" font-size="12" fill="currentColor" opacity="0.7">App.js · persona ▾ · model ▾ · 💾 Save</text>
+          <!-- nowstrip -->
+          <rect x="10" y="48" width="960" height="34" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+          <text x="24" y="70" font-size="12" fill="currentColor"><tspan font-weight="600">NowStrip</tspan><tspan opacity="0.7"> · IssueMapOverlay (Operator: lines/units at a glance)</tspan></text>
+          <!-- nav rail -->
+          <rect x="10" y="82" width="46" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="33" y="226" font-size="12" font-weight="600" fill="currentColor" text-anchor="middle" transform="rotate(-90 33 226)">NavRail</text>
+          <!-- left list -->
+          <rect x="56" y="82" width="230" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="70" y="106" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">LEFT LIST</text>
+          <text x="70" y="130" font-size="13" font-weight="600" style="fill:var(--accent)">NowAssetTreePanel</text>
+          <text x="70" y="150" font-size="12" fill="currentColor" opacity="0.75">Types tab: DataListGrid</text>
+          <text x="70" y="168" font-size="12" fill="currentColor" opacity="0.75">Assets tab: HierarchyTree</text>
+          <text x="70" y="186" font-size="12" fill="currentColor" opacity="0.75">+ customized dots / counts</text>
+          <!-- center -->
+          <rect x="286" y="82" width="394" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="300" y="106" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">CENTER DETAIL</text>
+          <text x="300" y="130" font-size="13" font-weight="600" style="fill:var(--accent)">NowAssetDetail → NowTypeMainPreview</text>
+          <text x="300" y="150" font-size="12" fill="currentColor" opacity="0.75">title row: CustomizationTitleControls</text>
+          <text x="300" y="168" font-size="12" fill="currentColor" opacity="0.75">one editor per Details tab:</text>
+          <rect x="300" y="182" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+          <text x="312" y="202" font-size="12" fill="currentColor"><tspan font-weight="600">Properties</tspan><tspan opacity="0.75"> → HmiPropertiesListing</tspan></text>
+          <rect x="300" y="218" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+          <text x="312" y="238" font-size="12" fill="currentColor"><tspan font-weight="600">Related Assets</tspan><tspan opacity="0.75"> → RelatedAssetsPreview</tspan></text>
+          <rect x="300" y="254" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+          <text x="312" y="274" font-size="12" fill="currentColor"><tspan font-weight="600">All Assets</tspan><tspan opacity="0.75"> → AllAssetsDiagram</tspan></text>
+          <text x="300" y="314" font-size="12" fill="currentColor" opacity="0.75">each editor registers the Save handler</text>
+          <text x="300" y="332" font-size="12" fill="currentColor" opacity="0.75">and tracks its own unsaved changes</text>
+          <!-- side panel -->
+          <rect x="680" y="82" width="244" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="694" y="106" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">RIGHT PANEL</text>
+          <text x="694" y="130" font-size="13" font-weight="600" style="fill:var(--accent)">SidePanel → NowTypeDetailsList</text>
+          <text x="694" y="150" font-size="12" fill="currentColor" opacity="0.75">Properties: Show · Visual · drag</text>
+          <text x="694" y="168" font-size="12" fill="currentColor" opacity="0.75">Related Assets: Show · drag</text>
+          <text x="694" y="186" font-size="12" fill="currentColor" opacity="0.75">All Assets: AllAssetsTypeList</text>
+          <text x="694" y="204" font-size="12" fill="currentColor" opacity="0.75">AssetRevertPopover (checklists)</text>
+          <text x="694" y="240" font-size="12" fill="currentColor" opacity="0.75">or ContactsPanel / AiChatPanel</text>
+          <text x="694" y="258" font-size="12" fill="currentColor" opacity="0.75">(Chat / AI modes)</text>
+          <!-- right rail -->
+          <rect x="924" y="82" width="46" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="947" y="226" font-size="12" font-weight="600" fill="currentColor" text-anchor="middle" transform="rotate(-90 947 226)">RightRail</text>
+        </svg>
+        </div>
+        <figcaption>The Configurator's Visualization mode, which is where most recent work lives. The center preview and the right Details panel are siblings, not parent and child, so everything they share (the selected tab, selected property or related row, the per-property visual draft) is lifted into <code>OperatorWorkspaceInner</code>.</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Rail mode</th><th>Persona</th><th>Left list</th><th>Center detail</th></tr></thead>
+          <tbody>
+            <tr><td>Visualization <span class="mono">('now')</span></td><td>Configurator</td><td><code>NowAssetTreePanel</code></td><td><code>NowAssetDetail</code> → <code>NowTypeMainPreview</code></td></tr>
+            <tr><td>Attention</td><td>Operator</td><td><code>AttentionPanel</code> (<code>AttentionCard</code>s)</td><td><code>InvestigatePanel</code>: trend, timeline, evidence table, related-asset boxes, time scrubber</td></tr>
+            <tr><td>Work</td><td>Operator</td><td><code>WorkListPanel</code> (<code>WorkCard</code>s)</td><td><code>TaskDetailPanel</code></td></tr>
+            <tr><td>Assets</td><td>Operator</td><td><code>OperatorAssetTreePanel</code></td><td><code>OperatorAssetDetail</code>: Properties / Related / All, read-only</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="settings">
+      <h2>The settings chain</h2>
+      <p>Everything a Configurator user sets is stored twice over: once per <strong>type</strong> and optionally per <strong>asset</strong>. That's six kinds of setting at two levels, twelve stores in all, plus the one global All Assets template. They all live as <code>useState</code> in <code>OperatorWorkspaceInner</code>, each backed by its own storage file.</p>
+
+      <figure>
+        <div class="fig-scroll">
+        <svg viewBox="0 0 980 420" role="img" aria-label="Six kinds of setting, each stored at type level and asset level, flow through three resolution rules into the renderers: whole-template fallback for layout, per-key merge for visuals and visibility, and whole-list fallback for order.">
+          <defs>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <text x="20" y="22" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">SETTING (type · asset)</text>
+          <text x="420" y="22" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">HOW ASSET + TYPE COMBINE</text>
+          <text x="746" y="22" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">READ BY</text>
+
+          <!-- rows -->
+          <g font-size="12" fill="currentColor">
+            <rect x="20" y="36" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="56" font-weight="600">Display template</text>
+            <text x="32" y="73" opacity="0.7">view mode, flow, manual positions</text>
+            <rect x="248" y="47" width="60" height="20" rx="10" style="fill:var(--save)" opacity="0.18"/>
+            <text x="278" y="61" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--save)">Save</text>
+
+            <rect x="20" y="92" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="112" font-weight="600">↳ per-property visuals</text>
+            <text x="32" y="129" opacity="0.7">propertyViewModes</text>
+            <rect x="248" y="103" width="60" height="20" rx="10" style="fill:var(--save)" opacity="0.18"/>
+            <text x="278" y="117" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--save)">Save</text>
+
+            <rect x="20" y="148" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="168" font-weight="600">Property visibility</text>
+            <text x="32" y="185" opacity="0.7">always / sometimes / never</text>
+            <rect x="248" y="159" width="60" height="20" rx="10" style="fill:var(--now)" opacity="0.18"/>
+            <text x="278" y="173" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--now)">instant</text>
+
+            <rect x="20" y="204" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="224" font-weight="600">Related-asset visibility</text>
+            <text x="32" y="241" opacity="0.7">always / never per relationship</text>
+            <rect x="248" y="215" width="60" height="20" rx="10" style="fill:var(--now)" opacity="0.18"/>
+            <text x="278" y="229" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--now)">instant</text>
+
+            <rect x="20" y="260" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="280" font-weight="600">Related Assets template</text>
+            <text x="32" y="297" opacity="0.7">cards / diagram + all its settings</text>
+            <rect x="248" y="271" width="60" height="20" rx="10" style="fill:var(--save)" opacity="0.18"/>
+            <text x="278" y="285" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--save)">Save</text>
+
+            <rect x="20" y="316" width="300" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1"/>
+            <text x="32" y="336" font-weight="600">Property order · Related order</text>
+            <text x="32" y="353" opacity="0.7">arrays of keys</text>
+            <rect x="248" y="327" width="60" height="20" rx="10" style="fill:var(--now)" opacity="0.18"/>
+            <text x="278" y="341" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" style="fill:var(--now)">instant</text>
+          </g>
+
+          <!-- rules -->
+          <g font-size="12" fill="currentColor">
+            <rect x="420" y="36" width="270" height="46" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="432" y="56" font-weight="600">Whole template</text>
+            <text x="432" y="73" opacity="0.75">asset's ?? type's</text>
+
+            <rect x="420" y="120" width="270" height="102" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="432" y="142" font-weight="600">Merge property by property</text>
+            <text x="432" y="160" opacity="0.75">asset's key ?? type's key ?? default</text>
+            <text x="432" y="182" font-size="11" font-family="IBM Plex Mono, monospace" opacity="0.7">mergePropertyViewModes()</text>
+            <text x="432" y="200" font-size="11" font-family="IBM Plex Mono, monospace" opacity="0.7">getPropertyVisibilityForType()</text>
+
+            <rect x="420" y="260" width="270" height="46" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="432" y="280" font-weight="600">Whole template</text>
+            <text x="432" y="297" opacity="0.75">asset's ?? type's</text>
+
+            <rect x="420" y="316" width="270" height="46" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="432" y="336" font-weight="600">Whole list</text>
+            <text x="432" y="353" opacity="0.75">asset's ?? type's ?? category default</text>
+          </g>
+
+          <!-- row → rule arrows -->
+          <g stroke="currentColor" stroke-width="1.2" fill="none">
+            <line x1="320" y1="59" x2="416" y2="59" marker-end="url(#a2)"/>
+            <line x1="320" y1="115" x2="416" y2="150" marker-end="url(#a2)"/>
+            <line x1="320" y1="171" x2="416" y2="171" marker-end="url(#a2)"/>
+            <line x1="320" y1="227" x2="416" y2="195" marker-end="url(#a2)"/>
+            <line x1="320" y1="283" x2="416" y2="283" marker-end="url(#a2)"/>
+            <line x1="320" y1="339" x2="416" y2="339" marker-end="url(#a2)"/>
+          </g>
+
+          <!-- readers -->
+          <g font-size="12" fill="currentColor">
+            <rect x="746" y="36" width="228" height="72" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="758" y="58" font-weight="600">RelatedAssetBoxContent</text>
+            <text x="758" y="76" opacity="0.75">every read-only box, all</text>
+            <text x="758" y="93" opacity="0.75">views, both personas</text>
+
+            <rect x="746" y="126" width="228" height="72" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="758" y="148" font-weight="600">NowTypeMainPreview</text>
+            <text x="758" y="166" opacity="0.75">the editors: draft state,</text>
+            <text x="758" y="183" opacity="0.75">seeded from the saved stores</text>
+
+            <rect x="746" y="216" width="228" height="72" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="758" y="238" font-weight="600">NowTypeDetailsList</text>
+            <text x="758" y="256" opacity="0.75">the grids: own / from type /</text>
+            <text x="758" y="273" opacity="0.75">default markers</text>
+
+            <rect x="746" y="306" width="228" height="72" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <text x="758" y="328" font-weight="600">computeAssetCustomizations</text>
+            <text x="758" y="346" opacity="0.75">"differs from type?" →</text>
+            <text x="758" y="363" opacity="0.75">dots, counts, checklists</text>
+          </g>
+          <g stroke="currentColor" stroke-width="1.2" fill="none">
+            <line x1="690" y1="59" x2="742" y2="68" marker-end="url(#a2)"/>
+            <line x1="690" y1="171" x2="742" y2="162" marker-end="url(#a2)"/>
+            <line x1="690" y1="283" x2="742" y2="252" marker-end="url(#a2)"/>
+            <line x1="690" y1="339" x2="742" y2="342" marker-end="url(#a2)"/>
+          </g>
+          <text x="20" y="400" font-size="12" fill="currentColor" opacity="0.75">Match type / Update type / Undo, whole-asset or one property, all live in OperatorWorkspaceInner and write these same stores.</text>
+        </svg>
+        </div>
+        <figcaption>Three resolution rules cover everything. Layout-like settings fall back as a whole template, per-property settings merge key by key, and orders fall back as a whole list. Amber settings wait for the title-bar Save; green ones apply the moment you click.</figcaption>
+      </figure>
+
+      <p>The rule that matters most: <strong><code>RelatedAssetBoxContent</code> is the single place the asset-over-type fallback is applied for display.</strong> Operator's Assets view, Investigate, Cards, Diagram and All Assets all render boxes through it. A new per-asset setting should be resolved there, not special-cased per view.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Setting</th><th>Type-level storage</th><th>Asset-level storage</th><th>Applies</th></tr></thead>
+          <tbody>
+            <tr><td>Display template (+ per-property visuals)</td><td class="mono">typeDisplayTemplatesStorage</td><td class="mono">assetDisplayTemplatesStorage</td><td><span class="chip save">Save</span></td></tr>
+            <tr><td>Property visibility</td><td class="mono">typePropertyConfigsStorage</td><td class="mono">assetPropertyConfigsStorage</td><td><span class="chip now">instant</span></td></tr>
+            <tr><td>Related-asset visibility</td><td class="mono">typeRelatedAssetConfigsStorage</td><td class="mono">assetRelatedAssetConfigsStorage</td><td><span class="chip now">instant</span></td></tr>
+            <tr><td>Related Assets template</td><td class="mono">relatedAssetsTemplatesStorage</td><td class="mono">assetRelatedAssetsTemplatesStorage</td><td><span class="chip save">Save</span></td></tr>
+            <tr><td>Property order</td><td class="mono">typePropertyOrderStorage</td><td class="mono">assetPropertyOrderStorage</td><td><span class="chip now">instant</span></td></tr>
+            <tr><td>Related-asset order</td><td class="mono">typeRelatedAssetOrderStorage</td><td class="mono">assetRelatedAssetOrderStorage</td><td><span class="chip now">instant</span></td></tr>
+            <tr><td>All Assets view (global)</td><td class="mono" colspan="2">allAssetsTemplateStorage</td><td><span class="chip save">Save</span></td></tr>
+            <tr><td>Last selection · persona / model</td><td class="mono" colspan="2">nowSelectionStorage · operatorNavigationStorage (App.js)</td><td><span class="chip now">instant</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="render">
+      <h2>The rendering stack</h2>
+      <p>A handful of building blocks are reused everywhere, from a single number tile up to whole views. Knowing these four layers explains most of the file.</p>
+
+      <figure>
+        <div class="fig-scroll">
+        <svg viewBox="0 0 980 360" role="img" aria-label="Four layers: views at the top use layout engines, layout engines place boxes, and boxes are made of StatTiles.">
+          <defs>
+            <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">
+            <text x="10" y="44">VIEWS</text>
+            <text x="10" y="134">LAYOUT</text>
+            <text x="10" y="224">BOX</text>
+            <text x="10" y="314">TILE</text>
+          </g>
+          <!-- views -->
+          <g font-size="12" fill="currentColor">
+            <rect x="90" y="20" width="200" height="44" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="102" y="38" font-weight="600">NowTypeMainPreview</text>
+            <text x="102" y="55" opacity="0.7">Configurator, editable</text>
+            <rect x="305" y="20" width="200" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="317" y="38" font-weight="600">OperatorAssetDetail</text>
+            <text x="317" y="55" opacity="0.7">Operator › Assets</text>
+            <rect x="520" y="20" width="200" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="532" y="38" font-weight="600">InvestigatePanel</text>
+            <text x="532" y="55" opacity="0.7">Operator › Attention</text>
+            <rect x="735" y="20" width="235" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="747" y="38" font-weight="600">Read-only views</text>
+            <text x="747" y="55" opacity="0.7">ReadOnlyRelated/AllAssetsView</text>
+          </g>
+          <!-- layout -->
+          <g font-size="12" fill="currentColor">
+            <rect x="90" y="110" width="250" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="102" y="130" font-weight="600">HmiPropertiesListing</text>
+            <text x="102" y="148" opacity="0.7">flex, or PropertyLayoutCanvas</text>
+            <rect x="360" y="110" width="270" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="372" y="130" font-weight="600">RelatedAssetsCards</text>
+            <text x="372" y="148" opacity="0.7">flex, or CardsLayoutCanvas (React Flow)</text>
+            <rect x="650" y="110" width="320" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <text x="662" y="130" font-weight="600">RelatedAssetsDiagram</text>
+            <text x="662" y="148" opacity="0.7">React Flow + ELK auto layout, or manual</text>
+          </g>
+          <!-- box -->
+          <rect x="360" y="200" width="610" height="50" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="2"/>
+          <text x="372" y="221" font-size="13" font-weight="600" fill="currentColor">RelatedAssetBoxContent</text>
+          <text x="372" y="239" font-size="12" fill="currentColor" opacity="0.7">one asset's box: resolves template, visuals, visibility and order, asset over type</text>
+          <!-- tile -->
+          <rect x="90" y="290" width="880" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <text x="102" y="311" font-size="13" font-weight="600" fill="currentColor">StatTile</text>
+          <text x="102" y="329" font-size="12" fill="currentColor" opacity="0.7">one property: Text · Indicator · Spark · All — with MiniSparkline / ResponsiveSparkline</text>
+
+          <!-- arrows: views → layout -->
+          <g stroke="currentColor" stroke-width="1.2" fill="none">
+            <line x1="190" y1="64" x2="190" y2="106" marker-end="url(#a3)"/>
+            <line x1="230" y1="64" x2="430" y2="106" marker-end="url(#a3)"/>
+            <line x1="260" y1="64" x2="760" y2="106" marker-end="url(#a3)"/>
+            <line x1="405" y1="64" x2="470" y2="106" marker-end="url(#a3)"/>
+            <line x1="850" y1="64" x2="560" y2="106" marker-end="url(#a3)"/>
+            <line x1="870" y1="64" x2="820" y2="106" marker-end="url(#a3)"/>
+          </g>
+          <!-- views bypass straight to box -->
+          <g stroke="currentColor" stroke-width="1.2" fill="none" stroke-dasharray="4 3">
+            <line x1="370" y1="64" x2="370" y2="80"/>
+            <line x1="370" y1="80" x2="345" y2="80"/>
+            <line x1="345" y1="80" x2="345" y2="225"/>
+            <line x1="345" y1="225" x2="356" y2="225" marker-end="url(#a3)"/>
+            <line x1="620" y1="64" x2="640" y2="80"/>
+            <line x1="640" y1="80" x2="640" y2="196" marker-end="url(#a3)"/>
+          </g>
+          <text x="236" y="190" font-size="11" fill="currentColor" opacity="0.7">own box directly</text>
+          <!-- layout → box, → tile -->
+          <g stroke="currentColor" stroke-width="1.2" fill="none">
+            <line x1="495" y1="160" x2="495" y2="196" marker-end="url(#a3)"/>
+            <line x1="810" y1="160" x2="810" y2="196" marker-end="url(#a3)"/>
+            <line x1="665" y1="250" x2="665" y2="286" marker-end="url(#a3)"/>
+            <line x1="215" y1="160" x2="215" y2="286" marker-end="url(#a3)"/>
+          </g>
+          <text x="224" y="226" font-size="11" fill="currentColor" opacity="0.7">tiles directly</text>
+        </svg>
+        </div>
+        <figcaption>The Configurator's Properties editor (<code>HmiPropertiesListing</code>) lays out tiles itself; everything else goes through <code>RelatedAssetBoxContent</code>. Cards and Diagram are two interchangeable layout engines over the same boxes, which is why a per-asset setting shows up identically in both.</figcaption>
+      </figure>
+    </section>
+
+    <section id="mechanisms">
+      <h2>Patterns to know</h2>
+      <p>These are the recurring ideas that aren't obvious from any single component. Most of them exist to let far-apart parts of the screen talk, or to keep DevExtreme and React Flow from redrawing at the wrong moment.</p>
+      <div class="notes">
+        <div class="note">
+          <h4>Model data in module globals</h4>
+          <p>39 <code>let</code> variables (asset hierarchy, telemetry, labels, ranges…) in <code>modelData.js</code>, written only there and read everywhere else as live imports. Nothing passes model data as props. The model's shape (<span class="mono">generic</span>, <span class="mono">four-level</span>, <span class="mono">refinery</span>) picks which resolver in <code>assetQueries.js</code> runs.</p>
+          <p class="where">operator/model/modelData.js · operator/model/assetQueries.js</p>
+        </div>
+        <div class="note">
+          <h4>Three shared stores</h4>
+          <p><code>assetCustomizationStore</code> (who differs from their type, plus the Match/Update actions), <code>displayOrderStore</code> (orders plus setter), and <code>unsavedChangesStore</code> (the Save dot and prompt). The workspace writes them and any component reads them with a hook, including DevExtreme templates that can't take fresh props.</p>
+          <p class="where">useAssetCustomizations · useDisplayOrders · useHasUnsavedChanges</p>
+        </div>
+        <div class="note">
+          <h4>One Save button, many editors</h4>
+          <p>Whichever editor is mounted writes its save function into <code>activeSaveHandlerRef</code>. The title-bar Save calls through the ref. Each editor also runs <code>useUnsavedTracker</code> to compare its draft against what it loaded.</p>
+          <p class="where">HmiPropertiesListing · RelatedAssetsPreview · AllAssetsDiagram</p>
+        </div>
+        <div class="note">
+          <h4>Remount on purpose</h4>
+          <p>Editors read their saved template once, on mount. Selecting a different type or asset, or reverting the open one, changes a React <code>key</code> so they start fresh (<code>nowPreviewRevision</code>). That's also why "act after unsaved changes are resolved" runs on the next render (<code>pendingApplyAssetId</code>).</p>
+          <p class="where">NowAssetDetail · applyAssetToType</p>
+        </div>
+        <div class="note">
+          <h4>Stable identities for DevExtreme</h4>
+          <p>A DataGrid repaints every row when its columns, data source or drag handler changes identity, which closes any open dropdown in a cell. The Details grids keep rows, columns and callbacks stable across renders on purpose. Canvas position callbacks are stable for the same reason (otherwise they loop).</p>
+          <p class="where">NowTypeDetailsList · DataListGrid · useCallback handlers</p>
+        </div>
+        <div class="note">
+          <h4>Controlled tab panels</h4>
+          <p>An uncontrolled DevExtreme <code>TabPanel</code> jumps back to its first tab whenever anything nearby re-renders, so every TabPanel here gets its index from lifted state. Any new one should too.</p>
+          <p class="where">NowAssetTreePanel · NowTypeDetailsList</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="bigfile">
+      <h2>Where the code lives</h2>
+      <h3>Split out so far: <span class="mono">src/operator/</span></h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">model/modelData.js</td><td class="num">463</td><td>The 39 model-data variables, the shift timeline, and the loader helpers that write them (<span class="mono">activateLoadedModel</span>, <span class="mono">assignModelData</span>…)</td></tr>
+            <tr><td class="mono">model/assetQueries.js</td><td class="num">593</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item → asset</td></tr>
+            <tr><td class="mono">settings/propertyDisplay.js</td><td class="num">64</td><td>View modes, per-property visual resolution and merging, the Show (visibility) cycle</td></tr>
+            <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
+            <tr><td class="mono">settings/customizations.js</td><td class="num">175</td><td>"Differs from type" detection and the customization store</td></tr>
+            <tr><td class="mono">icons.jsx</td><td class="num">578</td><td>All 49 inline-SVG icons and <span class="mono">IconButtonGroupItem</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Still in <span class="mono">src/OperatorWorkspace.jsx</span></h3>
+      <p>It reads top to bottom roughly in the order below. The ranges overlap a little because some constants sit next to the components that use them.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Lines</th><th>What's there</th><th>Main names</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1–319</td><td>Imports; Operator constants: state and severity colors, attention and work sorting and grouping</td><td class="mono">STATE_COLORS, sortAttentionItems, ComparisonLineChart</td></tr>
+            <tr><td class="num">320–636</td><td>The customization UI and the toolbar option lists</td><td class="mono">CustomizationTitleControls, AssetRevertPopover, FLOW_DIRECTION_ITEMS</td></tr>
+            <tr><td class="num">637–1079</td><td>The Configurator's Properties editor</td><td class="mono">HmiPropertiesListing</td></tr>
+            <tr><td class="num">1080–1697</td><td>Operator widgets: evidence, timeline, NowStrip, issue map, sparklines, StatTile</td><td class="mono">NowStrip, IssueMap, StatTile, AttentionCard</td></tr>
+            <tr><td class="num">1698–1986</td><td>Tree panels and the two center "asset detail" views</td><td class="mono">NowAssetTreePanel, OperatorAssetDetail, NowAssetDetail</td></tr>
+            <tr><td class="num">1987–2305</td><td>ELK layout, diagram option lists, align/distribute, floating-edge geometry</td><td class="mono">getElkLayoutedElements</td></tr>
+            <tr><td class="num">2306–3369</td><td>Diagram and canvas nodes, the Diagram engine, the box, the two manual canvases</td><td class="mono">RelatedAssetsDiagram, RelatedAssetBoxContent, PropertyLayoutCanvas, CardsLayoutCanvas</td></tr>
+            <tr><td class="num">3370–3597</td><td>Cards engine and the read-only views</td><td class="mono">RelatedAssetsCards, ReadOnlyRelatedAssetsView</td></tr>
+            <tr><td class="num">3598–4151</td><td>The Related Assets editor</td><td class="mono">RelatedAssetsPreview</td></tr>
+            <tr><td class="num">4152–4445</td><td>All Assets: visibility list and diagram editor</td><td class="mono">AllAssetsTypeList, AllAssetsDiagram</td></tr>
+            <tr><td class="num">4446–4845</td><td>The Details panel grids</td><td class="mono">NowTypeDetailsList</td></tr>
+            <tr><td class="num">4846–5016</td><td>The center preview that picks an editor per tab</td><td class="mono">NowTypeMainPreview</td></tr>
+            <tr><td class="num">5017–5688</td><td>Operator panels: Attention list, Work list, Investigate, task detail</td><td class="mono">AttentionPanel, WorkListPanel, InvestigatePanel</td></tr>
+            <tr><td class="num">5689–6097</td><td>Contacts and AI chat, the rails and side panel</td><td class="mono">NavRail, SidePanel, RightRail</td></tr>
+            <tr><td class="num">6098–6183</td><td>The outer component: fetch the model, show errors, key the inner one</td><td class="mono">OperatorWorkspace</td></tr>
+            <tr><td class="num">6184–7270</td><td>All state and handlers, and the slot layout</td><td class="mono">OperatorWorkspaceInner</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="rest">
+      <h2>The rest of <span class="mono">src/</span></h2>
+      <h3>Shared with the Operator side</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also all of the page builder's state and canvas.</td></tr>
+            <tr><td class="mono">App.operator.css</td><td>Everything Operator/Configurator-specific, in rough feature order.</td></tr>
+            <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
+            <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
+            <tr><td class="mono">unsavedChangesStore.js</td><td>The unsaved-changes store and <span class="mono">useUnsavedTracker</span>.</td></tr>
+            <tr><td class="mono">DataListGrid.jsx · HierarchyTree.jsx</td><td>Small shared list and tree components used by both halves of the app.</td></tr>
+            <tr><td class="mono">*Storage.js (20)</td><td>One localStorage concern each: a load/save pair with try/catch around JSON. 15 serve the Operator side; the rest hold pages, entities, data sources and queries.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Page builder only</h3>
+      <p>Kept for later, not currently imported: <span class="mono">dev_extreme_asset_screen_wizard.jsx</span>. Leave it in place.</p>
+      <p>Screens and widgets: <span class="mono">ContainerCard</span>, <span class="mono">containerModel</span>, <span class="mono">containerStyles</span>, <span class="mono">containerTree</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetPreview</span>, <span class="mono">WidgetConfigPanel</span>, <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetData</span>, <span class="mono">widgetSampleData</span>, <span class="mono">RuntimeView</span>, <span class="mono">Wizard</span>.</p>
+      <p>Theme: <span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span>.</p>
+      <p>Data layer: <span class="mono">dataModel</span>, <span class="mono">DataSourcesWorkspace</span>, <span class="mono">QueriesWorkspace</span>, <span class="mono">EntitiesWorkspace</span>, <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, the binding popovers, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span>.</p>
+    </section>
+
+    <section id="data">
+      <h2>Data &amp; tooling</h2>
+      <p>Each industry is data only: a folder under <span class="mono">public/data/&lt;model&gt;/</span> plus one entry in <span class="mono">models.json</span>. There are seven today: refinery, water, wastewater, wind, ccgt, pipeline and pharma. New ones use the <strong>generic</strong> 8-file format described in <span class="mono">INDUSTRY_PACK_SPEC.md</span>.</p>
+      <ul class="tight">
+        <li><span class="mono">ModelAndData/industries/&lt;model&gt;/generate.py</span> builds a pack, with research and scenario notes alongside.</li>
+        <li><span class="mono">ModelAndData/tools/validate_industry_pack.py</span> checks one; <span class="mono">convert_legacy_to_generic.py</span> upgrades an old four-level pack.</li>
+        <li><span class="mono">PROJECT_CONTEXT.md</span> is the short orientation file for new chat sessions.</li>
+      </ul>
+    </section>
+
+    <section id="next">
+      <h2>Refactor plan</h2>
+      <p>Each phase only moves code: no behavior changes. Each is checked against a full-screen, pixel-by-pixel comparison of seven screens in all seven models, plus the interaction test runs. It ships as its own commit.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase</th><th>Moves</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Model data and its loader, model queries, settings logic and stores, icons</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip flag">next</span></td></tr>
+            <tr><td>3</td><td>Configurator panels (tree, preview, editors, Details grids, customization UI) and Operator views (Attention, Work, Investigate, NowStrip, issue map)</td><td>planned</td></tr>
+            <tr><td>4</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way</td><td>planned</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <pre class="tree"><span class="c">src/operator/                      target layout</span>
+  OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      (phase 4)</span>
+  model/                         <span class="c">modelData, assetQueries                    ✓</span>
+  settings/                      <span class="c">propertyDisplay, displayOrder, customizations ✓</span>
+  icons.jsx                      <span class="c">                                            ✓</span>
+  tiles/                         <span class="c">StatTile, sparklines, HmiPropertiesListing  (phase 2)</span>
+  relatedAssets/                 <span class="c">box, Cards, Diagram, canvases, read-only    (phase 2)</span>
+  configurator/                  <span class="c">tree, preview, Details grids, popovers      (phase 3)</span>
+  operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip      (phase 3)</span>
+  chrome/                        <span class="c">rails, side panel, contacts, AI chat        (phase 3)</span>
+  *.css                          <span class="c">App.operator.css split the same way         (phase 4)</span></pre>
+    </section>
+  </main>
+</div>
+</body>
+</html>
