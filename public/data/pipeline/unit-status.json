@@ -1,0 +1,80 @@
+{
+ "LODESTAR_HARLOW": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Residue gas receipt"
+ },
+ "LODESTAR_SEG1": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Transport + line pack"
+ },
+ "LODESTAR_WREN": {
+  "state": "attention",
+  "statusSinceMinutes": 295,
+  "mode": "STEADY",
+  "product": "Compression"
+ },
+ "LODESTAR_SEG2": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Transport + line pack"
+ },
+ "LODESTAR_SABLE": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Field gas receipt"
+ },
+ "LODESTAR_BEXLEY": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "LDC delivery (odorized)"
+ },
+ "LODESTAR_KETTLE": {
+  "state": "attention",
+  "statusSinceMinutes": 145,
+  "mode": "STEADY",
+  "product": "Compression"
+ },
+ "LODESTAR_SEG3": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Transport + line pack"
+ },
+ "LODESTAR_HALCYON": {
+  "state": "attention",
+  "statusSinceMinutes": 20,
+  "mode": "STEADY",
+  "product": "Power-plant fuel"
+ },
+ "LODESTAR_ASHBY": {
+  "state": "attention",
+  "statusSinceMinutes": 50,
+  "mode": "CONTROLLED_HOLD",
+  "product": "Compression"
+ },
+ "LODESTAR_SEG4": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Transport + line pack"
+ },
+ "LODESTAR_TOLLAND": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "LDC delivery (odorized)"
+ },
+ "LODESTAR_MARLOW": {
+  "state": "running",
+  "statusSinceMinutes": null,
+  "mode": "STEADY",
+  "product": "Interconnect delivery"
+ }
+}

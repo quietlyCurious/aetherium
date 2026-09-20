@@ -1,0 +1,779 @@
+[
+ {
+  "id": "LODESTAR",
+  "parentId": null,
+  "name": "Lodestar Pipeline",
+  "assetType": "pipeline_system",
+  "assetLevel": "system"
+ },
+ {
+  "id": "LODESTAR_W",
+  "parentId": "LODESTAR",
+  "name": "West District",
+  "assetType": "operating_district",
+  "assetLevel": "district"
+ },
+ {
+  "id": "LODESTAR_C",
+  "parentId": "LODESTAR",
+  "name": "Central District",
+  "assetType": "operating_district",
+  "assetLevel": "district"
+ },
+ {
+  "id": "LODESTAR_E",
+  "parentId": "LODESTAR",
+  "name": "East District",
+  "assetType": "operating_district",
+  "assetLevel": "district"
+ },
+ {
+  "id": "LODESTAR_HARLOW",
+  "parentId": "LODESTAR_W",
+  "name": "Harlow Receipt",
+  "assetType": "plant_receipt_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_HARLOW_FSEP",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HARLOW_RUNA",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Meter Run A",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HARLOW_RUNB",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Meter Run B",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HARLOW_RUNC",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Meter Run C",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HARLOW_GC",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Gas Chromatograph",
+  "assetType": "gas_chromatograph",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HARLOW_QA",
+  "parentId": "LODESTAR_HARLOW",
+  "name": "Moisture / H₂S Analyzer",
+  "assetType": "gas_quality_analyzer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG1",
+  "parentId": "LODESTAR_W",
+  "name": "Segment 1 (MP 0–68)",
+  "assetType": "pipeline_segment",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_SEG1_MLV1",
+  "parentId": "LODESTAR_SEG1",
+  "name": "MLV 1-1 (MP 18)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG1_MLV2",
+  "parentId": "LODESTAR_SEG1",
+  "name": "MLV 1-2 (MP 42)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG1_MLV3",
+  "parentId": "LODESTAR_SEG1",
+  "name": "MLV 1-3 (MP 60)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG1_CP1",
+  "parentId": "LODESTAR_SEG1",
+  "name": "Rectifier R-11",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG1_CP2",
+  "parentId": "LODESTAR_SEG1",
+  "name": "Rectifier R-12",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_WREN",
+  "parentId": "LODESTAR_W",
+  "name": "Wren Compressor Station",
+  "assetType": "turbine_compressor_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_WREN_SCRUB",
+  "parentId": "LODESTAR_WREN",
+  "name": "Inlet Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_WREN_CU1",
+  "parentId": "LODESTAR_WREN",
+  "name": "CU-1",
+  "assetType": "turbine_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_WREN_CU1_GT",
+  "parentId": "LODESTAR_WREN_CU1",
+  "name": "Gas Turbine",
+  "assetType": "gas_turbine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU1_COMP",
+  "parentId": "LODESTAR_WREN_CU1",
+  "name": "Centrifugal Compressor",
+  "assetType": "centrifugal_compressor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU1_DGS",
+  "parentId": "LODESTAR_WREN_CU1",
+  "name": "Dry Gas Seals",
+  "assetType": "dry_gas_seal_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU1_LUBE",
+  "parentId": "LODESTAR_WREN_CU1",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU2",
+  "parentId": "LODESTAR_WREN",
+  "name": "CU-2",
+  "assetType": "turbine_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_WREN_CU2_GT",
+  "parentId": "LODESTAR_WREN_CU2",
+  "name": "Gas Turbine",
+  "assetType": "gas_turbine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU2_COMP",
+  "parentId": "LODESTAR_WREN_CU2",
+  "name": "Centrifugal Compressor",
+  "assetType": "centrifugal_compressor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU2_DGS",
+  "parentId": "LODESTAR_WREN_CU2",
+  "name": "Dry Gas Seals",
+  "assetType": "dry_gas_seal_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU2_LUBE",
+  "parentId": "LODESTAR_WREN_CU2",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU3",
+  "parentId": "LODESTAR_WREN",
+  "name": "CU-3",
+  "assetType": "turbine_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_WREN_CU3_GT",
+  "parentId": "LODESTAR_WREN_CU3",
+  "name": "Gas Turbine",
+  "assetType": "gas_turbine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU3_COMP",
+  "parentId": "LODESTAR_WREN_CU3",
+  "name": "Centrifugal Compressor",
+  "assetType": "centrifugal_compressor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU3_DGS",
+  "parentId": "LODESTAR_WREN_CU3",
+  "name": "Dry Gas Seals",
+  "assetType": "dry_gas_seal_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_CU3_LUBE",
+  "parentId": "LODESTAR_WREN_CU3",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_WREN_COOL",
+  "parentId": "LODESTAR_WREN",
+  "name": "Aftercooler",
+  "assetType": "gas_aftercooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG2",
+  "parentId": "LODESTAR_C",
+  "name": "Segment 2 (MP 68–152)",
+  "assetType": "pipeline_segment",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_SEG2_MLV1",
+  "parentId": "LODESTAR_SEG2",
+  "name": "MLV 2-1 (MP 88)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG2_MLV2",
+  "parentId": "LODESTAR_SEG2",
+  "name": "MLV 2-2 (MP 110)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG2_MLV3",
+  "parentId": "LODESTAR_SEG2",
+  "name": "MLV 2-3 (MP 132)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG2_CP1",
+  "parentId": "LODESTAR_SEG2",
+  "name": "Rectifier R-21",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG2_CP2",
+  "parentId": "LODESTAR_SEG2",
+  "name": "Rectifier R-22",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SABLE",
+  "parentId": "LODESTAR_C",
+  "name": "Sable Ridge Receipt",
+  "assetType": "field_receipt_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_SABLE_FSEP",
+  "parentId": "LODESTAR_SABLE",
+  "name": "Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SABLE_RUNA",
+  "parentId": "LODESTAR_SABLE",
+  "name": "Meter Run A",
+  "assetType": "meter_run_8in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SABLE_RUNB",
+  "parentId": "LODESTAR_SABLE",
+  "name": "Meter Run B",
+  "assetType": "meter_run_8in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SABLE_QA",
+  "parentId": "LODESTAR_SABLE",
+  "name": "Moisture / H₂S Analyzer",
+  "assetType": "gas_quality_analyzer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_BEXLEY",
+  "parentId": "LODESTAR_C",
+  "name": "Bexley City Gate",
+  "assetType": "city_gate_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_BEXLEY_HTR",
+  "parentId": "LODESTAR_BEXLEY",
+  "name": "Line Heater",
+  "assetType": "line_heater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_BEXLEY_REGA",
+  "parentId": "LODESTAR_BEXLEY",
+  "name": "Regulator Run A",
+  "assetType": "regulator_run",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_BEXLEY_REGB",
+  "parentId": "LODESTAR_BEXLEY",
+  "name": "Regulator Run B",
+  "assetType": "regulator_run",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_BEXLEY_ODOR",
+  "parentId": "LODESTAR_BEXLEY",
+  "name": "Odorizer",
+  "assetType": "odorizer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE",
+  "parentId": "LODESTAR_C",
+  "name": "Kettle Creek Compressor Station",
+  "assetType": "recip_compressor_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_KETTLE_SCRUB",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "Inlet Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU1",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "CU-1",
+  "assetType": "recip_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU1_ENG",
+  "parentId": "LODESTAR_KETTLE_CU1",
+  "name": "Gas Engine",
+  "assetType": "gas_engine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU1_FRAME",
+  "parentId": "LODESTAR_KETTLE_CU1",
+  "name": "Compressor Frame",
+  "assetType": "recip_compressor_frame",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU1_LUBE",
+  "parentId": "LODESTAR_KETTLE_CU1",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU2",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "CU-2",
+  "assetType": "recip_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU2_ENG",
+  "parentId": "LODESTAR_KETTLE_CU2",
+  "name": "Gas Engine",
+  "assetType": "gas_engine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU2_FRAME",
+  "parentId": "LODESTAR_KETTLE_CU2",
+  "name": "Compressor Frame",
+  "assetType": "recip_compressor_frame",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU2_LUBE",
+  "parentId": "LODESTAR_KETTLE_CU2",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU3",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "CU-3",
+  "assetType": "recip_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU3_ENG",
+  "parentId": "LODESTAR_KETTLE_CU3",
+  "name": "Gas Engine",
+  "assetType": "gas_engine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU3_FRAME",
+  "parentId": "LODESTAR_KETTLE_CU3",
+  "name": "Compressor Frame",
+  "assetType": "recip_compressor_frame",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU3_LUBE",
+  "parentId": "LODESTAR_KETTLE_CU3",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU4",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "CU-4",
+  "assetType": "recip_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU4_ENG",
+  "parentId": "LODESTAR_KETTLE_CU4",
+  "name": "Gas Engine",
+  "assetType": "gas_engine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU4_FRAME",
+  "parentId": "LODESTAR_KETTLE_CU4",
+  "name": "Compressor Frame",
+  "assetType": "recip_compressor_frame",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU4_LUBE",
+  "parentId": "LODESTAR_KETTLE_CU4",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU5",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "CU-5",
+  "assetType": "recip_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU5_ENG",
+  "parentId": "LODESTAR_KETTLE_CU5",
+  "name": "Gas Engine",
+  "assetType": "gas_engine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU5_FRAME",
+  "parentId": "LODESTAR_KETTLE_CU5",
+  "name": "Compressor Frame",
+  "assetType": "recip_compressor_frame",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_CU5_LUBE",
+  "parentId": "LODESTAR_KETTLE_CU5",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_KETTLE_COOL",
+  "parentId": "LODESTAR_KETTLE",
+  "name": "Aftercooler",
+  "assetType": "gas_aftercooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG3",
+  "parentId": "LODESTAR_E",
+  "name": "Segment 3 (MP 152–236)",
+  "assetType": "pipeline_segment",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_SEG3_MLV1",
+  "parentId": "LODESTAR_SEG3",
+  "name": "MLV 3-1 (MP 172)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG3_MLV2",
+  "parentId": "LODESTAR_SEG3",
+  "name": "MLV 3-2 (MP 194)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG3_MLV3",
+  "parentId": "LODESTAR_SEG3",
+  "name": "MLV 3-3 (MP 216)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG3_CP1",
+  "parentId": "LODESTAR_SEG3",
+  "name": "Rectifier R-31",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG3_CP2",
+  "parentId": "LODESTAR_SEG3",
+  "name": "Rectifier R-32",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HALCYON",
+  "parentId": "LODESTAR_E",
+  "name": "Halcyon Point Delivery",
+  "assetType": "power_plant_delivery",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_HALCYON_FSEP",
+  "parentId": "LODESTAR_HALCYON",
+  "name": "Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_HALCYON_RUNA",
+  "parentId": "LODESTAR_HALCYON",
+  "name": "Meter Run A",
+  "assetType": "meter_run_8in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_ASHBY",
+  "parentId": "LODESTAR_E",
+  "name": "Ashby Compressor Station",
+  "assetType": "turbine_compressor_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_ASHBY_SCRUB",
+  "parentId": "LODESTAR_ASHBY",
+  "name": "Inlet Filter/Separator",
+  "assetType": "filter_separator",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU1",
+  "parentId": "LODESTAR_ASHBY",
+  "name": "CU-1",
+  "assetType": "turbine_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU1_GT",
+  "parentId": "LODESTAR_ASHBY_CU1",
+  "name": "Gas Turbine",
+  "assetType": "gas_turbine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU1_COMP",
+  "parentId": "LODESTAR_ASHBY_CU1",
+  "name": "Centrifugal Compressor",
+  "assetType": "centrifugal_compressor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU1_DGS",
+  "parentId": "LODESTAR_ASHBY_CU1",
+  "name": "Dry Gas Seals",
+  "assetType": "dry_gas_seal_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU1_LUBE",
+  "parentId": "LODESTAR_ASHBY_CU1",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU2",
+  "parentId": "LODESTAR_ASHBY",
+  "name": "CU-2",
+  "assetType": "turbine_compressor_unit",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU2_GT",
+  "parentId": "LODESTAR_ASHBY_CU2",
+  "name": "Gas Turbine",
+  "assetType": "gas_turbine_driver",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU2_COMP",
+  "parentId": "LODESTAR_ASHBY_CU2",
+  "name": "Centrifugal Compressor",
+  "assetType": "centrifugal_compressor",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU2_DGS",
+  "parentId": "LODESTAR_ASHBY_CU2",
+  "name": "Dry Gas Seals",
+  "assetType": "dry_gas_seal_system",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_CU2_LUBE",
+  "parentId": "LODESTAR_ASHBY_CU2",
+  "name": "Lube Oil Console",
+  "assetType": "lube_oil_console",
+  "assetLevel": "component"
+ },
+ {
+  "id": "LODESTAR_ASHBY_COOL",
+  "parentId": "LODESTAR_ASHBY",
+  "name": "Aftercooler",
+  "assetType": "gas_aftercooler",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG4",
+  "parentId": "LODESTAR_E",
+  "name": "Segment 4 (MP 236–310)",
+  "assetType": "pipeline_segment",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_SEG4_MLV1",
+  "parentId": "LODESTAR_SEG4",
+  "name": "MLV 4-1 (MP 256)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG4_MLV2",
+  "parentId": "LODESTAR_SEG4",
+  "name": "MLV 4-2 (MP 278)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG4_MLV3",
+  "parentId": "LODESTAR_SEG4",
+  "name": "MLV 4-3 (MP 298)",
+  "assetType": "mainline_valve",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG4_CP1",
+  "parentId": "LODESTAR_SEG4",
+  "name": "Rectifier R-41",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_SEG4_CP2",
+  "parentId": "LODESTAR_SEG4",
+  "name": "Rectifier R-42",
+  "assetType": "cp_rectifier",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_TOLLAND",
+  "parentId": "LODESTAR_E",
+  "name": "Tolland City Gate",
+  "assetType": "city_gate_station",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_TOLLAND_HTR",
+  "parentId": "LODESTAR_TOLLAND",
+  "name": "Line Heater",
+  "assetType": "line_heater",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_TOLLAND_REGA",
+  "parentId": "LODESTAR_TOLLAND",
+  "name": "Regulator Run A",
+  "assetType": "regulator_run",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_TOLLAND_REGB",
+  "parentId": "LODESTAR_TOLLAND",
+  "name": "Regulator Run B",
+  "assetType": "regulator_run",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_TOLLAND_ODOR",
+  "parentId": "LODESTAR_TOLLAND",
+  "name": "Odorizer",
+  "assetType": "odorizer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_MARLOW",
+  "parentId": "LODESTAR_E",
+  "name": "Marlow Interconnect",
+  "assetType": "interconnect_delivery",
+  "assetLevel": "facility"
+ },
+ {
+  "id": "LODESTAR_MARLOW_RUNA",
+  "parentId": "LODESTAR_MARLOW",
+  "name": "Meter Run A",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_MARLOW_RUNB",
+  "parentId": "LODESTAR_MARLOW",
+  "name": "Meter Run B",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "LODESTAR_MARLOW_RUNC",
+  "parentId": "LODESTAR_MARLOW",
+  "name": "Meter Run C",
+  "assetType": "meter_run_16in",
+  "assetLevel": "equipment"
+ }
+]

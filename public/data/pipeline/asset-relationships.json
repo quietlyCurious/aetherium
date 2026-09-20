@@ -1,0 +1,940 @@
+[
+ {
+  "sourceAssetId": "LODESTAR_HARLOW",
+  "targetAssetId": "LODESTAR_SEG1",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1",
+  "targetAssetId": "LODESTAR_WREN",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN",
+  "targetAssetId": "LODESTAR_SEG2",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2",
+  "targetAssetId": "LODESTAR_KETTLE",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE",
+  "targetAssetId": "LODESTAR_SEG3",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3",
+  "targetAssetId": "LODESTAR_ASHBY",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY",
+  "targetAssetId": "LODESTAR_SEG4",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4",
+  "targetAssetId": "LODESTAR_MARLOW",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE",
+  "targetAssetId": "LODESTAR_SEG2",
+  "relationshipType": "feeds_into",
+  "label": "field gas tie-in at MP 95",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2",
+  "targetAssetId": "LODESTAR_BEXLEY",
+  "relationshipType": "feeds_into",
+  "label": "lateral at MP 110",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3",
+  "targetAssetId": "LODESTAR_HALCYON",
+  "relationshipType": "feeds_into",
+  "label": "plant lateral at MP 194",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4",
+  "targetAssetId": "LODESTAR_TOLLAND",
+  "relationshipType": "feeds_into",
+  "label": "lateral at MP 278",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_FSEP",
+  "targetAssetId": "LODESTAR_HARLOW_RUNA",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_FSEP",
+  "targetAssetId": "LODESTAR_HARLOW_RUNB",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_FSEP",
+  "targetAssetId": "LODESTAR_HARLOW_RUNC",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_RUNA",
+  "targetAssetId": "LODESTAR_SEG1_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "custody transfer into the mainline",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_RUNB",
+  "targetAssetId": "LODESTAR_SEG1_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "custody transfer into the mainline",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_RUNC",
+  "targetAssetId": "LODESTAR_SEG1_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "custody transfer into the mainline",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_FSEP",
+  "targetAssetId": "LODESTAR_HARLOW_GC",
+  "relationshipType": "feeds_into",
+  "label": "analyzer sample probe",
+  "layer": "sample"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HARLOW_FSEP",
+  "targetAssetId": "LODESTAR_HARLOW_QA",
+  "relationshipType": "feeds_into",
+  "label": "analyzer sample probe",
+  "layer": "sample"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_MLV1",
+  "targetAssetId": "LODESTAR_SEG1_MLV2",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_MLV2",
+  "targetAssetId": "LODESTAR_SEG1_MLV3",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_CP1",
+  "targetAssetId": "LODESTAR_SEG1_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_CP1",
+  "targetAssetId": "LODESTAR_SEG1_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_CP2",
+  "targetAssetId": "LODESTAR_SEG1_MLV3",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_MLV1",
+  "targetAssetId": "LODESTAR_SEG2_MLV2",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_MLV2",
+  "targetAssetId": "LODESTAR_SEG2_MLV3",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_CP1",
+  "targetAssetId": "LODESTAR_SEG2_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_CP1",
+  "targetAssetId": "LODESTAR_SEG2_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_CP2",
+  "targetAssetId": "LODESTAR_SEG2_MLV3",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_MLV1",
+  "targetAssetId": "LODESTAR_SEG3_MLV2",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_MLV2",
+  "targetAssetId": "LODESTAR_SEG3_MLV3",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_CP1",
+  "targetAssetId": "LODESTAR_SEG3_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_CP1",
+  "targetAssetId": "LODESTAR_SEG3_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_CP2",
+  "targetAssetId": "LODESTAR_SEG3_MLV3",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV1",
+  "targetAssetId": "LODESTAR_SEG4_MLV2",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV2",
+  "targetAssetId": "LODESTAR_SEG4_MLV3",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_CP1",
+  "targetAssetId": "LODESTAR_SEG4_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_CP1",
+  "targetAssetId": "LODESTAR_SEG4_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_CP2",
+  "targetAssetId": "LODESTAR_SEG4_MLV3",
+  "relationshipType": "feeds_into",
+  "label": "CP current (test station at valve site)",
+  "layer": "cathodic_protection"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG1_MLV3",
+  "targetAssetId": "LODESTAR_WREN_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "station suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU1",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU1",
+  "targetAssetId": "LODESTAR_WREN_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU1_GT",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU1_GT",
+  "targetAssetId": "LODESTAR_WREN_CU1_COMP",
+  "relationshipType": "feeds_into",
+  "label": "power turbine shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU1_COMP",
+  "targetAssetId": "LODESTAR_WREN_CU1_DGS",
+  "relationshipType": "feeds_into",
+  "label": "filtered discharge gas as seal gas",
+  "layer": "seal_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU1_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU1_GT",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU1_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU1_COMP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU2",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU2",
+  "targetAssetId": "LODESTAR_WREN_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU2_GT",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU2_GT",
+  "targetAssetId": "LODESTAR_WREN_CU2_COMP",
+  "relationshipType": "feeds_into",
+  "label": "power turbine shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU2_COMP",
+  "targetAssetId": "LODESTAR_WREN_CU2_DGS",
+  "relationshipType": "feeds_into",
+  "label": "filtered discharge gas as seal gas",
+  "layer": "seal_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU2_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU2_GT",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU2_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU2_COMP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU3",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU3",
+  "targetAssetId": "LODESTAR_WREN_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_SCRUB",
+  "targetAssetId": "LODESTAR_WREN_CU3_GT",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU3_GT",
+  "targetAssetId": "LODESTAR_WREN_CU3_COMP",
+  "relationshipType": "feeds_into",
+  "label": "power turbine shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU3_COMP",
+  "targetAssetId": "LODESTAR_WREN_CU3_DGS",
+  "relationshipType": "feeds_into",
+  "label": "filtered discharge gas as seal gas",
+  "layer": "seal_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU3_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU3_GT",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_CU3_LUBE",
+  "targetAssetId": "LODESTAR_WREN_CU3_COMP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_COOL",
+  "targetAssetId": "LODESTAR_WREN_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "anti-surge recycle",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_WREN_COOL",
+  "targetAssetId": "LODESTAR_SEG2_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "station discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_MLV3",
+  "targetAssetId": "LODESTAR_KETTLE_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "station suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU1",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU1",
+  "targetAssetId": "LODESTAR_KETTLE_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU1_ENG",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU1_ENG",
+  "targetAssetId": "LODESTAR_KETTLE_CU1_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "crankshaft coupling",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU1_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU1_ENG",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU1_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU1_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "frame and cylinder lubrication",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU2",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU2",
+  "targetAssetId": "LODESTAR_KETTLE_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU2_ENG",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU2_ENG",
+  "targetAssetId": "LODESTAR_KETTLE_CU2_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "crankshaft coupling",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU2_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU2_ENG",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU2_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU2_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "frame and cylinder lubrication",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU3",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU3",
+  "targetAssetId": "LODESTAR_KETTLE_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU3_ENG",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU3_ENG",
+  "targetAssetId": "LODESTAR_KETTLE_CU3_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "crankshaft coupling",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU3_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU3_ENG",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU3_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU3_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "frame and cylinder lubrication",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU4",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU4",
+  "targetAssetId": "LODESTAR_KETTLE_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU4_ENG",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU4_ENG",
+  "targetAssetId": "LODESTAR_KETTLE_CU4_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "crankshaft coupling",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU4_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU4_ENG",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU4_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU4_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "frame and cylinder lubrication",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU5",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU5",
+  "targetAssetId": "LODESTAR_KETTLE_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_SCRUB",
+  "targetAssetId": "LODESTAR_KETTLE_CU5_ENG",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU5_ENG",
+  "targetAssetId": "LODESTAR_KETTLE_CU5_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "crankshaft coupling",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU5_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU5_ENG",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_CU5_LUBE",
+  "targetAssetId": "LODESTAR_KETTLE_CU5_FRAME",
+  "relationshipType": "feeds_into",
+  "label": "frame and cylinder lubrication",
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_COOL",
+  "targetAssetId": "LODESTAR_KETTLE_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "anti-surge recycle",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_KETTLE_COOL",
+  "targetAssetId": "LODESTAR_SEG3_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "station discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_MLV3",
+  "targetAssetId": "LODESTAR_ASHBY_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "station suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_SCRUB",
+  "targetAssetId": "LODESTAR_ASHBY_CU1",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU1",
+  "targetAssetId": "LODESTAR_ASHBY_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_SCRUB",
+  "targetAssetId": "LODESTAR_ASHBY_CU1_GT",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU1_GT",
+  "targetAssetId": "LODESTAR_ASHBY_CU1_COMP",
+  "relationshipType": "feeds_into",
+  "label": "power turbine shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU1_COMP",
+  "targetAssetId": "LODESTAR_ASHBY_CU1_DGS",
+  "relationshipType": "feeds_into",
+  "label": "filtered discharge gas as seal gas",
+  "layer": "seal_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU1_LUBE",
+  "targetAssetId": "LODESTAR_ASHBY_CU1_GT",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU1_LUBE",
+  "targetAssetId": "LODESTAR_ASHBY_CU1_COMP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_SCRUB",
+  "targetAssetId": "LODESTAR_ASHBY_CU2",
+  "relationshipType": "feeds_into",
+  "label": "unit suction",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU2",
+  "targetAssetId": "LODESTAR_ASHBY_COOL",
+  "relationshipType": "feeds_into",
+  "label": "unit discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_SCRUB",
+  "targetAssetId": "LODESTAR_ASHBY_CU2_GT",
+  "relationshipType": "feeds_into",
+  "label": "fuel gas",
+  "layer": "fuel_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU2_GT",
+  "targetAssetId": "LODESTAR_ASHBY_CU2_COMP",
+  "relationshipType": "feeds_into",
+  "label": "power turbine shaft",
+  "layer": "power"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU2_COMP",
+  "targetAssetId": "LODESTAR_ASHBY_CU2_DGS",
+  "relationshipType": "feeds_into",
+  "label": "filtered discharge gas as seal gas",
+  "layer": "seal_gas"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU2_LUBE",
+  "targetAssetId": "LODESTAR_ASHBY_CU2_GT",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_CU2_LUBE",
+  "targetAssetId": "LODESTAR_ASHBY_CU2_COMP",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "lube_oil"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_COOL",
+  "targetAssetId": "LODESTAR_ASHBY_SCRUB",
+  "relationshipType": "feeds_into",
+  "label": "anti-surge recycle",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_ASHBY_COOL",
+  "targetAssetId": "LODESTAR_SEG4_MLV1",
+  "relationshipType": "feeds_into",
+  "label": "station discharge",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE_FSEP",
+  "targetAssetId": "LODESTAR_SABLE_RUNA",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE_FSEP",
+  "targetAssetId": "LODESTAR_SABLE_RUNB",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE_RUNA",
+  "targetAssetId": "LODESTAR_SEG2_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "enters between MLV 2-1 and 2-2",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE_RUNB",
+  "targetAssetId": "LODESTAR_SEG2_MLV2",
+  "relationshipType": "feeds_into",
+  "label": "enters between MLV 2-1 and 2-2",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SABLE_FSEP",
+  "targetAssetId": "LODESTAR_SABLE_QA",
+  "relationshipType": "feeds_into",
+  "label": "analyzer sample probe",
+  "layer": "sample"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG2_MLV2",
+  "targetAssetId": "LODESTAR_BEXLEY_HTR",
+  "relationshipType": "feeds_into",
+  "label": "lateral",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_BEXLEY_HTR",
+  "targetAssetId": "LODESTAR_BEXLEY_REGA",
+  "relationshipType": "feeds_into",
+  "label": "heated gas",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_BEXLEY_ODOR",
+  "targetAssetId": "LODESTAR_BEXLEY_REGA",
+  "relationshipType": "feeds_into",
+  "label": "mercaptan injected downstream",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "LODESTAR_BEXLEY_HTR",
+  "targetAssetId": "LODESTAR_BEXLEY_REGB",
+  "relationshipType": "feeds_into",
+  "label": "heated gas",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_BEXLEY_ODOR",
+  "targetAssetId": "LODESTAR_BEXLEY_REGB",
+  "relationshipType": "feeds_into",
+  "label": "mercaptan injected downstream",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV2",
+  "targetAssetId": "LODESTAR_TOLLAND_HTR",
+  "relationshipType": "feeds_into",
+  "label": "lateral",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_TOLLAND_HTR",
+  "targetAssetId": "LODESTAR_TOLLAND_REGA",
+  "relationshipType": "feeds_into",
+  "label": "heated gas",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_TOLLAND_ODOR",
+  "targetAssetId": "LODESTAR_TOLLAND_REGA",
+  "relationshipType": "feeds_into",
+  "label": "mercaptan injected downstream",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "LODESTAR_TOLLAND_HTR",
+  "targetAssetId": "LODESTAR_TOLLAND_REGB",
+  "relationshipType": "feeds_into",
+  "label": "heated gas",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_TOLLAND_ODOR",
+  "targetAssetId": "LODESTAR_TOLLAND_REGB",
+  "relationshipType": "feeds_into",
+  "label": "mercaptan injected downstream",
+  "layer": "chemical_dosing"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG3_MLV2",
+  "targetAssetId": "LODESTAR_HALCYON_FSEP",
+  "relationshipType": "feeds_into",
+  "label": "plant lateral",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_HALCYON_FSEP",
+  "targetAssetId": "LODESTAR_HALCYON_RUNA",
+  "relationshipType": "feeds_into",
+  "label": null,
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV3",
+  "targetAssetId": "LODESTAR_MARLOW_RUNA",
+  "relationshipType": "feeds_into",
+  "label": "end of line",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV3",
+  "targetAssetId": "LODESTAR_MARLOW_RUNB",
+  "relationshipType": "feeds_into",
+  "label": "end of line",
+  "layer": "gas_flow"
+ },
+ {
+  "sourceAssetId": "LODESTAR_SEG4_MLV3",
+  "targetAssetId": "LODESTAR_MARLOW_RUNC",
+  "relationshipType": "feeds_into",
+  "label": "end of line",
+  "layer": "gas_flow"
+ }
+]

@@ -79,5 +79,33 @@
       }
     ],
     "unitLevel": "unit"
+  },
+  {
+    "id": "pipeline",
+    "label": "Gas Pipeline",
+    "shape": "generic",
+    "levels": [
+      {
+        "id": "system",
+        "label": "Pipeline"
+      },
+      {
+        "id": "district",
+        "label": "District"
+      },
+      {
+        "id": "facility",
+        "label": "Facility"
+      },
+      {
+        "id": "equipment",
+        "label": "Equipment"
+      },
+      {
+        "id": "component",
+        "label": "Component"
+      }
+    ],
+    "unitLevel": "facility"
   }
 ]

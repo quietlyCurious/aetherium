@@ -1,0 +1,1183 @@
+{
+ "properties": {
+  "total_receipts_mmscfd": {
+   "label": "Total Receipts",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    2000
+   ],
+   "decimals": 1
+  },
+  "total_deliveries_mmscfd": {
+   "label": "Total Deliveries",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    2000
+   ],
+   "decimals": 1
+  },
+  "system_line_pack_mmscf": {
+   "label": "System Line Pack",
+   "unit": "MMscf",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 2
+  },
+  "line_pack_change_mmscf_h": {
+   "label": "Line Pack Change Rate",
+   "unit": "MMscf/h",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    -15,
+    15
+   ],
+   "decimals": 2
+  },
+  "system_fuel_mmscfd": {
+   "label": "Compressor Fuel (all stations)",
+   "unit": "MMscf/d",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 2
+  },
+  "district_line_pack_mmscf": {
+   "label": "District Line Pack",
+   "unit": "MMscf",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    500
+   ],
+   "decimals": 2
+  },
+  "district_fuel_mmscfd": {
+   "label": "District Compressor Fuel",
+   "unit": "MMscf/d",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    12
+   ],
+   "decimals": 2
+  },
+  "seg_inlet_pressure_psig": {
+   "label": "Inlet Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    700,
+    1100
+   ],
+   "decimals": 1
+  },
+  "seg_outlet_pressure_psig": {
+   "label": "Outlet Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 1
+  },
+  "seg_flow_mmscfd": {
+   "label": "Segment Flow (inlet)",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "line_pack_mmscf": {
+   "label": "Line Pack",
+   "unit": "MMscf",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    80,
+    260
+   ],
+   "decimals": 2
+  },
+  "maop_psig": {
+   "label": "MAOP",
+   "unit": "psig",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    1200
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "mlv_pressure_psig": {
+   "label": "Line Pressure at Valve",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    1100
+   ],
+   "decimals": 1
+  },
+  "pressure_roc_psi_min": {
+   "label": "Pressure Rate of Change",
+   "unit": "psi/min",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    -30,
+    30
+   ],
+   "decimals": 2
+  },
+  "valve_position_pct": {
+   "label": "Valve Position",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 0
+  },
+  "rectifier_output_v": {
+   "label": "Rectifier Output Voltage",
+   "unit": "V",
+   "category": "Electrical",
+   "tier": "P3",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 2
+  },
+  "rectifier_output_a": {
+   "label": "Rectifier Output Current",
+   "unit": "A",
+   "category": "Electrical",
+   "tier": "P2",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 2
+  },
+  "pipe_to_soil_mv": {
+   "label": "Pipe-to-Soil Potential",
+   "unit": "mV",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    -1600,
+    -400
+   ],
+   "decimals": 0
+  },
+  "station_suction_pressure_psig": {
+   "label": "Suction Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 1
+  },
+  "station_discharge_pressure_psig": {
+   "label": "Discharge Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    800,
+    1100
+   ],
+   "decimals": 1
+  },
+  "station_flow_mmscfd": {
+   "label": "Station Throughput",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "station_power_hp": {
+   "label": "Station Power",
+   "unit": "hp",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    60000
+   ],
+   "decimals": 0
+  },
+  "station_fuel_mmscfd": {
+   "label": "Station Fuel",
+   "unit": "MMscf/d",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    12
+   ],
+   "decimals": 3
+  },
+  "compression_ratio": {
+   "label": "Compression Ratio",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    1.0,
+    1.6
+   ],
+   "decimals": 3
+  },
+  "filter_sep_dp_psid": {
+   "label": "Filter/Separator DP",
+   "unit": "psid",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "separator_liquid_level_pct": {
+   "label": "Liquid Level",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "cooler_inlet_temp_f": {
+   "label": "Cooler Inlet Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    60,
+    200
+   ],
+   "decimals": 1
+  },
+  "cooler_outlet_temp_f": {
+   "label": "Station Discharge Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    60,
+    140
+   ],
+   "decimals": 1
+  },
+  "cooler_fans_running": {
+   "label": "Cooler Fans Running",
+   "unit": "",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 0
+  },
+  "unit_flow_mmscfd": {
+   "label": "Compressor Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    800
+   ],
+   "decimals": 1
+  },
+  "unit_power_hp": {
+   "label": "Unit Power",
+   "unit": "hp",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    20000
+   ],
+   "decimals": 0
+  },
+  "unit_fuel_mmscfd": {
+   "label": "Unit Fuel",
+   "unit": "MMscf/d",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 3
+  },
+  "recycle_valve_pct": {
+   "label": "Recycle Valve Command",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "unit_speed_pct": {
+   "label": "Compressor Speed",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    110
+   ],
+   "decimals": 1
+  },
+  "rated_power_hp": {
+   "label": "Rated Power (ISO)",
+   "unit": "hp",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    20000
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "gp_speed_pct": {
+   "label": "Gas Producer Speed",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    110
+   ],
+   "decimals": 1
+  },
+  "pt_inlet_temp_f": {
+   "label": "Power Turbine Inlet Temp (T5)",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    1600
+   ],
+   "decimals": 1
+  },
+  "inlet_filter_dp_inh2o": {
+   "label": "Inlet Filter DP",
+   "unit": "inH₂O",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "comp_discharge_temp_f": {
+   "label": "Compressor Discharge Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    60,
+    200
+   ],
+   "decimals": 1
+  },
+  "comp_vibration_mils": {
+   "label": "Shaft Vibration",
+   "unit": "mils pk-pk",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    4
+   ],
+   "decimals": 2
+  },
+  "polytropic_eff_pct": {
+   "label": "Polytropic Efficiency",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    70,
+    90
+   ],
+   "decimals": 2
+  },
+  "primary_vent_flow_scfm": {
+   "label": "Primary Vent Flow (NDE)",
+   "unit": "scfm",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "seal_gas_filter_dp_psid": {
+   "label": "Seal Gas Filter DP",
+   "unit": "psid",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "seal_gas_supply_dp_psid": {
+   "label": "Seal Gas Supply DP",
+   "unit": "psid",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    120
+   ],
+   "decimals": 1
+  },
+  "lube_oil_pressure_psig": {
+   "label": "Lube Oil Header Pressure",
+   "unit": "psig",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "lube_oil_temp_f": {
+   "label": "Lube Oil Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    80,
+    220
+   ],
+   "decimals": 1
+  },
+  "recip_unit_flow_mmscfd": {
+   "label": "Compressor Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "recip_unit_power_hp": {
+   "label": "Unit Power",
+   "unit": "hp",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    8000
+   ],
+   "decimals": 0
+  },
+  "recip_unit_fuel_mmscfd": {
+   "label": "Unit Fuel",
+   "unit": "MMscf/d",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    2
+   ],
+   "decimals": 3
+  },
+  "engine_speed_rpm": {
+   "label": "Engine Speed",
+   "unit": "rpm",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    1200
+   ],
+   "decimals": 0
+  },
+  "recip_rated_power_hp": {
+   "label": "Rated Power",
+   "unit": "hp",
+   "category": "Derived Metric",
+   "tier": "P3",
+   "range": [
+    0,
+    8000
+   ],
+   "decimals": 0,
+   "static": true
+  },
+  "engine_exhaust_temp_f": {
+   "label": "Engine Exhaust Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    100,
+    1200
+   ],
+   "decimals": 1
+  },
+  "jacket_water_temp_f": {
+   "label": "Jacket Water Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    60,
+    250
+   ],
+   "decimals": 1
+  },
+  "knock_events_1h": {
+   "label": "Detonation Events (last hour)",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 0
+  },
+  "cyl_discharge_temp_f": {
+   "label": "Cylinder Discharge Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    40,
+    260
+   ],
+   "decimals": 1
+  },
+  "valve_temp_dev_f": {
+   "label": "Valve Cover Temp Deviation (max)",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    60
+   ],
+   "decimals": 1
+  },
+  "frame_vibration_ips": {
+   "label": "Frame Vibration",
+   "unit": "in/s",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    1.2
+   ],
+   "decimals": 3
+  },
+  "rod_load_pct": {
+   "label": "Rod Load (of rating)",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "receipt_flow_mmscfd": {
+   "label": "Receipt Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "receipt_nominated_mmscfd": {
+   "label": "Scheduled Receipt",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "receipt_pressure_psig": {
+   "label": "Receipt Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    700,
+    1100
+   ],
+   "decimals": 1
+  },
+  "field_receipt_flow_mmscfd": {
+   "label": "Receipt Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "field_receipt_nominated_mmscfd": {
+   "label": "Scheduled Receipt",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    400
+   ],
+   "decimals": 1
+  },
+  "meter_flow_mmscfd": {
+   "label": "Meter Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    600
+   ],
+   "decimals": 1
+  },
+  "small_meter_flow_mmscfd": {
+   "label": "Meter Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 2
+  },
+  "sos_spread_fps": {
+   "label": "Speed-of-Sound Path Spread",
+   "unit": "ft/s",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "meter_gain_db": {
+   "label": "Transducer Gain (avg)",
+   "unit": "dB",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    80
+   ],
+   "decimals": 1
+  },
+  "gas_hhv_btu_scf": {
+   "label": "Heating Value (HHV)",
+   "unit": "Btu/scf",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    950,
+    1150
+   ],
+   "decimals": 1
+  },
+  "co2_mol_pct": {
+   "label": "CO₂",
+   "unit": "mol %",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 3
+  },
+  "relative_density": {
+   "label": "Relative Density",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0.55,
+    0.7
+   ],
+   "decimals": 4
+  },
+  "water_content_lb_mmscf": {
+   "label": "Water Content",
+   "unit": "lb/MMscf",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    10
+   ],
+   "decimals": 2
+  },
+  "h2s_gr_100scf": {
+   "label": "H₂S",
+   "unit": "gr/100 scf",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    0,
+    0.3
+   ],
+   "decimals": 3
+  },
+  "hc_dew_point_f": {
+   "label": "Hydrocarbon Dew Point",
+   "unit": "°F",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    -40,
+    40
+   ],
+   "decimals": 1
+  },
+  "cg_delivery_flow_mmscfd": {
+   "label": "Delivery Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    300
+   ],
+   "decimals": 2
+  },
+  "cg_inlet_pressure_psig": {
+   "label": "Inlet (Line) Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    600,
+    1000
+   ],
+   "decimals": 1
+  },
+  "cg_outlet_pressure_psig": {
+   "label": "Outlet (LDC) Pressure",
+   "unit": "psig",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    150,
+    450
+   ],
+   "decimals": 1
+  },
+  "reg_flow_mmscfd": {
+   "label": "Run Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    150
+   ],
+   "decimals": 2
+  },
+  "reg_outlet_temp_f": {
+   "label": "Outlet Gas Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "reg_travel_pct": {
+   "label": "Regulator Travel",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "bath_temp_f": {
+   "label": "Water Bath Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    80,
+    240
+   ],
+   "decimals": 1
+  },
+  "heater_outlet_temp_f": {
+   "label": "Gas Outlet Temperature",
+   "unit": "°F",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    30,
+    130
+   ],
+   "decimals": 1
+  },
+  "burner_firing_pct": {
+   "label": "Burner Firing Rate",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "odorant_rate_lb_mmscf": {
+   "label": "Odorant Injection Rate",
+   "unit": "lb/MMscf",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    2
+   ],
+   "decimals": 3
+  },
+  "odorant_tank_level_pct": {
+   "label": "Odorant Tank Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "pp_delivery_flow_mmscfd": {
+   "label": "Delivery Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 2
+  },
+  "pp_scheduled_flow_mmscfd": {
+   "label": "Scheduled Quantity",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    200
+   ],
+   "decimals": 2
+  },
+  "gas_day_imbalance_mmscf": {
+   "label": "Gas-Day Imbalance",
+   "unit": "MMscf",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    -4,
+    4
+   ],
+   "decimals": 3
+  },
+  "pp_delivery_pressure_psig": {
+   "label": "Delivery Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    400,
+    700
+   ],
+   "decimals": 1
+  },
+  "ic_delivery_flow_mmscfd": {
+   "label": "Delivery Flow",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "ic_scheduled_flow_mmscfd": {
+   "label": "Scheduled Quantity",
+   "unit": "MMscf/d",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    1500
+   ],
+   "decimals": 1
+  },
+  "ic_delivery_pressure_psig": {
+   "label": "Delivery Pressure",
+   "unit": "psig",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    1000
+   ],
+   "decimals": 1
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "pipeline_system",
+   "property": "system_line_pack_mmscf",
+   "fn": "sum",
+   "of": "line_pack_mmscf",
+   "fromType": "pipeline_segment",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "pipeline_system",
+   "property": "system_fuel_mmscfd",
+   "fn": "sum",
+   "of": "station_fuel_mmscfd",
+   "fromType": "turbine_compressor_station|recip_compressor_station",
+   "scope": "descendants"
+  },
+  {
+   "assetType": "operating_district",
+   "property": "district_line_pack_mmscf",
+   "fn": "sum",
+   "of": "line_pack_mmscf",
+   "fromType": "pipeline_segment",
+   "scope": "children"
+  },
+  {
+   "assetType": "operating_district",
+   "property": "district_fuel_mmscfd",
+   "fn": "sum",
+   "of": "station_fuel_mmscfd",
+   "fromType": "turbine_compressor_station|recip_compressor_station",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant_receipt_station",
+   "property": "receipt_flow_mmscfd",
+   "fn": "sum",
+   "of": "meter_flow_mmscfd",
+   "fromType": "meter_run_16in",
+   "scope": "children"
+  },
+  {
+   "assetType": "field_receipt_station",
+   "property": "field_receipt_flow_mmscfd",
+   "fn": "sum",
+   "of": "small_meter_flow_mmscfd",
+   "fromType": "meter_run_8in",
+   "scope": "children"
+  },
+  {
+   "assetType": "city_gate_station",
+   "property": "cg_delivery_flow_mmscfd",
+   "fn": "sum",
+   "of": "reg_flow_mmscfd",
+   "fromType": "regulator_run",
+   "scope": "children"
+  },
+  {
+   "assetType": "power_plant_delivery",
+   "property": "pp_delivery_flow_mmscfd",
+   "fn": "sum",
+   "of": "small_meter_flow_mmscfd",
+   "fromType": "meter_run_8in",
+   "scope": "children"
+  },
+  {
+   "assetType": "interconnect_delivery",
+   "property": "ic_delivery_flow_mmscfd",
+   "fn": "sum",
+   "of": "meter_flow_mmscfd",
+   "fromType": "meter_run_16in",
+   "scope": "children"
+  },
+  {
+   "assetType": "turbine_compressor_station",
+   "property": "station_power_hp",
+   "fn": "formula",
+   "note": "Σ unit power: unit_power_hp (turbine units) or recip_unit_power_hp (recip units) — two keys because the gauges differ"
+  },
+  {
+   "assetType": "recip_compressor_station",
+   "property": "station_power_hp",
+   "fn": "formula",
+   "note": "Σ unit power: unit_power_hp (turbine units) or recip_unit_power_hp (recip units) — two keys because the gauges differ"
+  },
+  {
+   "assetType": "turbine_compressor_station",
+   "property": "station_fuel_mmscfd",
+   "fn": "formula",
+   "note": "Σ unit fuel: unit_fuel_mmscfd (turbine units) or recip_unit_fuel_mmscfd (recip units)"
+  },
+  {
+   "assetType": "recip_compressor_station",
+   "property": "station_fuel_mmscfd",
+   "fn": "formula",
+   "note": "Σ unit fuel: unit_fuel_mmscfd (turbine units) or recip_unit_fuel_mmscfd (recip units)"
+  },
+  {
+   "assetType": "turbine_compressor_station",
+   "property": "station_flow_mmscfd",
+   "fn": "formula",
+   "note": "station throughput meter = Σ compressor flow − recycle flow; it is NOT the sum of unit flows while any unit recycles"
+  },
+  {
+   "assetType": "recip_compressor_station",
+   "property": "station_flow_mmscfd",
+   "fn": "formula",
+   "note": "station throughput meter = Σ compressor flow − recycle flow; it is NOT the sum of unit flows while any unit recycles"
+  },
+  {
+   "assetType": "turbine_compressor_station",
+   "property": "compression_ratio",
+   "fn": "formula",
+   "note": "(discharge + 14.7) / (suction + 14.7), absolute pressures"
+  },
+  {
+   "assetType": "recip_compressor_station",
+   "property": "compression_ratio",
+   "fn": "formula",
+   "note": "(discharge + 14.7) / (suction + 14.7), absolute pressures"
+  },
+  {
+   "assetType": "pipeline_system",
+   "property": "total_receipts_mmscfd",
+   "fn": "formula",
+   "note": "Harlow receipt_flow_mmscfd + Sable Ridge field_receipt_flow_mmscfd"
+  },
+  {
+   "assetType": "pipeline_system",
+   "property": "total_deliveries_mmscfd",
+   "fn": "formula",
+   "note": "Σ city gate, power plant and interconnect delivery flows"
+  },
+  {
+   "assetType": "pipeline_system",
+   "property": "line_pack_change_mmscf_h",
+   "fn": "formula",
+   "note": "(system_line_pack_mmscf[t] − system_line_pack_mmscf[t − 5 min]) × 12 — positive = packing, negative = drafting"
+  },
+  {
+   "assetType": "pipeline_segment",
+   "property": "line_pack_mmscf",
+   "fn": "formula",
+   "note": "integrates (inflow − outflow − station fuel) each step; average pressure = line pack / (0.00274 × miles)"
+  },
+  {
+   "assetType": "power_plant_delivery",
+   "property": "gas_day_imbalance_mmscf",
+   "fn": "formula",
+   "note": "Σ (delivery − scheduled) × 5/1440 since the 09:00 gas-day start; before 09:00 it is the prior gas day"
+  }
+ ],
+ "typeLabels": {
+  "pipeline_system": "Pipeline System",
+  "plant_receipt_station": "Receipt Meter Station (Plant Tailgate)",
+  "field_receipt_station": "Receipt Meter Station (Field Tie-in)",
+  "city_gate_station": "City Gate Station",
+  "turbine_compressor_station": "Compressor Station (Turbine / Centrifugal)",
+  "recip_compressor_station": "Compressor Station (Engine / Reciprocating)",
+  "power_plant_delivery": "Power Plant Delivery Station",
+  "interconnect_delivery": "Interconnect Delivery Station",
+  "mainline_valve": "Mainline Valve (MLV)",
+  "cp_rectifier": "CP Rectifier",
+  "filter_separator": "Filter/Separator",
+  "gas_aftercooler": "Gas Aftercooler",
+  "turbine_compressor_unit": "Compressor Unit (Gas Turbine / Centrifugal)",
+  "recip_compressor_unit": "Compressor Unit (Gas Engine / Reciprocating)",
+  "meter_run_16in": "Ultrasonic Meter Run (16-in)",
+  "meter_run_8in": "Ultrasonic Meter Run (8-in)",
+  "gas_chromatograph": "Gas Chromatograph",
+  "gas_quality_analyzer": "Moisture / H₂S Analyzer",
+  "line_heater": "Line Heater (Water Bath)",
+  "dry_gas_seal_system": "Dry Gas Seal System",
+  "recip_compressor_frame": "Compressor Frame & Cylinders"
+ }
+}

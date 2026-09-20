@@ -753,8 +753,19 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
   if (isAssetEntity) {
     const info = byAsset[entityId];
     if (!info?.hasOwn) return null;
-    // No confirm dialog — the revert shows an Undo toast instead.
+    // No confirm dialogs — both show an Undo toast instead.
     const handleRevert = () => actions.revertAssetsToType?.([entityId]);
+    const handleApply = () => actions.applyAssetToType?.(entityId);
+    // How many OTHER assets would visibly change: those of this type that
+    // currently follow it for everything (customized ones keep their own).
+    const asset = CURRENT_ASSET_MAP[entityId];
+    const typeName = asset ? deslugifyType(asset.assetType) : 'type';
+    const followers = asset
+      ? (CURRENT_ASSET_DATA || []).filter(a => a.id !== entityId && assetTypeIdOf(a) === info.typeId && !byAsset[a.id]?.differs).length
+      : 0;
+    const applyHint = `Make this asset's settings (${info.summary}) the ${typeName} type's. `
+      + `${followers} other ${typeName} asset${followers === 1 ? '' : 's'} follow${followers === 1 ? 's' : ''} the type and will change too; `
+      + 'assets with their own settings keep them. This asset then just follows the type.';
     const revertHint = info.differs
       ? `Discard this asset's own settings (${info.summary}) and follow its type again`
       : "This asset's stored settings match its type today, but stop it from following future type changes — revert to follow the type again";
@@ -765,6 +776,10 @@ function CustomizationTitleControls({ entityId, isAssetEntity }) {
             <span className="op-customized-dot" />Customized
           </span>
         )}
+        {info.differs && (
+          <button type="button" className="op-title-link-btn" onClick={handleApply} title={applyHint}>Apply to type</button>
+        )}
+        {info.differs && <span className="op-title-link-sep" aria-hidden="true">·</span>}
         <button type="button" className="op-title-link-btn" onClick={handleRevert} title={revertHint}>Revert to type</button>
       </span>
     );
@@ -8172,6 +8187,120 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     });
   };
 
+  // "Apply to type" — the opposite of revert: this asset's own settings
+  // become its type's, and the asset itself then just follows the type
+  // (its entries are cleared, exactly as a revert would). Every asset of
+  // the type that follows it picks the change up; assets with their own
+  // settings for the same things keep them. Merges the same way the
+  // runtime resolves them:
+  //   - display template: if the asset has one, its layout (view mode,
+  //     flow, manual positions) replaces the type's — layout is all-or-
+  //     nothing everywhere else too — and its per-property visuals merge
+  //     over the type's, property by property;
+  //   - property / related-asset visibility: merged over the type's;
+  //   - Related Assets template: the asset's replaces the type's.
+  // Undoable like a revert (one snapshot of the type's and the asset's
+  // entries). The open asset's unsaved changes are resolved first
+  // (Save/Discard), so what gets applied is what's actually saved — the
+  // apply itself runs on the next render via pendingApplyAssetId, once a
+  // Save's state updates have landed, rather than from this closure's
+  // now-stale copy of the stores.
+  const [pendingApplyAssetId, setPendingApplyAssetId] = useState(null);
+  const applyAssetToType = async (assetId) => {
+    if (selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId) {
+      await resolveUnsavedChanges();
+    }
+    setPendingApplyAssetId(assetId);
+  };
+  useEffect(() => {
+    if (!pendingApplyAssetId) return;
+    const assetId = pendingApplyAssetId;
+    setPendingApplyAssetId(null);
+    const asset = CURRENT_ASSET_MAP[assetId];
+    if (!asset) return;
+    const typeId = assetTypeIdOf(asset);
+    const ids = [assetId];
+
+    const snapshot = {
+      typeDisplay: typeDisplayTemplates[typeId],
+      typeProps: typePropertyConfigs[typeId],
+      typeRelated: typeRelatedAssetConfigs[typeId],
+      typeRelatedTemplate: relatedAssetsTemplates[typeId],
+      display: pickEntries(assetDisplayTemplates, ids),
+      relatedTemplates: pickEntries(assetRelatedAssetsTemplates, ids),
+      propertyConfigs: pickEntries(assetPropertyConfigs, ids),
+      relatedConfigs: pickEntries(assetRelatedAssetConfigs, ids),
+    };
+    const assetTemplate = assetDisplayTemplates[assetId];
+    const assetProps = assetPropertyConfigs[assetId];
+    const assetRelated = assetRelatedAssetConfigs[assetId];
+    const assetRelatedTemplate = assetRelatedAssetsTemplates[assetId];
+
+    // Sets or removes one type-level entry, keeping "no entry" as no
+    // entry rather than writing an empty object/undefined.
+    const putEntry = (prev, key, value) => {
+      const next = { ...prev };
+      if (value === undefined) delete next[key]; else next[key] = value;
+      return next;
+    };
+
+    if (assetTemplate) {
+      const typeTemplate = typeDisplayTemplates[typeId] || {};
+      const merged = {
+        ...typeTemplate,
+        viewMode: assetTemplate.viewMode,
+        flowDirection: assetTemplate.flowDirection,
+        flowWrap: assetTemplate.flowWrap,
+        alignContent: assetTemplate.alignContent,
+        layoutMode: assetTemplate.layoutMode,
+        manualPositions: assetTemplate.manualPositions ?? {},
+        propertyViewModes: { ...(typeTemplate.propertyViewModes || {}), ...(assetTemplate.propertyViewModes || {}) },
+      };
+      setTypeDisplayTemplates(prev => { const next = putEntry(prev, typeId, merged); saveTypeDisplayTemplates(next); return next; });
+    }
+    if (assetProps && Object.keys(assetProps).length) {
+      setTypePropertyConfigs(prev => putEntry(prev, typeId, { ...(prev[typeId] || {}), ...assetProps }));
+    }
+    if (assetRelated && Object.keys(assetRelated).length) {
+      setTypeRelatedAssetConfigs(prev => putEntry(prev, typeId, { ...(prev[typeId] || {}), ...assetRelated }));
+    }
+    if (assetRelatedTemplate) {
+      setRelatedAssetsTemplates(prev => { const next = putEntry(prev, typeId, assetRelatedTemplate); saveRelatedAssetsTemplates(next); return next; });
+    }
+    // The asset now matches its type exactly — clear its own entries so it
+    // keeps following the type from here on.
+    setAssetDisplayTemplates(prev => { const next = omitKeys(prev, ids); saveAssetDisplayTemplates(next); return next; });
+    setAssetRelatedAssetsTemplates(prev => { const next = omitKeys(prev, ids); saveAssetRelatedAssetsTemplates(next); return next; });
+    setAssetPropertyConfigs(prev => omitKeys(prev, ids));
+    setAssetRelatedAssetConfigs(prev => omitKeys(prev, ids));
+    const isOpen = selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId;
+    if (isOpen) {
+      setPropertyVisualDraft({ entityId: assetId, modes: {} });
+      setNowPreviewRevision(r => r + 1);
+    }
+
+    const typeName = nowTypeList.find(t => t.id === typeId)?.name ?? deslugifyType(asset.assetType);
+    setUndoToast({
+      id: Date.now(),
+      message: `Applied to the ${typeName} type`,
+      undo: () => {
+        setTypeDisplayTemplates(prev => { const next = putEntry(prev, typeId, snapshot.typeDisplay); saveTypeDisplayTemplates(next); return next; });
+        setTypePropertyConfigs(prev => putEntry(prev, typeId, snapshot.typeProps));
+        setTypeRelatedAssetConfigs(prev => putEntry(prev, typeId, snapshot.typeRelated));
+        setRelatedAssetsTemplates(prev => { const next = putEntry(prev, typeId, snapshot.typeRelatedTemplate); saveRelatedAssetsTemplates(next); return next; });
+        setAssetDisplayTemplates(prev => { const next = restoreEntries(prev, ids, snapshot.display); saveAssetDisplayTemplates(next); return next; });
+        setAssetRelatedAssetsTemplates(prev => { const next = restoreEntries(prev, ids, snapshot.relatedTemplates); saveAssetRelatedAssetsTemplates(next); return next; });
+        setAssetPropertyConfigs(prev => restoreEntries(prev, ids, snapshot.propertyConfigs));
+        setAssetRelatedAssetConfigs(prev => restoreEntries(prev, ids, snapshot.relatedConfigs));
+        if (selectedNowThing?.kind === 'asset' && selectedNowThing.id === assetId) {
+          setPropertyVisualDraft({ entityId: assetId, modes: snapshot.display[assetId]?.propertyViewModes ?? {} });
+          setNowPreviewRevision(r => r + 1);
+        }
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingApplyAssetId]);
+
   // Published only when the customizations themselves change, so the
   // (many) subscribed tree rows don't re-render on every unrelated render
   // of this component. The actions object is stable for the same reason;
@@ -8181,11 +8310,13 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
   customizationActionsRef.current = {
     revertAssetsToType,
     revertPropertyToType,
+    applyAssetToType,
     openAsset: (assetId) => handleSelectNowThing({ kind: 'asset', id: assetId }),
   };
   const customizationActions = useMemo(() => ({
     revertAssetsToType: (...args) => customizationActionsRef.current.revertAssetsToType(...args),
     revertPropertyToType: (...args) => customizationActionsRef.current.revertPropertyToType(...args),
+    applyAssetToType: (...args) => customizationActionsRef.current.applyAssetToType(...args),
     openAsset: (...args) => customizationActionsRef.current.openAsset(...args),
   }), []);
   useEffect(() => {

@@ -1,0 +1,1112 @@
+[
+ {
+  "id": "LSIT01",
+  "assetId": "LODESTAR_WREN_CU2_DGS",
+  "unitId": "LODESTAR_WREN",
+  "primaryProperty": "primary_vent_flow_scfm",
+  "asset": "Wren Compressor Station · CU-2 · Dry Gas Seals",
+  "line": "Wren Compressor Station",
+  "severity": "medium",
+  "signal": "Wren CU-2 dry gas seal venting more gas every hour at the same speed",
+  "aiInterpretation": "Primary vent flow on CU-2's non-drive-end seal has roughly quadrupled since about 09:10, while speed, suction pressure and seal gas supply held steady. CU-1's seals, on the same gas, are flat.",
+  "since": "4h 55m ago",
+  "sinceMinutes": 295,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Primary vent flow 4.70 scfm at 14:05, up from 1.37 at 09:10 (alarm 6.0, trip 8.0). CU-1 reads 1.34 scfm.",
+   "observed": "Rise is smooth and getting faster; seal gas filter DP up from 4.3 to 6.0 psid as more seal gas is drawn; shaft vibration steady around 1.18 mils; seal gas supply DP steady.",
+   "derived": "Two related signals agree (vent flow and seal gas filter DP), and the sister unit on the same gas is flat, so it is not a gas-quality or header problem. At the last half hour's rate the 6.0 scfm alarm comes in about 70 minutes.",
+   "inferred": "Leakage across the NDE primary seal is increasing. Possible causes include seal-face wear or contamination, or a secondary-seal problem pressurising the primary vent. Not yet confirmed.",
+   "recommendation": "Check secondary vent pressure and the separation-gas supply; plan a controlled swap from CU-2 to standby CU-3 before the alarm rather than waiting for a trip.",
+   "relatedOccurrences": [
+    {
+     "date": "2025-12-03",
+     "summary": "Ashby CU-1 NDE seal replaced after vent flow climbed over two weeks (contaminated seal gas after a pigging run)."
+    }
+   ],
+   "whatChangedSummary": "No speed, seal gas or maintenance change on CU-2 today — the trend is inside the seal.",
+   "whatChanged": [
+    {
+     "time": "09:10",
+     "source": "Event",
+     "description": "CU-2 NDE primary vent flow leaves its normal band.",
+     "related": true
+    },
+    {
+     "time": "12:30",
+     "source": "Field Check",
+     "description": "Station technician confirms the vent flowmeter against the local rotameter.",
+     "related": true
+    }
+   ],
+   "confidence": "Two related signals agree; cause not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — a seal failure trips CU-2 and vents gas; CU-3 is available as standby",
+   "riskLevel": "medium",
+   "expectedOutcome": "CU-3 in service and CU-2 seal cartridge replaced",
+   "evidence": [
+    1.37,
+    1.65,
+    2.26,
+    2.96,
+    3.55,
+    4.23,
+    4.7
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:10",
+     "value": "1.37 scfm",
+     "label": "Divergence begins"
+    },
+    {
+     "time": "10:15",
+     "value": "1.65 scfm",
+     "label": ""
+    },
+    {
+     "time": "11:15",
+     "value": "2.26 scfm",
+     "label": ""
+    },
+    {
+     "time": "12:15",
+     "value": "2.96 scfm",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "3.55 scfm",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "4.23 scfm",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "4.70 scfm",
+     "label": "Current — CU-1 reads 1.34 scfm"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "LSIT02",
+  "assetId": "LODESTAR_SEG1_MLV2",
+  "unitId": "LODESTAR_SEG1",
+  "primaryProperty": "mlv_pressure_psig",
+  "asset": "Segment 1 (MP 0–68) · MLV 1-2 (MP 42)",
+  "line": "Segment 1 (MP 0–68)",
+  "severity": "high",
+  "signal": "Potential-rupture alarm at MLV 1-2 — but only one transmitter saw it",
+  "aiInterpretation": "MLV 1-2 pressure fell more than 10% in one scan and bounced back, several times. MLV 1-1, MLV 1-3, Harlow and Wren never moved and the line stayed in balance, so it was a failing transmitter, not a rupture.",
+  "since": "Resolved 3h 5m ago",
+  "sinceMinutes": 185,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "MLV 1-2 read 734 psig at 10:30 while the line was near 842 psig — a 13% drop in five minutes, which meets the potential-rupture rule (10% in 15 minutes).",
+   "observed": "Rate of change swung between -21.6 and +28.8 psi/min. MLV 1-1 moved 2.0 psi and MLV 1-3 1.6 psi over the same window; Harlow receipts and Wren throughput were steady.",
+   "derived": "A real rupture draws both neighbouring valves down within minutes and opens a gap between Harlow receipts and Wren throughput. Neither happened, and the reading kept returning to the true line pressure — an intermittent signal.",
+   "inferred": "Intermittent open circuit in the MLV 1-2 pressure transmitter loop.",
+   "recommendation": "Replace the transmitter, then record the alert and the no-rupture determination in the rupture-mitigation file.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Technician found water in the transmitter conduit; transmitter replaced at 11:00.",
+   "whatChanged": [
+    {
+     "time": "10:30",
+     "source": "Alarm",
+     "description": "MLV 1-2 pressure rate-of-change (potential rupture) alarm.",
+     "related": true
+    },
+    {
+     "time": "10:33",
+     "source": "Operator Action",
+     "description": "Gas controller checked MLV 1-1, MLV 1-3 and line balance; no pressure loss elsewhere.",
+     "related": true
+    },
+    {
+     "time": "10:48",
+     "source": "Field Check",
+     "description": "Technician at MP 42: no release; water in the transmitter conduit.",
+     "related": true
+    },
+    {
+     "time": "11:00",
+     "source": "Maintenance",
+     "description": "Transmitter replaced and checked against a test gauge.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed in the field — no release at MP 42",
+   "confidenceLevel": "high",
+   "risk": "Low — a false valve closure would have cut about 900 MMscf/d of throughput",
+   "riskLevel": "low",
+   "expectedOutcome": "Transmitter replaced; alert documented",
+   "evidence": [
+    843.1,
+    778.6,
+    733.9,
+    877.7,
+    749.3,
+    804.7,
+    840.8
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:15",
+     "value": "843.1 psig",
+     "label": "Normal"
+    },
+    {
+     "time": "10:20",
+     "value": "778.6 psig",
+     "label": "First drop"
+    },
+    {
+     "time": "10:30",
+     "value": "733.9 psig",
+     "label": "Rupture-rate alert"
+    },
+    {
+     "time": "10:35",
+     "value": "877.7 psig",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "749.3 psig",
+     "label": ""
+    },
+    {
+     "time": "10:50",
+     "value": "804.7 psig",
+     "label": ""
+    },
+    {
+     "time": "11:00",
+     "value": "840.8 psig",
+     "label": "Transmitter replaced"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "LSIT03",
+  "assetId": "LODESTAR_HARLOW",
+  "unitId": "LODESTAR_HARLOW",
+  "primaryProperty": "receipt_flow_mmscfd",
+  "asset": "Harlow Receipt",
+  "line": "Harlow Receipt",
+  "severity": "high",
+  "signal": "Harlow receipts dropped 30% — every station downstream felt it",
+  "aiInterpretation": "The Harlow processing plant's residue compressor tripped and receipts fell to about 640 MMscf/d. Wren went into recycle, then Kettle Creek and Ashby backed off in turn, and system line pack drew down before Harlow came back.",
+  "since": "Resolved 4h 15m ago",
+  "sinceMinutes": 255,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Harlow receipts fell from 905 to 638 MMscf/d at 08:45 and were back at 904 by 09:50.",
+   "observed": "Wren throughput fell to 701 MMscf/d and its recycle valves opened to 12%; Kettle Creek reached a low of 806 at 09:55 and Ashby 770 at 10:10; Segment 2 inlet pressure fell from 958 to 913 psig.",
+   "derived": "Each station's dip followed the one upstream by 15–30 minutes, in flow order — one cause moving downstream, not separate problems. System line pack drew down 9.8 MMscf.",
+   "inferred": "Receipt loss at the source: the plant confirmed a residue compressor trip.",
+   "recommendation": "Confirm Harlow's make-up plan with scheduling and log the receipt shortfall for the shipper.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-07-09",
+     "summary": "Harlow plant power dip cut receipts for 25 minutes; Wren recycled, no downstream impact."
+    }
+   ],
+   "whatChangedSummary": "Plant residue compressor restarted at 09:30; receipts back at nomination by 09:50.",
+   "whatChanged": [
+    {
+     "time": "08:42",
+     "source": "Event",
+     "description": "Harlow plant control room reports a residue compressor trip.",
+     "related": true
+    },
+    {
+     "time": "08:50",
+     "source": "Operator Action",
+     "description": "Wren throughput reduced to protect suction pressure; units drop into recycle.",
+     "related": true
+    },
+    {
+     "time": "09:30",
+     "source": "Event",
+     "description": "Plant residue compressor restarted.",
+     "related": true
+    },
+    {
+     "time": "09:50",
+     "source": "Event",
+     "description": "Receipts back at the 905 MMscf/d nomination.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by the plant",
+   "confidenceLevel": "high",
+   "risk": "Low now — the line absorbed it on line pack",
+   "riskLevel": "low",
+   "expectedOutcome": "Receipts at nomination; line pack recovering",
+   "evidence": [
+    905.2,
+    638.2,
+    639.9,
+    645.2,
+    647.2,
+    775.9,
+    903.6
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:35",
+     "value": "905.2 MMscf/d",
+     "label": "Normal"
+    },
+    {
+     "time": "08:45",
+     "value": "638.2 MMscf/d",
+     "label": "Plant trip — receipts cut"
+    },
+    {
+     "time": "09:00",
+     "value": "639.9 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "09:15",
+     "value": "645.2 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "09:30",
+     "value": "647.2 MMscf/d",
+     "label": "Plant restarting"
+    },
+    {
+     "time": "09:40",
+     "value": "775.9 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "09:50",
+     "value": "903.6 MMscf/d",
+     "label": "Restored"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "LSIT04",
+  "assetId": "LODESTAR_BEXLEY_REGA",
+  "unitId": "LODESTAR_BEXLEY",
+  "primaryProperty": "reg_outlet_temp_f",
+  "asset": "Bexley City Gate · Regulator Run A",
+  "line": "Bexley City Gate",
+  "severity": "medium",
+  "signal": "Bexley regulator icing up — the cause was the line heater upstream",
+  "aiInterpretation": "Regulator Run A's outlet gas cooled toward freezing and the regulator began to hunt. The regulator was fine: the line heater upstream had lost its flame at 10:15, so gas reached the regulators cold and the pressure cut chilled it further.",
+  "since": "Resolved 1h 20m ago",
+  "sinceMinutes": 80,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Run A outlet gas fell from 52.4 °F to a low of 31.8 °F around 12:00; Bexley outlet pressure swung about ±6 psi from 11:20.",
+   "observed": "Heater burner firing 0% from 10:15; bath temperature fell from 178 °F to 129 °F and heater outlet gas from 91 °F to 71 °F. Run B cooled in step. Inlet pressure and flow normal. Sable Ridge gas was wetter than usual from 09:30 to 11:30, but the temperature follows the heater, not the moisture.",
+   "derived": "The cooling started at the heater more than an hour before the regulator symptom. The regulator outlet stayed about 39 °F below the heater outlet throughout — the Joule-Thomson drop expected for a 560 psi pressure cut.",
+   "inferred": "Line heater flame failure (pilot out); confirmed in the field.",
+   "recommendation": "Relight the heater and check the flame safeguard; clear any ice from the Run A pilot before relying on it.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-01-19",
+     "summary": "Tolland line heater pilot failed in a cold snap; Run B regulator froze and the monitor took over."
+    }
+   ],
+   "whatChangedSummary": "Heater relit at 12:10 after the flame rod was cleaned; outlet gas back above 45 °F by 12:45.",
+   "whatChanged": [
+    {
+     "time": "10:15",
+     "source": "Alarm",
+     "description": "Bexley line heater flame failure (low-priority alarm).",
+     "related": true
+    },
+    {
+     "time": "11:20",
+     "source": "Alarm",
+     "description": "Bexley outlet pressure deviation.",
+     "related": true
+    },
+    {
+     "time": "11:45",
+     "source": "Field Check",
+     "description": "Technician finds the heater off and frost on the Run A pilot.",
+     "related": true
+    },
+    {
+     "time": "12:10",
+     "source": "Maintenance",
+     "description": "Flame rod cleaned; heater relit.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed in the field",
+   "confidenceLevel": "high",
+   "risk": "Low now — caught before the regulator froze and the monitor took over",
+   "riskLevel": "low",
+   "expectedOutcome": "Heater firing normally; outlet gas above 45 °F",
+   "evidence": [
+    52.4,
+    46.0,
+    39.7,
+    36.0,
+    32.5,
+    32.9,
+    43.8
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:10",
+     "value": "52.4 °F",
+     "label": "Normal"
+    },
+    {
+     "time": "10:45",
+     "value": "46.0 °F",
+     "label": ""
+    },
+    {
+     "time": "11:20",
+     "value": "39.7 °F",
+     "label": "Regulator starts hunting"
+    },
+    {
+     "time": "11:40",
+     "value": "36.0 °F",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "32.5 °F",
+     "label": "Minimum"
+    },
+    {
+     "time": "12:10",
+     "value": "32.9 °F",
+     "label": "Heater relit"
+    },
+    {
+     "time": "12:45",
+     "value": "43.8 °F",
+     "label": "Recovered"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "LSIT05",
+  "assetId": "LODESTAR_KETTLE_CU3",
+  "unitId": "LODESTAR_KETTLE",
+  "primaryProperty": "recip_unit_flow_mmscfd",
+  "asset": "Kettle Creek Compressor Station · CU-3",
+  "line": "Kettle Creek Compressor Station",
+  "severity": "high",
+  "signal": "Kettle Creek CU-3 shut down on high vibration — the station lost a quarter of its horsepower",
+  "aiInterpretation": "CU-3 tripped at 11:52 on frame vibration high-high. Its valve-cover temperatures had started climbing about 25 minutes earlier, the usual sign of a failing compressor valve. Station throughput fell until standby CU-5 was fully loaded at 12:35.",
+  "since": "Resolved 1h 30m ago",
+  "sinceMinutes": 90,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "CU-3 went from 239 MMscf/d to 0 at 11:52; station throughput fell from 947 to 827 MMscf/d.",
+   "observed": "Valve cover temperature deviation rose from 6.0 °F to 29.6 °F (11:25–11:50) and frame vibration from 0.22 to 0.93 in/s. Suction pressure rose from 750 to 772 psig as Segment 2 packed; discharge fell from 954 to 932 psig and Segment 3 line pack from 198.2 to 196.3 MMscf as it drew down. The three remaining units ran at about 85% load.",
+   "derived": "The valve temperature rose before the vibration did, and the engine side stayed normal — a mechanical failure inside a compressor cylinder, not an engine problem.",
+   "inferred": "Broken suction valve plate on cylinder 3; confirmed when the valve cap was pulled at 13:30.",
+   "recommendation": "Keep CU-3 locked out; replace the valve and check the cylinder and discharge bottle for fragments before restart.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-06-02",
+     "summary": "CU-3 cylinder 2 discharge valve replaced after a valve temperature alarm (no trip)."
+    }
+   ],
+   "whatChangedSummary": "CU-5 started at 12:15 and was fully loaded at 12:35; CU-3 remains down for valve replacement.",
+   "whatChanged": [
+    {
+     "time": "11:25",
+     "source": "Event",
+     "description": "CU-3 cylinder 3 valve cover temperature starts rising.",
+     "related": true
+    },
+    {
+     "time": "11:52",
+     "source": "Alarm",
+     "description": "CU-3 shutdown — frame vibration high-high.",
+     "related": true
+    },
+    {
+     "time": "12:15",
+     "source": "Operator Action",
+     "description": "Standby CU-5 started.",
+     "related": true
+    },
+    {
+     "time": "12:35",
+     "source": "Event",
+     "description": "CU-5 fully loaded; station throughput restored.",
+     "related": true
+    },
+    {
+     "time": "13:30",
+     "source": "Maintenance",
+     "description": "Valve cap pulled: suction valve plate broken.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by inspection",
+   "confidenceLevel": "high",
+   "risk": "Low now — CU-5 carries the load; no spare unit left at Kettle Creek",
+   "riskLevel": "low",
+   "expectedOutcome": "CU-3 back after valve replacement",
+   "evidence": [
+    235.3,
+    235.2,
+    243.0,
+    238.8,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "11:20",
+     "value": "235.3 MMscf/d",
+     "label": "Normal"
+    },
+    {
+     "time": "11:25",
+     "value": "235.2 MMscf/d",
+     "label": "Valve temps start rising"
+    },
+    {
+     "time": "11:40",
+     "value": "243.0 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "11:50",
+     "value": "238.8 MMscf/d",
+     "label": "Vibration high-high"
+    },
+    {
+     "time": "11:55",
+     "value": "0.0 MMscf/d",
+     "label": "Unit down"
+    },
+    {
+     "time": "12:15",
+     "value": "0.0 MMscf/d",
+     "label": "CU-5 starting"
+    },
+    {
+     "time": "12:35",
+     "value": "0.0 MMscf/d",
+     "label": "CU-5 loaded"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "LSIT06",
+  "assetId": "LODESTAR_ASHBY",
+  "unitId": "LODESTAR_ASHBY",
+  "primaryProperty": "station_discharge_pressure_psig",
+  "asset": "Ashby Compressor Station",
+  "line": "Ashby Compressor Station",
+  "severity": "high",
+  "signal": "Ashby discharge pressure swinging wider every cycle",
+  "aiInterpretation": "Since 13:15 Ashby's discharge pressure has oscillated on a roughly 20-minute cycle, and each swing is larger than the last. It started soon after Ashby was held to a lower discharge limit with both units running close to minimum flow; two manual setpoint changes appear to have added to it.",
+  "since": "50m ago",
+  "sinceMinutes": 50,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Discharge swung between 937 and 970 psig in the last cycle; the swing was about ±6 psi at 13:20.",
+   "observed": "Both units' recycle valves are opening and closing in step (CU-1 up to 29%); station throughput is swinging about ±24 MMscf/d. MLV 4-1, 20 miles downstream, sees about ±5 psi.",
+   "derived": "The discharge-pressure controller and the two anti-surge controllers are all acting on the same flow. With the units near minimum flow, each recycle move shifts discharge pressure, which moves the discharge controller again. The manual moves at 13:20 and 13:40 landed out of phase with the swing.",
+   "inferred": "Hypothesis: a control-loop interaction between discharge-pressure control and anti-surge recycle, amplified by the manual moves. Not yet proven.",
+   "recommendation": "Stop manual setpoint moves. Put one unit on fixed base load and let the other trim, or return Ashby to suction control with the 965 psig discharge limit as an override.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-03-17",
+     "summary": "Ashby discharge oscillated for 40 minutes at low flow after a unit swap; settled once one unit was base-loaded."
+    }
+   ],
+   "whatChangedSummary": "Discharge limit lowered to 965 psig at 12:50; units dropped below minimum flow at about 13:05; manual setpoint moves at 13:20 and 13:40.",
+   "whatChanged": [
+    {
+     "time": "12:50",
+     "source": "Setpoint Change",
+     "description": "Ashby discharge limit lowered 985 → 965 psig (Segment 4 packing).",
+     "related": true
+    },
+    {
+     "time": "13:05",
+     "source": "Event",
+     "description": "Both units below minimum flow; anti-surge recycle valves start to open.",
+     "related": true
+    },
+    {
+     "time": "13:20",
+     "source": "Operator Action",
+     "description": "Gas controller lowers the discharge setpoint 5 psi.",
+     "related": true
+    },
+    {
+     "time": "13:40",
+     "source": "Operator Action",
+     "description": "Gas controller raises the discharge setpoint 5 psi.",
+     "related": true
+    }
+   ],
+   "confidence": "Timing and control mode point to the loops; not yet proven",
+   "confidenceLevel": "medium",
+   "risk": "High — a big swing can surge-trip a unit or push Segment 4 back toward MAOP",
+   "riskLevel": "high",
+   "expectedOutcome": "Discharge steady within ±3 psi",
+   "evidence": [
+    965.4,
+    967.0,
+    955.7,
+    966.6,
+    946.6,
+    970.1,
+    937.1
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:10",
+     "value": "965.4 psig",
+     "label": "Normal"
+    },
+    {
+     "time": "13:20",
+     "value": "967.0 psig",
+     "label": "Manual setpoint move"
+    },
+    {
+     "time": "13:30",
+     "value": "955.7 psig",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "966.6 psig",
+     "label": "Manual setpoint move"
+    },
+    {
+     "time": "13:50",
+     "value": "946.6 psig",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "970.1 psig",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "937.1 psig",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "LSIT07",
+  "assetId": "LODESTAR_SEG4",
+  "unitId": "LODESTAR_SEG4",
+  "primaryProperty": "line_pack_mmscf",
+  "asset": "Segment 4 (MP 236–310)",
+  "line": "Segment 4 (MP 236–310)",
+  "severity": "medium",
+  "signal": "Segment 4 filling up — Marlow is taking less than we send",
+  "aiInterpretation": "Since 10:30 the Marlow interconnect has accepted well under its schedule, so gas built up in Segment 4 and Ashby's discharge crept toward its limit. Holding Ashby to a lower discharge limit at 12:50 stopped the build, and the segment is slowly unpacking.",
+  "since": "1h 15m ago",
+  "sinceMinutes": 75,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Segment 4 line pack rose from 178.9 to 188.9 MMscf (peak at 12:55); Marlow delivery pressure rose from 824 to 893 psig; Ashby discharge reached 976 psig (limit 985, MAOP 1,000).",
+   "observed": "Marlow has taken about 612 MMscf/d against a 735 MMscf/d schedule since 11:00; Ashby throughput reduced from about 831 to 636 MMscf/d. Segment 4 is now 185.8 MMscf.",
+   "derived": "Segment 4 is unpacking at about 2.7 MMscf/h, but the gas has moved upstream rather than gone: Segment 3 gained 6.7 MMscf and the whole system 6.0 MMscf in the last hour, because receipts are unchanged.",
+   "inferred": "Downstream constraint: the Marlow-side pipeline posted a compressor outage at 10:40. The line will keep packing until receipts are cut to match.",
+   "recommendation": "Keep Ashby limited. Make sure scheduling cuts Harlow's confirmation to match Marlow's ID2 renomination (effective 16:00), and watch Kettle Creek discharge as Segment 3 packs.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Ashby discharge limit lowered at 12:50; Marlow's shipper renominated in the ID2 cycle (effective 16:00).",
+   "whatChanged": [
+    {
+     "time": "10:30",
+     "source": "Event",
+     "description": "Marlow interconnect flow drops; downstream operator posts a critical notice at 10:40.",
+     "related": true
+    },
+    {
+     "time": "12:30",
+     "source": "Event",
+     "description": "Marlow shipper renominates at the ID2 deadline (effective 16:00).",
+     "related": true
+    },
+    {
+     "time": "12:50",
+     "source": "Setpoint Change",
+     "description": "Ashby discharge limit lowered 985 → 965 psig.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — cause is the downstream restriction",
+   "confidenceLevel": "high",
+   "risk": "Medium — the line keeps packing until 16:00; margin to MAOP at Kettle Creek and Ashby is shrinking",
+   "riskLevel": "medium",
+   "expectedOutcome": "Segment 4 back near 181 MMscf once the ID2 cuts take effect",
+   "evidence": [
+    178.89,
+    180.85,
+    183.39,
+    185.97,
+    187.89,
+    188.85,
+    185.8
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:30",
+     "value": "178.89 MMscf",
+     "label": "Marlow restricted"
+    },
+    {
+     "time": "11:00",
+     "value": "180.85 MMscf",
+     "label": ""
+    },
+    {
+     "time": "11:30",
+     "value": "183.39 MMscf",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "185.97 MMscf",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "187.89 MMscf",
+     "label": ""
+    },
+    {
+     "time": "12:50",
+     "value": "188.85 MMscf",
+     "label": "Ashby limit lowered"
+    },
+    {
+     "time": "14:05",
+     "value": "185.80 MMscf",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "recovering"
+  }
+ },
+ {
+  "id": "LSIT08",
+  "assetId": "LODESTAR_SABLE_QA",
+  "unitId": "LODESTAR_SABLE",
+  "primaryProperty": "water_content_lb_mmscf",
+  "asset": "Sable Ridge Receipt · Moisture / H₂S Analyzer",
+  "line": "Sable Ridge Receipt",
+  "severity": "medium",
+  "signal": "Sable Ridge gas getting wetter — heading for the 7 lb/MMscf tariff limit",
+  "aiInterpretation": "Water content at the Sable Ridge receipt doubled over two hours while flow stayed on nomination, and the filter/separator started collecting liquid at the same time. That pattern points to the producer's glycol dehydrator.",
+  "since": "Resolved 2h 5m ago",
+  "sinceMinutes": 125,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Water content rose from 3.2 to 6.6 lb/MMscf (tariff limit 7.0) between 09:00 and 11:05.",
+   "observed": "Filter/separator liquid level climbed to 62%, with more frequent dumps; H₂S and hydrocarbon dew point unchanged; receipts steady at about 181 MMscf/d.",
+   "derived": "At its 10:00–11:00 rate the water content would have crossed 7.0 lb/MMscf around 11:30. Liquid in the separator plus rising water is the signature of glycol carry-over from a dehydrator losing circulation.",
+   "inferred": "Glycol circulation pump failure at the producer's contactor; confirmed by the producer.",
+   "recommendation": "Tell the producer the receipt will be refused as non-conforming at 7.0 lb/MMscf; send the separator liquid sample to the lab.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Producer restored glycol circulation at 11:05; water back under 3.5 lb/MMscf by 12:00.",
+   "whatChanged": [
+    {
+     "time": "10:00",
+     "source": "Alarm",
+     "description": "Sable Ridge moisture warning (5 lb/MMscf).",
+     "related": true
+    },
+    {
+     "time": "10:20",
+     "source": "Operator Action",
+     "description": "Gas controller calls the producer; shut-in warned at 7.0 lb/MMscf.",
+     "related": true
+    },
+    {
+     "time": "11:05",
+     "source": "Maintenance",
+     "description": "Producer restores the glycol circulation pump.",
+     "related": true
+    },
+    {
+     "time": "11:25",
+     "source": "Event",
+     "description": "Separator dumps accumulated liquid (sample: glycol and water).",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by the producer",
+   "confidenceLevel": "high",
+   "risk": "Low — caught before the tariff limit; no wet gas reached a city gate",
+   "riskLevel": "low",
+   "expectedOutcome": "Gas back in spec; lab result on the liquid sample",
+   "evidence": [
+    3.16,
+    4.2,
+    5.15,
+    6.0,
+    6.57,
+    5.13,
+    3.47
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:00",
+     "value": "3.16 lb/MMscf",
+     "label": "Normal"
+    },
+    {
+     "time": "09:45",
+     "value": "4.20 lb/MMscf",
+     "label": ""
+    },
+    {
+     "time": "10:15",
+     "value": "5.15 lb/MMscf",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "6.00 lb/MMscf",
+     "label": ""
+    },
+    {
+     "time": "11:05",
+     "value": "6.57 lb/MMscf",
+     "label": "Peak — producer fixes dehydrator"
+    },
+    {
+     "time": "11:30",
+     "value": "5.13 lb/MMscf",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "3.47 lb/MMscf",
+     "label": "Back to normal"
+    }
+   ],
+   "outcomeStatus": "resolved"
+  }
+ },
+ {
+  "id": "LSIT09",
+  "assetId": "LODESTAR_WREN",
+  "unitId": "LODESTAR_WREN",
+  "primaryProperty": "station_fuel_mmscfd",
+  "asset": "Wren Compressor Station",
+  "line": "Wren Compressor Station",
+  "severity": "medium",
+  "signal": "Wren moving the same gas but burning more fuel to do it",
+  "aiInterpretation": "Wren's throughput has been flat at about 905 MMscf/d since 11:30, yet its fuel keeps rising. Some of that is the higher discharge pressure as the line packs, but CU-1 is now compressing noticeably more gas than CU-2 even though they share load equally — gas is going round CU-1 without leaving the station.",
+  "since": "2h 35m ago",
+  "sinceMinutes": 155,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Station fuel 3.91 MMscf/d at 14:05, up 10% from 3.54 at 11:25, at a steady throughput of 905 MMscf/d.",
+   "observed": "CU-1 compressor flow 512 vs CU-2 454 MMscf/d; CU-1 power 11,323 hp vs 10,058; both recycle valve commands at 0%. Compression ratio up from 1.219 to 1.233.",
+   "derived": "If CU-1 burned what CU-2 burns, station fuel would be about 3.72 MMscf/d — the ratio change explains that part. The other 0.19 MMscf/d matches about 57 MMscf/d circulating through CU-1, which the station throughput meter cannot see.",
+   "inferred": "Possible passing anti-surge recycle valve on CU-1 (seat damage or an actuator not fully closing), or a bias in CU-1's flow measurement. Not yet confirmed.",
+   "recommendation": "Check CU-1's recycle line temperature downstream of the valve and do an acoustic check; stroke-test the valve. If confirmed, shift load to CU-2 and CU-3 and plan the repair.",
+   "relatedOccurrences": [],
+   "whatChangedSummary": "No maintenance or control change at Wren since the morning receipt cut.",
+   "whatChanged": [
+    {
+     "time": "11:30",
+     "source": "Event",
+     "description": "CU-1 flow starts to diverge from CU-2 at equal load sharing.",
+     "related": true
+    },
+    {
+     "time": "10:40",
+     "source": "Event",
+     "description": "Line starts packing after the Marlow restriction (raises Wren discharge pressure).",
+     "related": false
+    }
+   ],
+   "confidence": "The loss is real; where it goes is not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — fuel lost every hour, and a passing valve erodes its seat further",
+   "riskLevel": "medium",
+   "expectedOutcome": "Recycle valve checked; CU-1 fuel back in line with CU-2",
+   "evidence": [
+    3.542,
+    3.429,
+    3.673,
+    3.823,
+    3.771,
+    3.825,
+    3.908
+   ],
+   "evidencePoints": [
+    {
+     "time": "11:25",
+     "value": "3.54 MMscf/d",
+     "label": "Baseline"
+    },
+    {
+     "time": "11:55",
+     "value": "3.43 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "12:25",
+     "value": "3.67 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "12:55",
+     "value": "3.82 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "13:25",
+     "value": "3.77 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "3.83 MMscf/d",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "3.91 MMscf/d",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "LSIT10",
+  "assetId": "LODESTAR_KETTLE_CU2_ENG",
+  "unitId": "LODESTAR_KETTLE",
+  "primaryProperty": "knock_events_1h",
+  "asset": "Kettle Creek Compressor Station · CU-2 · Gas Engine",
+  "line": "Kettle Creek Compressor Station",
+  "severity": "medium",
+  "signal": "Kettle Creek CU-2 engine detonating more and more often",
+  "aiInterpretation": "CU-2's knock detection has retarded timing and shed load eight times since 11:40, and the events are getting closer together as the afternoon heats up and the station runs harder. Each clears within a few minutes, but the rate is well above this engine's normal of none or one an hour.",
+  "since": "2h 25m ago",
+  "sinceMinutes": 145,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "8 detonation events since 11:40; 5 in the last hour. CU-4 had one at 12:40; CU-1 and CU-5 none.",
+   "observed": "CU-2 power dips about 9% at each event; jacket water and exhaust temperatures normal; ambient up from 88 °F to 93 °F; the three remaining units ran at about 85% load after CU-3 tripped.",
+   "derived": "Events line up with high load and rising intake-air temperature, not with fuel quality (Harlow heating value and Sable Ridge composition steady).",
+   "inferred": "Possible causes: warm charge air (engine aftercooler), ignition wear on some cylinders, or air/fuel ratio drift. Per-cylinder knock data is needed to narrow it down.",
+   "recommendation": "Pull CU-2's per-cylinder knock log; check its engine aftercooler water temperature; trim CU-2 load now that CU-5 is carrying load.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-08-11",
+     "summary": "CU-2 knock events on a 96 °F afternoon; cleared overnight, no action taken."
+    }
+   ],
+   "whatChangedSummary": "CU-3 trip at 11:52 put the remaining units at high load; CU-5 on line at 12:35.",
+   "whatChanged": [
+    {
+     "time": "11:52",
+     "source": "Event",
+     "description": "CU-3 trip — remaining units loaded harder.",
+     "related": true
+    },
+    {
+     "time": "12:35",
+     "source": "Event",
+     "description": "CU-5 fully loaded.",
+     "related": true
+    }
+   ],
+   "confidence": "Pattern is clear; cause not yet diagnosed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — sustained detonation damages pistons and heads; a severe event shuts the engine down",
+   "riskLevel": "medium",
+   "expectedOutcome": "Events back to 0–1 an hour after a load trim or repair",
+   "evidence": [
+    0.0,
+    1.0,
+    2.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0
+   ],
+   "evidencePoints": [
+    {
+     "time": "11:35",
+     "value": "0",
+     "label": "Baseline"
+    },
+    {
+     "time": "11:40",
+     "value": "1",
+     "label": "1st event"
+    },
+    {
+     "time": "12:25",
+     "value": "2",
+     "label": ""
+    },
+    {
+     "time": "12:55",
+     "value": "2",
+     "label": ""
+    },
+    {
+     "time": "13:30",
+     "value": "3",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "4",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "5",
+     "label": "Latest"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ },
+ {
+  "id": "LSIT11",
+  "assetId": "LODESTAR_HALCYON",
+  "unitId": "LODESTAR_HALCYON",
+  "primaryProperty": "gas_day_imbalance_mmscf",
+  "asset": "Halcyon Point Delivery",
+  "line": "Halcyon Point Delivery",
+  "severity": "medium",
+  "signal": "Halcyon Point over-taking — imbalance will pass the OFO tolerance before a renomination can help",
+  "aiInterpretation": "The plant has taken about 10 MMscf/d above its 95 MMscf/d schedule since its load ramp at 10:00. Under today's OFO the tolerance is ±1.9 MMscf. At the current rate that is reached around 15:10, but the next renomination (ID3, 17:00 deadline) does not take effect until 20:00.",
+  "since": "20m ago",
+  "sinceMinutes": 20,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Gas-day imbalance +1.45 MMscf at 14:05 (tolerance ±1.9), growing about 0.42 MMscf/h.",
+   "observed": "Delivery averaging 104.8 MMscf/d since 10:30 against a 95 MMscf/d schedule; the ID2 deadline (12:30) passed with no Halcyon renomination.",
+   "derived": "Time left to the tolerance: about 64 minutes. Time needed to fix it by renomination: until 20:00. The nomination route alone cannot close the gap.",
+   "inferred": "The shipper's nomination was not updated when the plant's dispatch was raised for the afternoon peak.",
+   "recommendation": "Call the shipper and the plant now: either arrange an imbalance trade or park-and-loan to cover it, or hold the take at 95 MMscf/d until 20:00. Log the call; OFO penalties apply past the tolerance.",
+   "relatedOccurrences": [
+    {
+     "date": "2026-07-30",
+     "summary": "Halcyon Point over-take on a peak afternoon; covered by an imbalance trade."
+    }
+   ],
+   "whatChangedSummary": "Plant take rose above schedule with its 10:00 load ramp; ID2 deadline passed without a renomination.",
+   "whatChanged": [
+    {
+     "time": "07:00",
+     "source": "Event",
+     "description": "OFO in effect today (hot-weather power burn; ±2% daily tolerance).",
+     "related": true
+    },
+    {
+     "time": "10:00",
+     "source": "Event",
+     "description": "Halcyon take rises above schedule with the plant's load ramp.",
+     "related": true
+    },
+    {
+     "time": "12:30",
+     "source": "Event",
+     "description": "ID2 nomination deadline passes — no Halcyon renomination.",
+     "related": true
+    },
+    {
+     "time": "13:45",
+     "source": "Scheduling",
+     "description": "Gas scheduler flags the imbalance trend.",
+     "related": true
+    }
+   ],
+   "confidence": "n/a — a commercial deadline, not a diagnosis",
+   "confidenceLevel": "n/a",
+   "risk": "Medium — OFO penalties and a tighter line if other shippers follow",
+   "riskLevel": "medium",
+   "expectedOutcome": "Imbalance held inside tolerance; ID3 renomination confirmed",
+   "evidence": [
+    0.0,
+    -0.16,
+    0.175,
+    0.575,
+    0.992,
+    1.309,
+    1.45
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:00",
+     "value": "0.00 MMscf",
+     "label": "Gas day starts"
+    },
+    {
+     "time": "10:00",
+     "value": "-0.16 MMscf",
+     "label": ""
+    },
+    {
+     "time": "11:00",
+     "value": "0.17 MMscf",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "0.57 MMscf",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "0.99 MMscf",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "1.31 MMscf",
+     "label": "Flagged by scheduling"
+    },
+    {
+     "time": "14:05",
+     "value": "1.45 MMscf",
+     "label": "Current"
+    }
+   ],
+   "outcomeStatus": "none"
+  }
+ }
+]

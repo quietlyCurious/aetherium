@@ -3131,3 +3131,8 @@
 .op-undo-toast-close:hover {
   color: #fff;
 }
+
+.op-title-link-sep {
+  color: #b0b5bd;
+  margin: 0 -4px;
+}
