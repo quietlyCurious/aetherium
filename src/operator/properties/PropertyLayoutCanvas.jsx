@@ -7,16 +7,16 @@ import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import notify from 'devextreme/ui/notify';
 import { ReactFlowProvider, useNodesState, ReactFlow, Background } from '@xyflow/react';
 import { alignSelectedNodes, distributeSelectedNodes } from '../canvas/canvasGeometry';
-import { StatTile } from './StatTile';
+import { PropertyTile } from './PropertyTile';
 
 // Property-layout manual mode's own node type — one property tile per
 // node, positioned freely on the canvas. No Handle elements at all: unlike
-// RelatedAssetDiagramNode, this graph never has edges (properties don't
+// AssetDiagramNode, this graph never has edges (properties don't
 // relate to each other the way types do), so there's nothing to connect.
 function PropertyLayoutNode({ data }) {
   return (
     <div className={`op-property-layout-node${data.selected ? ' op-prop-tile-select--selected' : ''}`}>
-      <StatTile {...data.tileProps} />
+      <PropertyTile {...data.tileProps} />
     </div>
   );
 }
@@ -41,7 +41,7 @@ const PROPERTY_LAYOUT_ARRANGE_COLUMNS = 4;
 
 // Manual property-layout canvas — one node per visible property, no
 // edges ever (properties don't relate to each other the way types do).
-// Self-contained ReactFlowProvider, same reasoning as RelatedAssetsDiagram.
+// Self-contained ReactFlowProvider, same reasoning as AssetDiagramView.
 export const PropertyLayoutCanvas = forwardRef(function PropertyLayoutCanvas({ tiles, manualPositions, onPositionsChange, onSelectTile }, ref) {
   return (
     <ReactFlowProvider>
@@ -65,7 +65,7 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
   // disturbing the working position of any property that stays visible.
   // Deliberately keyed on tileKeysSignature (a plain string) rather than
   // the tiles array itself — tiles is rebuilt fresh on every render of
-  // the parent (HmiPropertiesListing) regardless of whether the visible
+  // the parent (PropertyTilesView) regardless of whether the visible
   // property set actually changed, so depending on the array reference
   // directly caused this effect to re-fire every render, which in turn
   // re-triggered the position-reporting effect below, which triggered
@@ -148,7 +148,7 @@ const PropertyLayoutCanvasInner = forwardRef(function PropertyLayoutCanvasInner(
   };
 
   // Align/Distribute/Arrange in Grid now live in the parent toolbar
-  // (HmiPropertiesListing's own manual-mode row) rather than a Panel on
+  // (PropertyTilesView's own manual-mode row) rather than a Panel on
   // this canvas, so the parent needs a way to actually trigger them here.
   useImperativeHandle(ref, () => ({
     align: handleAlign,

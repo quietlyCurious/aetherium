@@ -269,18 +269,18 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ c88749b + refactor phase 2</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ da89f15 + refactor phase 3</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
-      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 2 done</span> model data, settings logic, icons and the shared rendering components (tiles, boxes, Cards, Diagram, canvases) now live in <code>src/operator/</code>. The Configurator panels and Operator views are next.</p>
+      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 3 done</span> every component now lives in <code>src/operator/</code>, in 42 modules; what is left in <code>OperatorWorkspace.jsx</code> is the shell. Next is consolidating the duplication the split made visible.</p>
     </header>
 
     <section id="glance">
       <h2>At a glance</h2>
       <p>The app has two halves. The original <strong>page builder</strong> (Screens, Widgets, Theme, Data Sources, Entities, Queries) is spread across about twenty well-sized files. The <strong>Operator / Configurator</strong> interface, where almost all recent work has happened, lives in <code>OperatorWorkspace.jsx</code> plus a new <code>src/operator/</code> folder that the refactor is gradually moving code into.</p>
       <div class="glance" role="list">
-        <div role="listitem"><strong>4,926</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
-        <div role="listitem"><strong>18</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>1,248</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
+        <div role="listitem"><strong>42</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
         <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
@@ -429,11 +429,11 @@
           <text x="300" y="150" font-size="12" fill="currentColor" opacity="0.75">title row: CustomizationTitleControls</text>
           <text x="300" y="168" font-size="12" fill="currentColor" opacity="0.75">one editor per Details tab:</text>
           <rect x="300" y="182" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-          <text x="312" y="202" font-size="12" fill="currentColor"><tspan font-weight="600">Properties</tspan><tspan opacity="0.75"> → HmiPropertiesListing</tspan></text>
+          <text x="312" y="202" font-size="12" fill="currentColor"><tspan font-weight="600">Properties</tspan><tspan opacity="0.75"> → PropertyTilesView</tspan></text>
           <rect x="300" y="218" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-          <text x="312" y="238" font-size="12" fill="currentColor"><tspan font-weight="600">Related Assets</tspan><tspan opacity="0.75"> → RelatedAssetsPreview</tspan></text>
+          <text x="312" y="238" font-size="12" fill="currentColor"><tspan font-weight="600">Related Assets</tspan><tspan opacity="0.75"> → RelatedAssetsEditor</tspan></text>
           <rect x="300" y="254" width="366" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-          <text x="312" y="274" font-size="12" fill="currentColor"><tspan font-weight="600">All Assets</tspan><tspan opacity="0.75"> → AllAssetsDiagram</tspan></text>
+          <text x="312" y="274" font-size="12" fill="currentColor"><tspan font-weight="600">All Assets</tspan><tspan opacity="0.75"> → AllAssetsEditor</tspan></text>
           <text x="300" y="314" font-size="12" fill="currentColor" opacity="0.75">each editor registers the Save handler</text>
           <text x="300" y="332" font-size="12" fill="currentColor" opacity="0.75">and tracks its own unsaved changes</text>
           <!-- side panel -->
@@ -554,7 +554,7 @@
           <!-- readers -->
           <g font-size="12" fill="currentColor">
             <rect x="746" y="36" width="228" height="72" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <text x="758" y="58" font-weight="600">RelatedAssetBoxContent</text>
+            <text x="758" y="58" font-weight="600">AssetCard</text>
             <text x="758" y="76" opacity="0.75">every read-only box, all</text>
             <text x="758" y="93" opacity="0.75">views, both personas</text>
 
@@ -585,7 +585,7 @@
         <figcaption>Three resolution rules cover everything. Layout-like settings fall back as a whole template, per-property settings merge key by key, and orders fall back as a whole list. Amber settings wait for the title-bar Save; green ones apply the moment you click.</figcaption>
       </figure>
 
-      <p>The rule that matters most: <strong><code>RelatedAssetBoxContent</code> is the single place the asset-over-type fallback is applied for display.</strong> Operator's Assets view, Investigate, Cards, Diagram and All Assets all render boxes through it. A new per-asset setting should be resolved there, not special-cased per view.</p>
+      <p>The rule that matters most: <strong><code>AssetCard</code> is the single place the asset-over-type fallback is applied for display.</strong> Operator's Assets view, Investigate, Cards, Diagram and All Assets all render boxes through it. A new per-asset setting should be resolved there, not special-cased per view.</p>
 
       <div class="table-wrap">
         <table>
@@ -638,22 +638,22 @@
           <!-- layout -->
           <g font-size="12" fill="currentColor">
             <rect x="90" y="110" width="250" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-            <text x="102" y="130" font-weight="600">HmiPropertiesListing</text>
+            <text x="102" y="130" font-weight="600">PropertyTilesView</text>
             <text x="102" y="148" opacity="0.7">flex, or PropertyLayoutCanvas</text>
             <rect x="360" y="110" width="270" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-            <text x="372" y="130" font-weight="600">RelatedAssetsCards</text>
+            <text x="372" y="130" font-weight="600">AssetCardsView</text>
             <text x="372" y="148" opacity="0.7">flex, or CardsLayoutCanvas (React Flow)</text>
             <rect x="650" y="110" width="320" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-            <text x="662" y="130" font-weight="600">RelatedAssetsDiagram</text>
+            <text x="662" y="130" font-weight="600">AssetDiagramView</text>
             <text x="662" y="148" opacity="0.7">React Flow + ELK auto layout, or manual</text>
           </g>
           <!-- box -->
           <rect x="360" y="200" width="610" height="50" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="2"/>
-          <text x="372" y="221" font-size="13" font-weight="600" fill="currentColor">RelatedAssetBoxContent</text>
+          <text x="372" y="221" font-size="13" font-weight="600" fill="currentColor">AssetCard</text>
           <text x="372" y="239" font-size="12" fill="currentColor" opacity="0.7">one asset's box: resolves template, visuals, visibility and order, asset over type</text>
           <!-- tile -->
           <rect x="90" y="290" width="880" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
-          <text x="102" y="311" font-size="13" font-weight="600" fill="currentColor">StatTile</text>
+          <text x="102" y="311" font-size="13" font-weight="600" fill="currentColor">PropertyTile</text>
           <text x="102" y="329" font-size="12" fill="currentColor" opacity="0.7">one property: Text · Indicator · Spark · All — with MiniSparkline / ResponsiveSparkline</text>
 
           <!-- arrows: views → layout -->
@@ -685,7 +685,7 @@
           <text x="224" y="226" font-size="11" fill="currentColor" opacity="0.7">tiles directly</text>
         </svg>
         </div>
-        <figcaption>The Configurator's Properties editor (<code>HmiPropertiesListing</code>) lays out tiles itself; everything else goes through <code>RelatedAssetBoxContent</code>. Cards and Diagram are two interchangeable layout engines over the same boxes, which is why a per-asset setting shows up identically in both. The tile and listing layers live in <code>operator/properties/</code>; the box, both engines and the read-only views in <code>operator/relatedAssets/</code>.</figcaption>
+        <figcaption>The Configurator's Properties editor (<code>PropertyTilesView</code>) lays out tiles itself; everything else goes through <code>AssetCard</code>. Cards and Diagram are two interchangeable layout engines over the same boxes, which is why a per-asset setting shows up identically in both. The tile and listing layers live in <code>operator/properties/</code>; the box, both engines and the read-only views in <code>operator/relatedAssets/</code>.</figcaption>
       </figure>
     </section>
 
@@ -706,7 +706,7 @@
         <div class="note">
           <h4>One Save button, many editors</h4>
           <p>Whichever editor is mounted writes its save function into <code>activeSaveHandlerRef</code>. The title-bar Save calls through the ref. Each editor also runs <code>useUnsavedTracker</code> to compare its draft against what it loaded.</p>
-          <p class="where">HmiPropertiesListing · RelatedAssetsPreview · AllAssetsDiagram</p>
+          <p class="where">PropertyTilesView · RelatedAssetsEditor · AllAssetsEditor</p>
         </div>
         <div class="note">
           <h4>Remount on purpose</h4>
@@ -728,51 +728,84 @@
 
     <section id="bigfile">
       <h2>Where the code lives</h2>
-      <h3>Split out so far: <span class="mono">src/operator/</span></h3>
+      <h3>All of it: <span class="mono">src/operator/</span></h3>
+      <p>42 modules, grouped by what they are rather than by when they were written. Names follow one vocabulary: a <strong>tile</strong> is one property, a <strong>card</strong> is one asset's tiles, a <strong>view</strong> lays cards or tiles out, and an <strong>editor</strong> is a view plus the toolbar and Save that change it.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">model/modelData.js</td><td class="num">463</td><td>The 39 model-data variables, the shift timeline, and the loader helpers that write them (<span class="mono">activateLoadedModel</span>, <span class="mono">assignModelData</span>…)</td></tr>
-            <tr><td class="mono">model/assetQueries.js</td><td class="num">593</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item → asset</td></tr>
+            <tr><td class="mono">model/modelData.js</td><td class="num">463</td><td>The 39 model-data variables, the shift timeline, and the loader helpers that write them</td></tr>
+            <tr><td class="mono">model/assetQueries.js</td><td class="num">593</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset</td></tr>
             <tr><td class="mono">settings/propertyDisplay.js</td><td class="num">64</td><td>View modes, per-property visual resolution and merging, the Show (visibility) cycle</td></tr>
             <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
             <tr><td class="mono">settings/customizations.js</td><td class="num">175</td><td>"Differs from type" detection and the customization store</td></tr>
-            <tr><td class="mono">icons.jsx</td><td class="num">578</td><td>All 49 inline-SVG icons and <span class="mono">IconButtonGroupItem</span></td></tr>
-            <tr><td class="mono">settings/layoutOptions.js</td><td class="num">138</td><td>Toolbar option lists: tier/visibility filters, flow and wrap, alignment, Cards/Diagram switch, connection points, arrowheads, labels, density</td></tr>
-            <tr><td class="mono">properties/StatTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
-            <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class="mono">MiniSparkline</span> and <span class="mono">ResponsiveSparkline</span></td></tr>
-            <tr><td class="mono">properties/HmiPropertiesListing.jsx</td><td class="num">472</td><td>The Configurator's Properties editor: grouped tiles, filter and layout toolbar, its own Save</td></tr>
+            <tr><td class="mono">settings/layoutOptions.js</td><td class="num">138</td><td>Toolbar option lists: filters, flow and wrap, alignment, Cards/Diagram, connection points, arrowheads, labels, density</td></tr>
+            <tr><td class="mono">icons.jsx</td><td class="num">578</td><td>All 49 inline-SVG icons and <span class='mono'>IconButtonGroupItem</span></td></tr>
+            <tr><td class="mono">badges.jsx</td><td class="num">12</td><td><span class='mono'>AiPill</span>, the “AI-derived” marker used in three views</td></tr>
+            <tr><td class="mono">properties/PropertyTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
+            <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class='mono'>MiniSparkline</span> and <span class='mono'>ResponsiveSparkline</span></td></tr>
+            <tr><td class="mono">properties/PropertyTilesView.jsx</td><td class="num">472</td><td>A property listing: grouped tiles, filter and layout toolbar, its own Save</td></tr>
             <tr><td class="mono">properties/PropertyLayoutCanvas.jsx</td><td class="num">178</td><td>Manual-layout canvas for property tiles</td></tr>
             <tr><td class="mono">canvas/canvasGeometry.js</td><td class="num">184</td><td>Node bounds, floating-edge geometry, align and distribute, shared by all three canvases</td></tr>
-            <tr><td class="mono">relatedAssets/RelatedAssetBoxContent.jsx</td><td class="num">268</td><td>One asset's box, and the single place asset-over-type display settings resolve; also <span class="mono">TimeScrubContext</span></td></tr>
-            <tr><td class="mono">relatedAssets/RelatedAssetsCards.jsx</td><td class="num">100</td><td>The Cards engine (flex, or the canvas below)</td></tr>
-            <tr><td class="mono">relatedAssets/CardsLayoutCanvas.jsx</td><td class="num">155</td><td>Manual-layout canvas for Cards</td></tr>
-            <tr><td class="mono">relatedAssets/RelatedAssetsDiagram.jsx</td><td class="num">510</td><td>The Diagram engine: nodes, floating edges, auto or manual layout</td></tr>
+            <tr><td class="mono">relatedAssets/AssetCard.jsx</td><td class="num">268</td><td>One asset's card, and the single place asset-over-type display settings resolve; also <span class='mono'>TimeScrubContext</span></td></tr>
+            <tr><td class="mono">relatedAssets/AssetCardsView.jsx</td><td class="num">100</td><td>The Cards engine (flex, or the canvas below)</td></tr>
+            <tr><td class="mono">relatedAssets/CardsLayoutCanvas.jsx</td><td class="num">155</td><td>Manual-layout canvas for cards</td></tr>
+            <tr><td class="mono">relatedAssets/AssetDiagramView.jsx</td><td class="num">510</td><td>The Diagram engine: nodes, floating edges, auto or manual layout</td></tr>
             <tr><td class="mono">relatedAssets/elkLayout.js</td><td class="num">144</td><td>ELK auto-layout and the diagram's algorithm, direction and routing choices</td></tr>
             <tr><td class="mono">relatedAssets/ReadOnlyViews.jsx</td><td class="num">148</td><td>Read-only Related Assets and All Assets views for the Operator side</td></tr>
+            <tr><td class="mono">configurator/NowAssetTreePanel.jsx</td><td class="num">107</td><td>The left panel: Types and Assets tabs, and the row templates</td></tr>
+            <tr><td class="mono">configurator/NowAssetDetail.jsx</td><td class="num">124</td><td>The centre column: title row plus the preview, remounted on selection change</td></tr>
+            <tr><td class="mono">configurator/NowTypeMainPreview.jsx</td><td class="num">190</td><td>Picks which editor fills the preview, following the Details tab</td></tr>
+            <tr><td class="mono">configurator/NowTypeDetailsList.jsx</td><td class="num">420</td><td>The Details panel's Properties / Related Assets / All Assets grids</td></tr>
+            <tr><td class="mono">configurator/RelatedAssetsEditor.jsx</td><td class="num">556</td><td>The Related Assets editor: both engines plus the toolbar and Save</td></tr>
+            <tr><td class="mono">configurator/AllAssetsEditor.jsx</td><td class="num">325</td><td>The All Assets diagram editor and its per-type visibility list</td></tr>
+            <tr><td class="mono">configurator/customizationControls.jsx</td><td class="num">171</td><td>Dots, counts, the title chip and the revert popover</td></tr>
+            <tr><td class="mono">operatorViews/statusVocabulary.js</td><td class="num">91</td><td>The shared status colour and label maps every Operator view reads</td></tr>
+            <tr><td class="mono">operatorViews/NowStrip.jsx</td><td class="num">70</td><td>The line-status strip across the top</td></tr>
+            <tr><td class="mono">operatorViews/IssueMap.jsx</td><td class="num">162</td><td>The lines &times; stations issue grid and its overlay</td></tr>
+            <tr><td class="mono">operatorViews/LineDetail.jsx</td><td class="num">90</td><td>One line's rollups and per-station breakdown</td></tr>
+            <tr><td class="mono">operatorViews/AttentionPanel.jsx</td><td class="num">227</td><td>The Attention list, its group/sort controls and its cards</td></tr>
+            <tr><td class="mono">operatorViews/InvestigatePanel.jsx</td><td class="num">386</td><td>Why an item needs attention: trend, evidence, timeline, related assets, time scrubber</td></tr>
+            <tr><td class="mono">operatorViews/evidenceWidgets.jsx</td><td class="num">119</td><td>Comparison chart, evidence table, vertical timeline</td></tr>
+            <tr><td class="mono">operatorViews/workItems.js</td><td class="num">97</td><td>Work vocabulary and the schedule-margin maths</td></tr>
+            <tr><td class="mono">operatorViews/WorkListPanel.jsx</td><td class="num">123</td><td>The Work list and its cards</td></tr>
+            <tr><td class="mono">operatorViews/TaskDetailPanel.jsx</td><td class="num">101</td><td>One work item's detail panel</td></tr>
+            <tr><td class="mono">operatorViews/OperatorAssetsView.jsx</td><td class="num">136</td><td>Operator &rsaquo; Assets: the asset tree and the read-only asset detail</td></tr>
+            <tr><td class="mono">chrome/NavRail.jsx</td><td class="num">53</td><td>The left rail: the persona's work areas</td></tr>
+            <tr><td class="mono">chrome/RightRail.jsx</td><td class="num">50</td><td>The right rail: Details / Chat / AI</td></tr>
+            <tr><td class="mono">chrome/SidePanel.jsx</td><td class="num">96</td><td>The right panel's container</td></tr>
+            <tr><td class="mono">chrome/ContactsPanel.jsx</td><td class="num">121</td><td>The Chat panel and its seed data</td></tr>
+            <tr><td class="mono">chrome/AiChatPanel.jsx</td><td class="num">84</td><td>The scripted AI panel</td></tr>
           </tbody>
         </table>
       </div>
 
-      <h3>Still in <span class="mono">src/OperatorWorkspace.jsx</span></h3>
-      <p>It reads top to bottom roughly in the order below. The ranges overlap a little because some constants sit next to the components that use them.</p>
+      <h3>Renamed in phase 3</h3>
+      <p>Same code, clearer names. Searching the old name finds nothing, so here is the mapping once:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Now</th><th>Was</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">PropertyTile</td><td class="mono" style="opacity:.65">StatTile</td></tr>
+            <tr><td class="mono">PropertyTilesView</td><td class="mono" style="opacity:.65">HmiPropertiesListing</td></tr>
+            <tr><td class="mono">AssetCard</td><td class="mono" style="opacity:.65">RelatedAssetBoxContent</td></tr>
+            <tr><td class="mono">AssetCardsView</td><td class="mono" style="opacity:.65">RelatedAssetsCards</td></tr>
+            <tr><td class="mono">AssetDiagramView</td><td class="mono" style="opacity:.65">RelatedAssetsDiagram</td></tr>
+            <tr><td class="mono">RelatedAssetsEditor</td><td class="mono" style="opacity:.65">RelatedAssetsPreview</td></tr>
+            <tr><td class="mono">AllAssetsEditor</td><td class="mono" style="opacity:.65">AllAssetsDiagram</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>What's left in <span class="mono">src/OperatorWorkspace.jsx</span></h3>
+      <p>1,248 lines, all of it the shell.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Lines</th><th>What's there</th><th>Main names</th></tr></thead>
           <tbody>
-            <tr><td class="num">1–325</td><td>Imports; Operator constants: state and severity colors, attention and work sorting and grouping</td><td class="mono">STATE_COLORS, sortAttentionItems, ComparisonLineChart</td></tr>
-            <tr><td class="num">326–512</td><td>The customization UI and the Types list columns</td><td class="mono">CustomizationTitleControls, AssetRevertPopover, TYPE_LIST_COLUMNS</td></tr>
-            <tr><td class="num">513–964</td><td>Operator widgets: evidence, timeline, NowStrip, issue map, Line Detail</td><td class="mono">NowStrip, IssueMap, LineDetail, AttentionCard</td></tr>
-            <tr><td class="num">965–1253</td><td>Tree panels and the two center "asset detail" views</td><td class="mono">NowAssetTreePanel, OperatorAssetDetail, NowAssetDetail</td></tr>
-            <tr><td class="num">1254–1807</td><td>The Related Assets editor</td><td class="mono">RelatedAssetsPreview</td></tr>
-            <tr><td class="num">1808–2101</td><td>All Assets: visibility list and diagram editor</td><td class="mono">AllAssetsTypeList, AllAssetsDiagram</td></tr>
-            <tr><td class="num">2102–2501</td><td>The Details panel grids</td><td class="mono">NowTypeDetailsList</td></tr>
-            <tr><td class="num">2502–2672</td><td>The center preview that picks an editor per tab</td><td class="mono">NowTypeMainPreview</td></tr>
-            <tr><td class="num">2673–3344</td><td>Operator panels: Attention list, Work list, Investigate, task detail</td><td class="mono">AttentionPanel, WorkListPanel, InvestigatePanel</td></tr>
-            <tr><td class="num">3345–3753</td><td>Contacts and AI chat, the rails and side panel</td><td class="mono">NavRail, SidePanel, RightRail</td></tr>
-            <tr><td class="num">3754–3839</td><td>The outer component: fetch the model, show errors, key the inner one</td><td class="mono">OperatorWorkspace</td></tr>
-            <tr><td class="num">3840–4926</td><td>All state and handlers, and the slot layout</td><td class="mono">OperatorWorkspaceInner</td></tr>
+            <tr><td class="num">1&ndash;75</td><td>The file header, then the imports &mdash; the only place that names every module</td><td class="mono">&mdash;</td></tr>
+            <tr><td class="num">76&ndash;161</td><td>The outer component: fetch the model, show errors, key the inner one</td><td class="mono">OperatorWorkspace</td></tr>
+            <tr><td class="num">162&ndash;1248</td><td>All state and handlers, and the slot layout</td><td class="mono">OperatorWorkspaceInner</td></tr>
           </tbody>
         </table>
       </div>
@@ -821,25 +854,28 @@
           <tbody>
             <tr><td>1</td><td>Model data and its loader, model queries, settings logic and stores, icons</td><td><span class="chip now">done</span></td></tr>
             <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>3</td><td>Configurator panels (tree, preview, editors, Details grids, customization UI) and Operator views (Attention, Work, Investigate, NowStrip, issue map)</td><td><span class="chip flag">next</span></td></tr>
-            <tr><td>4</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way</td><td>planned</td></tr>
+            <tr><td>3</td><td>Configurator panels, Operator views and chrome; one consistent naming vocabulary throughout</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>4</td><td>Consolidation: one manual-layout canvas instead of two near-identical ones, one related-asset row builder instead of three copies, and whatever else the split made visible</td><td><span class="chip flag">next</span></td></tr>
+            <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way</td><td>planned</td></tr>
           </tbody>
         </table>
       </div>
       <pre class="tree"><span class="c">src/operator/                      target layout</span>
-  OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      (phase 4)</span>
+  OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      (phase 5)</span>
   model/                         <span class="c">modelData, assetQueries                    ✓</span>
-  settings/                      <span class="c">propertyDisplay, displayOrder, customizations,
-                                 layoutOptions                              ✓</span>
-  icons.jsx                      <span class="c">                                            ✓</span>
-  properties/                    <span class="c">StatTile, sparklines, HmiPropertiesListing,
+  settings/                      <span class="c">propertyDisplay, displayOrder,
+                                 customizations, layoutOptions              ✓</span>
+  icons.jsx · badges.jsx         <span class="c">                                            ✓</span>
+  properties/                    <span class="c">PropertyTile, sparklines, PropertyTilesView,
                                  PropertyLayoutCanvas                       ✓</span>
-  relatedAssets/                 <span class="c">box, Cards, Diagram, ELK, read-only views   ✓</span>
+  relatedAssets/                 <span class="c">AssetCard, AssetCardsView, AssetDiagramView,
+                                 ELK, canvas, read-only views               ✓</span>
   canvas/                        <span class="c">geometry shared by the three canvases       ✓</span>
-  configurator/                  <span class="c">tree, preview, Details grids, popovers      (phase 3)</span>
-  operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip      (phase 3)</span>
-  chrome/                        <span class="c">rails, side panel, contacts, AI chat        (phase 3)</span>
-  *.css                          <span class="c">App.operator.css split the same way         (phase 4)</span></pre>
+  configurator/                  <span class="c">tree, preview, the three editors, Details   ✓</span>
+  operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip,
+                                 issue map, Assets, status vocabulary       ✓</span>
+  chrome/                        <span class="c">rails, side panel, contacts, AI chat        ✓</span>
+  *.css                          <span class="c">App.operator.css split the same way         (phase 5)</span></pre>
     </section>
   </main>
 </div>

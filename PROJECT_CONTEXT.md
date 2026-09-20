@@ -35,11 +35,11 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   switcher hides, since models only drive the Operator side). Active work
   is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept: `src/OperatorWorkspace.jsx` plus the modules in
+  concept: a thin `src/OperatorWorkspace.jsx` shell plus 42 modules in
   `src/operator/`. This is where essentially all recent work has
-  happened, and is very likely where new work will continue. It's being
-  split out of one very large file in phases (see `docs/CODE_MAP.html`,
-  the full map of how it fits together).
+  happened, and is very likely where new work will continue. It was split
+  out of one very large file in phases (see `docs/CODE_MAP.html`, the
+  full map of how it fits together).
 
 Four simulated industry models exist — **refinery**, **water**,
 **wastewater** and **wind** (Boreas Ridge, the first generic pack, built
@@ -96,7 +96,7 @@ being explicit about the shape of it:
   every other instance of the same type unaffected and the type's own
   template completely untouched.
 - The **fallback resolution lives in exactly one place**:
-  `RelatedAssetBoxContent` (the component that renders a single box
+  `AssetCard` (the component that renders a single box
   showing one asset's properties, used everywhere — Configurator
   preview, Operator's Assets area, the Investigate panel, the All
   Assets diagram). It checks for an asset-level override first, falls
@@ -126,17 +126,17 @@ Whenever a set of related assets needs laying out, there are two
 interchangeable rendering modes sharing the same row data and the same
 box component:
 
-- **Cards** (`RelatedAssetsCards`) — flexbox auto-flow, or a manual
+- **Cards** (`AssetCardsView`) — flexbox auto-flow, or a manual
   free-positioning sub-mode (`CardsLayoutCanvas`, itself a React Flow
   canvas used just for drag-positioning, not graph edges).
-- **Diagram** (`RelatedAssetsDiagram` / `RelatedAssetsDiagramInner`) —
+- **Diagram** (`AssetDiagramView` / `AssetDiagramViewInner`) —
   a real node-link graph via React Flow + elkjs for auto-layout, edges
   meaningful (asset relationships), with its own manual sub-mode too.
 
 `ReadOnlyRelatedAssetsView` wraps both for the read-only contexts
 (Operator's Assets area, Investigate panel); the editable Configurator
-side calls `RelatedAssetsCards`/`RelatedAssetsDiagram` more directly via
-`RelatedAssetsPreview`. Both engines' boxes are `RelatedAssetBoxContent`
+side calls `AssetCardsView`/`AssetDiagramView` more directly via
+`RelatedAssetsEditor`. Both engines' boxes are `AssetCard`
 underneath, so the type/asset fallback above applies identically in
 either mode without extra work.
 
@@ -145,9 +145,9 @@ either mode without extra work.
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
   is wired, the settings chain, the rendering stack, the patterns to know,
   and where each piece lives. Start here when orienting.
-- `src/OperatorWorkspace.jsx` — the workspace component and the UI
-  components not yet split out (still large; search for a component name
-  rather than reading it top to bottom).
+- `src/OperatorWorkspace.jsx` — the shell: loading a model's data, and
+  `OperatorWorkspaceInner`, which owns the shared state and arranges the
+  panels into slots. Everything it renders lives in `src/operator/`.
 - `src/operator/model/` — the active model's data (`modelData.js`: the
   module-level variables and the loader that writes them; nothing else
   assigns them) and read-only questions about it (`assetQueries.js`).
@@ -156,15 +156,36 @@ either mode without extra work.
   assets differ from their type" (`customizations.js`), plus the shared
   stores those publish through, and the toolbar option lists
   (`layoutOptions.js`).
-- `src/operator/properties/` — `StatTile` and the sparklines (every
-  property tile in the app), the Configurator's Properties editor
-  (`HmiPropertiesListing`) and its manual-layout canvas.
-- `src/operator/relatedAssets/` — `RelatedAssetBoxContent` (the
-  fallback resolution point above), the Cards and Diagram engines, the
-  Cards manual canvas, ELK auto-layout, and the read-only views.
+- `src/operator/properties/` — `PropertyTile` and the sparklines (every
+  property tile in the app), the property listing (`PropertyTilesView`)
+  and its manual-layout canvas.
+- `src/operator/relatedAssets/` — `AssetCard` (the fallback resolution
+  point above), the Cards and Diagram engines, the Cards manual canvas,
+  ELK auto-layout, and the read-only views.
 - `src/operator/canvas/canvasGeometry.js` — node bounds, floating-edge
   geometry, align/distribute; shared by all three React Flow canvases.
-- `src/operator/icons.jsx` — every inline-SVG icon.
+- `src/operator/configurator/` — the Configurator's own panels: the tree,
+  the centre preview, the three editors (`PropertyTilesView` is the
+  Properties one, plus `RelatedAssetsEditor` and `AllAssetsEditor`), the
+  Details grids and the customization controls.
+- `src/operator/operatorViews/` — the Operator's own views: NowStrip, the
+  issue map, Line Detail, Attention, Investigate and its evidence
+  widgets, Work, task detail, the Assets area, and `statusVocabulary.js`
+  (the status colour/label maps they all share).
+- `src/operator/chrome/` — the two rails, the side panel, Contacts and
+  the AI chat panel.
+- `src/operator/icons.jsx` — every inline-SVG icon; `badges.jsx` — the
+  `AiPill` marker.
+
+Naming vocabulary, applied throughout as of phase 3: a **tile** is one
+property (`PropertyTile`), a **card** is one asset's tiles (`AssetCard`),
+a **view** lays tiles or cards out (`PropertyTilesView`, `AssetCardsView`,
+`AssetDiagramView`), and an **editor** is a view plus the toolbar and Save
+that change it (`RelatedAssetsEditor`, `AllAssetsEditor`). New components
+should extend that vocabulary rather than inventing a parallel one. CSS
+class names still use the older wording (`op-statkpi-*`,
+`op-related-asset-box`); they get renamed when `App.operator.css` is split.
+
 - `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
   now, kept on purpose for future use. Leave it in place.
 - `src/App.js` — the outer shell: title bar, nav dropdown, model

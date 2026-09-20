@@ -71,7 +71,7 @@ export const RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS = [
 // mrtree, also direction-aware, showed zero change — so this control is
 // scoped to 'layered' only, same as the other RELATED_ASSETS_DIAGRAM_
 // LAYERED_ONLY_CONTROLS.
-// (The two sliders themselves live in RelatedAssetsPreview's toolbar.)
+// (The two sliders themselves live in RelatedAssetsEditor's toolbar.)
 
 // Runs nodes/edges through ELK's layered algorithm and returns them in
 // React Flow's shape (position: {x, y} instead of bare x/y fields).
@@ -120,7 +120,7 @@ export function getElkLayoutedElements(nodes, edges, layoutOptions) {
       // "Fixed Sides" mode (one fixed slot per node regardless of where
       // a given edge's other end actually was) has been removed
       // entirely. Verified to run cleanly (no error) on all five
-      // algorithms. Pairs with the RelatedAssetsFloatingEdge component,
+      // algorithms. Pairs with the AssetDiagramFloatingEdge component,
       // which does the React Flow side of actually drawing to a real
       // point on each node's border instead of one fixed Handle.
       'elk.portConstraints': 'FREE',
@@ -128,7 +128,7 @@ export function getElkLayoutedElements(nodes, edges, layoutOptions) {
     children: nodes.map(n => ({
       ...n,
       // These two are no longer used for actual edge rendering —
-      // RelatedAssetsFloatingEdge always computes its own connection
+      // AssetDiagramFloatingEdge always computes its own connection
       // point now — but ELK's node input still expects some values here.
       targetPosition: isVertical ? 'top' : 'left',
       sourcePosition: isVertical ? 'bottom' : 'right',

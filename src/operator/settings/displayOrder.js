@@ -21,7 +21,7 @@ import { PROPERTY_CATEGORIES } from '../model/modelData';
 
 // Default property order: grouped by HMI category, known categories first
 // in HMI_CATEGORY_ORDER, then any others in first-seen order — exactly the
-// grouping HmiPropertiesListing has always rendered in.
+// grouping PropertyTilesView has always rendered in.
 export function categoryOrderedPropertyKeys(keys) {
   const byCategory = new Map();
   keys.forEach(key => {
@@ -55,7 +55,7 @@ export function resolveEntityOrder(typeOrders, assetOrders, typeId, assetId) {
 }
 
 // Same module-level store pattern as assetCustomizationStore below, for
-// the same reason: RelatedAssetBoxContent renders inside React Flow nodes
+// the same reason: AssetCard renders inside React Flow nodes
 // and a dozen other places, and threading four more maps through every one
 // of them would touch most of this file. OperatorWorkspaceInner is the
 // only writer.

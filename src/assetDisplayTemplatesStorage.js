@@ -4,7 +4,7 @@
 // Now area's Assets tab. Same shape as typeDisplayTemplatesStorage.js, but
 // keyed by real asset id rather than type id — a specific asset instance's
 // own override, falling back to its type's template when no override has
-// ever been saved for that asset (see RelatedAssetBoxContent's resolution
+// ever been saved for that asset (see AssetCard's resolution
 // logic, the single place this fallback is actually applied).
 
 const ASSET_DISPLAY_TEMPLATES_STORAGE_KEY = 'aetherium_asset_display_templates';

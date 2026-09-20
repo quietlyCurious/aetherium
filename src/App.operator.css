@@ -879,7 +879,7 @@
   font-size: 10px;
 }
 
-/* StatTile was built for the dark Now/Line-Detail pulldown — the value
+/* PropertyTile was built for the dark Now/Line-Detail pulldown — the value
    color needs to flip for legibility here, since the Investigate card
    this renders in (and the type-properties singlebox layout) is
    light-themed. */
@@ -1149,7 +1149,7 @@
   padding: 12px;
 }
 
-/* flex-direction/flex-wrap/align-content set inline from RelatedAssetsPreview's
+/* flex-direction/flex-wrap/align-content set inline from RelatedAssetsEditor's
    own row/column, wrap, and cluster/distribute controls — same mechanism as
    .op-hmiprops-kpis--typeflow uses for individual property tiles, just one
    level up (boxes instead of tiles). */
@@ -1270,7 +1270,7 @@
 /* Default edges are a light #b1b1b7 — barely visible against a grey
    canvas. Darker so relationships read clearly at a glance. Width is
    controllable via the diagram toolbar (applied through defaultEdgeOptions
-   in RelatedAssetsDiagramInner), not hardcoded here. */
+   in AssetDiagramViewInner), not hardcoded here. */
 .op-related-assets-diagram .react-flow__edge-path {
   stroke: #5a5a5a;
 }
@@ -1317,11 +1317,11 @@
   white-space: normal;
 }
 
-/* StatTile's base styling (color: #e4e6eb text, #3a4152 track background)
+/* PropertyTile's base styling (color: #e4e6eb text, #3a4152 track background)
    was built for the dark Now/Line-Detail pulldown — .op-hmiprops and
    .op-hmiprops-singlebox already flip these for their own light-themed
    contexts (see the comment above their versions of these rules); these
-   boxes need the identical flip, since they render the same StatTile
+   boxes need the identical flip, since they render the same PropertyTile
    component but aren't nested inside either of those wrappers. Mirrors
    those rules' values rather than sharing the selector, since this box
    has its own border/padding/margin that .op-hmiprops-singlebox would
@@ -3185,7 +3185,7 @@
 
 /* Related Assets preview: boxes are clickable to select their row in the
    Details panel (the selected box's highlight is generated inline by
-   RelatedAssetsPreview). */
+   RelatedAssetsEditor). */
 .op-related-assets-preview--selectable .op-related-asset-box:not(.op-related-asset-box--center) {
   cursor: pointer;
 }

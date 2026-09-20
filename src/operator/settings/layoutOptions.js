@@ -41,7 +41,7 @@ export const formatTierFilterSliderLabel = (v) => TIER_FILTER_SLIDER_LABELS[v] ?
 // Used only in type-properties mode — controls flex-direction/flex-wrap on
 // the container holding all the properties as a whole. Each property's own
 // internal layout (label/value/track/sparkline arrangement) is untouched by
-// these; that's governed entirely by StatTile's own classes.
+// these; that's governed entirely by PropertyTile's own classes.
 export const FLOW_DIRECTION_ITEMS = [
   { text: 'Column', value: 'column', Icon: ColumnFlowIcon },
   { text: 'Row', value: 'row', Icon: RowFlowIcon },
@@ -73,7 +73,7 @@ export const RELATED_ASSETS_LAYOUT_MODE_ITEMS = [
 
 // Every edge now always finds its own real closest side on a node
 // (previously "Free Ports"; "Fixed Sides" mode has been removed
-// entirely) — see RelatedAssetsFloatingEdge and the elk.portConstraints
+// entirely) — see AssetDiagramFloatingEdge and the elk.portConstraints
 // option in getElkLayoutedElements. This toggle controls a separate
 // question: once that closest side is picked, does the line land at the
 // exact geometric point facing the other node (anywhere along that
@@ -106,14 +106,14 @@ export const RELATED_ASSETS_DISTRIBUTE_ITEMS = [
 ];
 
 // Purely a render-time transform (see the useMemo in
-// RelatedAssetsDiagramInner) — doesn't affect ELK's layout at all.
+// AssetDiagramViewInner) — doesn't affect ELK's layout at all.
 export const RELATED_ASSETS_SHOW_ARROWHEADS_ITEMS = [
   { text: 'Arrows On', value: 'shown', Icon: ArrowOnIcon },
   { text: 'Arrows Off', value: 'hidden', Icon: ArrowOffIcon },
 ];
 
 // Purely a render-time transform (see the useMemo in
-// RelatedAssetsDiagramInner) — doesn't affect ELK's layout at all, since
+// AssetDiagramViewInner) — doesn't affect ELK's layout at all, since
 // this implementation doesn't feed label information into ELK itself.
 export const RELATED_ASSETS_SHOW_LABELS_ITEMS = [
   { text: 'Labels On', value: 'shown', Icon: LabelOnIcon },

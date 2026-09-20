@@ -7,18 +7,18 @@
 import { useRef } from 'react';
 import { getRelatedAssetsForType } from '../model/assetQueries';
 import { useDisplayOrders, sortRowsByOrder, resolveEntityOrder } from '../settings/displayOrder';
-import { RelatedAssetsCards } from './RelatedAssetsCards';
-import { RelatedAssetsDiagram } from './RelatedAssetsDiagram';
+import { AssetCardsView } from './AssetCardsView';
+import { AssetDiagramView } from './AssetDiagramView';
 
 // Read-only Related Assets view for the new Operator-only Assets area —
 // shows the same saved template a type's Related Assets tab in
 // Visualization produces (Cards or Diagram, with whatever settings were
 // saved there), but with no toolbar and no editing capability at all.
-// Mirrors RelatedAssetsPreview's own relatedAssetRows/visibleRows
+// Mirrors RelatedAssetsEditor's own relatedAssetRows/visibleRows
 // computation exactly, just without any of the state that exists there
 // only to support editing.
 export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
-  // RelatedAssetsCards' flex-mode rendering writes to these unconditionally
+  // AssetCardsView's flex-mode rendering writes to these unconditionally
   // (its tile ref callback needs somewhere to write to regardless of
   // whether the manual-switch feature — irrelevant here — is ever used),
   // so real ref objects are required even though nothing here ever reads
@@ -42,7 +42,7 @@ export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDispl
   const visibleRows = relatedAssetRows.filter(r => r.visibility === 'always');
   // savedTemplate here is already whichever one applies (asset-level
   // override or type-level default) — resolved by the caller, which has
-  // both maps and the same all-or-nothing reasoning RelatedAssetBoxContent's
+  // both maps and the same all-or-nothing reasoning AssetCard's
   // own display template fallback uses (a cohesive layout choice saved as
   // one unit, not merged field by field).
   const layoutMode = savedTemplate?.layoutMode ?? 'cards';
@@ -52,7 +52,7 @@ export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDispl
   }
 
   return layoutMode === 'cards' ? (
-    <RelatedAssetsCards
+    <AssetCardsView
       currentTypeId={typeId}
       currentTypeName={typeList.find(t => t.id === typeId)?.name}
       currentTypeExampleAssetId={assetId || typeList.find(t => t.id === typeId)?.exampleAssetId}
@@ -75,7 +75,7 @@ export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDispl
       onGearClick={onGearClick}
     />
   ) : (
-    <RelatedAssetsDiagram
+    <AssetDiagramView
       currentTypeId={typeId}
       currentTypeName={typeList.find(t => t.id === typeId)?.name}
       currentTypeExampleAssetId={assetId || typeList.find(t => t.id === typeId)?.exampleAssetId}
@@ -115,7 +115,7 @@ export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDispl
 // All Assets diagram uses, no toolbar, no editing capability.
 export function ReadOnlyAllAssetsView({ typeList, hiddenAssetIds, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, savedTemplate, onTitleClick, onGearClick }) {
   return (
-    <RelatedAssetsDiagram
+    <AssetDiagramView
       typeList={typeList}
       allTypesMode
       hiddenAssetIds={hiddenAssetIds}

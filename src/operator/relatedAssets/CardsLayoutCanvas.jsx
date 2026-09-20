@@ -8,7 +8,7 @@ import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import notify from 'devextreme/ui/notify';
 import { ReactFlowProvider, useNodesState, ReactFlow, Background } from '@xyflow/react';
 import { alignSelectedNodes, distributeSelectedNodes } from '../canvas/canvasGeometry';
-import { RelatedAssetBoxContent } from './RelatedAssetBoxContent';
+import { AssetCard } from './AssetCard';
 
 // Cards manual mode's own node type — one related-asset type box per
 // node, same no-edges reasoning as PropertyLayoutNode above (asset
@@ -19,7 +19,7 @@ function CardsLayoutNode({ data }) {
   const isManual = effectiveTemplate?.layoutMode === 'manual';
   return (
     <div className={`op-related-asset-box op-property-layout-node${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
-      <RelatedAssetBoxContent {...data.boxProps} />
+      <AssetCard {...data.boxProps} />
     </div>
   );
 }
@@ -28,7 +28,7 @@ const CARDS_LAYOUT_NODE_TYPES = { cardsLayoutNode: CardsLayoutNode };
 
 // Cards manual layout — same "stack in corner" default and grid-arrange
 // spacing reasoning as the property-layout constants above, just for
-// asset type boxes (which run somewhat larger than a single StatTile).
+// asset type boxes (which run somewhat larger than a single PropertyTile).
 const CARDS_LAYOUT_DEFAULT_POSITION = { x: 0, y: 0 };
 
 const CARDS_LAYOUT_GRID_SIZE = 20;
@@ -125,7 +125,7 @@ const CardsLayoutCanvasInner = forwardRef(function CardsLayoutCanvasInner({ tile
   };
 
   // Align/Distribute/Arrange in Grid now live in the parent toolbar
-  // (RelatedAssetsPreview's own manual-mode Row 3), same reasoning and
+  // (RelatedAssetsEditor's own manual-mode Row 3), same reasoning and
   // pattern as PropertyLayoutCanvasInner's own ref exposure.
   useImperativeHandle(ref, () => ({
     align: handleAlign,

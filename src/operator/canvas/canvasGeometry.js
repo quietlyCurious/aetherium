@@ -11,7 +11,7 @@
 // aren't available for some reason — the normal path now uses each
 // node's actual rendered size (node.measured.width/height, via React
 // Flow's own measurement), not a fixed stub. See the hide → measure →
-// layout → reveal sequence in RelatedAssetsDiagramInner below.
+// layout → reveal sequence in AssetDiagramViewInner below.
 export const RELATED_ASSETS_DIAGRAM_NODE_WIDTH = 160;
 
 export const RELATED_ASSETS_DIAGRAM_NODE_HEIGHT = 50;

@@ -31,8 +31,8 @@ export const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i =>
 
 // The one place a single property's effective visual is decided —
 // explicit per-property override first, else the template's (or toolbar's)
-// shared default. Used by both HmiPropertiesListing (the Configurator's
-// editing preview) and RelatedAssetBoxContent (every read-only box), so
+// shared default. Used by both PropertyTilesView (the Configurator's
+// editing preview) and AssetCard (every read-only box), so
 // the two can't drift apart.
 export function resolvePropertyViewMode(propertyViewModes, key, defaultViewMode) {
   return propertyViewModes?.[key] ?? defaultViewMode;
