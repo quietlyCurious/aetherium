@@ -171,8 +171,8 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
         caption: 'Property',
         minWidth: 80,
         cellRender: (cellInfo) => (
-          <span className="op-prop-name-cell">
-            <span className="op-prop-name-text" title={cellInfo.data.label}>{cellInfo.data.label}</span>
+          <span className="op-property-name-cell">
+            <span className="op-property-name-text" title={cellInfo.data.label}>{cellInfo.data.label}</span>
             {cellInfo.data.customizedCount > 0 && (
               <button
                 type="button"
@@ -238,7 +238,7 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
             ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
           ];
           if (!canUpdateType) visualSelectItems[0].dividerAfter = true;
-          const stateClass = overridden ? ' op-prop-visual-select--override' : inherited ? ' op-prop-visual-select--inherited' : '';
+          const stateClass = overridden ? ' op-property-visual-select--override' : inherited ? ' op-property-visual-select--inherited' : '';
           const hint = overridden
             ? 'Set on this asset only'
             : inherited
@@ -246,7 +246,7 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
               : 'Follows the view mode chosen in the preview toolbar';
           return (
             <SelectBox
-              className={`op-prop-visual-select${stateClass}`}
+              className={`op-property-visual-select${stateClass}`}
               items={visualSelectItems}
               // The closed field shows just the mode name to fit the
               // narrow column (styled by state, above); the open list

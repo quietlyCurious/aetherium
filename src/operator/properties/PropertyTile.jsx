@@ -29,21 +29,21 @@ export function PropertyTile({ label, value, min, max, sparkline, labelFirst, ho
     if (right > left) observed = { left, width: right - left };
   }
 
-  const labelEl = <div className="op-statkpi-label">{label}</div>;
+  const labelEl = <div className="op-property-tile-label">{label}</div>;
   const displayValue = (typeof value === 'number' && decimals != null) ? value.toFixed(decimals) : value;
   const valueEl = (
-    <div className="op-statkpi-value">
+    <div className="op-property-tile-value">
       {displayValue}
-      {unit && <span className="op-statkpi-unit">{unit}</span>}
+      {unit && <span className="op-property-tile-unit">{unit}</span>}
     </div>
   );
 
   const vtrackEl = hasRange && (
-    <div className="op-statkpi-vtrack">
+    <div className="op-property-tile-vtrack">
       {observed && (
-        <div className="op-statkpi-vtrack-observed" style={{ bottom: `${observed.left}%`, height: `${observed.width}%` }} />
+        <div className="op-property-tile-vtrack-observed" style={{ bottom: `${observed.left}%`, height: `${observed.width}%` }} />
       )}
-      <div className="op-statkpi-vtrack-marker" style={{ bottom: `${pct}%` }} />
+      <div className="op-property-tile-vtrack-marker" style={{ bottom: `${pct}%` }} />
     </div>
   );
 
@@ -52,7 +52,7 @@ export function PropertyTile({ label, value, min, max, sparkline, labelFirst, ho
     // plainest possible reading of the number.
     if (viewMode === 'text') {
       return (
-        <div className="op-statkpi op-statkpi--text">
+        <div className="op-property-tile op-property-tile--text">
           {valueEl}
           {labelEl}
         </div>
@@ -63,7 +63,7 @@ export function PropertyTile({ label, value, min, max, sparkline, labelFirst, ho
     // value underneath. A vertical card rather than a row.
     if (viewMode === 'indicator') {
       return (
-        <div className="op-statkpi op-statkpi--indicator">
+        <div className="op-property-tile op-property-tile--indicator">
           {vtrackEl}
           {valueEl}
           {labelEl}
@@ -76,15 +76,15 @@ export function PropertyTile({ label, value, min, max, sparkline, labelFirst, ho
     // only in whether the indicator renders.
     const showTrack = viewMode !== 'spark';
     return (
-      <div className="op-statkpi op-statkpi--row">
+      <div className="op-property-tile op-property-tile--row">
         {showTrack && vtrackEl}
-        <div className="op-statkpi-info">
+        <div className="op-property-tile-info">
           {labelFirst ? labelEl : valueEl}
           {labelFirst && valueEl}
           {!labelFirst && labelEl}
         </div>
         {sparkline && (
-          <div className="op-statkpi-spark">
+          <div className="op-property-tile-spark">
             <ResponsiveSparkline values={sparkline} height={60} />
           </div>
         )}
@@ -93,25 +93,25 @@ export function PropertyTile({ label, value, min, max, sparkline, labelFirst, ho
   }
 
   return (
-    <div className="op-statkpi">
+    <div className="op-property-tile">
       {labelFirst ? labelEl : valueEl}
       {labelFirst && valueEl}
       {hasRange && (
         <>
-          <div className="op-statkpi-track">
+          <div className="op-property-tile-track">
             {observed && (
-              <div className="op-statkpi-track-observed" style={{ left: `${observed.left}%`, width: `${observed.width}%` }} />
+              <div className="op-property-tile-track-observed" style={{ left: `${observed.left}%`, width: `${observed.width}%` }} />
             )}
-            <div className="op-statkpi-track-marker" style={{ left: `${pct}%` }} />
+            <div className="op-property-tile-track-marker" style={{ left: `${pct}%` }} />
           </div>
-          <div className="op-statkpi-track-labels">
+          <div className="op-property-tile-track-labels">
             <span>{min}</span>
             <span>{max}</span>
           </div>
         </>
       )}
       {sparkline && (
-        <div className="op-statkpi-spark">
+        <div className="op-property-tile-spark">
           <MiniSparkline values={sparkline} width={160} />
         </div>
       )}

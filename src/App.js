@@ -25,7 +25,17 @@ import './App.data.css'; // Phase 2a data workspace
 import './App.detailsRadius.css'; // scoped border-radius override for details panel controls
 import './App.suppressLicenseBanner.css'; // hides the DevExtreme trial/eval banner — internal POC only
 import './App.thinScrollbars.css'; // thin, hover-only scrollbars — canvas and Runtime view only
-import './App.operator.css'; // Operator Interface concept shell (Now/Attention/Investigate/Work)
+// Operator Interface stylesheets — one per area of src/operator/, in
+// cascade order (base first). Kept here, at the exact position the single
+// App.operator.css import used to occupy, so their order relative to the
+// other stylesheets is unchanged.
+import './operator/styles/base.css';
+import './operator/styles/properties.css';
+import './operator/styles/canvas.css';
+import './operator/styles/relatedAssets.css';
+import './operator/styles/configurator.css';
+import './operator/styles/operatorViews.css';
+import './operator/styles/chrome.css';
 import DataSourcesWorkspace from './DataSourcesWorkspace';
 import QueriesWorkspace from './QueriesWorkspace';
 import EntitiesWorkspace from './EntitiesWorkspace';
@@ -41,7 +51,7 @@ import { loadQueryInstances, saveQueryInstances } from './queryInstancesStorage'
 import { loadOperatorNavigation, saveOperatorNavigation } from './operatorNavigationStorage';
 import { loadModelRegistry } from './modelRegistry';
 import ThemeWorkspace from './ThemeWorkspace';
-import OperatorWorkspace from './OperatorWorkspace';
+import OperatorWorkspace from './operator/OperatorWorkspace';
 import DataListGrid from './DataListGrid';
 import { loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder, snapshotPage, cloneContainersFromPage, repairDuplicateContainerIds } from './pagesStorage';
 import ScreensPanel from './ScreensPanel';

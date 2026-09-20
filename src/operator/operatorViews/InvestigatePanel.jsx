@@ -254,7 +254,7 @@ export function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvid
               <div className="op-investigate-relatedassets-body">
                 {relatedAssetsTypeId ? (
                   relatedAssetsSubview === 'thisAsset' ? (
-                    <div className={`op-hmiprops-singlebox op-investigate-related-template${(assetDisplayTemplates?.[relatedAssetsAssetEntry?.id]?.layoutMode ?? typeDisplayTemplates?.[relatedAssetsTypeId]?.layoutMode) === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+                    <div className={`op-property-tiles-singlebox op-investigate-related-template${(assetDisplayTemplates?.[relatedAssetsAssetEntry?.id]?.layoutMode ?? typeDisplayTemplates?.[relatedAssetsTypeId]?.layoutMode) === 'manual' ? ' op-property-tiles-singlebox--manual' : ''}`}>
                       <AssetCard
                         relatedTypeId={relatedAssetsTypeId}
                         relatedTypeName={relatedAssetsTypeEntry?.name}

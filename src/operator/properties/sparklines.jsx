@@ -52,7 +52,7 @@ export function ResponsiveSparkline({ values, height = 26, color }) {
   }, []);
 
   return (
-    <div ref={containerRef} className="op-statkpi-spark-inner">
+    <div ref={containerRef} className="op-property-tile-spark-inner">
       <MiniSparkline values={values} width={Math.max(1, Math.round(width))} height={height} color={color} />
     </div>
   );

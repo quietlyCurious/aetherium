@@ -84,7 +84,7 @@ export function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemp
       </div>
       <div className="op-now-type-detail-main">
         {activeTab === 'properties' && (
-          <div className={`op-hmiprops-singlebox${(assetDisplayTemplates?.[selectedAssetId]?.layoutMode ?? typeDisplayTemplates?.[typeId]?.layoutMode) === 'manual' ? ' op-hmiprops-singlebox--manual' : ''}`}>
+          <div className={`op-property-tiles-singlebox${(assetDisplayTemplates?.[selectedAssetId]?.layoutMode ?? typeDisplayTemplates?.[typeId]?.layoutMode) === 'manual' ? ' op-property-tiles-singlebox--manual' : ''}`}>
             <AssetCard
               relatedTypeId={typeId}
               relatedTypeName={typeName}

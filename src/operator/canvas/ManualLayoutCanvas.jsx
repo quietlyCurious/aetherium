@@ -143,7 +143,7 @@ const ManualLayoutCanvasInner = forwardRef(function ManualLayoutCanvasInner({
   }));
 
   return (
-    <div className="op-property-layout-canvas">
+    <div className="op-manual-canvas">
       <ReactFlow
         nodes={nodes}
         edges={[]}

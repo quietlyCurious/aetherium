@@ -62,7 +62,7 @@ function AssetDiagramNode({ data }) {
   const effectiveTemplate = data.assetDisplayTemplates?.[data.relatedTypeExampleAssetId] ?? data.typeDisplayTemplates?.[data.relatedTypeId];
   const isManual = effectiveTemplate?.layoutMode === 'manual';
   return (
-    <div className={`op-related-asset-box${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
+    <div className={`op-asset-card${data.isCenter ? ' op-asset-card--center' : ''}${isManual ? ' op-asset-card--manual' : ''}`}>
       <Handle type="target" position={data.targetHandlePosition} />
       <AssetCard
         relatedTypeId={data.relatedTypeId}

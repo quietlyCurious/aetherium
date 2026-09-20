@@ -16,7 +16,7 @@ function AssetCardNode({ data }) {
   const effectiveTemplate = data.boxProps?.assetDisplayTemplates?.[data.boxProps?.relatedTypeExampleAssetId] ?? data.boxProps?.typeDisplayTemplates?.[data.boxProps?.relatedTypeId];
   const isManual = effectiveTemplate?.layoutMode === 'manual';
   return (
-    <div className={`op-related-asset-box op-property-layout-node${data.isCenter ? ' op-related-asset-box--center' : ''}${isManual ? ' op-related-asset-box--manual' : ''}`}>
+    <div className={`op-asset-card op-manual-canvas-node${data.isCenter ? ' op-asset-card--center' : ''}${isManual ? ' op-asset-card--manual' : ''}`}>
       <AssetCard {...data.boxProps} />
     </div>
   );

@@ -1,0 +1,18 @@
+/* operator/styles/canvas.css
+   The manual-layout canvas shared by property tiles, asset cards and both
+   diagrams. Components: operator/canvas/. */
+
+/* Property manual-layout canvas — sits inside .op-property-tiles-singlebox--
+   typeflow, which already provides flex:1/min-height:0/height:100%, so
+   this just needs to actually fill that space. */
+.op-manual-canvas {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+.op-manual-canvas .react-flow {
+  background: #e8e8e8;
+}

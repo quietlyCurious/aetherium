@@ -1,0 +1,357 @@
+/* operator/styles/chrome.css
+   The frame around the work: both rails, the side panel, the contacts
+   list and the AI chat panel.
+   Components: operator/chrome/. */
+
+.op-side-panel {
+  background: #fff;
+}
+
+.op-nav-rail {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  background: #fff;
+  border-right: 1px solid #ebebeb;
+  padding: 8px 0;
+  transition: width 0.15s ease;
+  overflow: visible;
+}
+
+.op-nav-rail--right {
+  border-right: none;
+  border-left: 1px solid #ebebeb;
+}
+
+.op-nav-rail--expanded {
+  width: 180px;
+}
+
+.op-nav-rail-toggle {
+  align-self: flex-end;
+  margin: 0 8px 8px auto;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: none;
+  background: #f2f2f2;
+  border-radius: 3px;
+  color: #888;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.op-nav-rail-toggle:hover {
+  background: #e5e5e5;
+  color: #333;
+}
+
+.op-nav-rail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 8px 13px;
+  color: #777;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.op-nav-rail-item:hover {
+  background: #f5f9ff;
+  color: #222;
+}
+
+.op-nav-rail-item--active {
+  background: #eaf3fc;
+  color: #0078d4;
+}
+
+.op-nav-rail-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+}
+
+.op-nav-rail-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f7de1;
+  border: 1.5px solid #fff;
+}
+
+.op-nav-rail-label {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.op-nav-rail-count {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  background: #2f7de1;
+  border-radius: 8px;
+  padding: 1px 6px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.op-side-tab-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Chat (contacts) ──────────────────────────────────────────────────────── */
+
+.op-chat-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.op-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 4px;
+  border-bottom: 1px solid #f1f1f1;
+  cursor: pointer;
+}
+
+.op-contact-row:hover {
+  background: #f5f9ff;
+}
+
+.op-contact-avatar {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e3eaf6;
+  color: #0078d4;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.op-contact-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.op-contact-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.op-contact-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-unread-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2f7de1;
+  flex-shrink: 0;
+}
+
+.op-contact-role {
+  font-size: 10px;
+  color: #999;
+  margin-bottom: 2px;
+}
+
+.op-contact-preview {
+  font-size: 11.5px;
+  color: #777;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-chat-thread {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.op-chat-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 10px;
+  border-bottom: 1px solid #ebebeb;
+  margin-bottom: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.op-chat-back {
+  font-size: 14px;
+  color: #888;
+}
+
+.op-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.op-chat-bubble {
+  max-width: 85%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.op-chat-bubble--them {
+  align-self: flex-start;
+  background: #f0f1f3;
+  color: #222;
+  border-bottom-left-radius: 3px;
+}
+
+.op-chat-bubble--me {
+  align-self: flex-end;
+  background: #0078d4;
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.op-chat-bubble-time {
+  font-size: 9px;
+  opacity: 0.6;
+  margin-top: 3px;
+}
+
+.op-chat-input-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+
+.op-chat-input-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+}
+
+/* ── AI chat ──────────────────────────────────────────────────────────────── */
+
+.op-ai-chat-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.op-ai-chat-bubble {
+  max-width: 92%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.op-ai-chat-bubble--ai {
+  align-self: flex-start;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  background: #f0ebfd;
+  color: #3f2d66;
+  border-bottom-left-radius: 3px;
+}
+
+.op-ai-chat-bubble--user {
+  align-self: flex-end;
+  background: #0078d4;
+  color: #fff;
+  border-bottom-right-radius: 3px;
+}
+
+.op-ai-chat-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-bottom: 8px;
+}
+
+.op-ai-chat-prompt-chip {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6a3fd6;
+  background: #f0ebfd;
+  border: 1px solid #d9c9fb;
+  border-radius: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.op-ai-chat-prompt-chip:hover {
+  background: #e4d9fb;
+}
+
+.op-ai-chat-input-row {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.op-ai-chat-input-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #d5d5d5;
+  border-radius: 3px;
+}

@@ -13,7 +13,7 @@ import { PropertyTile } from './PropertyTile';
 // connect.
 function PropertyTileNode({ data }) {
   return (
-    <div className={`op-property-layout-node${data.selected ? ' op-prop-tile-select--selected' : ''}`}>
+    <div className={`op-manual-canvas-node${data.selected ? ' op-property-tile-select--selected' : ''}`}>
       <PropertyTile {...data.tileProps} />
     </div>
   );

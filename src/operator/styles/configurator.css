@@ -1,0 +1,376 @@
+/* operator/styles/configurator.css
+   The Configurator: its tree panel, the centre preview and its title row,
+   the Details grids (Show / Visual columns, drag handles, order footer)
+   and the customization dots, chips and popovers.
+   Components: operator/configurator/. */
+
+.op-visibility-cycle-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.op-visibility-cycle-btn:hover {
+  color: #0078d4;
+}
+
+/* All Assets' visibility tree — each row renders via HierarchyTree's own
+   itemRender, so this needs to lay out the name and toggle button itself
+   rather than relying on DataListGrid's column widths like the old flat
+   type list did. */
+.op-all-assets-tree-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding-right: 4px;
+}
+
+.op-all-assets-tree-row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.op-now-asset-detail-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.op-now-asset-detail-title--with-caret {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.op-now-asset-detail-caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.op-now-asset-detail-caret:hover {
+  background: #f0f0f0;
+  color: #444;
+}
+
+.op-now-asset-kpi-card {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.op-now-type-tabs {
+  flex: 1;
+  min-height: 0;
+}
+
+.op-now-type-props-list {
+  height: 100%;
+}
+
+.op-now-type-kpi-card {
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Details panel Visual column — compact underlined SelectBox that reads
+   as plain text until hovered. Default rows are muted; rows with their
+   own override are dark and marked with a small blue dot, so overrides
+   stand out at a glance down the column. */
+.op-property-visual-select.dx-editor-underlined .dx-texteditor-input {
+  font-size: 12px;
+  padding-left: 8px;
+  color: #8a8f99;
+}
+
+.op-property-visual-select.dx-editor-underlined::after {
+  border-bottom-color: transparent;
+}
+
+.op-property-visual-select.dx-editor-underlined:hover::after,
+.op-property-visual-select.dx-editor-underlined.dx-state-focused::after {
+  border-bottom-color: #c8c8c8;
+}
+
+.op-property-visual-select--override.dx-editor-underlined .dx-texteditor-input {
+  color: #222;
+  font-weight: 600;
+}
+
+.op-property-visual-select--override .dx-texteditor-input-container { position: relative; }
+
+.op-property-visual-select--override .dx-texteditor-input-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: #0078d4;
+}
+
+.op-property-visual-select .dx-texteditor-input {
+  cursor: pointer;
+}
+
+/* Asset rows whose visual comes from the asset's type: regular weight,
+   dark (it IS a deliberate choice, just not this asset's), hollow dot —
+   between the muted "follows the toolbar" and the bold filled-dot "set
+   on this asset" states. */
+.op-property-visual-select--inherited.dx-editor-underlined .dx-texteditor-input {
+  color: #222;
+}
+
+.op-property-visual-select--inherited .dx-texteditor-input-container {
+  position: relative;
+}
+
+.op-property-visual-select--inherited .dx-texteditor-input-container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  border: 1px solid #0078d4;
+  background: transparent;
+}
+
+/* ── Asset customizations ────────────────────────────────────────────
+   One mark throughout: the filled blue dot already used in the Visual
+   column for "set on this asset" also means "this asset differs from its
+   type" in the Assets tree, the title-row chip and the checklists. */
+.op-customized-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0078d4;
+  flex-shrink: 0;
+}
+
+.op-tree-item-trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Small count pill: Types list (customized assets per type) and the
+   Details panel's Property column (assets that set that property
+   differently). */
+.op-customized-count {
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: #e8f4fd;
+  color: #0078d4;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.op-customized-count--button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.op-customized-count--button:hover {
+  background: #0078d4;
+  color: #fff;
+}
+
+.op-type-name-cell,
+.op-property-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.op-type-name-text,
+.op-property-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Center preview title row */
+.op-title-customization {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.op-customized-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: #e8f4fd;
+  color: #0078d4;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.op-customized-chip--button {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.op-customized-chip--button:hover {
+  background: #d4e9fa;
+}
+
+.op-title-link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  color: #0078d4;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.op-title-link-btn:hover {
+  text-decoration: underline;
+}
+
+/* Revert checklist popover */
+.op-revert-list {
+  max-height: 260px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.op-revert-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.op-revert-row .dx-checkbox {
+  margin-top: 1px;
+}
+
+.op-revert-row-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.op-revert-row-text:hover .op-revert-row-label {
+  color: #0078d4;
+  text-decoration: underline;
+}
+
+.op-revert-row-label {
+  font-size: 12px;
+  color: #222;
+}
+
+.op-revert-row-detail {
+  font-size: 11px;
+  color: #8a8f99;
+}
+
+.op-revert-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.op-customized-dot--contains {
+  background: #a9cff0;
+}
+
+.op-title-link-sep {
+  color: #b0b5bd;
+  margin: 0 -4px;
+}
+
+/* Visual dropdown: the ↓ Match type / ↑ Update type actions read as
+   actions (accent color) and sit above the plain visual choices,
+   separated by a rule. */
+.op-visual-item--type-action {
+  color: #0078d4;
+}
+
+/* The rule goes on DevExtreme's own list item (the span inside it is
+   padded away from the item's edges). */
+.dx-list-item:has(.op-visual-item--divider) {
+  border-bottom: 1px solid #e3e5e8;
+}
+
+/* Details panel tables that can be reordered by dragging: the grid takes
+   the remaining height, with the "Custom order · ↓ Match type order"
+   footer (only present once an order has been set) pinned below it. */
+.op-now-type-props-list--orderable {
+  display: flex;
+  flex-direction: column;
+}
+
+.op-now-type-props-grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.op-order-footer {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border-top: 1px solid #eee;
+  font-size: 11px;
+  color: #8a8f99;
+}

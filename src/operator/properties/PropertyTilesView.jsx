@@ -191,7 +191,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
   const unknownExtra = Object.keys(grouped).filter(c => !HMI_CATEGORY_ORDER.includes(c));
   const categories = [...orderedKnown, ...unknownExtra];
 
-  const kpisClass = `op-hmiprops-kpis${kpiViewMode === 'text' ? ' op-hmiprops-kpis--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops-kpis--indicator' : ''}`;
+  const kpisClass = `op-property-tiles-kpis${kpiViewMode === 'text' ? ' op-property-tiles-kpis--text' : ''}${kpiViewMode === 'indicator' ? ' op-property-tiles-kpis--indicator' : ''}`;
 
   // The single-box ("none" grouping) path's tiles, in category order —
   // minus any whose effective visual is None. With no per-property
@@ -249,13 +249,13 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
 
   return (
     <div
-      className={`op-hmiprops-wrap${typeFlowActive ? ' op-hmiprops-wrap--typeflow' : ''}`}
+      className={`op-property-tiles-wrap${typeFlowActive ? ' op-property-tiles-wrap--typeflow' : ''}`}
       onPointerDownCapture={unsavedTracker.noteUserInput}
       onKeyDownCapture={unsavedTracker.noteUserInput}
     >
       {typeVisibilityMode ? (
         showToolbar && (
-          <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+          <div className="op-property-tiles-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
             {/* Row 1: badge + reset/switch button anchored left, tier filter anchored right. */}
             <div className="op-toolbar-row-1" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -374,7 +374,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
           </div>
         )
       ) : (
-        <div className="op-hmiprops-toolbar">
+        <div className="op-property-tiles-toolbar">
           <>
             <ButtonGroup
               items={KPI_VIEW_MODE_ITEMS}
@@ -408,10 +408,10 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
           {typeVisibilityMode ? `No properties marked "${tierFilter}"` : `No ${tierFilter} properties for this asset.`}
         </div>
       ) : groupingMode === 'box' ? (
-        <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
+        <div className={`op-property-tiles${kpiViewMode === 'text' ? ' op-property-tiles--text' : ''}${kpiViewMode === 'indicator' ? ' op-property-tiles--indicator' : ''}`}>
           {categories.map(cat => (
-            <div key={cat} className="op-hmiprops-card">
-              <div className="op-hmiprops-card-title">{cat}</div>
+            <div key={cat} className="op-property-tiles-card">
+              <div className="op-property-tiles-card-title">{cat}</div>
               <div className={kpisClass}>
                 {grouped[cat].map(renderTile)}
               </div>
@@ -420,11 +420,11 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
         </div>
       ) : groupingMode === 'none' ? (
         flatTiles.length === 0 ? (
-          <div className="op-hmiprops-singlebox">
+          <div className="op-property-tiles-singlebox">
             <div className="op-dash-text op-dash-text--muted">No properties shown (view mode: None).</div>
           </div>
         ) : typeVisibilityMode && propertyLayoutMode === 'manual' ? (
-          <div className="op-hmiprops-singlebox op-hmiprops-singlebox--typeflow">
+          <div className="op-property-tiles-singlebox op-property-tiles-singlebox--typeflow">
             <PropertyTileCanvas
               ref={propertyLayoutCanvasRef}
               tiles={flatTiles.map(p => ({ key: p.key, tileProps: buildTileProps(p), selected: p.key === selectedPropertyKey }))}
@@ -434,17 +434,17 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
             />
           </div>
         ) : (
-          <div className={`op-hmiprops-singlebox${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}${typeFlowActive ? ' op-hmiprops-singlebox--typeflow' : ''}`}>
+          <div className={`op-property-tiles-singlebox${kpiViewMode === 'text' ? ' op-property-tiles--text' : ''}${kpiViewMode === 'indicator' ? ' op-property-tiles--indicator' : ''}${typeFlowActive ? ' op-property-tiles-singlebox--typeflow' : ''}`}>
             <div
               ref={flexPreviewContainerRef}
-              className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-hmiprops-kpis--flowrow' : ''}${typeFlowActive ? ' op-hmiprops-kpis--typeflow' : ''}`}
+              className={`${kpisClass}${typeVisibilityMode && flowDirection === 'row' ? ' op-property-tiles-kpis--flowrow' : ''}${typeFlowActive ? ' op-property-tiles-kpis--typeflow' : ''}`}
               style={typeVisibilityMode ? { flexDirection: flowDirection, flexWrap: flowWrap, alignContent } : undefined}
             >
               {flatTiles.map(p => (
                 <div
                   key={p.key}
                   ref={el => { flexTileRefs.current[p.key] = el; }}
-                  className={onSelectProperty ? `op-prop-tile-select${p.key === selectedPropertyKey ? ' op-prop-tile-select--selected' : ''}` : undefined}
+                  className={onSelectProperty ? `op-property-tile-select${p.key === selectedPropertyKey ? ' op-property-tile-select--selected' : ''}` : undefined}
                   onClick={onSelectProperty ? () => onSelectProperty(p.key === selectedPropertyKey ? null : p.key) : undefined}
                 >
                   <PropertyTile {...buildTileProps(p)} />
@@ -454,11 +454,11 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
           </div>
         )
       ) : (
-        <div className="op-hmiprops-singlebox">
-          <div className={`op-hmiprops${kpiViewMode === 'text' ? ' op-hmiprops--text' : ''}${kpiViewMode === 'indicator' ? ' op-hmiprops--indicator' : ''}`}>
+        <div className="op-property-tiles-singlebox">
+          <div className={`op-property-tiles${kpiViewMode === 'text' ? ' op-property-tiles--text' : ''}${kpiViewMode === 'indicator' ? ' op-property-tiles--indicator' : ''}`}>
             {categories.map(cat => (
-              <div key={cat} className="op-hmiprops-card op-hmiprops-card--noborder">
-                <div className="op-hmiprops-card-title">{cat}</div>
+              <div key={cat} className="op-property-tiles-card op-property-tiles-card--noborder">
+                <div className="op-property-tiles-card-title">{cat}</div>
                 <div className={kpisClass}>
                   {grouped[cat].map(renderTile)}
                 </div>

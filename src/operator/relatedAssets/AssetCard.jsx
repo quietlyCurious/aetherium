@@ -42,7 +42,7 @@ const PROPERTY_TILE_SIZE_ESTIMATES = {
 // Renders a related type's title plus its "always"-visible properties as
 // PropertyTiles, using that type's own saved display template — the single
 // source of truth for a related asset's content, shared by the Cards
-// view's boxes (wrapped in .op-related-asset-box) and the Diagram view's
+// view's boxes (wrapped in .op-asset-card) and the Diagram view's
 // custom node (wrapped differently, with Handles added around it).
 export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAssetId, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, onTitleClick, onGearClick }) {
   // Before any early return — hooks can't be conditional.
@@ -61,7 +61,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   // thing I'm already viewing" when the result is identical either way.
   const titleElement = (
     <div
-      className={`op-hmiprops-card-title${onTitleClick ? ' op-hmiprops-card-title--clickable' : ''}${onGearClick ? ' op-hmiprops-card-title--with-gear' : ''}`}
+      className={`op-property-tiles-card-title${onTitleClick ? ' op-property-tiles-card-title--clickable' : ''}${onGearClick ? ' op-property-tiles-card-title--with-gear' : ''}`}
       onClick={onTitleClick ? () => onTitleClick({ relatedTypeId, relatedTypeExampleAssetId }) : undefined}
     >
       {relatedTypeName}
@@ -71,8 +71,8 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   // passed from Visualization's own call sites), jumping from an asset's
   // real-values box straight to the config screen that shaped it:
   // Visualization's Properties tab for that asset's type. Absolutely
-  // positioned against the outer box (op-related-asset-box/
-  // op-hmiprops-singlebox, both given position:relative for exactly this)
+  // positioned against the outer box (op-asset-card/
+  // op-property-tiles-singlebox, both given position:relative for exactly this)
   // rather than placed next to the title text, so it sits in the box's
   // own corner regardless of how long that title is — stopPropagation so
   // clicking it doesn't also fire the title's own onClick underneath, or
@@ -81,7 +81,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   const gearElement = onGearClick ? (
     <button
       type="button"
-      className="op-asset-box-gear"
+      className="op-asset-card-gear"
       title="Open properties template"
       onClick={e => { e.stopPropagation(); onGearClick({ relatedTypeId }); }}
     >
@@ -163,7 +163,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   const entriesToShow = applySavedOrder(categoryOrderedPropertyKeys(unorderedEntries.map(([key]) => key)), boxOrder)
     .map(key => [key, entryValueByKey.get(key)])
     .filter(([key]) => tileViewMode(key) !== 'none');
-  const boxKpisClass = `op-related-asset-box-kpis${boxViewMode === 'text' ? ' op-related-asset-box-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-related-asset-box-kpis--indicator' : ''}`;
+  const boxKpisClass = `op-asset-card-kpis${boxViewMode === 'text' ? ' op-asset-card-kpis--text' : ''}${boxViewMode === 'indicator' ? ' op-asset-card-kpis--indicator' : ''}`;
 
   const rangeStart = evidencePoints && evidencePoints.length ? evidencePoints[0].time : null;
   const rangeEnd = evidencePoints && evidencePoints.length ? evidencePoints[evidencePoints.length - 1].time : null;

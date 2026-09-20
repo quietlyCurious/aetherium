@@ -69,7 +69,7 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
     >
       <div
         key={currentTypeId}
-        className="op-related-asset-box op-related-asset-box--center"
+        className="op-asset-card op-asset-card--center"
         ref={el => { cardsFlexTileRefs.current[currentTypeId] = el; }}
       >
         <AssetCard {...thisAssetBoxProps} />
@@ -77,7 +77,7 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
       {visibleRows.map(row => (
         <div
           key={row.key}
-          className="op-related-asset-box"
+          className="op-asset-card"
           data-related-key={row.key}
           ref={el => { cardsFlexTileRefs.current[row.key] = el; }}
         >

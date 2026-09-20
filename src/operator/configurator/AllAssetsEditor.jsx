@@ -108,9 +108,9 @@ export function AllAssetsEditor({ typeList, currentTypeId, hiddenAssetIds, typeD
   }, [hiddenAssetIds, diagramSignature, onSaveTemplate, activeSaveHandlerRef]);
 
   return (
-    <div className="op-dashboard-card op-now-type-kpi-card op-related-assets-preview" onPointerDownCapture={unsavedTracker.noteUserInput} onKeyDownCapture={unsavedTracker.noteUserInput}>
+    <div className="op-dashboard-card op-now-type-kpi-card op-related-assets-editor" onPointerDownCapture={unsavedTracker.noteUserInput} onKeyDownCapture={unsavedTracker.noteUserInput}>
       {showToolbar && (
-      <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+      <div className="op-property-tiles-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Row 1: badge + reset button, anchored left — no slider here (All
             Assets has no density concept, visibility is per-type via the
             Details panel instead), so this row has no right-anchored partner. */}

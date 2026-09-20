@@ -35,8 +35,8 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   switcher hides, since models only drive the Operator side). Active work
   is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept: a thin `src/OperatorWorkspace.jsx` shell plus 46 modules in
-  `src/operator/`. This is where essentially all recent work has
+  concept: a thin `OperatorWorkspace.jsx` shell plus 46 modules and 7
+  stylesheets, all under `src/operator/`. This is where essentially all recent work has
   happened, and is very likely where new work will continue. It was split
   out of one very large file in phases (see `docs/CODE_MAP.html`, the
   full map of how it fits together).
@@ -145,9 +145,9 @@ either mode without extra work.
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
   is wired, the settings chain, the rendering stack, the patterns to know,
   and where each piece lives. Start here when orienting.
-- `src/OperatorWorkspace.jsx` — the shell: loading a model's data, and
-  `OperatorWorkspaceInner`, which owns the shared state and arranges the
-  panels into slots. Everything it renders lives in `src/operator/`.
+- `src/operator/OperatorWorkspace.jsx` — the shell: loading a model's
+  data, and `OperatorWorkspaceInner`, which owns the shared state and
+  arranges the panels into slots. Everything it renders sits beside it.
 - `src/operator/model/` — the active model's data (`modelData.js`: the
   module-level variables and the loader that writes them; nothing else
   assigns them) and read-only questions about it (`assetQueries.js`).
@@ -193,8 +193,8 @@ a **view** lays tiles or cards out (`PropertyTilesView`, `AssetCardsView`,
 `AssetDiagramView`), and an **editor** is a view plus the toolbar and Save
 that change it (`RelatedAssetsEditor`, `AllAssetsEditor`). New components
 should extend that vocabulary rather than inventing a parallel one. CSS
-class names still use the older wording (`op-statkpi-*`,
-`op-related-asset-box`); they get renamed when `App.operator.css` is split.
+class names match, as of phase 5: `op-property-tile-*`,
+`op-property-tiles-*`, `op-asset-card-*`, `op-manual-canvas`.
 
 - `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
   now, kept on purpose for future use. Leave it in place.
@@ -209,8 +209,12 @@ class names still use the older wording (`op-statkpi-*`,
   `ModelAndData/tools/convert_legacy_to_generic.py` converts a legacy
   four-level pack to the generic format.
 - `src/App.css` — title bar and other App.js-level chrome.
-- `src/App.operator.css` — essentially everything Operator/Configurator-
-  specific.
+- `src/operator/styles/` — the Operator/Configurator styling, seven files
+  mirroring the folders above (`base`, `properties`, `canvas`,
+  `relatedAssets`, `configurator`, `operatorViews`, `chrome`). Every rule
+  for a given class lives in exactly one file, and `App.js` loads them in
+  cascade order, base first — so adding a rule means opening the file
+  named after the area, not searching 3,000 lines.
 - `src/*Storage.js` — one small file per localStorage-backed concern,
   each just a `load*`/`save*` pair with a try/catch around
   `JSON.parse`/`stringify`. New persisted state should follow this same

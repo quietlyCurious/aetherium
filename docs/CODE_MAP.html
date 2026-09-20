@@ -269,24 +269,24 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ 74460f8 + refactor phase 4</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ a82ca0d + refactor phase 5</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
-      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 4 done</span> every component lives in <code>src/operator/</code>, in 46 modules, and the duplication the split exposed is now shared code: one manual-layout canvas, one related-asset row builder, one set of diagram settings. Only the CSS split is left.</p>
+      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">refactor complete</span> the Operator/Configurator interface is 47 modules and 7 stylesheets under <code>src/operator/</code>, down from one 9,074-line file and one 3,191-line stylesheet. Class names now match the components they style.</p>
     </header>
 
     <section id="glance">
       <h2>At a glance</h2>
       <p>The app has two halves. The original <strong>page builder</strong> (Screens, Widgets, Theme, Data Sources, Entities, Queries) is spread across about twenty well-sized files. The <strong>Operator / Configurator</strong> interface, where almost all recent work has happened, lives in <code>OperatorWorkspace.jsx</code> plus a new <code>src/operator/</code> folder that the refactor is gradually moving code into.</p>
       <div class="glance" role="list">
-        <div role="listitem"><strong>1,248</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
-        <div role="listitem"><strong>46</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>1,248</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
+        <div role="listitem"><strong>47+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
         <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
         <div role="listitem"><strong>7</strong><span>industry models, data only</span></div>
       </div>
-      <p>Two other files are large: <code>App.operator.css</code> (3,191 lines, all Operator/Configurator styling) and <code>App.js</code> (3,182 lines, mostly the page builder plus the title bar that wraps everything).</p>
+      <p>The Operator styling that was one 3,191-line <code>App.operator.css</code> is now seven stylesheets under <code>operator/styles/</code>, one per area, loaded in cascade order from <code>App.js</code>. The one remaining large file is <code>App.js</code> (3,182 lines, mostly the page builder plus the title bar that wraps everything).</p>
     </section>
 
     <section id="shape">
@@ -724,6 +724,11 @@
           <p class="where">canvas/ManualLayoutCanvas.jsx · canvas/CanvasAlignControls.jsx</p>
         </div>
         <div class="note">
+          <h4>One class, one stylesheet</h4>
+          <p>The stylesheets are split by area, and every rule mentioning a given class lives in exactly one of them — so the cascade between rules for the same class can't depend on which file loads first. <code>App.js</code> loads them in a fixed order, base first.</p>
+          <p class="where">operator/styles/*.css</p>
+        </div>
+        <div class="note">
           <h4>Shared answers, not copied ones</h4>
           <p>Where two surfaces have to agree, the answer has one definition: <code>relatedAssetRows.js</code> decides which related assets show and in what order (the Details grid and the preview beside it read the same list), and <code>useDiagramSettings</code> owns a diagram's settings, so a control added to one diagram editor appears in the other.</p>
           <p class="where">relatedAssets/relatedAssetRows.js · configurator/diagramSettings.jsx</p>
@@ -790,6 +795,13 @@
             <tr><td class="mono">chrome/SidePanel.jsx</td><td class="num">96</td><td>The right panel's container</td></tr>
             <tr><td class="mono">chrome/ContactsPanel.jsx</td><td class="num">121</td><td>The Chat panel and its seed data</td></tr>
             <tr><td class="mono">chrome/AiChatPanel.jsx</td><td class="num">84</td><td>The scripted AI panel</td></tr>
+            <tr><td class="mono">styles/base.css</td><td class="num">457</td><td>The shell frame, panels, dashboard card, buttons, toolbar rows, tier slider, undo toast</td></tr>
+            <tr><td class="mono">styles/properties.css</td><td class="num">659</td><td>The tile in each view mode, and the listing that lays tiles out</td></tr>
+            <tr><td class="mono">styles/canvas.css</td><td class="num">18</td><td>The manual-layout canvas</td></tr>
+            <tr><td class="mono">styles/relatedAssets.css</td><td class="num">42</td><td>The asset card and the two engines that arrange cards</td></tr>
+            <tr><td class="mono">styles/configurator.css</td><td class="num">376</td><td>Tree, preview, Details grids, customization dots and popovers</td></tr>
+            <tr><td class="mono">styles/operatorViews.css</td><td class="num">1,317</td><td>Now strip, issue map, Line Detail, Attention, Investigate, Work</td></tr>
+            <tr><td class="mono">styles/chrome.css</td><td class="num">357</td><td>Rails, side panel, contacts, AI chat</td></tr>
           </tbody>
         </table>
       </div>
@@ -811,7 +823,27 @@
         </table>
       </div>
 
-      <h3>What's left in <span class="mono">src/OperatorWorkspace.jsx</span></h3>
+      <h3>CSS classes renamed in phase 5</h3>
+      <p>The class names now say what the component says. Everything else kept its name.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Now</th><th>Was</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">op-property-tile-*</td><td class="mono" style="opacity:.65">op-statkpi-*</td></tr>
+            <tr><td class="mono">op-property-tiles-*</td><td class="mono" style="opacity:.65">op-hmiprops-*</td></tr>
+            <tr><td class="mono">op-asset-card-*</td><td class="mono" style="opacity:.65">op-related-asset-box-*</td></tr>
+            <tr><td class="mono">op-related-assets-editor</td><td class="mono" style="opacity:.65">op-related-assets-preview</td></tr>
+            <tr><td class="mono">op-manual-canvas</td><td class="mono" style="opacity:.65">op-property-layout-canvas</td></tr>
+            <tr><td class="mono">op-manual-canvas-node</td><td class="mono" style="opacity:.65">op-property-layout-node</td></tr>
+            <tr><td class="mono">op-property-tile-select</td><td class="mono" style="opacity:.65">op-prop-tile-select</td></tr>
+            <tr><td class="mono">op-property-visual-select</td><td class="mono" style="opacity:.65">op-prop-visual-select</td></tr>
+            <tr><td class="mono">op-property-name-cell</td><td class="mono" style="opacity:.65">op-prop-name-cell</td></tr>
+            <tr><td class="mono">op-asset-card-gear</td><td class="mono" style="opacity:.65">op-asset-box-gear</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The shell: <span class="mono">operator/OperatorWorkspace.jsx</span></h3>
       <p>1,248 lines, all of it the shell.</p>
       <div class="table-wrap">
         <table>
@@ -833,7 +865,7 @@
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
             <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also all of the page builder's state and canvas.</td></tr>
-            <tr><td class="mono">App.operator.css</td><td>Everything Operator/Configurator-specific, in rough feature order.</td></tr>
+            <tr><td class="mono">operator/styles/*.css</td><td>Seven stylesheets, one per area of <span class="mono">src/operator/</span>. Every rule for a given class lives in exactly one of them.</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
             <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
             <tr><td class="mono">unsavedChangesStore.js</td><td>The unsaved-changes store and <span class="mono">useUnsavedTracker</span>.</td></tr>
@@ -870,12 +902,12 @@
             <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip now">done</span></td></tr>
             <tr><td>3</td><td>Configurator panels, Operator views and chrome; one consistent naming vocabulary throughout</td><td><span class="chip now">done</span></td></tr>
             <tr><td>4</td><td>Consolidation: one manual-layout canvas, one related-asset row builder, one set of diagram settings and one align/distribute toolbar</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way, renaming the class names to match the components</td><td><span class="chip flag">next</span></td></tr>
+            <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; <span class="mono">App.operator.css</span> split the same way, with class names renamed to match the components</td><td><span class="chip now">done</span></td></tr>
           </tbody>
         </table>
       </div>
-      <pre class="tree"><span class="c">src/operator/                      target layout</span>
-  OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      (phase 5)</span>
+      <pre class="tree"><span class="c">src/operator/                      as built</span>
+  OperatorWorkspace.jsx          <span class="c">shell: loader + OperatorWorkspaceInner      ✓</span>
   model/                         <span class="c">modelData, assetQueries                    ✓</span>
   settings/                      <span class="c">propertyDisplay, displayOrder,
                                  customizations, layoutOptions              ✓</span>
@@ -883,13 +915,15 @@
   properties/                    <span class="c">PropertyTile, sparklines, PropertyTilesView,
                                  PropertyTileCanvas                         ✓</span>
   relatedAssets/                 <span class="c">AssetCard, AssetCardsView, AssetDiagramView,
-                                 ELK, canvas, read-only views               ✓</span>
+                                 ELK, card canvas, row builder, read-only   ✓</span>
   canvas/                        <span class="c">ManualLayoutCanvas, align controls, geometry ✓</span>
-  configurator/                  <span class="c">tree, preview, the three editors, Details   ✓</span>
+  configurator/                  <span class="c">tree, preview, editors, Details, diagram
+                                 settings, customization controls           ✓</span>
   operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip,
                                  issue map, Assets, status vocabulary       ✓</span>
   chrome/                        <span class="c">rails, side panel, contacts, AI chat        ✓</span>
-  *.css                          <span class="c">App.operator.css split the same way         (phase 5)</span></pre>
+  styles/                        <span class="c">base, properties, canvas, relatedAssets,
+                                 configurator, operatorViews, chrome        ✓</span></pre>
     </section>
   </main>
 </div>

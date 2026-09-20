@@ -1,0 +1,42 @@
+/* operator/styles/relatedAssets.css
+   The asset card and the two engines that arrange cards — the flex Cards
+   view and the React Flow diagram.
+   Components: operator/relatedAssets/. */
+
+/* Reserves room so a long title's own text never runs under the
+   absolutely-positioned gear button sitting in the box's corner. */
+.op-property-tiles-card-title--with-gear {
+  padding-right: 22px;
+}
+
+/* Operator Assets area only — jumps to Visualization's Properties tab
+   for this box's own asset type. Subtle by design (light grey, no
+   border or background until hover) since it's a secondary action next
+   to the box's own content, not competing with it for attention. */
+.op-asset-card-gear {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: #bbb;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.op-asset-card-gear:hover {
+  background: #f0f0f0;
+  color: #777;
+}
+
+.op-asset-card-kpis {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}

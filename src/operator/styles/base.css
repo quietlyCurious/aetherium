@@ -1,0 +1,457 @@
+/* operator/styles/base.css
+   The Operator/Configurator shell and the pieces shared across every area:
+   the workspace frame, panels and zone labels, the dashboard card, buttons,
+   the toolbar rows, the tier slider and the undo toast.
+
+   Load order matters and is fixed in App.js: base first, then each area.
+   A class's rules all live in one file, so nothing here is overridden from
+   another stylesheet by accident. */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   App.operator.css  —  Operator Interface concept shell
+   Now / Attention / Investigate / Work layout. Mirrors the visual language
+   of App.data.css (badges, greys, #0078d4 accent) so it reads as part of
+   the same app rather than a bolted-on mockup.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.op-workspace {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f9f9f9;
+  overflow: hidden;
+}
+
+.op-workspace-loading {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #999;
+  background: #f9f9f9;
+}
+
+.op-workspace-loading--error {
+  color: #b91c3c;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.op-workspace-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ebebeb;
+  background: #fff;
+}
+
+.op-workspace-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.op-workspace-badge {
+  font-size: 11px;
+  color: #0055aa;
+  background: #e8f2ff;
+  border: 1px solid #b3d0ff;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.op-zone-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #999;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+  flex-shrink: 0;
+  /* Hidden per request (Now/Attention/Investigate/Work headers) — remove
+     this line to bring all four back at once, since they share this class. */
+  display: none;
+}
+
+.op-ai-pill {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #6a3fd6;
+  background: #f0ebfd;
+  border: 1px solid #d9c9fb;
+  border-radius: 8px;
+  padding: 1px 5px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* ── Now strip ────────────────────────────────────────────────────────────── */
+/* Deliberately dark — distinguishes the always-visible operational picture
+   from the working area below, and echoes the app's own dark titlebar. */
+
+.op-now-strip {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: 12px 16px 10px;
+  background: #1a1e26;
+}
+
+.op-now-strip .op-zone-label {
+  color: #7d8494;
+}
+
+/* ── Now section wrapper ──────────────────────────────────────────────────── */
+
+/* Temporarily hidden per request — confirmed the rest of the layout has
+   comfortable room without it. Design for this section (including its
+   own pulltab/issue-map overlay) is still to be decided later, so this
+   is a deliberate override to switch it back on, not a removal. */
+.op-now-section {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+}
+
+/* ── Issue map — one rigid sliding element, tab included. The tab is simply
+   the bottom 20px of this same box (position:absolute; bottom:0 within
+   it), not a separately-tracked control. Collapsed, the whole box is
+   translated up by its own height minus 20px, so only that bottom strip
+   (the tab) still pokes out below the Now strip — the rest is tucked up
+   behind the strip itself (Now strip has the higher z-index, so it visibly
+   covers that overlap). Expanding slides the whole rigid box down to
+   translateY(0), carrying the tab down to the new true bottom with it —
+   like pulling a page out from under the one on top, not growing a box. */
+
+/* With the Now strip visible again, the collapsed overlay (translated up by
+   its own height) reaches past the strip into the title bar area. The
+   title bar has to sit above it, or the tucked-away map covers the title. */
+.app-titlebar {
+  position: relative;
+  z-index: 10;
+}
+
+.op-property-tiles-card-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.op-property-tiles-card-title--clickable {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.op-property-tiles-card-title--clickable:hover {
+  color: #4a90d9;
+  text-decoration: underline;
+}
+
+/* ── Lower row: Attention / Investigate / Work ───────────────────────────── */
+
+.op-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.op-now-tree-panel {
+  background: #fff;
+}
+
+/* Matches the Configurator's own type table's selected-row blue
+   (#ebf3fc, DevExtreme's DataGrid selection color) rather than
+   TreeView's own default grey selected-state, so a selected asset here
+   reads the same way a selected type does there. Scoped to this specific
+   tree (not TreeView generally) since Visualization's own All Assets
+   visibility tree also uses TreeView, for an unrelated purpose (toggling
+   visibility, not navigating), and keeping its own default grey avoids
+   implying the two trees mean the same thing. */
+/* !important is necessary here, not just defensive — App.css has a
+   pre-existing, global, unscoped rule (.dx-treeview-item.dx-state-selected
+   { background-color: transparent !important; }, from an unrelated
+   data-source-selection TreeView elsewhere in the page builder) that
+   blanket-suppresses every TreeView's background state app-wide,
+   including this one. Without matching !important here, this override
+   could never win regardless of how specific its own selector is. */
+.op-operator-asset-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item,
+.op-now-tree-panel .dx-treeview-item-without-checkbox.dx-state-selected > .dx-treeview-item {
+  /* Same as the Types table's selected row (App.data.css,
+     .data-list-grid .dx-selection): light blue fill plus a 3px accent bar
+     on the left edge. The Configurator's Now tree was missing from this
+     rule entirely (only the Operator tree had it), so a selected asset
+     there showed no highlight at all. */
+  background-color: #e3eaf6 !important;
+  box-shadow: inset 3px 0 0 #0078d4;
+  color: #242424;
+}
+
+.op-now-tree-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Overrides the shared .left-panel-tab-content padding (used by many other
+   workspaces — Data Sources, Queries, etc.) specifically for the Now area's
+   Types/Assets tab content, so the types table lines up with the properties
+   table in the center pane. Scoped narrowly rather than changing the shared
+   rule itself. */
+.op-now-tree-tab-content {
+  padding: 0;
+}
+
+.op-now-detail-empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.op-now-detail-placeholder-note {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.op-manual-canvas-node {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+/* The dot-pattern background's own <rect> spans the entire canvas, and
+   React Flow renders it after the node layer in the DOM — with both at
+   z-index:auto, plain DOM order stacks it on top for hit-testing
+   purposes, even though it's invisible there in practice (nodes' own
+   opaque backgrounds cover the dots wherever they overlap). The result:
+   clicks and hover on anything inside a node — the gear icon, the
+   clickable title — silently landed on the background instead and did
+   nothing. The background is purely decorative and never needs to
+   receive pointer events itself, so disabling them here lets clicks
+   fall through to whatever's actually underneath. Applied to every
+   React Flow canvas in the app, not just the read-only ones, since a
+   decorative background never legitimately needs pointer events
+   regardless of context.
+*/
+.react-flow__background {
+  pointer-events: none;
+}
+
+.op-investigate-panel {
+  background: #f9f9f9;
+}
+
+/* ── Nav rail (Gmail-style collapsible) ──────────────────────────────────── */
+
+.op-main-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.op-dashboard-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  overflow: hidden;
+}
+
+.op-property-tiles-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Fixed per-row heights for the multi-row toolbars (properties template,
+   related assets, all assets) — min-height (not height) so a row never
+   collapses shorter than its tallest possible content, but can still grow
+   in a genuinely cramped/wrapped case rather than clipping. Reused as the
+   exact same value for the same row position across all three toolbars,
+   so row 1 always matches row 1 elsewhere, row 2 always matches row 2,
+   etc., regardless of which controls happen to be showing in that view
+   right now. Row 1 and row 3 can contain a slider-with-label
+   (padding: 4px top + 20px bottom + track + label), which is taller than
+   a plain button row, hence the taller value shared between them; row 2
+   is button-groups only. */
+.op-toolbar-row-1,
+.op-toolbar-row-3 {
+  min-height: 48px;
+}
+.op-toolbar-row-2 {
+  min-height: 34px;
+}
+
+.op-dash-chart-toggle {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* Always/Sometimes/All slider, replacing the button-group version in
+   type-properties mode. Needs headroom above (tooltip showing the current
+   state) and below (Always/All end labels) beyond the slider track itself,
+   plus enough horizontal room to actually be draggable. No tooltip above
+   the handle (removed to keep the control's height down), so only the
+   Always/All end labels below need headroom, not space above too. Also
+   set inline on the element itself in OperatorWorkspace.jsx as a
+   belt-and-suspenders measure so it can't collapse if this stylesheet
+   fails to load. */
+.op-tierfilter-slider-wrap {
+  flex-shrink: 0;
+  width: 220px;
+  padding: 4px 8px 20px;
+  box-sizing: border-box;
+}
+
+.op-tierfilter-slider {
+  width: 100%;
+}
+
+.op-icon-btn-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.op-dash-text {
+  font-size: 12px;
+  color: #444;
+  line-height: 1.4;
+}
+
+.op-dash-text--muted {
+  color: #999;
+  font-style: italic;
+}
+
+.op-dash-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.op-dash-subsection-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.op-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 13px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.op-btn--primary {
+  background: #0078d4;
+  color: #fff;
+  border-color: #0078d4;
+}
+
+.op-btn--primary:hover {
+  background: #0063b1;
+}
+
+.op-btn--secondary {
+  background: #fff;
+  color: #444;
+  border-color: #d5d5d5;
+}
+
+.op-btn--secondary:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
+.op-property-tile-select--selected,
+.op-property-tile-select--selected:hover {
+  outline-color: #0078d4;
+}
+
+/* Same highlight on the manual canvas's node (border already exists
+   there, so just recolor it plus a matching ring). */
+.op-manual-canvas-node.op-property-tile-select--selected {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+
+/* Revert's Undo toast — bottom-center, dark so it reads as transient
+   feedback rather than part of the page. Timed out by OperatorWorkspace
+   (UNDO_TOAST_MS). */
+.op-undo-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 6px;
+  background: #2b2f36;
+  color: #fff;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  animation: op-undo-toast-in 0.15s ease-out;
+}
+
+@keyframes op-undo-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.op-undo-toast-action {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  color: #6cb8f6;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.op-undo-toast-action:hover {
+  text-decoration: underline;
+}
+
+.op-undo-toast-close {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: #aab0ba;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.op-undo-toast-close:hover {
+  color: #fff;
+}

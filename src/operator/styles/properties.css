@@ -1,0 +1,659 @@
+/* operator/styles/properties.css
+   Property rendering: the tile itself in each of its view modes
+   (text / indicator / spark / all), and the listing that lays tiles out —
+   its toolbar, groups and single-box layouts.
+   Components: operator/properties/. */
+
+.op-property-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.op-property-tiles .op-property-tile--row,
+.op-property-tiles-singlebox .op-property-tile--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.op-property-tile-vtrack {
+  position: relative;
+  width: 8px;
+  align-self: stretch;
+  height: 60px;
+  background: #3a4152;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.op-property-tile-vtrack-observed {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: #5b6479;
+  border-radius: 2px;
+}
+
+.op-property-tile-vtrack-marker {
+  position: absolute;
+  right: 100%;
+  margin-right: 2px;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid #60a5fa;
+  transform: translateY(50%);
+}
+
+.op-property-tile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 110px;
+  height: 36px;
+  min-width: 0;
+  flex-shrink: 0;
+  overflow-wrap: break-word;
+}
+
+.op-property-tiles .op-property-tile-vtrack,
+.op-property-tiles-singlebox .op-property-tile-vtrack {
+  background: #e5e5e5;
+}
+
+.op-property-tiles .op-property-tile-vtrack-observed,
+.op-property-tiles-singlebox .op-property-tile-vtrack-observed {
+  background: #b8c2d9;
+}
+
+.op-property-tiles .op-property-tile-vtrack-marker,
+.op-property-tiles-singlebox .op-property-tile-vtrack-marker {
+  border-left-color: #0078d4;
+}
+
+.op-property-tile-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e4e6eb;
+  white-space: nowrap;
+}
+
+/* Display unit after a value — generic packs only (legacy packs have no
+   unit metadata, so this never renders for them). Inherits the value's
+   color so it follows whatever theme/override the value itself gets. */
+.op-property-tile-unit {
+  margin-left: 3px;
+  font-size: 0.72em;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.op-property-tile-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: #3a4152;
+  border-radius: 2px;
+  margin: 9px 0 2px;
+}
+
+.op-property-tile-track-observed {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #5b6479;
+  border-radius: 2px;
+}
+
+.op-property-tile-track-marker {
+  position: absolute;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid #60a5fa;
+  transform: translateX(-50%);
+}
+
+.op-property-tile-track-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: #737a89;
+  margin-bottom: 2px;
+}
+
+.op-property-tile-spark {
+  margin: 2px 0;
+  flex-shrink: 0;
+  height: 60px;
+  width: 120px;
+}
+
+.op-property-tile--row .op-property-tile-spark {
+  min-width: 0;
+  height: 60px;
+  margin: 0;
+}
+
+.op-property-tile-spark-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.op-property-tile-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #9096a3;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.op-property-tiles-wrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Type-properties mode gets a real, bounded height/width cascading all the
+   way down to .op-property-tiles-kpis, applied the same way regardless of which
+   flowDirection/flowWrap combination is selected. This lets general
+   flexbox rules (flex-direction, flex-wrap) determine the actual layout
+   from real available space, rather than needing separate handling per
+   combination. Scoped to type-properties mode specifically — Box/Space
+   mode's own card-based layout is a different context and is untouched. */
+.op-property-tiles-wrap--typeflow {
+  height: 100%;
+}
+
+.op-property-tiles-singlebox--typeflow {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.op-property-tiles-singlebox--typeflow .op-property-tiles-kpis--typeflow {
+  height: 100%;
+  width: 100%;
+}
+
+.op-property-tile--text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 4px;
+  padding-right: 10px;
+  width: 120px;
+  height: 60px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.op-property-tile--indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 4px;
+  min-height: 60px;
+  box-sizing: border-box;
+}
+
+.op-property-tile--indicator .op-property-tile-vtrack {
+  align-self: center;
+}
+
+.op-property-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+  flex-shrink: 0;
+  align-items: start;
+}
+
+.op-property-tiles-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 8px 10px;
+}
+
+.op-property-tiles-singlebox {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  margin-top: 14px;
+}
+
+/* Used for the Operator Assets area's Properties tab, where the box
+   wraps a single asset's real values under its type's saved manual
+   layout. A plain block element's default width is "fill parent," never
+   "grow to fit content" — so without this, the visible border/background
+   stays at the parent's width while the manually-positioned tiles inside
+   (which render at whatever x/y the type's own display template saved,
+   originally captured on Visualization's full-size, pannable layout
+   canvas — not a compact card) spill out past it, since nothing here
+   clips them either. width:fit-content lets the box grow to match; the
+   outer panel's own overflow:auto (see .op-now-type-detail-main above)
+   provides scrolling if that ends up wider than the viewport.
+   min-width:100% keeps it filling the available width same as before
+   when the content doesn't need the extra room. */
+.op-property-tiles-singlebox--manual {
+  width: fit-content;
+  min-width: 100%;
+}
+
+.op-property-tiles-kpis--flowrow {
+  overflow-x: auto;
+}
+
+.op-property-tiles-singlebox .op-property-tiles {
+  margin-top: 0; /* the box itself already carries the margin-top, avoid doubling it */
+}
+
+.op-property-tiles-card--noborder {
+  border: none;
+  border-radius: 0;
+}
+
+.op-property-tiles-card--noborder:not(:first-child) {
+  border-left: 1px solid #e5e5e5;
+  padding-left: 14px;
+}
+
+.op-property-tiles-kpis {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.op-property-tiles--text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.op-property-tiles--text .op-property-tiles-card {
+  flex: 0 0 auto;
+  min-width: 150px;
+}
+
+.op-property-tiles--indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.op-property-tiles--indicator .op-property-tiles-card {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 300px; /* 4 fixed-60px indicator tiles + gaps + padding — a 5th wraps to a new row within the card */
+  min-width: 150px;
+}
+
+.op-property-tiles-kpis--text {
+  flex-direction: column;
+  flex-wrap: wrap;
+  height: 124px; /* exactly two rows worth of items + gap — a third wraps to a new column */
+  gap: 8px;
+}
+
+.op-property-tiles-kpis--indicator {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.op-property-tiles .op-property-tiles-kpis--indicator .op-property-tile--indicator,
+.op-property-tiles-singlebox .op-property-tiles-kpis--indicator .op-property-tile--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.op-property-tiles .op-property-tiles-kpis--indicator .op-property-tile-label,
+.op-property-tiles-singlebox .op-property-tiles-kpis--indicator .op-property-tile-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
+}
+
+.op-property-tiles .op-property-tile,
+.op-property-tiles-singlebox .op-property-tile {
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.op-property-tiles .op-property-tile-label,
+.op-property-tiles-singlebox .op-property-tile-label {
+  text-align: left;
+  font-size: 10px;
+}
+
+/* PropertyTile was built for the dark Now/Line-Detail pulldown — the value
+   color needs to flip for legibility here, since the Investigate card
+   this renders in (and the type-properties singlebox layout) is
+   light-themed. */
+.op-property-tiles .op-property-tile-value,
+.op-property-tiles-singlebox .op-property-tile-value {
+  color: #222;
+}
+
+.op-property-tiles .op-property-tile-track,
+.op-property-tiles-singlebox .op-property-tile-track {
+  background: #e5e5e5;
+}
+
+.op-property-tiles .op-property-tile-track-observed,
+.op-property-tiles-singlebox .op-property-tile-track-observed {
+  background: #b8c2d9;
+}
+
+.op-property-tiles .op-property-tile-track-marker,
+.op-property-tiles-singlebox .op-property-tile-track-marker {
+  border-top-color: #0078d4;
+}
+
+.op-property-tiles .op-property-tile-track-labels,
+.op-property-tiles-singlebox .op-property-tile-track-labels {
+  color: #999;
+}
+
+.op-related-assets-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* The Operator-only Assets area's center panel (Properties/Related
+   Assets/All Assets) — same flex-column-with-a-definite-height shape as
+   .op-related-assets-editor above, for the same reason: whichever tab is
+   showing may itself rely on flex:1/min-height:0 to fill available space
+   (the Diagram view's React Flow canvas most critically — without an
+   actual flex-column ancestor, flex:1 there is a no-op and the canvas
+   collapses to its own 1px border, rendering as a bare thin grey line). */
+.op-now-type-detail-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px;
+}
+
+/* flex-direction/flex-wrap/align-content set inline from RelatedAssetsEditor's
+   own row/column, wrap, and cluster/distribute controls — same mechanism as
+   .op-property-tiles-kpis--typeflow uses for individual property tiles, just one
+   level up (boxes instead of tiles). */
+.op-related-assets-box-flow {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* React Flow fills 100% of its parent, so this needs an explicit size —
+   matches .op-related-assets-box-flow's own flex:1/min-height:0 pattern
+   so both views fit the same flex-column parent (.op-related-assets-editor)
+   the same way. height:0 alongside flex:1 (rather than flex:1 alone) is
+   deliberate: React Flow measures its container via getBoundingClientRect
+   on mount, and a bare flex-grow value is something the browser resolves
+   iteratively as it lays out the whole flex chain, so React Flow's own
+   measurement can end up racing that resolution and locking onto 0 in some
+   real-world timing conditions, even though the flex chain does correctly
+   settle to a real height moments later — the classic "React Flow renders
+   as a 1px sliver" failure mode. height:0 gives the browser an unambiguous
+   starting box immediately, before flex-grow distributes the remaining
+   space into it, removing that race rather than just narrowing it. */
+.op-related-assets-diagram {
+  margin-top: 14px;
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+
+.op-related-assets-diagram .react-flow__node {
+  font-size: 12px;
+  border-radius: 3px;
+}
+
+/* Without a width cap, a box with several "always"-visible properties and
+   flowWrap: wrap has nothing to actually wrap against — flex-wrap just
+   keeps extending in one direction instead of stacking into rows. This
+   caps diagram nodes at roughly two text-tiles wide so wrap does its job,
+   producing compact, boxier nodes instead of long strips. Scoped to the
+   diagram specifically — the Cards view's own boxes are unaffected. */
+.op-related-assets-diagram .op-asset-card {
+  max-width: 280px;
+}
+
+/* A type's own properties can be in manual layout mode independent of
+   this diagram's own layout — the 280px cap above exists to keep *flex*
+   content from spreading unbounded, but a manually-positioned type's
+   content is the user's own deliberate arrangement and needs to be able
+   to grow past that, not clip or overflow it. */
+.op-related-assets-diagram .op-asset-card--manual {
+  max-width: none;
+}
+
+/* Light grey canvas, replacing the default white — Background's own
+   color prop only tints the dot pattern, not the canvas itself, so this
+   needs to be set separately. */
+.op-related-assets-diagram .react-flow {
+  background: #e8e8e8;
+}
+
+/* The Operator Assets area specifically (op-operator-asset-detail is
+   that component's own class, added precisely so this rule can't also
+   match NowAssetDetail — Visualization's equivalent panel — which shares
+   the same op-investigate-panel base class) wants this canvas a shade
+   lighter, matching the #f9f9f9 background used elsewhere in the app
+   rather than the darker #e8e8e8 set above for the shared base case.
+   Scoped rather than changing the base rule itself, since that rule also
+   covers Visualization's own Related Assets/All Assets diagrams, which
+   weren't part of this request. */
+.op-operator-asset-detail .op-related-assets-diagram .react-flow {
+  background: #f9f9f9;
+}
+
+/* Default edges are a light #b1b1b7 — barely visible against a grey
+   canvas. Darker so relationships read clearly at a glance. Width is
+   controllable via the diagram toolbar (applied through defaultEdgeOptions
+   in AssetDiagramViewInner), not hardcoded here. */
+.op-related-assets-diagram .react-flow__edge-path {
+  stroke: #5a5a5a;
+}
+
+.op-asset-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 10px 12px;
+  flex-shrink: 0;
+}
+
+/* The asset the whole Related Assets view is about (Diagram's own center
+   node, or Cards' now-always-included first tile) — not one of the
+   related assets themselves — shows its own properties identically to
+   the others, so this border is the only remaining way to tell it apart. */
+.op-asset-card--center {
+  border-color: #0078d4;
+  border-width: 2px;
+}
+
+.op-asset-card-kpis--indicator {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.op-asset-card-kpis--indicator .op-property-tile--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.op-asset-card-kpis--indicator .op-property-tile-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
+}
+
+/* PropertyTile's base styling (color: #e4e6eb text, #3a4152 track background)
+   was built for the dark Now/Line-Detail pulldown — .op-property-tiles and
+   .op-property-tiles-singlebox already flip these for their own light-themed
+   contexts (see the comment above their versions of these rules); these
+   boxes need the identical flip, since they render the same PropertyTile
+   component but aren't nested inside either of those wrappers. Mirrors
+   those rules' values rather than sharing the selector, since this box
+   has its own border/padding/margin that .op-property-tiles-singlebox would
+   otherwise also carry in. */
+.op-asset-card .op-property-tile--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.op-asset-card .op-property-tile {
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.op-asset-card .op-property-tile-label {
+  text-align: left;
+  font-size: 10px;
+}
+
+.op-asset-card .op-property-tile-value {
+  color: #222;
+}
+
+.op-asset-card .op-property-tile-vtrack {
+  background: #e5e5e5;
+}
+
+.op-asset-card .op-property-tile-vtrack-observed {
+  background: #b8c2d9;
+}
+
+.op-asset-card .op-property-tile-vtrack-marker {
+  border-left-color: #0078d4;
+}
+
+.op-asset-card .op-property-tile-track {
+  background: #e5e5e5;
+}
+
+.op-asset-card .op-property-tile-track-observed {
+  background: #b8c2d9;
+}
+
+.op-asset-card .op-property-tile-track-marker {
+  border-top-color: #0078d4;
+}
+
+.op-asset-card .op-property-tile-track-labels {
+  color: #999;
+}
+
+/* Now a flex-row child of .split (width divided by flex-grow, 3 vs 1),
+   so height:100% against .split's own definite height is what gives the
+   Diagram mode's React Flow canvas an unambiguous box to measure against
+   on mount — the flex-column height:0 trick .op-now-type-detail-main
+   uses doesn't apply here since the main axis is horizontal, not
+   vertical. No horizontal padding, so content lines up flush with the
+   toggle above rather than being indented relative to it. */
+.op-investigate-relatedassets-body {
+  display: flex;
+  flex-direction: column;
+  flex: 3;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ── Per-property visuals ─────────────────────────────────────────────
+   Indicator tiles used to get their fixed 60px width only from their
+   container's --indicator class, which only exists when EVERY tile is an
+   indicator. With per-property visuals one box can mix an indicator tile
+   in among text or spark tiles, so the sizing now keys off the tile's own
+   class instead (extra .op-property-tile for specificity over the generic
+   .op-property-tiles-singlebox .op-property-tile align-items rule). Identical values
+   to the container-scoped rules, so all-indicator boxes look the same. */
+.op-property-tiles .op-property-tile.op-property-tile--indicator,
+.op-property-tiles-singlebox .op-property-tile.op-property-tile--indicator {
+  width: 60px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+/* Asset boxes: width only — there, the generic .op-asset-card
+   .op-property-tile { align-items: flex-start } has always won over the
+   container-scoped center (same specificity, later in the file), so
+   matching that keeps existing boxes pixel-identical. */
+.op-asset-card .op-property-tile.op-property-tile--indicator {
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.op-property-tiles .op-property-tile--indicator .op-property-tile-label,
+.op-property-tiles-singlebox .op-property-tile--indicator .op-property-tile-label {
+  max-width: 60px;
+  text-align: center;
+  white-space: normal;
+}
+
+/* No text-align here on purpose — inside asset boxes, the later
+   .op-asset-card .op-property-tile-label rule's left alignment has
+   always won over the container-scoped center, so this keeps that. */
+.op-asset-card .op-property-tile--indicator .op-property-tile-label {
+  max-width: 60px;
+  white-space: normal;
+}
+
+/* Clickable tile wrapper in the Configurator preview — clicking selects
+   the property's row in the Details panel. Outline rather than border so
+   selecting never shifts the layout by a pixel. */
+.op-property-tile-select {
+  /* Hug the tile rather than stretch to the tallest tile in its flex
+     line — with mixed visuals (a tall indicator beside a short text
+     tile) the selection outline would otherwise be much larger than the
+     tile it marks. No visible effect on the tiles themselves. */
+  align-self: flex-start;
+  cursor: pointer;
+  border-radius: 3px;
+  outline: 2px solid transparent;
+  outline-offset: -2px; /* inside the tile — the flex container clips anything outside it */
+  transition: outline-color 0.12s;
+}
+
+.op-property-tile-select:hover {
+  outline-color: #c7e0f4;
+}
+
+/* Related Assets preview: boxes are clickable to select their row in the
+   Details panel (the selected box's highlight is generated inline by
+   RelatedAssetsEditor). */
+.op-related-assets-editor--selectable .op-asset-card:not(.op-asset-card--center) {
+  cursor: pointer;
+}

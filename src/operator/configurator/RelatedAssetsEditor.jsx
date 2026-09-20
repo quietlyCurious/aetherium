@@ -152,10 +152,10 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   const selectedRow = selectedRelatedKey ? relatedAssetRows.find(r => r.key === selectedRelatedKey) : null;
   const attr = value => JSON.stringify(String(value));
   const selectedBoxSelectors = selectedRow ? (layoutMode === 'diagram'
-    ? [`.op-related-assets-preview .react-flow__node[data-id=${attr(selectedRow.relatedTypeId)}] > .op-related-asset-box`]
+    ? [`.op-related-assets-editor .react-flow__node[data-id=${attr(selectedRow.relatedTypeId)}] > .op-asset-card`]
     : [
-      `.op-related-assets-preview .op-related-asset-box[data-related-key=${attr(selectedRow.key)}]`,
-      `.op-related-assets-preview .react-flow__node[data-id=${attr(selectedRow.key)}] > .op-related-asset-box`,
+      `.op-related-assets-editor .op-asset-card[data-related-key=${attr(selectedRow.key)}]`,
+      `.op-related-assets-editor .react-flow__node[data-id=${attr(selectedRow.key)}] > .op-asset-card`,
     ]) : [];
 
   // Selecting a row scrolls its box into view (flex cards only — the
@@ -164,7 +164,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   useEffect(() => {
     if (!selectedRow || layoutMode === 'diagram' || cardsLayoutMode === 'manual') return;
     previewRootRef.current
-      ?.querySelector(`.op-related-asset-box[data-related-key=${attr(selectedRow.key)}]`)
+      ?.querySelector(`.op-asset-card[data-related-key=${attr(selectedRow.key)}]`)
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRelatedKey]);
@@ -179,10 +179,10 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
     if (!onSelectRelated) return;
     const start = pointerDownAtRef.current;
     if (start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 4) return;
-    if (e.target.closest?.('.op-hmiprops-card-title--clickable, button, .op-hmiprops-toolbar')) return;
-    const box = e.target.closest?.('.op-related-asset-box');
+    if (e.target.closest?.('.op-property-tiles-card-title--clickable, button, .op-property-tiles-toolbar')) return;
+    const box = e.target.closest?.('.op-asset-card');
     if (!box) return;
-    if (box.classList.contains('op-related-asset-box--center')) { onSelectRelated(null); return; }
+    if (box.classList.contains('op-asset-card--center')) { onSelectRelated(null); return; }
     const flexKey = box.getAttribute('data-related-key');
     const nodeId = box.closest('.react-flow__node')?.getAttribute('data-id');
     const row = flexKey
@@ -194,7 +194,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   return (
     <div
       ref={previewRootRef}
-      className={`op-related-assets-preview${onSelectRelated ? ' op-related-assets-preview--selectable' : ''}`}
+      className={`op-related-assets-editor${onSelectRelated ? ' op-related-assets-editor--selectable' : ''}`}
       onPointerDownCapture={e => { unsavedTracker.noteUserInput(); handleBoxPointerDown(e); }}
       onKeyDownCapture={unsavedTracker.noteUserInput}
       onClick={handleBoxClick}
@@ -203,7 +203,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
         <style>{`${selectedBoxSelectors.join(',\n')} { border-color: #0078d4; box-shadow: 0 0 0 2px #0078d4; }`}</style>
       )}
       {showToolbar && (
-      <div className="op-hmiprops-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+      <div className="op-property-tiles-toolbar" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         {/* Row 1: unified badge + reset/switch anchored left (switch button
             always present in flex/auto, reset button always present in
             manual — diagram's own switch button is new here: manual mode
