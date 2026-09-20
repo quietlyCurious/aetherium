@@ -1,9 +1,9 @@
 // operator/relatedAssets/AssetCardsView.jsx
 // The Cards view of related assets: the asset's own box first, then one
 // box per visible related asset, either flex-wrapped (auto) or on
-// CardsLayoutCanvas (manual).
+// AssetCardCanvas (manual).
 
-import { CardsLayoutCanvas } from './CardsLayoutCanvas';
+import { AssetCardCanvas } from './AssetCardCanvas';
 import { AssetCard } from './AssetCard';
 
 // Cards — the actual view: a plain flex-wrapped grid of related-asset
@@ -34,7 +34,7 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
   if (cardsLayoutMode === 'manual') {
     return (
       <div className="op-related-assets-diagram">
-        <CardsLayoutCanvas
+        <AssetCardCanvas
           ref={cardsLayoutCanvasRef}
           readOnly={readOnly}
           tiles={[

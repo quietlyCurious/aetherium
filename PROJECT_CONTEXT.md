@@ -35,7 +35,7 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   switcher hides, since models only drive the Operator side). Active work
   is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept: a thin `src/OperatorWorkspace.jsx` shell plus 42 modules in
+  concept: a thin `src/OperatorWorkspace.jsx` shell plus 46 modules in
   `src/operator/`. This is where essentially all recent work has
   happened, and is very likely where new work will continue. It was split
   out of one very large file in phases (see `docs/CODE_MAP.html`, the
@@ -158,16 +158,22 @@ either mode without extra work.
   (`layoutOptions.js`).
 - `src/operator/properties/` — `PropertyTile` and the sparklines (every
   property tile in the app), the property listing (`PropertyTilesView`)
-  and its manual-layout canvas.
+  and `PropertyTileCanvas`, its manual-layout mode.
 - `src/operator/relatedAssets/` — `AssetCard` (the fallback resolution
-  point above), the Cards and Diagram engines, the Cards manual canvas,
-  ELK auto-layout, and the read-only views.
-- `src/operator/canvas/canvasGeometry.js` — node bounds, floating-edge
-  geometry, align/distribute; shared by all three React Flow canvases.
+  point above), the Cards and Diagram engines, `AssetCardCanvas`, ELK
+  auto-layout, the read-only views, and `relatedAssetRows.js` (which
+  related assets an entity shows, in what order — one definition, read
+  by the Details grid, the editor preview and the read-only view).
+- `src/operator/canvas/` — `ManualLayoutCanvas`, the single canvas behind
+  every manual layout (property tiles, asset cards, both diagrams);
+  `CanvasAlignControls`, the align/distribute/arrange toolbar groups; and
+  `canvasGeometry.js`, the node-bounds and floating-edge maths.
 - `src/operator/configurator/` — the Configurator's own panels: the tree,
   the centre preview, the three editors (`PropertyTilesView` is the
   Properties one, plus `RelatedAssetsEditor` and `AllAssetsEditor`), the
-  Details grids and the customization controls.
+  Details grids, the customization controls, and `diagramSettings.jsx`
+  (`useDiagramSettings` plus the diagram toolbar controls, shared by both
+  diagram editors — add a diagram control there and both get it).
 - `src/operator/operatorViews/` — the Operator's own views: NowStrip, the
   issue map, Line Detail, Attention, Investigate and its evidence
   widgets, Work, task detail, the Assets area, and `statusVocabulary.js`
@@ -176,6 +182,10 @@ either mode without extra work.
   the AI chat panel.
 - `src/operator/icons.jsx` — every inline-SVG icon; `badges.jsx` — the
   `AiPill` marker.
+
+When something needs doing in two places, prefer extending the shared
+piece over copying it: the canvas, the row builder and the diagram
+settings above all exist because the copies had started to drift.
 
 Naming vocabulary, applied throughout as of phase 3: a **tile** is one
 property (`PropertyTile`), a **card** is one asset's tiles (`AssetCard`),

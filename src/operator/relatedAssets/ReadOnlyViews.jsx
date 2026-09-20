@@ -5,8 +5,8 @@
 // read-only All Assets diagram.
 
 import { useRef } from 'react';
-import { getRelatedAssetsForType } from '../model/assetQueries';
-import { useDisplayOrders, sortRowsByOrder, resolveEntityOrder } from '../settings/displayOrder';
+import { useDisplayOrders, resolveEntityOrder } from '../settings/displayOrder';
+import { buildRelatedAssetRows, visibleRelatedAssetRows } from './relatedAssetRows';
 import { AssetCardsView } from './AssetCardsView';
 import { AssetDiagramView } from './AssetDiagramView';
 
@@ -25,21 +25,12 @@ export function ReadOnlyRelatedAssetsView({ typeId, assetId, typeList, typeDispl
   // from them.
   const cardsFlexContainerRef = useRef(null);
   const cardsFlexTileRefs = useRef({});
-  // Per-related-type visibility, merged the same way property visibility
-  // is elsewhere: this specific asset's own override wins when it has one,
-  // otherwise fall back to its type's. assetId is optional (undefined for
-  // any caller still passing only a type, e.g. the Now area's own type-
-  // level preview reusing this same component) — a missing assetId simply
-  // means no asset-level entry can ever match, so behavior is identical to
-  // before for those callers.
-  const typeRelatedAssetOverrides = typeRelatedAssetConfigs[typeId] || {};
-  const assetRelatedAssetOverrides = (assetId && assetRelatedAssetConfigs?.[assetId]) || {};
   const displayOrders = useDisplayOrders();
-  const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(typeId, typeList).map(row => ({
-    ...row,
-    visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
-  })), resolveEntityOrder(displayOrders.typeRelated, displayOrders.assetRelated, typeId, assetId));
-  const visibleRows = relatedAssetRows.filter(r => r.visibility === 'always');
+  const relatedAssetRows = buildRelatedAssetRows({
+    typeId, assetId, typeList, typeRelatedAssetConfigs, assetRelatedAssetConfigs,
+    order: resolveEntityOrder(displayOrders.typeRelated, displayOrders.assetRelated, typeId, assetId),
+  });
+  const visibleRows = visibleRelatedAssetRows(relatedAssetRows);
   // savedTemplate here is already whichever one applies (asset-level
   // override or type-level default) — resolved by the caller, which has
   // both maps and the same all-or-nothing reasoning AssetCard's

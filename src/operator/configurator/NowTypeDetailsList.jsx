@@ -11,11 +11,12 @@ import { SelectBox } from 'devextreme-react/select-box';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import DataListGrid from '../../DataListGrid';
 import { VisibilityStateIcon } from '../icons';
-import { getPropertyVisibilityForType, getRelatedAssetsForType, getAssetPathLabel } from '../model/assetQueries';
+import { getPropertyVisibilityForType, getAssetPathLabel } from '../model/assetQueries';
 import { PROPERTY_LABELS } from '../model/modelData';
 import { useAssetCustomizations } from '../settings/customizations';
-import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys, sortRowsByOrder } from '../settings/displayOrder';
+import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
 import { KPI_VIEW_MODE_ITEMS, PROPERTY_VIEW_MODE_DEFAULT, VISIBILITY_LABEL, VISIBILITY_CYCLE, PROPERTY_VIEW_MODE_UPDATE_TYPE, PROPERTY_VIEW_MODE_OVERRIDE_ITEMS, RELATED_ASSET_VISIBILITY_CYCLE } from '../settings/propertyDisplay';
+import { buildRelatedAssetRows } from '../relatedAssets/relatedAssetRows';
 import { AllAssetsTypeList } from './AllAssetsEditor';
 import { AssetRevertPopover } from './customizationControls';
 
@@ -285,12 +286,12 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
   // entity's own type, collapsed to one row per (related type,
   // relationship) pair, with a simpler always/never visibility toggle than
   // the properties table above. Same asset-over-type merge as propertyRows.
-  const typeRelatedAssetOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
-  const assetRelatedAssetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
-  const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
-    ...row,
-    visibility: assetRelatedAssetOverrides[row.key] || typeRelatedAssetOverrides[row.key] || 'always',
-  })), effectiveRelatedOrder);
+  const relatedAssetRows = buildRelatedAssetRows({
+    typeId: relationshipTypeId,
+    assetId: isAssetEntity ? entityId : null,
+    typeList, typeRelatedAssetConfigs, assetRelatedAssetConfigs,
+    order: effectiveRelatedOrder,
+  });
 
   // Dragging a row saves the whole new order at this entity's level
   // (immediately, like the Show column). The footer under each table only

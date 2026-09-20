@@ -17,7 +17,7 @@ import { attentionAssetToStationId, HMI_CATEGORY_ORDER, getPropertySeriesForSour
 import { STATION_FULL_PROPERTIES, PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
 import { applySavedOrder } from '../settings/displayOrder';
 import { resolvePropertyViewMode, KPI_VIEW_MODE_ITEMS } from '../settings/propertyDisplay';
-import { PropertyLayoutCanvas } from './PropertyLayoutCanvas';
+import { PropertyTileCanvas } from './PropertyTileCanvas';
 import { PropertyTile } from './PropertyTile';
 import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MODE_ITEMS, RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS, RELATED_ASSETS_ALIGN_VERTICAL_ITEMS, RELATED_ASSETS_DISTRIBUTE_ITEMS, TIER_FILTER_ITEMS, TIER_FILTER_SLIDER_VALUES, TIER_RANK, formatTierFilterSliderLabel } from '../settings/layoutOptions';
 
@@ -50,7 +50,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
   const [alignContent, setAlignContent] = useState(savedTemplate?.alignContent ?? 'flex-start');
   // 'auto': the flex preview above drives appearance, matching Cards/
   // Diagram rendering everywhere this template is used. 'manual': the
-  // PropertyLayoutCanvas below takes over instead — same properties,
+  // PropertyTileCanvas below takes over instead — same properties,
   // freely positioned, no edges. Manual positions are part of the saved
   // template itself (manualPositions below), so they apply everywhere
   // the template is used, not just in this editor.
@@ -211,7 +211,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
     kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) !== 'none')
   ));
 
-  // Extracted so PropertyLayoutCanvas's tiles array (built below, for
+  // Extracted so PropertyTileCanvas's tiles array (built below, for
   // manual mode) computes the exact same range/sparkline props as the
   // flex-rendering path — one source of truth for what a tile shows,
   // regardless of which layout mode is currently active.
@@ -425,7 +425,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
           </div>
         ) : typeVisibilityMode && propertyLayoutMode === 'manual' ? (
           <div className="op-hmiprops-singlebox op-hmiprops-singlebox--typeflow">
-            <PropertyLayoutCanvas
+            <PropertyTileCanvas
               ref={propertyLayoutCanvasRef}
               tiles={flatTiles.map(p => ({ key: p.key, tileProps: buildTileProps(p), selected: p.key === selectedPropertyKey }))}
               manualPositions={manualPositions}

@@ -12,9 +12,11 @@ import Button from 'devextreme-react/button';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import { IconButtonGroupItem } from '../icons';
 import { AssetCardsView } from '../relatedAssets/AssetCardsView';
+import { visibleRelatedAssetRows } from '../relatedAssets/relatedAssetRows';
 import { AssetDiagramView } from '../relatedAssets/AssetDiagramView';
-import { RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS, RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS, RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS, RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS, RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS } from '../relatedAssets/elkLayout';
-import { RELATED_ASSET_DENSITY_VALUES, formatRelatedAssetDensityLabel, RELATED_ASSETS_LAYOUT_MODE_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, ALIGN_CONTENT_ITEMS, RELATED_ASSETS_ALIGN_VERTICAL_ITEMS, RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS, RELATED_ASSETS_DISTRIBUTE_ITEMS } from '../settings/layoutOptions';
+import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
+import { useDiagramSettings, DiagramLayoutControls, DiagramSpacingControls } from './diagramSettings';
+import { RELATED_ASSET_DENSITY_VALUES, formatRelatedAssetDensityLabel, RELATED_ASSETS_LAYOUT_MODE_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, ALIGN_CONTENT_ITEMS } from '../settings/layoutOptions';
 
 // selectedRelatedKey/onSelectRelated: the Details panel's selected Related
 // Assets row, shared both ways — selecting a row highlights its box here,
@@ -32,7 +34,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   const [layoutMode, setLayoutMode] = useState(savedTemplate?.layoutMode ?? 'cards');
   // Cards' own auto(flex)/manual(drag) toggle — same pattern as
   // PropertyTilesView's propertyLayoutMode: 'manual' swaps in a
-  // separate React Flow canvas (CardsLayoutCanvas, no edges — related-
+  // separate React Flow canvas (AssetCardCanvas, no edges — related-
   // asset boxes don't relate to each other the way types in Diagram do),
   // seeded by measuring the flex view's actual current box positions at
   // the moment of switching so nothing visually jumps.
@@ -72,47 +74,14 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
       setCardsLayoutMode('auto');
     });
   };
-  const [diagramAlgorithm, setDiagramAlgorithm] = useState(savedTemplate?.diagramAlgorithm ?? 'layered');
-  const [diagramDirection, setDiagramDirection] = useState(savedTemplate?.diagramDirection ?? 'RIGHT');
-  const [diagramEdgeRouting, setDiagramEdgeRouting] = useState(savedTemplate?.diagramEdgeRouting ?? 'ORTHOGONAL');
-  const [diagramNodeSpacing, setDiagramNodeSpacing] = useState(savedTemplate?.diagramNodeSpacing ?? 40);
-  const [diagramLayerSpacing, setDiagramLayerSpacing] = useState(savedTemplate?.diagramLayerSpacing ?? 80);
-  const [diagramAspectRatio, setDiagramAspectRatio] = useState(savedTemplate?.diagramAspectRatio ?? 8);
-  const [diagramShowLabels, setDiagramShowLabels] = useState(savedTemplate?.diagramShowLabels ?? 'hidden');
-  const [diagramShowArrowheads, setDiagramShowArrowheads] = useState(savedTemplate?.diagramShowArrowheads ?? 'shown');
-  const [diagramConnectionPointMode, setDiagramConnectionPointMode] = useState(savedTemplate?.diagramConnectionPointMode ?? 'center');
-  // 'auto': layout-affecting controls are live, ELK drives node positions.
-  // 'manual': entered the instant the user drags a node or uses Align/
-  // Distribute (see onManualEdit below) — layout-affecting controls
-  // become disabled until the user explicitly confirms leaving manual
-  // mode via the Reset button, which increments layoutResetSignal to
-  // force a fresh ELK computation even if no other setting changed.
-  const [diagramLayoutMode, setDiagramLayoutMode] = useState(savedTemplate?.diagramLayoutMode ?? 'auto');
-  const [diagramLayoutResetSignal, setDiagramLayoutResetSignal] = useState(0);
-  // Working copy of the diagram's current node positions, kept in sync via
-  // AssetDiagramView's onPositionsChange — read at save time (below)
-  // and fed back in as savedManualPositions on the next load so a manual
-  // arrangement survives a type switch or page refresh.
-  const [diagramManualPositions, setDiagramManualPositions] = useState(savedTemplate?.diagramManualPositions ?? {});
-  const diagramCanvasRef = useRef(null);
+  const diagram = useDiagramSettings(savedTemplate);
   const cardsLayoutCanvasRef = useRef(null);
-  const handleManualEdit = () => setDiagramLayoutMode('manual');
-  const handleConfirmResetToAuto = () => {
-    confirm(
-      `This will discard your manual positioning and re-run the ${RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.find(a => a.value === diagramAlgorithm)?.label ?? diagramAlgorithm} layout. Continue?`,
-      'Reset to Auto Layout'
-    ).then(confirmed => {
-      if (!confirmed) return;
-      setDiagramLayoutMode('auto');
-      setDiagramLayoutResetSignal(s => s + 1);
-    });
-  };
 
   // Memoized so the diagram view (which re-runs ELK's layout whenever this
   // array changes) doesn't recompute on every unrelated re-render — only
   // when the underlying rows or the density filter actually change.
   const visibleRows = useMemo(
-    () => relatedAssetRows.filter(r => densityFilter === 'all' || r.visibility === 'always'),
+    () => visibleRelatedAssetRows(relatedAssetRows, densityFilter),
     [relatedAssetRows, densityFilter]
   );
 
@@ -120,31 +89,34 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // position channels since both Cards and Diagram have a manual mode.
   const relatedUnsavedFields = {
     layoutMode, cardsLayoutMode, cardsFlowDirection, cardsFlowWrap, cardsAlignContent,
-    diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing,
-    diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode,
+    ...diagram.trackedFields,
   };
   const unsavedTracker = useUnsavedTracker(
     relatedUnsavedFields,
     {
       cards: cardsLayoutMode === 'manual' ? cardsManualPositions : null,
-      diagram: diagramLayoutMode === 'manual' ? diagramManualPositions : null,
+      diagram: diagram.layoutMode === 'manual' ? diagram.manualPositions : null,
     },
     !!activeSaveHandlerRef,
   );
   // The diagram reports positions in auto mode too (every ELK run) — only
   // a report made while in manual mode may become the manual baseline.
-  const diagramLayoutModeRef = useRef(diagramLayoutMode);
-  diagramLayoutModeRef.current = diagramLayoutMode;
+  const diagramLayoutModeRef = useRef(diagram.layoutMode);
+  diagramLayoutModeRef.current = diagram.layoutMode;
   // Stable identities — see PropertyTilesView's handleManualPositionsChange.
   const handleCardsPositionsChange = useCallback(positions => {
     unsavedTracker.notePositionsReported('cards', positions);
     setCardsManualPositions(positions);
   }, [unsavedTracker]);
+  const setDiagramManualPositions = diagram.setManualPositions;
   const handleDiagramPositionsChange = useCallback(positions => {
     if (diagramLayoutModeRef.current === 'manual') unsavedTracker.notePositionsReported('diagram', positions);
     setDiagramManualPositions(positions);
-  }, [unsavedTracker]);
+  }, [unsavedTracker, setDiagramManualPositions]);
 
+  // The diagram half's settings stand in as one signature, rather than
+  // the fifteen-entry dependency list this used to spell out.
+  const diagramSignature = JSON.stringify(diagram.templateFields);
   // Registers this tab's save action, same pattern as PropertyTilesView's
   // own registration — whichever of the three Details tabs is currently
   // mounted (matching activeTabIndex) is the one the title-bar Save button
@@ -158,20 +130,11 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
       cardsFlowDirection,
       cardsFlowWrap,
       cardsAlignContent,
-      diagramAlgorithm,
-      diagramDirection,
-      diagramEdgeRouting,
-      diagramNodeSpacing,
-      diagramLayerSpacing,
-      diagramAspectRatio,
-      diagramShowLabels,
-      diagramShowArrowheads,
-      diagramConnectionPointMode,
-      diagramLayoutMode,
-      diagramManualPositions: diagramLayoutMode === 'manual' ? diagramManualPositions : {},
+      ...diagram.templateFields,
     }); unsavedTracker.markSaved(); };
     return () => { activeSaveHandlerRef.current = null; };
-  }, [currentTypeId, layoutMode, cardsLayoutMode, cardsManualPositions, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, diagramAlgorithm, diagramDirection, diagramEdgeRouting, diagramNodeSpacing, diagramLayerSpacing, diagramAspectRatio, diagramShowLabels, diagramShowArrowheads, diagramConnectionPointMode, diagramLayoutMode, diagramManualPositions, onSaveTemplate, activeSaveHandlerRef]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTypeId, layoutMode, cardsLayoutMode, cardsManualPositions, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, diagramSignature, onSaveTemplate, activeSaveHandlerRef]);
 
   // ── Box selection ──
   // Which box a row is depends on the layout: Cards (flex and manual) has
@@ -258,13 +221,13 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
                 fontSize: 11,
                 fontWeight: 600,
                 whiteSpace: 'nowrap',
-                background: (layoutMode === 'cards' ? cardsLayoutMode : diagramLayoutMode) === 'manual' ? '#fff4e5' : '#e8f4fd',
-                color: (layoutMode === 'cards' ? cardsLayoutMode : diagramLayoutMode) === 'manual' ? '#8a5a00' : '#0078d4',
+                background: (layoutMode === 'cards' ? cardsLayoutMode : diagram.layoutMode) === 'manual' ? '#fff4e5' : '#e8f4fd',
+                color: (layoutMode === 'cards' ? cardsLayoutMode : diagram.layoutMode) === 'manual' ? '#8a5a00' : '#0078d4',
               }}
             >
               {layoutMode === 'cards'
                 ? (cardsLayoutMode === 'manual' ? 'Manual Layout' : 'Flex Layout')
-                : (diagramLayoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout')}
+                : (diagram.layoutMode === 'manual' ? 'Manual Layout' : 'Auto Layout')}
             </span>
             {layoutMode === 'cards' ? (
               cardsLayoutMode === 'manual' ? (
@@ -273,10 +236,10 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
                 <Button text="Switch to Manual Layout" onClick={handleSwitchCardsToManual} stylingMode="outlined" />
               )
             ) : (
-              diagramLayoutMode === 'manual' ? (
-                <Button text="Reset to Auto Layout" onClick={handleConfirmResetToAuto} stylingMode="outlined" />
+              diagram.layoutMode === 'manual' ? (
+                <Button text="Reset to Auto Layout" onClick={diagram.confirmResetToAuto} stylingMode="outlined" />
               ) : (
-                <Button text="Switch to Manual Layout" onClick={handleManualEdit} stylingMode="outlined" />
+                <Button text="Switch to Manual Layout" onClick={diagram.onManualEdit} stylingMode="outlined" />
               )
             )}
           </div>
@@ -354,137 +317,11 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
               </ButtonGroup>
             </>
           )}
-          {layoutMode === 'cards' && cardsLayoutMode === 'manual' && (
-            <>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => cardsLayoutCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <Button text="Arrange in Grid" onClick={() => cardsLayoutCanvasRef.current?.arrangeGrid()} stylingMode="outlined" />
-            </>
-          )}
-          {layoutMode === 'diagram' && diagramLayoutMode === 'auto' && (
-            <>
-              <ButtonGroup
-                keyExpr="value"
-                selectedItemKeys={[diagramAlgorithm]}
-                onItemClick={e => setDiagramAlgorithm(e.itemData.value)}
-                stylingMode="outlined"
-                className="op-dash-chart-toggle"
-              >
-                {RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              {RELATED_ASSETS_DIAGRAM_DIRECTION_ALGORITHMS.has(diagramAlgorithm) && (
-                <ButtonGroup
-                  keyExpr="value"
-                  selectedItemKeys={[diagramDirection]}
-                  onItemClick={e => setDiagramDirection(e.itemData.value)}
-                  stylingMode="outlined"
-                  className="op-dash-chart-toggle"
-                >
-                  {RELATED_ASSETS_DIAGRAM_DIRECTION_ITEMS.map(item => (
-                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                  ))}
-                </ButtonGroup>
-              )}
-              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
-                <ButtonGroup
-                  keyExpr="value"
-                  selectedItemKeys={[diagramEdgeRouting]}
-                  onItemClick={e => setDiagramEdgeRouting(e.itemData.value)}
-                  stylingMode="outlined"
-                  className="op-dash-chart-toggle"
-                >
-                  {RELATED_ASSETS_DIAGRAM_EDGE_ROUTING_ITEMS.map(item => (
-                    <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                  ))}
-                </ButtonGroup>
-              )}
-            </>
-          )}
-          {layoutMode === 'diagram' && diagramLayoutMode === 'manual' && (
-            <>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => diagramCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
-                  <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                ))}
-              </ButtonGroup>
-            </>
-          )}
+          {layoutMode === 'cards' && cardsLayoutMode === 'manual' && <CanvasAlignControls canvasRef={cardsLayoutCanvasRef} withArrangeGrid />}
+          {layoutMode === 'diagram' && diagram.layoutMode === 'auto' && <DiagramLayoutControls diagram={diagram} />}
+          {layoutMode === 'diagram' && diagram.layoutMode === 'manual' && <CanvasAlignControls canvasRef={diagram.canvasRef} />}
           </div>
-          {layoutMode === 'diagram' && diagramLayoutMode === 'auto' && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, flexWrap: 'wrap' }}>
-              <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-                <Slider
-                  min={0}
-                  max={200}
-                  step={1}
-                  value={diagramNodeSpacing}
-                  onValueChanged={e => setDiagramNodeSpacing(e.value)}
-                  valueChangeMode="onHandleRelease"
-                  className="op-tierfilter-slider"
-                  style={{ width: '100%' }}
-                >
-                  <SliderLabel visible format={v => `Nodes: ${v}`} position="bottom" />
-                </Slider>
-              </div>
-              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
-                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-                  <Slider
-                    min={0}
-                    max={200}
-                    step={1}
-                    value={diagramLayerSpacing}
-                    onValueChanged={e => setDiagramLayerSpacing(e.value)}
-                    valueChangeMode="onHandleRelease"
-                    className="op-tierfilter-slider"
-                    style={{ width: '100%' }}
-                  >
-                    <SliderLabel visible format={v => `Layers: ${v}`} position="bottom" />
-                  </Slider>
-                </div>
-              )}
-              {RELATED_ASSETS_DIAGRAM_LAYERED_ONLY_CONTROLS.has(diagramAlgorithm) && (
-                <div className="op-tierfilter-slider-wrap" style={{ width: 130, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
-                  <Slider
-                    min={0.2}
-                    max={8}
-                    step={0.1}
-                    value={diagramAspectRatio}
-                    onValueChanged={e => setDiagramAspectRatio(e.value)}
-                    valueChangeMode="onHandleRelease"
-                    className="op-tierfilter-slider"
-                    style={{ width: '100%' }}
-                  >
-                    <SliderLabel visible format={v => `Ratio: ${v.toFixed(1)}`} position="bottom" />
-                  </Slider>
-                </div>
-              )}
-            </div>
-          )}
+          {layoutMode === 'diagram' && diagram.layoutMode === 'auto' && <DiagramSpacingControls diagram={diagram} />}
         </div>
       </div>
       )}
@@ -519,7 +356,8 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
           <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
         ) : (
           <AssetDiagramView
-            ref={diagramCanvasRef}
+            ref={diagram.canvasRef}
+            {...diagram.viewProps}
             currentTypeId={currentTypeId}
             currentTypeName={currentTypeName}
             currentTypeExampleAssetId={currentTypeExampleAssetId}
@@ -531,22 +369,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
             assetDisplayTemplates={assetDisplayTemplates}
             assetPropertyConfigs={assetPropertyConfigs}
             evidencePoints={evidencePoints}
-            diagramAlgorithm={diagramAlgorithm}
-            diagramDirection={diagramDirection}
-            diagramEdgeRouting={diagramEdgeRouting}
-            diagramNodeSpacing={diagramNodeSpacing}
-            diagramLayerSpacing={diagramLayerSpacing}
-            diagramAspectRatio={diagramAspectRatio}
-            diagramShowLabels={diagramShowLabels}
-            diagramShowArrowheads={diagramShowArrowheads}
-            diagramConnectionPointMode={diagramConnectionPointMode}
-            diagramLayoutResetSignal={diagramLayoutResetSignal}
-            onManualEdit={handleManualEdit}
-            setDiagramShowLabels={setDiagramShowLabels}
-            setDiagramShowArrowheads={setDiagramShowArrowheads}
-            setDiagramConnectionPointMode={setDiagramConnectionPointMode}
             onPositionsChange={handleDiagramPositionsChange}
-            savedManualPositions={savedTemplate?.diagramLayoutMode === 'manual' ? savedTemplate.diagramManualPositions : undefined}
             onTitleClick={onTitleClick}
           />
         )

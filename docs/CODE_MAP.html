@@ -269,10 +269,10 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ da89f15 + refactor phase 3</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ 74460f8 + refactor phase 4</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
-      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 3 done</span> every component now lives in <code>src/operator/</code>, in 42 modules; what is left in <code>OperatorWorkspace.jsx</code> is the shell. Next is consolidating the duplication the split made visible.</p>
+      <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">phase 4 done</span> every component lives in <code>src/operator/</code>, in 46 modules, and the duplication the split exposed is now shared code: one manual-layout canvas, one related-asset row builder, one set of diagram settings. Only the CSS split is left.</p>
     </header>
 
     <section id="glance">
@@ -280,7 +280,7 @@
       <p>The app has two halves. The original <strong>page builder</strong> (Screens, Widgets, Theme, Data Sources, Entities, Queries) is spread across about twenty well-sized files. The <strong>Operator / Configurator</strong> interface, where almost all recent work has happened, lives in <code>OperatorWorkspace.jsx</code> plus a new <code>src/operator/</code> folder that the refactor is gradually moving code into.</p>
       <div class="glance" role="list">
         <div role="listitem"><strong>1,248</strong><span>lines left in <code>OperatorWorkspace.jsx</code> (was 9,074)</span></div>
-        <div role="listitem"><strong>42</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>46</strong><span>modules split out so far, in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
         <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
@@ -719,6 +719,16 @@
           <p class="where">NowTypeDetailsList · DataListGrid · useCallback handlers</p>
         </div>
         <div class="note">
+          <h4>One canvas, four manual modes</h4>
+          <p>Property tiles, related-asset cards and both diagrams all place things by hand through the same <code>ManualLayoutCanvas</code>: it owns node syncing, drag with grid snap, position reporting and align / distribute / arrange. A caller supplies its node component, its grid spacing and the noun for the warnings. The toolbar buttons come from <code>CanvasAlignControls</code>.</p>
+          <p class="where">canvas/ManualLayoutCanvas.jsx · canvas/CanvasAlignControls.jsx</p>
+        </div>
+        <div class="note">
+          <h4>Shared answers, not copied ones</h4>
+          <p>Where two surfaces have to agree, the answer has one definition: <code>relatedAssetRows.js</code> decides which related assets show and in what order (the Details grid and the preview beside it read the same list), and <code>useDiagramSettings</code> owns a diagram's settings, so a control added to one diagram editor appears in the other.</p>
+          <p class="where">relatedAssets/relatedAssetRows.js · configurator/diagramSettings.jsx</p>
+        </div>
+        <div class="note">
           <h4>Controlled tab panels</h4>
           <p>An uncontrolled DevExtreme <code>TabPanel</code> jumps back to its first tab whenever anything nearby re-renders, so every TabPanel here gets its index from lifted state. Any new one should too.</p>
           <p class="where">NowAssetTreePanel · NowTypeDetailsList</p>
@@ -729,7 +739,7 @@
     <section id="bigfile">
       <h2>Where the code lives</h2>
       <h3>All of it: <span class="mono">src/operator/</span></h3>
-      <p>42 modules, grouped by what they are rather than by when they were written. Names follow one vocabulary: a <strong>tile</strong> is one property, a <strong>card</strong> is one asset's tiles, a <strong>view</strong> lays cards or tiles out, and an <strong>editor</strong> is a view plus the toolbar and Save that change it.</p>
+      <p>46 modules, grouped by what they are rather than by when they were written. Names follow one vocabulary: a <strong>tile</strong> is one property, a <strong>card</strong> is one asset's tiles, a <strong>view</strong> lays cards or tiles out, and an <strong>editor</strong> is a view plus the toolbar and Save that change it.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
@@ -745,20 +755,24 @@
             <tr><td class="mono">properties/PropertyTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
             <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class='mono'>MiniSparkline</span> and <span class='mono'>ResponsiveSparkline</span></td></tr>
             <tr><td class="mono">properties/PropertyTilesView.jsx</td><td class="num">472</td><td>A property listing: grouped tiles, filter and layout toolbar, its own Save</td></tr>
-            <tr><td class="mono">properties/PropertyLayoutCanvas.jsx</td><td class="num">178</td><td>Manual-layout canvas for property tiles</td></tr>
-            <tr><td class="mono">canvas/canvasGeometry.js</td><td class="num">184</td><td>Node bounds, floating-edge geometry, align and distribute, shared by all three canvases</td></tr>
+            <tr><td class="mono">properties/PropertyTileCanvas.jsx</td><td class="num">53</td><td>The shared canvas, configured for property tiles</td></tr>
+            <tr><td class="mono">canvas/ManualLayoutCanvas.jsx</td><td class="num">167</td><td>The one manual-layout canvas: node sync, drag with grid snap, position reporting, align / distribute / arrange</td></tr>
+            <tr><td class="mono">canvas/CanvasAlignControls.jsx</td><td class="num">38</td><td>The align / distribute / arrange toolbar groups, used by all four manual modes</td></tr>
+            <tr><td class="mono">canvas/canvasGeometry.js</td><td class="num">184</td><td>Node bounds, floating-edge geometry, align and distribute maths</td></tr>
             <tr><td class="mono">relatedAssets/AssetCard.jsx</td><td class="num">268</td><td>One asset's card, and the single place asset-over-type display settings resolve; also <span class='mono'>TimeScrubContext</span></td></tr>
             <tr><td class="mono">relatedAssets/AssetCardsView.jsx</td><td class="num">100</td><td>The Cards engine (flex, or the canvas below)</td></tr>
-            <tr><td class="mono">relatedAssets/CardsLayoutCanvas.jsx</td><td class="num">155</td><td>Manual-layout canvas for cards</td></tr>
+            <tr><td class="mono">relatedAssets/AssetCardCanvas.jsx</td><td class="num">48</td><td>The shared canvas, configured for asset cards</td></tr>
             <tr><td class="mono">relatedAssets/AssetDiagramView.jsx</td><td class="num">510</td><td>The Diagram engine: nodes, floating edges, auto or manual layout</td></tr>
             <tr><td class="mono">relatedAssets/elkLayout.js</td><td class="num">144</td><td>ELK auto-layout and the diagram's algorithm, direction and routing choices</td></tr>
-            <tr><td class="mono">relatedAssets/ReadOnlyViews.jsx</td><td class="num">148</td><td>Read-only Related Assets and All Assets views for the Operator side</td></tr>
+            <tr><td class="mono">relatedAssets/ReadOnlyViews.jsx</td><td class="num">144</td><td>Read-only Related Assets and All Assets views for the Operator side</td></tr>
+            <tr><td class="mono">relatedAssets/relatedAssetRows.js</td><td class="num">33</td><td>Which related assets an entity shows, in what order &mdash; one definition, three callers</td></tr>
             <tr><td class="mono">configurator/NowAssetTreePanel.jsx</td><td class="num">107</td><td>The left panel: Types and Assets tabs, and the row templates</td></tr>
             <tr><td class="mono">configurator/NowAssetDetail.jsx</td><td class="num">124</td><td>The centre column: title row plus the preview, remounted on selection change</td></tr>
             <tr><td class="mono">configurator/NowTypeMainPreview.jsx</td><td class="num">190</td><td>Picks which editor fills the preview, following the Details tab</td></tr>
             <tr><td class="mono">configurator/NowTypeDetailsList.jsx</td><td class="num">420</td><td>The Details panel's Properties / Related Assets / All Assets grids</td></tr>
-            <tr><td class="mono">configurator/RelatedAssetsEditor.jsx</td><td class="num">556</td><td>The Related Assets editor: both engines plus the toolbar and Save</td></tr>
-            <tr><td class="mono">configurator/AllAssetsEditor.jsx</td><td class="num">325</td><td>The All Assets diagram editor and its per-type visibility list</td></tr>
+            <tr><td class="mono">configurator/RelatedAssetsEditor.jsx</td><td class="num">379</td><td>The Related Assets editor: both engines plus the toolbar and Save</td></tr>
+            <tr><td class="mono">configurator/AllAssetsEditor.jsx</td><td class="num">171</td><td>The All Assets diagram editor and its per-type visibility list</td></tr>
+            <tr><td class="mono">configurator/diagramSettings.jsx</td><td class="num">228</td><td>A diagram's settings state, its Auto/Manual switch and its toolbar controls &mdash; shared by both diagram editors</td></tr>
             <tr><td class="mono">configurator/customizationControls.jsx</td><td class="num">171</td><td>Dots, counts, the title chip and the revert popover</td></tr>
             <tr><td class="mono">operatorViews/statusVocabulary.js</td><td class="num">91</td><td>The shared status colour and label maps every Operator view reads</td></tr>
             <tr><td class="mono">operatorViews/NowStrip.jsx</td><td class="num">70</td><td>The line-status strip across the top</td></tr>
@@ -855,8 +869,8 @@
             <tr><td>1</td><td>Model data and its loader, model queries, settings logic and stores, icons</td><td><span class="chip now">done</span></td></tr>
             <tr><td>2</td><td>Shared rendering: tiles and sparklines, the box, Cards, Diagram, canvases, ELK, read-only views</td><td><span class="chip now">done</span></td></tr>
             <tr><td>3</td><td>Configurator panels, Operator views and chrome; one consistent naming vocabulary throughout</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>4</td><td>Consolidation: one manual-layout canvas instead of two near-identical ones, one related-asset row builder instead of three copies, and whatever else the split made visible</td><td><span class="chip flag">next</span></td></tr>
-            <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way</td><td>planned</td></tr>
+            <tr><td>4</td><td>Consolidation: one manual-layout canvas, one related-asset row builder, one set of diagram settings and one align/distribute toolbar</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; split <span class="mono">App.operator.css</span> the same way, renaming the class names to match the components</td><td><span class="chip flag">next</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -867,10 +881,10 @@
                                  customizations, layoutOptions              ✓</span>
   icons.jsx · badges.jsx         <span class="c">                                            ✓</span>
   properties/                    <span class="c">PropertyTile, sparklines, PropertyTilesView,
-                                 PropertyLayoutCanvas                       ✓</span>
+                                 PropertyTileCanvas                         ✓</span>
   relatedAssets/                 <span class="c">AssetCard, AssetCardsView, AssetDiagramView,
                                  ELK, canvas, read-only views               ✓</span>
-  canvas/                        <span class="c">geometry shared by the three canvases       ✓</span>
+  canvas/                        <span class="c">ManualLayoutCanvas, align controls, geometry ✓</span>
   configurator/                  <span class="c">tree, preview, the three editors, Details   ✓</span>
   operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip,
                                  issue map, Assets, status vocabulary       ✓</span>

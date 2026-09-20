@@ -204,7 +204,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   // Properties tab's own editor. Read-only here (no dragging) — just
   // placing each tile at its saved position. Unpositioned entries (newly
   // visible since the layout was last saved) stack in the corner, same
-  // convention as PropertyLayoutCanvas's own default. Container grows to
+  // convention as PropertyTileCanvas's own default. Container grows to
   // fit the furthest-positioned tile, with a fixed per-tile size estimate
   // since there's no live measurement in a static render like this —
   // generous enough that overflow (safety net, not the expected case)

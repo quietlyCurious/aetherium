@@ -6,8 +6,8 @@
 
 import { useEffect } from 'react';
 import { CaretIcon } from '../icons';
-import { getRelatedAssetsForType } from '../model/assetQueries';
-import { useDisplayOrders, resolveEntityOrder, sortRowsByOrder } from '../settings/displayOrder';
+import { useDisplayOrders, resolveEntityOrder } from '../settings/displayOrder';
+import { buildRelatedAssetRows } from '../relatedAssets/relatedAssetRows';
 import { PropertyTilesView } from '../properties/PropertyTilesView';
 import { AllAssetsEditor } from './AllAssetsEditor';
 import { RelatedAssetsEditor } from './RelatedAssetsEditor';
@@ -73,15 +73,12 @@ export function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEnt
   }
 
   if (activeTabIndex === 1) {
-    // Per-related-type visibility, merged the same way AssetCard's
-    // own property visibility is: this specific asset's own override wins
-    // when it has one, otherwise its type's, otherwise "always".
-    const typeOverrides = typeRelatedAssetConfigs[relationshipTypeId] || {};
-    const assetOverrides = (isAssetEntity && assetRelatedAssetConfigs?.[entityId]) || {};
-    const relatedAssetRows = sortRowsByOrder(getRelatedAssetsForType(relationshipTypeId, typeList).map(row => ({
-      ...row,
-      visibility: assetOverrides[row.key] || typeOverrides[row.key] || 'always',
-    })), effectiveRelatedOrder);
+    const relatedAssetRows = buildRelatedAssetRows({
+      typeId: relationshipTypeId,
+      assetId: isAssetEntity ? entityId : null,
+      typeList, typeRelatedAssetConfigs, assetRelatedAssetConfigs,
+      order: effectiveRelatedOrder,
+    });
     // This asset's own saved Related Assets view template wins over its
     // type's, when one exists — same all-or-nothing reasoning as the
     // display template below (a cohesive layout choice saved as one unit).
