@@ -187,7 +187,19 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     }
     measure();
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    // Things above the strip can change size after mount and move it
+    // without the window resizing. The one that showed this: DevExtreme's
+    // license banner takes space at the top of the page until App hides
+    // it, and when the first DevExtreme widget on the page is one of this
+    // workspace's, the strip is measured while the banner is still there —
+    // leaving the issue map's pull tab 52px too low. Watching the page
+    // body's size catches those shifts.
+    const bodyObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    bodyObserver?.observe(document.body);
+    return () => {
+      window.removeEventListener('resize', measure);
+      bodyObserver?.disconnect();
+    };
   }, []);
   const [selectedAttentionId, setSelectedAttentionId] = useState(
     (ATTENTION_ITEMS.find(i => i.attentionState === 'investigate') || ATTENTION_ITEMS[0])?.id ?? null

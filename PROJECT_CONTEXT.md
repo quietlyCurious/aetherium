@@ -143,9 +143,9 @@ either mode without extra work.
 ## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries)
 
 Not refactored the way the Operator side was — it isn't seven comparable
-areas. Screens is ~2,400 lines inside `App.js` (its left tabs, canvas and
-right-hand property editor); Theme, Widgets and Scripts are small; Data
-Sources, Entities and Queries are "a list of definitions plus an editor".
+areas. Screens is the big one (its own folder, below); Theme, Widgets and
+Scripts are small; Data Sources, Entities and Queries are "a list of
+definitions plus an editor".
 
 Those three now share `src/designer/DefinitionWorkspace.jsx`: it owns
 selection, the confirm-before-losing-edits prompt, and publishing the open
@@ -172,8 +172,34 @@ today, an asset visualization later:
 - `ScreenView` — renders a page's containers read-only through
   `ContainerCard`, supplying all its editing callbacks as no-ops.
 `RuntimeView.jsx` is now just `loadPage` + the hook + `ScreenView` inside
-the title bar. The Screens *editor* (canvas, right panel, query-instance
-handlers) is still in `App.js`.
+the title bar.
+
+The Screens *editor* lives in the same folder, split the same way as
+state vs. drawing:
+- `useScreenEditor` — all of the editor's state and actions: saved
+  screens and folders, the open page, selection, clipboard, paintbrush,
+  device preview, and every edit. **App calls it**, not ScreensWorkspace,
+  because the canvas outlives the area: leave Screens and come back and
+  the open page and its unsaved edits are still there (the prompt on
+  leaving is a reminder to save, not a discard). Lock rules (`LOCK
+  GUARD`) are enforced here.
+- `screenEdits.js` — the edits themselves as plain `(tree, …) => tree`
+  functions: moving, grid cells, layout changes, per-tier slot overrides,
+  aspect ratio, paintbrush, bindings.
+- `usePageQueryInstances` — the query instances on pages (the editing
+  counterpart of `usePageQueryResults`). Lookups are scoped to the active
+  page because instance ids restart at 1 per page.
+- `ScreensWorkspace` — draws it: `ScreensLeftPanel` (Screens, Visuals,
+  Data, Page Visuals, Page Data tabs), `ScreenCanvas` (toolbar + the
+  page), `ScreenDetailsPanel` → `ContainerDetails` (one selection, a tab
+  per settings area) or `MultiSelectionDetails`; plus the create wizard,
+  the binding popovers, and the canvas's Ctrl/Cmd+C/V shortcuts, which
+  only listen while Screens is open and never inside a text field.
+- `detailsFields.jsx` — the details panel's inputs. `textField` and
+  `sharedTextField` still differ (whole vs. decimal numbers,
+  uncontrolled vs. blank when unset) — see its header.
+`ContainerCard`, `PageVisualsTree`, `ScreensPanel`, `DevicePicker`,
+`GridEditor` and the container model/tree files are still at `src/` root.
 
 ## Where things live
 
@@ -234,7 +260,9 @@ class names match, as of phase 5: `op-property-tile-*`,
 - `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
   now, kept on purpose for future use. Leave it in place.
 - `src/App.js` — the outer shell: title bar, nav dropdown, model
-  switcher, the title-bar Save button's enablement logic.
+  switcher, the title-bar Save button's enablement logic, the shared
+  data definitions (data sources, entities, queries), and the small
+  Widgets and Scripts areas. Each larger area is its own workspace.
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of
   industry models (id, label, shape, per-role file overrides), read by both
   the model switcher and `OperatorWorkspace`'s loader. A new industry pack
@@ -263,8 +291,9 @@ class names match, as of phase 5: `op-property-tile-*`,
 - `src/designer/` — pieces shared by the designer areas:
   `DefinitionWorkspace` (the list + editor shell behind Data Sources,
   Entities and Queries) and `useDefinitionDraft`; `screens/` holds the
-  read-only screen renderer (`ScreenView`, `usePageQueryResults`,
-  `widgetBindings`).
+  Screens area — the editor (`ScreensWorkspace`, `useScreenEditor`,
+  `screenEdits`) and the read-only renderer (`ScreenView`,
+  `usePageQueryResults`, `widgetBindings`).
 - `public/data/<model>/*.json` — per-model generated data. Generic packs
   have 8 files (`assets`, `asset-values`, `asset-telemetry`,
   `properties`…, spec §6). The legacy description below is for the

@@ -137,6 +137,16 @@ function deleteFromTree(containers, id) {
 }
 
 
+// Replaces one container (found by id anywhere in the tree) with
+// update(container). The general form of the updateXInTree helpers above,
+// for edits that aren't a simple merge into one field.
+function updateContainerInTree(containers, id, update) {
+  return containers.map(c => {
+    if (c.id === id) return update(c);
+    return { ...c, children: updateContainerInTree(c.children, id, update) };
+  });
+}
+
 function isLockedOrAncestorLocked(containers, id) {
   const flat = {};
   const flatten = (items) => items.forEach(c => { flat[c.id] = c; flatten(c.children); });
@@ -155,4 +165,5 @@ export {
   updatePageTypeInTree, updateWidgetPropsInTree, deepCloneWithNewIds,
   updateCoordInTree, updateSlotInTree, updateLayoutInTree,
   renameInTree, deleteFromTree, isLockedOrAncestorLocked,
+  updateContainerInTree,
 };

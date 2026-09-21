@@ -269,7 +269,7 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ a82ca0d + refactor phase 5</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ dd89e25 + designer step 3</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
       <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">refactor complete</span> the Operator/Configurator interface is 47 modules and 7 stylesheets under <code>src/operator/</code>, down from one 9,074-line file and one 3,191-line stylesheet. Class names now match the components they style.</p>
@@ -286,7 +286,7 @@
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
         <div role="listitem"><strong>7</strong><span>industry models, data only</span></div>
       </div>
-      <p>The Operator styling that was one 3,191-line <code>App.operator.css</code> is now seven stylesheets under <code>operator/styles/</code>, one per area, loaded in cascade order from <code>App.js</code>. The one remaining large file is <code>App.js</code> (3,182 lines, mostly the page builder plus the title bar that wraps everything).</p>
+      <p>The Operator styling that was one 3,191-line <code>App.operator.css</code> is now seven stylesheets under <code>operator/styles/</code>, one per area, loaded in cascade order from <code>App.js</code>. <code>App.js</code> is down to about 700 lines (title bar, navigation and the shared data definitions): the Screens editor moved to <code>src/designer/screens/</code>.</p>
     </section>
 
     <section id="shape">
@@ -305,8 +305,8 @@
           <text x="24" y="66" font-size="15" font-weight="600" fill="currentColor">App.js</text>
           <text x="24" y="90" font-size="12" fill="currentColor" opacity="0.75">title bar · persona switch</text>
           <text x="24" y="108" font-size="12" fill="currentColor" opacity="0.75">model switch · Save button</text>
-          <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">page-builder workspaces</text>
-          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">3,182 lines</text>
+          <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">which area is showing</text>
+          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">~700 lines</text>
 
           <!-- OperatorWorkspace -->
           <rect x="310" y="40" width="200" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -864,7 +864,7 @@
         <table>
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
-            <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also all of the page builder's state and canvas.</td></tr>
+            <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also the data definitions the designer areas share, and it calls <span class="mono">useScreenEditor</span> so the Screens canvas survives switching areas.</td></tr>
             <tr><td class="mono">operator/styles/*.css</td><td>Seven stylesheets, one per area of <span class="mono">src/operator/</span>. Every rule for a given class lives in exactly one of them.</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
             <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
@@ -876,7 +876,8 @@
       </div>
       <h3>Page builder only</h3>
       <p>Kept for later, not currently imported: <span class="mono">dev_extreme_asset_screen_wizard.jsx</span>. Leave it in place.</p>
-      <p>Screens and widgets: <span class="mono">ContainerCard</span>, <span class="mono">containerModel</span>, <span class="mono">containerStyles</span>, <span class="mono">containerTree</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetPreview</span>, <span class="mono">WidgetConfigPanel</span>, <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetData</span>, <span class="mono">widgetSampleData</span>, <span class="mono">RuntimeView</span>, <span class="mono">Wizard</span>.</p>
+      <p>Screens area, in <span class="mono">designer/screens/</span>: <span class="mono">useScreenEditor</span> (all editor state and actions), <span class="mono">screenEdits</span> (tree edits as plain functions), <span class="mono">usePageQueryInstances</span>, <span class="mono">ScreensWorkspace</span> with <span class="mono">ScreensLeftPanel</span>, <span class="mono">ScreenCanvas</span>, <span class="mono">ScreenDetailsPanel</span> → <span class="mono">ContainerDetails</span> / <span class="mono">MultiSelectionDetails</span>, <span class="mono">detailsFields</span>; and the read-only side, <span class="mono">ScreenView</span>, <span class="mono">usePageQueryResults</span>, <span class="mono">widgetBindings</span>. Definition areas share <span class="mono">designer/DefinitionWorkspace</span>.</p>
+      <p>Screens and widgets, still at <span class="mono">src/</span> root: <span class="mono">ContainerCard</span>, <span class="mono">containerModel</span>, <span class="mono">containerStyles</span>, <span class="mono">containerTree</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetPreview</span>, <span class="mono">WidgetConfigPanel</span>, <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetData</span>, <span class="mono">widgetSampleData</span>, <span class="mono">RuntimeView</span>, <span class="mono">Wizard</span>.</p>
       <p>Theme: <span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span>.</p>
       <p>Data layer: <span class="mono">dataModel</span>, <span class="mono">DataSourcesWorkspace</span>, <span class="mono">QueriesWorkspace</span>, <span class="mono">EntitiesWorkspace</span>, <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, the binding popovers, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span>.</p>
     </section>
@@ -903,6 +904,19 @@
             <tr><td>3</td><td>Configurator panels, Operator views and chrome; one consistent naming vocabulary throughout</td><td><span class="chip now">done</span></td></tr>
             <tr><td>4</td><td>Consolidation: one manual-layout canvas, one related-asset row builder, one set of diagram settings and one align/distribute toolbar</td><td><span class="chip now">done</span></td></tr>
             <tr><td>5</td><td>Workspace shell into <span class="mono">src/operator/</span>; <span class="mono">App.operator.css</span> split the same way, with class names renamed to match the components</td><td><span class="chip now">done</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Designer areas</h3>
+      <p>The same approach for the page-builder side, checked the same way plus a Screens editor walkthrough (95 steps, saved data compared) and a runtime check of a bound screen.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Step</th><th>Moves</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>One list + editor shell (<span class="mono">DefinitionWorkspace</span>) for Data Sources, Entities and Queries, with unsaved-changes tracking</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>2</td><td>The read-only screen renderer: <span class="mono">ScreenView</span>, <span class="mono">usePageQueryResults</span>, <span class="mono">widgetBindings</span></td><td><span class="chip now">done</span></td></tr>
+            <tr><td>3</td><td>The Screens editor out of <span class="mono">App.js</span>: <span class="mono">useScreenEditor</span>, <span class="mono">screenEdits</span>, <span class="mono">ScreensWorkspace</span> and its panels</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>4</td><td>A data-driven area rail and one shell for every area</td><td><span class="chip flag">next</span></td></tr>
           </tbody>
         </table>
       </div>
