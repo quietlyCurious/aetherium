@@ -155,8 +155,16 @@ Each area supplies its nouns, its list columns and its editor. An editor
 exposes `isDirty()` and `save()` on its ref and reports dirty changes;
 `useDefinitionDraft` does both halves of that for a simple form editor.
 
-`App.js` asks the active workspace `confirmLeave()` before navigating, so
-leaving an area with unsaved edits asks first.
+The areas themselves are listed once, in `src/shell/appAreas.js`: label,
+menu group, and what the title-bar Save says there. The menu and the Save
+button read it. Every area gives App the same handle — `save()` and
+`confirmLeave()` (true, or a promise of true, to go ahead) — and
+navigating asks only the area being left: the definition areas confirm
+(leaving drops their unsaved edits), the Configurator shows its
+Save/Discard dialog, and Screens asks nothing, because its canvas lives in
+App and is still there when you come back. Every area with something to
+save publishes its unsaved state to `unsavedChangesStore`, which lights the
+Save button's amber dot.
 
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
@@ -180,9 +188,9 @@ state vs. drawing:
   screens and folders, the open page, selection, clipboard, paintbrush,
   device preview, and every edit. **App calls it**, not ScreensWorkspace,
   because the canvas outlives the area: leave Screens and come back and
-  the open page and its unsaved edits are still there (the prompt on
-  leaving is a reminder to save, not a discard). Lock rules (`LOCK
-  GUARD`) are enforced here.
+  the open page and its unsaved edits are still there, so leaving
+  doesn't prompt (opening or creating another screen does). Lock rules
+  (`LOCK GUARD`) are enforced here.
 - `screenEdits.js` — the edits themselves as plain `(tree, …) => tree`
   functions: moving, grid cells, layout changes, per-tier slot overrides,
   aspect ratio, paintbrush, bindings.
@@ -259,10 +267,12 @@ class names match, as of phase 5: `op-property-tile-*`,
 
 - `src/dev_extreme_asset_screen_wizard.jsx` — not imported anywhere right
   now, kept on purpose for future use. Leave it in place.
-- `src/App.js` — the outer shell: title bar, nav dropdown, model
-  switcher, the title-bar Save button's enablement logic, the shared
-  data definitions (data sources, entities, queries), and the small
-  Widgets and Scripts areas. Each larger area is its own workspace.
+- `src/App.js` — the outer shell: title bar (area menu, model switcher,
+  Launch, Save), navigation between areas, and the shared data
+  definitions (data sources, entities, queries). Every area is its own
+  workspace component; `src/shell/appAreas.js` lists them.
+- `src/designer/WidgetsWorkspace.jsx`, `ScriptsWorkspace.jsx` — the two
+  small designer areas (a widget catalog browser; a placeholder).
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of
   industry models (id, label, shape, per-role file overrides), read by both
   the model switcher and `OperatorWorkspace`'s loader. A new industry pack

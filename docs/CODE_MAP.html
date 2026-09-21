@@ -269,7 +269,7 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ dd89e25 + designer step 3</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ dd89e25 + designer steps 3–4a</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
       <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">refactor complete</span> the Operator/Configurator interface is 47 modules and 7 stylesheets under <code>src/operator/</code>, down from one 9,074-line file and one 3,191-line stylesheet. Class names now match the components they style.</p>
@@ -286,7 +286,7 @@
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
         <div role="listitem"><strong>7</strong><span>industry models, data only</span></div>
       </div>
-      <p>The Operator styling that was one 3,191-line <code>App.operator.css</code> is now seven stylesheets under <code>operator/styles/</code>, one per area, loaded in cascade order from <code>App.js</code>. <code>App.js</code> is down to about 700 lines (title bar, navigation and the shared data definitions): the Screens editor moved to <code>src/designer/screens/</code>.</p>
+      <p>The Operator styling that was one 3,191-line <code>App.operator.css</code> is now seven stylesheets under <code>operator/styles/</code>, one per area, loaded in cascade order from <code>App.js</code>. <code>App.js</code> is down to about 550 lines (title bar, navigation and the shared data definitions): the Screens editor moved to <code>src/designer/screens/</code>, and the list of areas is <code>src/shell/appAreas.js</code>.</p>
     </section>
 
     <section id="shape">
@@ -306,7 +306,7 @@
           <text x="24" y="90" font-size="12" fill="currentColor" opacity="0.75">title bar · persona switch</text>
           <text x="24" y="108" font-size="12" fill="currentColor" opacity="0.75">model switch · Save button</text>
           <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">which area is showing</text>
-          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">~700 lines</text>
+          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">~550 lines</text>
 
           <!-- OperatorWorkspace -->
           <rect x="310" y="40" width="200" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -865,6 +865,7 @@
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
             <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also the data definitions the designer areas share, and it calls <span class="mono">useScreenEditor</span> so the Screens canvas survives switching areas.</td></tr>
+            <tr><td class="mono">shell/appAreas.js</td><td>The list of areas: label, menu group, and what Save says in each. Every area gives App the same handle, <span class="mono">save()</span> and <span class="mono">confirmLeave()</span>.</td></tr>
             <tr><td class="mono">operator/styles/*.css</td><td>Seven stylesheets, one per area of <span class="mono">src/operator/</span>. Every rule for a given class lives in exactly one of them.</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
             <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
@@ -916,7 +917,8 @@
             <tr><td>1</td><td>One list + editor shell (<span class="mono">DefinitionWorkspace</span>) for Data Sources, Entities and Queries, with unsaved-changes tracking</td><td><span class="chip now">done</span></td></tr>
             <tr><td>2</td><td>The read-only screen renderer: <span class="mono">ScreenView</span>, <span class="mono">usePageQueryResults</span>, <span class="mono">widgetBindings</span></td><td><span class="chip now">done</span></td></tr>
             <tr><td>3</td><td>The Screens editor out of <span class="mono">App.js</span>: <span class="mono">useScreenEditor</span>, <span class="mono">screenEdits</span>, <span class="mono">ScreensWorkspace</span> and its panels</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>4</td><td>A data-driven area rail and one shell for every area</td><td><span class="chip flag">next</span></td></tr>
+            <tr><td>4a</td><td>One list of areas (<span class="mono">shell/appAreas.js</span>) behind the menu and Save; one area handle (<span class="mono">save</span> / <span class="mono">confirmLeave</span>); Widgets and Scripts as workspaces</td><td><span class="chip now">done</span></td></tr>
+            <tr><td>4b</td><td>The area rail itself</td><td><span class="chip flag">next</span></td></tr>
           </tbody>
         </table>
       </div>

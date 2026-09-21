@@ -6,10 +6,9 @@
 //
 // Why a hook that App calls, rather than state inside ScreensWorkspace:
 // the canvas outlives the area. Leave Screens for Queries and come back,
-// and the open page, unsaved edits and selection are all still there —
-// the "unsaved changes" prompt on leaving is a reminder to save, not a
-// discard. App also needs a few answers from it for the title bar (is the
-// canvas dirty, which page is open, save it). State inside the workspace
+// and the open page, unsaved edits and selection are all still there, so
+// leaving doesn't ask anything. App also needs a few answers from it for
+// the title bar (which page is open, save it). State inside the workspace
 // would reset every time the area closed.
 //
 // Container edits themselves are plain functions in screenEdits.js. What
@@ -115,8 +114,8 @@ export function useScreenEditor({ queries }) {
   };
 
   // True when it's fine to go ahead: nothing unsaved, or the user said to
-  // discard it. Every action that replaces the canvas asks this first, and
-  // so does App before leaving the area.
+  // discard it. Every action that replaces the canvas (opening or creating
+  // a screen) asks this first. Leaving the area doesn't — nothing is lost.
   const confirmDiscardIfDirty = () => {
     if (!isDirty) return true;
     return window.confirm('You have unsaved changes on this screen. Discard them and continue?');

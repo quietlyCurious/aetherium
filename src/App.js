@@ -3,10 +3,12 @@
 // Save), which area is showing, and the data every designer area shares.
 //
 // Each area draws itself — OperatorWorkspace, ScreensWorkspace, the
-// definition workspaces (Data Sources, Entities, Queries), ThemeWorkspace.
-// What stays here is what spans areas: navigation and its unsaved-changes
-// checks, the title-bar Save for whichever area is open, and the data
-// definitions (data sources, entities, queries) more than one area reads.
+// definition workspaces (Data Sources, Entities, Queries), ThemeWorkspace,
+// WidgetsWorkspace, ScriptsWorkspace. The list of areas — names, menu
+// groups, what Save says — is shell/appAreas.js. What stays here is what
+// spans areas: navigation and its unsaved-changes check, the title-bar
+// Save for whichever area is open, and the data definitions (data sources,
+// entities, queries) more than one area reads.
 //
 // The Screens editor's state comes from useScreenEditor, called here rather
 // than inside ScreensWorkspace so the open page and its unsaved edits
@@ -14,9 +16,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useState } from 'react';
-import { Splitter, TabPanel } from 'devextreme-react';
-import { Item as SplitterItem } from 'devextreme-react/splitter';
-import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import 'devextreme/dist/css/dx.fluent.blue.light.compact.css';
 import './App.css';
 import './App.locked.css'; // Pass 2 — locked-selection styling
@@ -51,11 +50,10 @@ import ThemeWorkspace from './ThemeWorkspace';
 import OperatorWorkspace from './operator/OperatorWorkspace';
 import { ScreensWorkspace } from './designer/screens/ScreensWorkspace';
 import { useScreenEditor } from './designer/screens/useScreenEditor';
-import { WidgetTreeItemTemplate } from './designer/screens/ScreensLeftPanel';
+import { WidgetsWorkspace } from './designer/WidgetsWorkspace';
+import { ScriptsWorkspace } from './designer/ScriptsWorkspace';
+import { APP_AREAS, AREA_GROUPS, findArea } from './shell/appAreas';
 import { generateDataId, DEFAULT_DATA_SOURCE, DEFAULT_QUERY } from './dataModel';
-import { DX_WIDGET_DATA, WIDGET_PROPERTIES } from './widgetData';
-import HierarchyTree from './HierarchyTree';
-import WidgetConfigPanel from './WidgetConfigPanel';
 import { useHasUnsavedChanges } from './unsavedChangesStore';
 
 // Deep-link routing for the two Operator Workspace personas — a plain
@@ -85,39 +83,30 @@ function buildDeepLinkPathname({ persona, id, tab }) {
 }
 
 function AetheriumEditor() {
-  // Guards navigation via the top-left "Aetherium ▾" menu the same way page
-  // switching is guarded — if the canvas has unsaved edits, confirm before
-  // leaving. Note: navigating between menu areas doesn't itself discard the
-  // live `containers` state (unlike opening a different saved page, which
-  // does) — this is a deliberate "don't forget to save" nudge, not a data-loss
-  // prevention in the strict sense, though it's built the same way for a
-  // consistent, predictable habit either way.
-  // Leaving the Operator workspace (another app area, the other persona,
-  // or another model) unmounts whatever Configurator editor is open, so
-  // any unsaved changes there get the same Save/Discard prompt that
-  // switching types or assets inside the workspace gives. Resolves
-  // immediately when there's nothing unsaved.
-  const resolveOperatorUnsaved = () => (currentView === 'operator'
-    ? (operatorWorkspaceRef.current?.resolveUnsavedChanges?.() ?? Promise.resolve())
-    : Promise.resolve());
-
-  const handleNavigate = async (view) => {
-    if (!screens.confirmDiscardIfDirty()) return;
-    if (view !== currentView && !confirmLeaveDefinitionArea()) return;
-    if (view !== currentView) await resolveOperatorUnsaved();
-    setCurrentView(view);
-    setMenuOpen(false);
-  };
-
-  // Operator Interface and Configurator Interface both land on the same
-  // underlying workspace (currentView stays 'operator') — only the persona
-  // changes, which controls which rail items that workspace shows.
-  const handleNavigateOperatorPersona = async (persona) => {
-    if (!screens.confirmDiscardIfDirty()) return;
-    if (currentView !== 'operator' && !confirmLeaveDefinitionArea()) return;
-    if (currentView !== 'operator' || persona !== operatorPersona) await resolveOperatorUnsaved();
-    setCurrentView('operator');
-    setOperatorPersona(persona);
+  // ── Moving between areas ─────────────────────────────────────────────────
+  // Only the area being left is asked (its handle's confirmLeave — see
+  // areaHandles below):
+  //  - Data Sources, Entities, Queries: confirm; leaving drops the unsaved
+  //    edits, since their editor unmounts.
+  //  - Configurator: its Save/Discard dialog. Always goes ahead.
+  //  - Screens: nothing to ask. The canvas lives here in App, so unsaved
+  //    edits are still there when you come back (with the Save button's
+  //    amber dot). Opening or creating another screen still asks, since
+  //    that does replace the canvas.
+  // Operator ↔ Configurator is the same workspace with a different
+  // persona; the open Configurator editor still unmounts, so it gets the
+  // same Save/Discard prompt.
+  const navigateTo = async (area) => {
+    const alreadyThere = area.view === currentView && (!area.persona || area.persona === operatorPersona);
+    if (!alreadyThere) {
+      if (area.view !== currentView) {
+        if (!(await confirmLeaveCurrentArea())) return;
+      } else {
+        await operatorWorkspaceRef.current?.resolveUnsavedChanges?.();
+      }
+      setCurrentView(area.view);
+      if (area.persona) setOperatorPersona(area.persona);
+    }
     setMenuOpen(false);
   };
 
@@ -155,7 +144,6 @@ function AetheriumEditor() {
     return () => { cancelled = true; };
   }, []);
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
-  const [selectedWidgetName, setSelectedWidgetName] = useState(null);
 
   // ── Phase 2 Data Layer ────────────────────────────────────────────────────
   // System-scoped (shared across all pages of this project):
@@ -165,15 +153,8 @@ function AetheriumEditor() {
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
-  // The three definition areas share one shell (designer/DefinitionWorkspace),
-  // which knows whether its open editor has unsaved changes. Leaving one of
-  // them asks first, the way switching items inside it does — otherwise
-  // navigating away unmounted the editor and dropped the edits silently.
-  const DEFINITION_WORKSPACE_REFS = { datasources: dataSourcesWorkspaceRef, entities: entitiesWorkspaceRef, queries: queriesWorkspaceRef };
-  const confirmLeaveDefinitionArea = () => DEFINITION_WORKSPACE_REFS[currentView]?.current?.confirmLeave?.() ?? true;
-  // Whether the open editor has unsaved changes — the Configurator's
-  // editors and the definition workspaces both publish here. Drives the
-  // Save button's amber marker.
+  // Whether the open area has unsaved changes — every area with something
+  // to save publishes here. Drives the Save button's amber marker.
   const hasUnsavedChanges = useHasUnsavedChanges();
   const [operatorSaveAvailable, setOperatorSaveAvailable] = useState(false); // whether a type is currently selected (Now area's Types tab) — mirrors the same static, per-context enablement pattern the other workspaces already use, not new dirty-tracking
 
@@ -185,6 +166,21 @@ function AetheriumEditor() {
   // The Screens editor: the saved screens, the page on the canvas and
   // everything done to it (see designer/screens/useScreenEditor).
   const screens = useScreenEditor({ queries });
+
+  // Every area's handle, by view: save() for the title-bar Save, and
+  // confirmLeave() before navigating away (true, or a promise of true, to
+  // go ahead). The workspaces expose theirs through refs; the Screens
+  // editor's state lives here, so its handle is built here.
+  const screensHandle = { save: screens.savePage, confirmLeave: () => true };
+  const areaHandles = {
+    screens: { current: screensHandle },
+    datasources: dataSourcesWorkspaceRef,
+    entities: entitiesWorkspaceRef,
+    queries: queriesWorkspaceRef,
+    operator: operatorWorkspaceRef,
+  };
+  const confirmLeaveCurrentArea = async () => (await areaHandles[currentView]?.current?.confirmLeave?.()) ?? true;
+  const currentArea = findArea(currentView, operatorPersona);
 
   // ── Phase 2 Data Layer Handlers ───────────────────────────────────────────
 
@@ -306,64 +302,20 @@ function AetheriumEditor() {
           </span>
           {menuOpen && (
             <div className="app-titlebar-dropdown">
-              {/* Page-builder areas (Screens … Scripts) — restored to the
-                  menu alongside the Operator/Configurator interfaces. */}
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'screens' ? ' active' : ''}`}
-                onClick={() => handleNavigate('screens')}
-              >
-                Screens
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'widgets' ? ' active' : ''}`}
-                onClick={() => handleNavigate('widgets')}
-              >
-                Widgets
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'theme' ? ' active' : ''}`}
-                onClick={() => handleNavigate('theme')}
-              >
-                Theme
-              </div>
-              <div className="app-titlebar-dropdown-divider" />
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'datasources' ? ' active' : ''}`}
-                onClick={() => handleNavigate('datasources')}
-              >
-                Data Sources
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'entities' ? ' active' : ''}`}
-                onClick={() => handleNavigate('entities')}
-              >
-                Entities
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'queries' ? ' active' : ''}`}
-                onClick={() => handleNavigate('queries')}
-              >
-                Queries
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'scripts' ? ' active' : ''}`}
-                onClick={() => handleNavigate('scripts')}
-              >
-                Scripts
-              </div>
-              <div className="app-titlebar-dropdown-divider" />
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'operator' ? ' active' : ''}`}
-                onClick={() => handleNavigateOperatorPersona('operator')}
-              >
-                Operator Interface
-              </div>
-              <div
-                className={`app-titlebar-dropdown-item${currentView === 'operator' && operatorPersona === 'configurator' ? ' active' : ''}`}
-                onClick={() => handleNavigateOperatorPersona('configurator')}
-              >
-                Configurator Interface
-              </div>
+              {AREA_GROUPS.map((group, i) => (
+                <React.Fragment key={group}>
+                  {i > 0 && <div className="app-titlebar-dropdown-divider" />}
+                  {APP_AREAS.filter(a => a.group === group).map(area => (
+                    <div
+                      key={area.id}
+                      className={`app-titlebar-dropdown-item${area === currentArea ? ' active' : ''}`}
+                      onClick={() => navigateTo(area)}
+                    >
+                      {area.label}
+                    </div>
+                  ))}
+                </React.Fragment>
+              ))}
             </div>
           )}
         </div>
@@ -396,7 +348,7 @@ function AetheriumEditor() {
                     className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
                     onClick={async () => {
                       setModelMenuOpen(false);
-                      if (m.id !== selectedModel) await resolveOperatorUnsaved();
+                      if (m.id !== selectedModel) await operatorWorkspaceRef.current?.resolveUnsavedChanges?.();
                       setSelectedModel(m.id);
                     }}
                   >
@@ -408,7 +360,7 @@ function AetheriumEditor() {
           </div>
         )}
         <div className="app-titlebar-right-cluster">
-        {currentView !== 'operator' && (
+        {currentArea?.showsLaunch && (
           <button
             onClick={() => {
               if (!screens.activePageId) {
@@ -435,58 +387,23 @@ function AetheriumEditor() {
             ▶ Launch
           </button>
         )}
-        {(() => {
-          // Launch stays hidden entirely for 'operator' regardless of
-          // persona — this is a concept shell with no page/runtime-view
-          // concept of its own. Save now also renders for the configurator
-          // persona specifically, since that's where a type's display
-          // template gets saved; it stays hidden for the operator persona,
-          // matching the original "hidden, not just disabled" intent for
-          // personas that have nothing to save here.
-          if (currentView === 'operator' && operatorPersona !== 'configurator') return null;
-
-          // Screens and the three definition areas (data sources, entities,
-          // queries) have a title-bar Save. Widgets, theme and scripts have
-          // nothing to save — these used to silently fall through to the
-          // PAGE save handler, which is how phantom pages named after
-          // whatever was being tested on another screen got created.
-          const saveInfo = currentView === 'operator'
-            ? {
-                enabled: operatorSaveAvailable,
-                label: !operatorSaveAvailable
-                  ? 'Select a type or asset in the Now area to save its display template'
-                  : hasUnsavedChanges
-                    ? 'You have unsaved changes — save them'
-                    : "Save this type or asset's display template (no unsaved changes)",
-              }
-            : {
-                screens:      { enabled: true,  label: currentView === 'screens' && screens.activePageId ? 'Save this screen' : 'Save as a new screen' },
-                entities:     { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save entity data' },
-                datasources:  { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save this data source' },
-                queries:      { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save this query' },
-                theme:        { enabled: false, label: 'Nothing to save on this screen' },
-                widgets:      { enabled: false, label: 'Nothing to save on this screen' },
-                scripts:      { enabled: false, label: 'Nothing to save on this screen' },
-              }[currentView] || { enabled: false, label: 'Nothing to save on this screen' };
-
+        {!currentArea?.hideSave && (() => {
+          // What Save does and says comes from the area (shell/appAreas.js);
+          // areas with nothing to save show it disabled. (Save used to fall
+          // through to the screen save in those areas, which is how phantom
+          // screens got created.)
+          const ctx = { hasUnsavedChanges, activePageId: screens.activePageId, operatorSaveAvailable };
+          const save = currentArea?.save;
+          const enabled = !!save && (save.enabled ? save.enabled(ctx) : true);
+          const title = save ? save.title(ctx) : 'Nothing to save on this screen';
           return (
             <button
               onClick={() => {
-                if (!saveInfo.enabled) return;
-                if (currentView === 'operator') {
-                  operatorWorkspaceRef.current?.save();
-                } else if (currentView === 'entities') {
-                  entitiesWorkspaceRef.current?.save();
-                } else if (currentView === 'datasources') {
-                  dataSourcesWorkspaceRef.current?.save();
-                } else if (currentView === 'queries') {
-                  queriesWorkspaceRef.current?.save();
-                } else {
-                  screens.savePage();
-                }
+                if (!enabled) return;
+                areaHandles[currentView]?.current?.save();
               }}
-              disabled={!saveInfo.enabled}
-              title={saveInfo.label}
+              disabled={!enabled}
+              title={title}
               style={{
                 marginRight: 14,
                 fontSize: 12,
@@ -496,15 +413,14 @@ function AetheriumEditor() {
                 border: '1px solid rgba(255,255,255,0.35)',
                 background: 'rgba(255,255,255,0.08)',
                 color: '#fff',
-                cursor: saveInfo.enabled ? 'pointer' : 'not-allowed',
-                opacity: saveInfo.enabled ? 1 : 0.4,
+                cursor: enabled ? 'pointer' : 'not-allowed',
+                opacity: enabled ? 1 : 0.4,
               }}
             >
               💾 Save
               {/* Unsaved marker — same amber dot convention as a modified
-                  editor tab. The Configurator and the definition areas;
-                  Screens still has its own dirty handling. */}
-              {(currentView === 'operator' || DEFINITION_WORKSPACE_REFS[currentView]) && hasUnsavedChanges && (
+                  editor tab. */}
+              {save && hasUnsavedChanges && (
                 <span className="app-titlebar-unsaved-dot" aria-label="Unsaved changes" />
               )}
             </button>
@@ -522,60 +438,7 @@ function AetheriumEditor() {
       {/* Main content area */}
       <div className="app-body">
         {currentView === 'widgets' ? (
-          <Splitter orientation="horizontal" style={{ height: '100%' }}>
-            <SplitterItem size="220px" minSize="120px" resizable={true}>
-              <div className="app-panel">
-                <TabPanel
-                  height="100%"
-                  animationEnabled={false}
-                  swipeEnabled={false}
-                >
-                  <TabPanelItem title="Widgets">
-                    <div className="left-panel-tab-content">
-                      <HierarchyTree
-                        dataSource={DX_WIDGET_DATA}
-                        displayExpr="name"
-                        itemRender={(item) => WidgetTreeItemTemplate(item, null)}
-                        selectedId={selectedWidgetName}
-                        onSelect={(id) => {
-                          const item = DX_WIDGET_DATA.find(w => w.id === id);
-                          setSelectedWidgetName(item?.assetLevel === 'widget' ? item.name : null);
-                        }}
-                      />
-                    </div>
-                  </TabPanelItem>
-                </TabPanel>
-              </div>
-            </SplitterItem>
-            <SplitterItem resizable={true}>
-              <div className="app-panel app-panel--center" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {selectedWidgetName ? (
-                  <WidgetConfigPanel widgetName={selectedWidgetName} />
-                ) : (
-                  <p className="step-instructions" style={{ padding: 16 }}>Select a widget to view its full configuration.</p>
-                )}
-              </div>
-            </SplitterItem>
-            <SplitterItem size="220px" minSize="120px" resizable={true}>
-              <div className="app-panel details-panel aetherium-canvas-scroll">
-                <p className="panel-label">Details</p>
-                {selectedWidgetName ? (
-                  <>
-                    <p style={{ fontSize: 13, fontWeight: 600, margin: '8px 0 4px' }}>{selectedWidgetName}</p>
-                    {WIDGET_PROPERTIES[selectedWidgetName] ? (
-                      <pre style={{ fontSize: 11, color: '#333', whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#f5f5f5', padding: 8, borderRadius: 4, margin: 0 }}>
-                        {JSON.stringify(WIDGET_PROPERTIES[selectedWidgetName], null, 2)}
-                      </pre>
-                    ) : (
-                      <p style={{ fontSize: 12, color: '#999', fontStyle: 'italic' }}>No Entry</p>
-                    )}
-                  </>
-                ) : (
-                  <p className="step-instructions">Select a widget to view its properties.</p>
-                )}
-              </div>
-            </SplitterItem>
-          </Splitter>
+          <WidgetsWorkspace />
 
         ) : currentView === 'theme' ? (
           <ThemeWorkspace />
@@ -609,17 +472,7 @@ function AetheriumEditor() {
           />
 
         ) : currentView === 'scripts' ? (
-          <div className="data-workspace">
-            <div className="data-workspace-placeholder">
-              <div className="data-workspace-placeholder-icon">🐍</div>
-              <div className="data-workspace-placeholder-title">Scripts</div>
-              <div className="data-workspace-placeholder-desc">
-                Author Python scripts with typed inputs and outputs that can be added to pages and bound to widgets,
-                just like queries. Scripts run server-side and support complex data transformation logic.
-              </div>
-              <div className="data-workspace-placeholder-badge">Phase 3 · planned</div>
-            </div>
-          </div>
+          <ScriptsWorkspace />
 
         ) : currentView === 'operator' ? (
           <OperatorWorkspace

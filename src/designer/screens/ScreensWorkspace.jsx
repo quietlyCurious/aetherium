@@ -16,6 +16,7 @@ import { Popup, Splitter } from 'devextreme-react';
 import { Item as SplitterItem } from 'devextreme-react/splitter';
 import { ToolbarItem } from 'devextreme-react/popup';
 import WizardContent, { STEPS } from '../../Wizard';
+import { unsavedChangesStore } from '../../unsavedChangesStore';
 import WidgetBindingPopover from '../../WidgetBindingPopover';
 import InputBindingPopover from '../../InputBindingPopover';
 import { findContainerById } from '../../containerTree';
@@ -48,6 +49,15 @@ function useCanvasShortcuts(editor) {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
+}
+
+// Lights the title-bar Save's amber dot while the canvas has unsaved
+// edits — the store every area publishes to. Cleared when the area closes;
+// the edits themselves stay (they live in useScreenEditor), and so does
+// the dot when you come back.
+function usePublishUnsaved(isDirty) {
+  useEffect(() => { unsavedChangesStore.setDirty(isDirty); }, [isDirty]);
+  useEffect(() => () => unsavedChangesStore.setDirty(false), []);
 }
 
 // The Create wizard (opened from the details header). Starts fresh each
@@ -174,6 +184,7 @@ function InputBindingEditor({ editor }) {
 
 export function ScreensWorkspace({ editor, queries }) {
   useCanvasShortcuts(editor);
+  usePublishUnsaved(editor.isDirty);
   const wizard = useCreateWizard();
   return (
     <>

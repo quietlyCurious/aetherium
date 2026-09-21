@@ -88,6 +88,12 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   useImperativeHandle(ref, () => ({
     save: () => activeSaveHandlerRef.current?.(),
     resolveUnsavedChanges: () => unsavedGuardRef.current?.() ?? Promise.resolve(),
+    // The handle every area gives App (see shell/appAreas.js). Leaving
+    // always goes ahead here: the Save/Discard prompt has no Cancel.
+    confirmLeave: async () => {
+      await (unsavedGuardRef.current?.() ?? Promise.resolve());
+      return true;
+    },
   }), []);
 
   useEffect(() => {
