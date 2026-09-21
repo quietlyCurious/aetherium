@@ -18,7 +18,7 @@ import { CustomizationTitleControls } from './customizationControls';
 // Persists across Details being hidden/shown: closing the Details panel
 // doesn't blank this out or reset it, it just keeps showing whichever
 // was last active.
-export function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, relationshipTypeId, thisAssetExampleId, typeList, properties, sparklineSource, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, typeRelatedAssetsTemplates, onSaveTypeDisplayTemplate, onSaveTypeRelatedAssetsTemplate, assetPropertyConfigs, assetRelatedAssetConfigs, assetDisplayTemplates, assetRelatedAssetsTemplates, onSaveAssetDisplayTemplate, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange, propertyVisuals }) {
+export function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEntity, relationshipTypeId, thisAssetExampleId, typeList, properties, seriesAssetId, evidencePoints, typePropertyConfigs, typeRelatedAssetConfigs, typeDisplayTemplates, typeRelatedAssetsTemplates, onSaveTypeDisplayTemplate, onSaveTypeRelatedAssetsTemplate, assetPropertyConfigs, assetRelatedAssetConfigs, assetDisplayTemplates, assetRelatedAssetsTemplates, onSaveAssetDisplayTemplate, onSaveAssetRelatedAssetsTemplate, activeSaveHandlerRef, onViewModeChange, hiddenAssetIds, allAssetsTemplate, onSaveAllAssetsTemplate, onTitleClick, toolbarExpanded, onToolbarExpandedChange, propertyVisuals }) {
   // Seeds the shared per-property visual draft from this entity's saved
   // template whenever a different entity gets selected — this component
   // remounts per selection (key={selectedThing.id}), so mount is exactly
@@ -165,7 +165,7 @@ export function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEnt
       <div className="op-dashboard-card op-now-type-kpi-card">
         <PropertyTilesView
           properties={properties}
-          sparklineSource={sparklineSource}
+          seriesAssetId={seriesAssetId}
           evidencePoints={evidencePoints}
           typeVisibilityMode
           typeId={entityId}

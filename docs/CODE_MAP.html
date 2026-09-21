@@ -281,7 +281,7 @@
       <div class="glance" role="list">
         <div role="listitem"><strong>1,248</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
         <div role="listitem"><strong>47+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
-        <div role="listitem"><strong>39</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
+        <div role="listitem"><strong>23</strong><span>model-data variables, now all in <code>modelData.js</code></span></div>
         <div role="listitem"><strong>~40</strong><span>pieces of state in the workspace component</span></div>
         <div role="listitem"><strong>15</strong><span>storage files behind the Operator side</span></div>
         <div role="listitem"><strong>7</strong><span>industry models, data only</span></div>
@@ -411,7 +411,7 @@
           <text x="96" y="34" font-size="12" fill="currentColor" opacity="0.7">App.js · persona ▾ · model ▾ · 💾 Save</text>
           <!-- nowstrip -->
           <rect x="10" y="48" width="960" height="34" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-          <text x="24" y="70" font-size="12" fill="currentColor"><tspan font-weight="600">NowStrip</tspan><tspan opacity="0.7"> · IssueMapOverlay (Operator: lines/units at a glance)</tspan></text>
+          <text x="24" y="70" font-size="12" fill="currentColor"><tspan font-weight="600">NowStrip</tspan><tspan opacity="0.7"> (Operator: one tile per unit; a click opens it in Assets)</tspan></text>
           <!-- nav rail -->
           <rect x="10" y="82" width="46" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
           <text x="33" y="226" font-size="12" font-weight="600" fill="currentColor" text-anchor="middle" transform="rotate(-90 33 226)">AreaRail</text>
@@ -695,7 +695,7 @@
       <div class="notes">
         <div class="note">
           <h4>Model data in module globals</h4>
-          <p>39 <code>let</code> variables (asset hierarchy, telemetry, labels, ranges…) in <code>modelData.js</code>, written only there and read everywhere else as live imports. Nothing passes model data as props. The model's shape (<span class="mono">generic</span>, <span class="mono">four-level</span>, <span class="mono">refinery</span>) picks which resolver in <code>assetQueries.js</code> runs.</p>
+          <p>23 <code>let</code> variables (asset hierarchy, telemetry, labels, ranges…) in <code>modelData.js</code>, written only there and read everywhere else as live imports. Nothing passes model data as props. Every model is a generic pack keyed by real asset id, so <code>assetQueries.js</code> has one lookup path (<span class="mono">getAssetProperties</span>, <span class="mono">getAssetPropertySeries</span>, <span class="mono">assetTypeIdOf</span>) and no id conversions.</p>
           <p class="where">operator/model/modelData.js · operator/model/assetQueries.js</p>
         </div>
         <div class="note">
@@ -744,13 +744,13 @@
     <section id="bigfile">
       <h2>Where the code lives</h2>
       <h3>All of it: <span class="mono">src/operator/</span></h3>
-      <p>46 modules, grouped by what they are rather than by when they were written. Names follow one vocabulary: a <strong>tile</strong> is one property, a <strong>card</strong> is one asset's tiles, a <strong>view</strong> lays cards or tiles out, and an <strong>editor</strong> is a view plus the toolbar and Save that change it.</p>
+      <p>48 modules, grouped by what they are rather than by when they were written. Names follow one vocabulary: a <strong>tile</strong> is one property, a <strong>card</strong> is one asset's tiles, a <strong>view</strong> lays cards or tiles out, and an <strong>editor</strong> is a view plus the toolbar and Save that change it.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">model/modelData.js</td><td class="num">463</td><td>The 39 model-data variables, the shift timeline, and the loader helpers that write them</td></tr>
-            <tr><td class="mono">model/assetQueries.js</td><td class="num">593</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset</td></tr>
+            <tr><td class="mono">model/modelData.js</td><td class="num">231</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
+            <tr><td class="mono">model/assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset</td></tr>
             <tr><td class="mono">settings/propertyDisplay.js</td><td class="num">64</td><td>View modes, per-property visual resolution and merging, the Show (visibility) cycle</td></tr>
             <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
             <tr><td class="mono">settings/customizations.js</td><td class="num">175</td><td>"Differs from type" detection and the customization store</td></tr>
@@ -759,7 +759,7 @@
             <tr><td class="mono">badges.jsx</td><td class="num">12</td><td><span class='mono'>AiPill</span>, the “AI-derived” marker used in three views</td></tr>
             <tr><td class="mono">properties/PropertyTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
             <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class='mono'>MiniSparkline</span> and <span class='mono'>ResponsiveSparkline</span></td></tr>
-            <tr><td class="mono">properties/PropertyTilesView.jsx</td><td class="num">472</td><td>A property listing: grouped tiles, filter and layout toolbar, its own Save</td></tr>
+            <tr><td class="mono">properties/PropertyTilesView.jsx</td><td class="num">467</td><td>A property listing: grouped tiles, filter and layout toolbar, its own Save</td></tr>
             <tr><td class="mono">properties/PropertyTileCanvas.jsx</td><td class="num">53</td><td>The shared canvas, configured for property tiles</td></tr>
             <tr><td class="mono">canvas/ManualLayoutCanvas.jsx</td><td class="num">167</td><td>The one manual-layout canvas: node sync, drag with grid snap, position reporting, align / distribute / arrange</td></tr>
             <tr><td class="mono">canvas/CanvasAlignControls.jsx</td><td class="num">38</td><td>The align / distribute / arrange toolbar groups, used by all four manual modes</td></tr>
@@ -779,10 +779,8 @@
             <tr><td class="mono">configurator/AllAssetsEditor.jsx</td><td class="num">171</td><td>The All Assets diagram editor and its per-type visibility list</td></tr>
             <tr><td class="mono">configurator/diagramSettings.jsx</td><td class="num">228</td><td>A diagram's settings state, its Auto/Manual switch and its toolbar controls &mdash; shared by both diagram editors</td></tr>
             <tr><td class="mono">configurator/customizationControls.jsx</td><td class="num">171</td><td>Dots, counts, the title chip and the revert popover</td></tr>
-            <tr><td class="mono">operatorViews/statusVocabulary.js</td><td class="num">91</td><td>The shared status colour and label maps every Operator view reads</td></tr>
-            <tr><td class="mono">operatorViews/NowStrip.jsx</td><td class="num">70</td><td>The line-status strip across the top</td></tr>
-            <tr><td class="mono">operatorViews/IssueMap.jsx</td><td class="num">162</td><td>The lines &times; stations issue grid and its overlay</td></tr>
-            <tr><td class="mono">operatorViews/LineDetail.jsx</td><td class="num">90</td><td>One line's rollups and per-station breakdown</td></tr>
+            <tr><td class="mono">operatorViews/statusVocabulary.js</td><td class="num">62</td><td>The shared status colour and label maps every Operator view reads</td></tr>
+            <tr><td class="mono">operatorViews/NowStrip.jsx</td><td class="num">69</td><td>The unit-status strip across the top (<span class="mono">selectedUnitId</span>, <span class="mono">onSelectUnit</span>)</td></tr>
             <tr><td class="mono">operatorViews/AttentionPanel.jsx</td><td class="num">227</td><td>The Attention list, its group/sort controls and its cards</td></tr>
             <tr><td class="mono">operatorViews/InvestigatePanel.jsx</td><td class="num">315</td><td>Why an item needs attention: trend, evidence, timeline, related assets, time scrubber, and the AI tab (picks one of the two views below)</td></tr>
             <tr><td class="mono">operatorViews/InvestigateStatCards.jsx</td><td class="num">62</td><td>Confidence / Risk / Outcome stat cards, shared by both AI-tab views</td></tr>
@@ -803,7 +801,7 @@
             <tr><td class="mono">styles/canvas.css</td><td class="num">18</td><td>The manual-layout canvas</td></tr>
             <tr><td class="mono">styles/relatedAssets.css</td><td class="num">42</td><td>The asset card and the two engines that arrange cards</td></tr>
             <tr><td class="mono">styles/configurator.css</td><td class="num">376</td><td>Tree, preview, Details grids, customization dots and popovers</td></tr>
-            <tr><td class="mono">styles/operatorViews.css</td><td class="num">1,317</td><td>Now strip, issue map, Line Detail, Attention, Investigate, Work</td></tr>
+            <tr><td class="mono">styles/operatorViews.css</td><td class="num">1,459</td><td>Now strip, Attention, Investigate (including the explanation view), Work</td></tr>
             <tr><td class="mono">styles/chrome.css</td><td class="num">357</td><td>Rails, side panel, contacts, AI chat</td></tr>
           </tbody>
         </table>
@@ -872,7 +870,7 @@
             <tr><td class="mono">shell/AreaRail.jsx · appRail.css</td><td>The left rail, in groups (both workspaces), and the rail styles shared with the Operator's right rail.</td></tr>
             <tr><td class="mono">operator/styles/*.css</td><td>Seven stylesheets, one per area of <span class="mono">src/operator/</span>. Every rule for a given class lives in exactly one of them.</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
-            <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
+            <tr><td class="mono">assetData.js</td><td>Designer only: the refinery hierarchy for the Screens Model tab and the Wizard (same ids as <span class="mono">public/data/refinery/assets.json</span>). The Operator side never reads it.</td></tr>
             <tr><td class="mono">unsavedChangesStore.js</td><td>The unsaved-changes store and <span class="mono">useUnsavedTracker</span>.</td></tr>
             <tr><td class="mono">DataListGrid.jsx · HierarchyTree.jsx</td><td>Small shared list and tree components used by both halves of the app.</td></tr>
             <tr><td class="mono">*Storage.js (20)</td><td>One localStorage concern each: a load/save pair with try/catch around JSON. 15 serve the Operator side; the rest hold pages, entities, data sources and queries.</td></tr>
@@ -892,7 +890,7 @@
       <p>Each industry is data only: a folder under <span class="mono">public/data/&lt;model&gt;/</span> plus one entry in <span class="mono">models.json</span>. There are seven today: refinery, water, wastewater, wind, ccgt, pipeline and pharma. New ones use the <strong>generic</strong> 8-file format described in <span class="mono">INDUSTRY_PACK_SPEC.md</span>.</p>
       <ul class="tight">
         <li><span class="mono">ModelAndData/industries/&lt;model&gt;/generate.py</span> builds a pack, with research and scenario notes alongside.</li>
-        <li><span class="mono">ModelAndData/tools/validate_industry_pack.py</span> checks one; <span class="mono">convert_legacy_to_generic.py</span> upgrades an old four-level pack.</li>
+        <li><span class="mono">ModelAndData/tools/validate_industry_pack.py</span> checks one; <span class="mono">--all</span> checks every registered pack; <span class="mono">convert_legacy_to_generic.py</span> is the one-off converter that produced refinery, water and wastewater.</li>
         <li><span class="mono">PROJECT_CONTEXT.md</span> is the short orientation file for new chat sessions.</li>
       </ul>
     </section>
@@ -940,7 +938,7 @@
   configurator/                  <span class="c">tree, preview, editors, Details, diagram
                                  settings, customization controls           ✓</span>
   operatorViews/                 <span class="c">Attention, Work, Investigate, NowStrip,
-                                 issue map, Assets, status vocabulary       ✓</span>
+                                 Assets, status vocabulary                  ✓</span>
   chrome/                        <span class="c">rails, side panel, contacts, AI chat        ✓</span>
   styles/                        <span class="c">base, properties, canvas, relatedAssets,
                                  configurator, operatorViews, chrome        ✓</span></pre>

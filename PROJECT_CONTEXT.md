@@ -35,35 +35,31 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   switcher hides, since models only drive the Operator side). Active work
   is on the half below.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept: a thin `OperatorWorkspace.jsx` shell plus 46 modules and 7
+  concept: a thin `OperatorWorkspace.jsx` shell plus 48 modules and 7
   stylesheets, all under `src/operator/`. This is where essentially all recent work has
   happened, and is very likely where new work will continue. It was split
   out of one very large file in phases (see `docs/CODE_MAP.html`, the
   full map of how it fits together).
 
-Four simulated industry models exist — **refinery**, **water**,
-**wastewater** and **wind** (Boreas Ridge, the first generic pack, built
-from `ModelAndData/industries/wind/generate.py`) — each with its own real
-asset hierarchy and generated
-telemetry, loaded at runtime from `public/data/<model>/*.json` rather
-than hardcoded. A model switcher in the title bar (next to the
+Eight simulated industry models exist — **refinery**, **water**,
+**wastewater**, **wind** (Boreas Ridge), **ccgt**, **pipeline**,
+**pharma** and **grid** — each with its own real asset hierarchy and
+generated telemetry, loaded at runtime from `public/data/<model>/*.json`
+rather than hardcoded. A model switcher in the title bar (next to the
 Operator/Configurator experience switcher) picks which one is active.
 The list of models, and which files each one loads, comes from
 `public/data/models.json`, so adding an industry is a data-only change
 (see `INDUSTRY_PACK_SPEC.md`).
 
-Models come in three **shapes**, and the shape (not the model's name)
-decides how the loader and the property lookup behave:
-
-- `generic`: the format for every new industry. Any hierarchy depth,
-  data keyed directly by asset id, and its own timeline. This is the
-  cleanest path through the code.
-- `four-level`: legacy water/wastewater (plant/train/stage/equipment).
-- `refinery`: legacy, with its hierarchy in `src/assetData.js`.
-
-Legacy shapes rely on string rules that convert one asset id into
-another; generic packs never do. Almost everything in `OperatorWorkspace.jsx` reads from whichever
-model's data is currently loaded, not from a specific model by name.
+Every model uses the one **generic** pack format (spec §6): any
+hierarchy depth, data keyed directly by asset id, and its own timeline.
+Refinery, water and wastewater were originally built in two older
+layouts and were converted in Sept 2026 (spec §12); the old formats,
+their id-conversion rules and the refinery-only Issue Map and Line
+Detail are gone. Everything in `src/operator/` reads from whichever
+model's data is currently loaded, never from a specific model by name.
+The one exception is the designer side (Screens Model tab, Wizard),
+which still reads the refinery hierarchy from `src/assetData.js`.
 
 ## The two personas, and what each one is for
 
@@ -256,8 +252,8 @@ state vs. drawing:
   Details grids, the customization controls, and `diagramSettings.jsx`
   (`useDiagramSettings` plus the diagram toolbar controls, shared by both
   diagram editors — add a diagram control there and both get it).
-- `src/operator/operatorViews/` — the Operator's own views: NowStrip, the
-  issue map, Line Detail, Attention, Investigate and its evidence
+- `src/operator/operatorViews/` — the Operator's own views: NowStrip,
+  Attention, Investigate and its evidence
   widgets, Work, task detail, the Assets area, and `statusVocabulary.js`
   (the status colour/label maps they all share). Investigate's AI tab has
   two versions sharing `InvestigateStatCards`: `explanation/ExplanationView`
@@ -304,13 +300,14 @@ class names match, as of phase 5: `op-property-tile-*`,
   `ModelAndData/tools/detectors/preview.py <model>` renders a pack's
   explanations as a standalone HTML page for reviewing content.
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of
-  industry models (id, label, shape, per-role file overrides), read by both
+  industry models (id, label, levels, unitLevel, optional file roles), read by both
   the model switcher and `OperatorWorkspace`'s loader. A new industry pack
   is one entry here plus its `public/data/<id>/` folder, with no code
   changes. `INDUSTRY_PACK_SPEC.md` has the full requirements for building
   one, and `ModelAndData/tools/validate_industry_pack.py` checks it.
-  `ModelAndData/tools/convert_legacy_to_generic.py` converts a legacy
-  four-level pack to the generic format.
+  `validate_industry_pack.py --all` checks every registered pack.
+  `ModelAndData/tools/convert_legacy_to_generic.py` is the one-off
+  converter that produced refinery, water and wastewater (spec §12).
 - `src/App.css` — title bar and other App.js-level chrome.
 - `src/operator/styles/` — the Operator/Configurator styling, seven files
   mirroring the folders above (`base`, `properties`, `canvas`,
@@ -334,18 +331,17 @@ class names match, as of phase 5: `op-property-tile-*`,
   Screens area — the editor (`ScreensWorkspace`, `useScreenEditor`,
   `screenEdits`) and the read-only renderer (`ScreenView`,
   `usePageQueryResults`, `widgetBindings`).
-- `public/data/<model>/*.json` — per-model generated data. Generic packs
-  have 8 files (`assets`, `asset-values`, `asset-telemetry`,
-  `properties`…, spec §6). The legacy description below is for the
-  20-file packs: telemetry
-  (multiple points per property, not just current-value snapshots),
-  asset relationships, attention/alarm items, work items, property
-  labels/tiers/ranges. `station-full-properties.json`'s "current" value
-  for a property is always exactly the last point of that same
-  property's own series in `station-telemetry.json` — confirmed
-  empirically, and load-bearing for the Investigate panel's time-track
-  scrubber, which pulls real historical readings from that series
-  rather than faking movement.
+- `public/data/<model>/*.json` — per-model data, 8 files per pack
+  (`assets`, `asset-relationships`, `properties`, `asset-values`,
+  `asset-telemetry`, `unit-status`, `attention-items`, `work-items`;
+  spec §6), plus `explanations.json` where a pack has detectors. An
+  asset's current value for a property is always exactly the last point
+  of that property's series in `asset-telemetry.json` — load-bearing for
+  the Investigate panel's time-track scrubber, which pulls real
+  historical readings from that series rather than faking movement.
+  `src/assetData.js` is a designer-only copy of the refinery hierarchy
+  (same ids as `refinery/assets.json`), pending the designer's move onto
+  the loaded model.
 - `TODO.md` — deliberately deferred/hidden features, each commented out
   in place with a note on why and how to restore it. Check this before
   assuming something unfinished was simply forgotten.

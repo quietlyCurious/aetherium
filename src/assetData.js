@@ -1,4 +1,9 @@
-// Asset hierarchy data and helpers
+// Asset hierarchy data and helpers — DESIGNER ONLY.
+// The Screens "Model" tab and the Create wizard (Wizard.jsx) still read the
+// refinery hierarchy from here. The Operator side doesn't: every model,
+// refinery included, loads public/data/<model>/assets.json. The ids below
+// match public/data/refinery/assets.json. Moving the designer onto the
+// loaded model (and deleting this file) is a planned follow-up.
 
 const ASSET_DATA = [
   { id: 'AURELIA', parentId: null, name: 'Aurelia', assetType: 'refinery', assetLevel: 'refinery' },

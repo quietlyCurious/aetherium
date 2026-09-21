@@ -1,7 +1,6 @@
 // operator/operatorViews/AiInterpretationView.jsx
 // Investigate's AI tab for an attention item that has no detector-built
-// explanation (every legacy pack, and generic packs without detectors
-// yet): the stat cards plus the item's own observed / derived / inferred
+// explanation (packs without detectors yet): the stat cards plus the item's own observed / derived / inferred
 // text and next steps. Items that do have an explanation get
 // ExplanationView instead — see InvestigatePanel.
 

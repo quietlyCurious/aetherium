@@ -11,7 +11,7 @@
 
 import { createContext, useContext } from 'react';
 import { GearIcon } from '../icons';
-import { resolveAssetProperties, getPropertySeriesForSource, getPropertyVisibilityForType, sliceSeriesToRange } from '../model/assetQueries';
+import { getAssetProperties, getAssetPropertySeries, getPropertyVisibilityForType, sliceSeriesToRange } from '../model/assetQueries';
 import { PROPERTY_RANGES, PROPERTY_LABELS, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
 import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
 import { mergePropertyViewModes, resolvePropertyViewMode } from '../settings/propertyDisplay';
@@ -109,9 +109,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
     return <>{titleElement}{gearElement}</>;
   }
 
-  const resolved = resolveAssetProperties(relatedTypeExampleAssetId);
-  const staticProperties = resolved?.properties;
-  const sparklineSource = resolved?.sparklineSource;
+  const staticProperties = getAssetProperties(relatedTypeExampleAssetId);
   if (!staticProperties) return null;
 
   // When a time-track scrub is active, show each property's own reading at
@@ -124,7 +122,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   // rather than disappearing.
   const properties = scrubTimeIndex == null ? staticProperties : Object.fromEntries(
     Object.entries(staticProperties).map(([key, staticValue]) => {
-      const series = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+      const series = getAssetPropertySeries(relatedTypeExampleAssetId, key);
       const scrubbedValue = series?.[scrubTimeIndex];
       return [key, typeof scrubbedValue === 'number' ? scrubbedValue : staticValue];
     })
@@ -177,7 +175,7 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   // place (a second render path added later with no shared home for this).
   const renderPropertyTile = ([key, value]) => {
     const range = PROPERTY_RANGES[key];
-    const fullSeries = sparklineSource ? getPropertySeriesForSource(sparklineSource, key) : null;
+    const fullSeries = getAssetPropertySeries(relatedTypeExampleAssetId, key);
     const sparkline = (fullSeries && rangeStart && rangeEnd) ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd) : null;
     return (
       <PropertyTile

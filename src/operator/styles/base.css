@@ -111,29 +111,14 @@
 
 /* ── Now section wrapper ──────────────────────────────────────────────────── */
 
-/* Temporarily hidden per request — confirmed the rest of the layout has
-   comfortable room without it. Design for this section (including its
-   own pulltab/issue-map overlay) is still to be decided later, so this
-   is a deliberate override to switch it back on, not a removal. */
+/* The Now strip's row. */
 .op-now-section {
   position: relative;
   z-index: 3;
   flex-shrink: 0;
 }
 
-/* ── Issue map — one rigid sliding element, tab included. The tab is simply
-   the bottom 20px of this same box (position:absolute; bottom:0 within
-   it), not a separately-tracked control. Collapsed, the whole box is
-   translated up by its own height minus 20px, so only that bottom strip
-   (the tab) still pokes out below the Now strip — the rest is tucked up
-   behind the strip itself (Now strip has the higher z-index, so it visibly
-   covers that overlap). Expanding slides the whole rigid box down to
-   translateY(0), carrying the tab down to the new true bottom with it —
-   like pulling a page out from under the one on top, not growing a box. */
-
-/* With the Now strip visible again, the collapsed overlay (translated up by
-   its own height) reaches past the strip into the title bar area. The
-   title bar has to sit above it, or the tucked-away map covers the title. */
+/* The title bar's menus drop down over the Now strip. */
 .app-titlebar {
   position: relative;
   z-index: 10;

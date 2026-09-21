@@ -11,11 +11,10 @@ do the whole job. The only things to ask Amy up front are in §0.
 
 > **Status (v2, Sept 2026).** This version describes the **generic**
 > pack format: any hierarchy depth, uneven branches, and data keyed
-> directly by asset id. The app and the validator both support it
-> (`shape: "generic"` in `models.json`). The three existing packs
-> (refinery, water, wastewater) still use the older **legacy** formats
-> (§12), which keep working unchanged. §11 lists what was built and what
-> is still open.
+> directly by asset id. It is the **only** format. The three original
+> packs (refinery, water, wastewater) were converted to it, and the older
+> formats and their code paths were deleted (§12). §11 lists what was
+> built and what is still open.
 
 ---
 
@@ -56,8 +55,9 @@ top of `RESEARCH.md`, and carry on.
 It's the folder name, the `models.json` id, and the key used by
 `nowSelectionStorage`.
 
-Commit the generator. None of the three legacy packs has one, so none can
-be regenerated. Don't repeat that.
+Commit the generator. The three original packs (refinery, water,
+wastewater) have none; they were converted once from hand-built data
+(§12) and can't be regenerated. Don't repeat that.
 
 **Worked example:** `ModelAndData/industries/wind/` (Boreas Ridge) is
 the first generic pack. It has all three documents plus a generator
@@ -171,11 +171,11 @@ one id from another; every file refers to assets by their real `id`.
   - Reuse a key across types only when it means the same thing and has
     the same normal range.
   - When a similar measurement has a very different magnitude, give it a
-    **different key**. The legacy packs use `motor_current_a` for small
+    **different key**. The water packs use `motor_current_a` for small
     dosing pumps and `process_motor_current_a` for large process pumps, so
     each gets its own gauge range.
-- **Reusable property kits** keep equipment consistent. From the legacy
-  packs:
+- **Reusable property kits** keep equipment consistent. From the water
+  and wastewater packs:
   - Centrifugal process pump: `flow_rate_gpm`, `discharge_pressure_psi`,
     `process_motor_current_a`, `vibration_mms`, `bearing_temp_c`
   - Metering or dosing pump: `dosing_flow_rate_gpm`,
@@ -363,7 +363,7 @@ data can't drift apart.
 - Every non-static numeric property of every asset has a series with one
   point per timeline step.
 - Model normal operation as a **slowly drifting AR(1) process around a
-  per-asset setpoint**, not white noise. The legacy data has lag-1
+  per-asset setpoint**, not white noise. The original packs' data has lag-1
   autocorrelation of about 0.8–0.95. Typical coefficient of variation:
   about 0.2–2% for tightly controlled values, about 5–15% for loosely
   controlled ones. Counts and queues can hit 0.
@@ -404,7 +404,7 @@ telemetry, not just into the narrative text:
 
 `evidence` (the number array) = the numeric values of `evidencePoints`,
 in order. For non-numeric evidence (event counts, task states), use small
-integer codes as the legacy packs do.
+integer codes as the refinery and water packs do.
 
 ### 5.3 The "current value" rule
 
@@ -500,13 +500,14 @@ One entry for **every asset at `unitLevel`**:
 - `product` is what the unit is making or delivering, in industry terms
   (grade, product, "Grid export", "Potable supply").
 
-This replaces the legacy `line-status.json` and `operating-context.json`.
+This replaced the original packs' `line-status.json` and
+`operating-context.json`.
 
 ### 6.7 `attention-items.json`
 
 ```jsonc
 {
-  "id": "BSIT01",                           // unique across ALL models: pick a new prefix (legacy uses SIT, WSIT)
+  "id": "BSIT01",                           // unique across ALL models: pick a new prefix (SIT, WSIT, … are taken)
   "assetId": "BOREAS_F2_WTG07_GEARBOX",     // the asset the situation is about, at any level
   "unitId": "BOREAS_F2_WTG07",              // its unit-level ancestor (or itself); null if the asset sits above the unit level
   "primaryProperty": "gearbox_oil_temp_c",  // the property evidencePoints track; must exist on assetId
@@ -580,9 +581,9 @@ away, so should the limit.
 | Children per parent | ≤ 40 (soft) | Beyond that, the tree and the cards views get hard to scan. |
 | Units (`unitLevel` assets) | ≤ 24 (soft) | One Now-strip tile each. The refinery's 12 fit comfortably; past about 24 the strip scrolls sideways (tested with 34). The Now strip is currently hidden by CSS (`.op-now-section`), so this only matters once it's shown again. |
 | Properties per type | about 2–8 | What an operator can take in at a glance (§3.3). |
-| Distinct property keys | no fixed number | Follows from the types; the old 40–55 target only described the legacy packs. |
+| Distinct property keys | no fixed number | Follows from the types; the old 40–55 target only described the original packs. |
 | Points per series | 40–200 | Enough shape for a trend, small enough for fast files. |
-| Total pack size | ≤ 5 MB, no file over 3 MB | Everything loads at once when switching models. The legacy packs are about 1–1.2 MB. |
+| Total pack size | ≤ 5 MB, no file over 3 MB | Everything loads at once when switching models. Refinery, water and wastewater are about 0.3–0.45 MB each. |
 | Attention items | 6–14 | Enough to cover the required archetypes (§4.1), few enough for the Attention list to stay meaningful. |
 | Work items | 8–15 | A believable shift's workload. |
 | Evidence points per item | 5–8 | What the Timeline and Table cards display well. |
@@ -591,7 +592,7 @@ Rough size check: *assets with series × properties × points × about 7
 bytes*. 300 assets × 4 properties × 74 points ≈ 620 KB.
 
 Numbers from v1 that **were removed**, because they only described the
-legacy packs: exactly 4 levels; 1 plant; 6 trains; 5–6 stages per train;
+original packs: exactly 4 levels; 1 plant; 6 trains; 5–6 stages per train;
 2–3 equipment per stage; 30–36 stages; 80–100 equipment; 60–75 edges;
 edges only between equipment in the same train; 8 fixed "universal"
 properties on every stage; fixed line and plant KPI key sets; the OEE
@@ -606,9 +607,10 @@ Run:
 
 ```
 python3 ModelAndData/tools/validate_industry_pack.py <model>
+python3 ModelAndData/tools/validate_industry_pack.py --all   # every pack in models.json
 ```
 
-For generic packs it checks:
+It checks:
 
 - **Registration:** the `models.json` entry and its levels.
 - **Hierarchy:** one level per depth step; roots at the first level;
@@ -648,7 +650,6 @@ selected, and actually look at the screenshots:
 {
   "id": "wind",
   "label": "Wind",
-  "shape": "generic",
   "levels": [
     { "id": "site", "label": "Site" },
     { "id": "feeder", "label": "Feeder" },
@@ -665,24 +666,23 @@ selected, and actually look at the screenshots:
 - `levels` lists every `assetLevel` used in `assets.json`, root first.
   Their `label`s replace the app's hardcoded level labels.
 - `unitLevel` is one of those level ids.
-- `files` (optional) overrides a default filename, as in legacy entries.
-  New packs use the §6 names and leave it out.
+- `files` (optional) maps a role to a filename, merged over the §6
+  defaults. Packs use it only to add the optional `explanations` role
+  (§14.7); an unknown role is an error on load.
 
 ---
 
-## 10. Refinery-only UI (not driven by the data)
+## 10. Model-specific UI
 
-These parts of the Operator view are hardcoded to the refinery:
+None. Every Operator and Configurator view reads the generic files. The
+refinery-only Issue Map and Line Detail panels were removed along with
+the legacy formats (§12); a Now-strip tile opens its unit in the Assets
+area for every model.
 
-- the Issue Map grid (`AURELIA_LINES`, `FERRUM_LINES` and the station
-  lists)
-- the Line Detail panel (`LineDetail`, with `STATION_TYPE_LABELS`,
-  `HIGHLIGHT_FIELD_LABELS`, `SPARKLINE_PROPERTY_LABELS`)
-- `lineIdToAssetId` and `attentionAssetToStationId`
-
-Only the refinery model shows the Issue Map pull-tab. Every other model
-(generic packs, and legacy water and wastewater) hides it, and clicking a
-Now-strip tile opens that unit in the Assets area instead.
+The **designer** (the Screens Model tab and the Wizard) still reads the
+refinery hierarchy from `src/assetData.js`, whose ids match
+`public/data/refinery/assets.json`. Moving it onto the loaded model is
+open (§11).
 
 ---
 
@@ -690,42 +690,42 @@ Now-strip tile opens that unit in the Assets area instead.
 
 Built (Sept 2026):
 
-1. **Registry** (`modelRegistry.js`): `shape: "generic"`, with `levels` and
-   `unitLevel` checked on load, and the §6 default filenames.
+1. **Registry** (`modelRegistry.js`): `levels` and `unitLevel` checked
+   on load, the §6 default filenames, and optional roles
+   (`explanations`) that may be missing without failing the model.
 2. **Loader** (`OperatorWorkspace.jsx`): loads the 8 files, and splits
    `properties.json` into the label, category, tier, range, unit, decimals
    and type-label lookups. It resets **every** model variable before each
-   load, so nothing leaks between models of different shapes.
-3. **Property lookup:** `resolveGenericAssetProperties` reads
-   `asset-values[assetId]` directly, and sparklines read
-   `asset-telemetry.series[assetId]`. There are no id conversions.
+   load, so nothing leaks from one model into the next.
+3. **Property lookup:** `getAssetProperties(assetId)` reads
+   `asset-values[assetId]` and `getAssetPropertySeries(assetId, key)`
+   reads `asset-telemetry.series[assetId][key]` (`assetQueries.js`).
+   There are no id conversions; type ids are `assetTypeIdOf(asset)`.
 4. **Timeline:** `applyTimeline()` sets "now", the shift start and the
-   sample grid from the model (legacy models keep 08:00–14:05). The
+   sample grid from the model. The
    scrubber, slicing, work-item lateness and chart dates all follow it.
 5. **Level labels** come from `models.json`. Display labels start at the
    unit-level ancestor.
 6. **Now strip:** tiles come from `unit-status.json`, and a tile click
    opens that unit in the Assets area. The tree expands down to it.
 7. **Attention and work items** resolve by `assetId`. The Trend chart
-   plots the real `primaryProperty` series across the whole timeline,
-   instead of the padded stand-in legacy items use.
+   plots the real `primaryProperty` series across the whole timeline.
 8. **Units and decimals** are shown in the stat tiles.
 9. **Scale check:** done (see §7).
-10. **Validator:** checks generic packs (§8), and legacy four-level
-    packs as before.
-11. **Converter:** `ModelAndData/tools/convert_legacy_to_generic.py
-    <legacy> <new-id>` turns a four-level pack into the generic format.
-    It was used to check that a converted wastewater pack shows the same
-    values as the original.
+10. **Validator:** checks every pack (§8); `--all` runs the whole
+    registry.
+11. **Original packs converted** (§12): refinery, water and wastewater
+    are generic packs; the legacy files, loader branches, id-conversion
+    helpers, Issue Map and Line Detail are gone.
 
 Still open:
 
-- Converting water and wastewater for real (run the converter, fix the
-  quirks it carries over, and swap their `models.json` entries). Then the
-  four-level code path can be deleted. Refinery needs its own converter,
-  because its hierarchy lives in `src/assetData.js`.
-- Generic replacements for the Issue Map and Line Detail, or a decision
-  to keep them refinery-only (§10).
+- Moving the designer (Screens Model tab, Wizard) off `src/assetData.js`
+  onto the loaded model, then deleting that file.
+- The converted packs' remaining validator warnings (refinery types with
+  more than 8 properties, and scenario-coverage gaps in water and
+  wastewater), and aligning a few refinery evidence times (SIT09, SIT11)
+  with their narratives.
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
 - `explanations.json` (§14) exists for wind, ccgt and pipeline, not yet
@@ -734,36 +734,48 @@ Still open:
 
 ---
 
-## 12. Legacy formats (refinery, water, wastewater)
+## 12. The original packs' conversion (record)
 
-The three existing packs keep working unchanged:
+Refinery, water and wastewater were built before this spec in two older
+layouts: `shape: "refinery"` (hierarchy in `src/assetData.js`) and
+`shape: "four-level"` (hierarchy in `water-asset-data.json`), each about
+20 files with per-level telemetry and "station" ids derived from asset ids
+by string rules (spec v1, commit `8515fdd`). They were converted once, in
+Sept 2026, by `ModelAndData/tools/convert_legacy_to_generic.py`, run
+against commit `004d401` (the last commit with the old files):
 
-- **`shape: "refinery"`:** 3 levels (refinery/line/station); hierarchy in
-  `src/assetData.js`.
-- **`shape: "four-level"`:** plant/train/stage/equipment; hierarchy in
-  `water-asset-data.json`.
+```
+git worktree add ../aetherium-legacy 004d401
+python3 ModelAndData/tools/convert_legacy_to_generic.py --src ../aetherium-legacy
+```
 
-Both use the older 20-file layout: per-level telemetry files, "station"
-ids derived from asset ids by string rules, and fixed line and plant KPI
-sets. That contract is in git history (INDUSTRY_PACK_SPEC.md v1, commit
-`8515fdd`), and the legacy validator checks remain in the validator.
-**Don't create new packs in these formats.** To move a four-level pack
-to the generic format, use `convert_legacy_to_generic.py` (§11). Its
-output validates except for the data quirks below, which it carries over
-and reports.
+What the conversion kept: every asset id, `assetType` and `assetLevel`
+(so saved layouts and customizations still apply), every numeric
+property key of water and wastewater, and all attention and work items.
 
-Known data quirks in the legacy packs (the validator reports exactly
-these):
+What it changed:
 
-- `performance`, `availability` and a few `level_pct` series sometimes
-  exceed 100.
-- `residence_time_min` has no range.
-- Line and plant series match the rollup formulas only at the final
-  point.
-- Wastewater's `bottleneck_station` drops an underscore.
-- Some `evidencePoints` are off the 5-minute grid.
-- Two water work items still say "Meridian & Confluence".
-- No generator scripts exist.
+- **Refinery instrument tags** became spec keys, and every station now
+  has them as properties: `BearingTempC` → `bearing_temp_c`,
+  `PressurePV` → `process_pressure_psi`, `TransferRate` →
+  `transfer_rate_per_min`, `VibrationMmS` → `vibration_mms`, and so on.
+  Each station also gained `throughput_per_min`.
+- **Text properties** (`bottleneck_station`, `best_*`/`worst_*`) were
+  dropped.
+- **Percentages** were clamped to 0–100, and negative noise on times,
+  rates and indices clamped to 0 (signed offsets kept).
+- **Plant rollups** were recomputed from the lines at every point and
+  declared as `derivations`.
+- **Attention items** got `assetId`, `unitId` and `primaryProperty`;
+  evidence was snapped onto the 5-minute grid, and each primary series
+  now passes exactly through its evidence values.
+- **Work items** lost the stray `Z` (UTC) suffix and resolve by `assetId`;
+  "Meridian & Confluence" items point at the Meridian plant.
+- Missing ranges were derived from the data; every property declares
+  `decimals`.
+
+The converter is kept for the record and as a template; there is nothing
+left to convert.
 
 ---
 

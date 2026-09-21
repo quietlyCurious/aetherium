@@ -11,8 +11,8 @@ import { MiniSparkline, ResponsiveSparkline } from './sparklines';
 // that cluster tightly (95-100%) and read as identical-looking full bars
 // rather than showing any real variation. The number itself carries the
 // information here; the label just says what it is.
-// unit/decimals come from generic packs' properties.json (spec §3.4);
-// legacy packs have neither, so their values render exactly as before.
+// unit/decimals come from the pack's properties.json (spec §3.4); a key
+// with neither renders its value as-is.
 export function PropertyTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode = 'all', unit, decimals }) {
   const hasRange = min != null && max != null && typeof value === 'number' && max > min;
   const pct = hasRange ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;

@@ -13,28 +13,23 @@ import ButtonGroup, { Item as ButtonGroupItem } from 'devextreme-react/button-gr
 import Button from 'devextreme-react/button';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import { IconButtonGroupItem } from '../icons';
-import { attentionAssetToStationId, HMI_CATEGORY_ORDER, getPropertySeriesForSource, sliceSeriesToRange } from '../model/assetQueries';
-import { STATION_FULL_PROPERTIES, PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
+import { HMI_CATEGORY_ORDER, getAssetPropertySeries, sliceSeriesToRange } from '../model/assetQueries';
+import { PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
 import { applySavedOrder } from '../settings/displayOrder';
 import { resolvePropertyViewMode, KPI_VIEW_MODE_ITEMS } from '../settings/propertyDisplay';
 import { PropertyTileCanvas } from './PropertyTileCanvas';
 import { PropertyTile } from './PropertyTile';
 import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MODE_ITEMS, RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS, RELATED_ASSETS_ALIGN_VERTICAL_ITEMS, RELATED_ASSETS_DISTRIBUTE_ITEMS, TIER_FILTER_ITEMS, TIER_FILTER_SLIDER_VALUES, TIER_RANK, formatTierFilterSliderLabel } from '../settings/layoutOptions';
 
-// Every property EXCEPT the universal/common ones already shown elsewhere
-// (throughput, OEE, WIP, etc. — the same set the Line Detail 2x2 grid
-// already covers) — grouped by property type rather than dumped as one
-// long list, same visual language as Line Detail's property tiles.
+// An asset's (or a type's example asset's) properties as tiles, grouped by
+// category. seriesAssetId is the asset whose series feed the sparklines.
 // propertyViewModes/selectedPropertyKey/onSelectProperty are type-mode
 // only (the Configurator's editing preview) and owned by the caller, not
 // here: the Details panel's Visual column edits the same per-property
 // visual map and shares the same selected property, and it's a sibling of
 // this component, not a child. Undefined everywhere else this renders
-// (Investigate, Line Detail), which then behaves exactly as before.
-export function PropertyTilesView({ asset, stationId: stationIdProp, properties: propertiesProp, sparklineSource, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty, propertyOrder }) {
-  const stationId = stationIdProp || (propertiesProp ? null : attentionAssetToStationId(asset));
-  const props = propertiesProp || (stationId ? STATION_FULL_PROPERTIES[stationId] : null);
-  const effectiveSparklineSource = stationId ? { type: 'station', id: stationId } : sparklineSource;
+// (Investigate), which then behaves exactly as before.
+export function PropertyTilesView({ properties: props, seriesAssetId, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty, propertyOrder }) {
   const savedTemplate = typeVisibilityMode ? typeDisplayTemplates?.[typeId] : null;
   const [kpiViewMode, setKpiViewMode] = useState(savedTemplate?.viewMode ?? 'text');
   // What actually renders: this entity's own per-property choices over
@@ -217,7 +212,7 @@ export function PropertyTilesView({ asset, stationId: stationIdProp, properties:
   // regardless of which layout mode is currently active.
   const buildTileProps = p => {
     const range = PROPERTY_RANGES[p.key];
-    const fullSeries = effectiveSparklineSource ? getPropertySeriesForSource(effectiveSparklineSource, p.key) : null;
+    const fullSeries = seriesAssetId ? getAssetPropertySeries(seriesAssetId, p.key) : null;
     const sparkline = (fullSeries && rangeStart && rangeEnd)
       ? sliceSeriesToRange(fullSeries, rangeStart, rangeEnd)
       : null;

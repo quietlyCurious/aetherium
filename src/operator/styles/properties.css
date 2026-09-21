@@ -81,8 +81,7 @@
   white-space: nowrap;
 }
 
-/* Display unit after a value — generic packs only (legacy packs have no
-   unit metadata, so this never renders for them). Inherits the value's
+/* Display unit after a value (properties.json). Inherits the value's
    color so it follows whatever theme/override the value itself gets. */
 .op-property-tile-unit {
   margin-left: 3px;

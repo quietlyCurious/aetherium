@@ -6,12 +6,12 @@
 import { useMemo, useState } from 'react';
 import { Chart, CommonSeriesSettings, Series, Point, Aggregation, ArgumentAxis, Grid as ChartGrid, ValueAxis, Legend as ChartLegend, Tooltip as ChartTooltip, Export as ChartExport } from 'devextreme-react/chart';
 import RangeSelector, { Size as RsSize, Chart as RsChart, ValueAxis as RsValueAxis, Series as RsSeries, Aggregation as RsAggregation, Scale as RsScale, Behavior as RsBehavior } from 'devextreme-react/range-selector';
-import { minutesToShiftDate, timeStrToMinutes, CURRENT_TIMESTAMPS, padEvidenceAcrossShift } from '../model/modelData';
+import { minutesToShiftDate, timeStrToMinutes, CURRENT_TIMESTAMPS } from '../model/modelData';
 
-// fullSeries (optional): the item's real primary-property series, one value
-// per CURRENT_TIMESTAMPS entry. When present it replaces the padded
-// stand-in entirely — the chart then shows the actual whole-timeline trend,
-// still opening zoomed to the evidence window.
+// fullSeries: the item's primary-property series, one value per
+// CURRENT_TIMESTAMPS entry — the whole-timeline trend, opening zoomed to
+// the evidence window. Without one (an item that names no primary
+// property), the chart plots just the evidence points.
 export function ComparisonLineChart({ evidence, evidencePoints, color, fullSeries }) {
   const initialRange = useMemo(() => [
     minutesToShiftDate(timeStrToMinutes(evidencePoints[0].time)),
@@ -21,7 +21,7 @@ export function ComparisonLineChart({ evidence, evidencePoints, color, fullSerie
   const data = useMemo(() => (
     fullSeries
       ? fullSeries.map((value, i) => ({ time: minutesToShiftDate(timeStrToMinutes(CURRENT_TIMESTAMPS[i])), value }))
-      : padEvidenceAcrossShift(evidencePoints, evidence)
+      : evidencePoints.map((p, i) => ({ time: minutesToShiftDate(timeStrToMinutes(p.time)), value: evidence[i] }))
   ), [evidencePoints, evidence, fullSeries]);
   return (
     <div className="op-evidence-chart-wrap op-evidence-chart-wrap--with-range">
@@ -30,7 +30,7 @@ export function ComparisonLineChart({ evidence, evidencePoints, color, fullSerie
           <CommonSeriesSettings argumentField="time" type="line" />
           <Series valueField="value">
             {/* Markers on every sample would crowd a full-timeline series;
-                they stay on for the sparse legacy evidence points. */}
+                they stay on when only the evidence points are plotted. */}
             <Point visible={!fullSeries} size={7} />
             <Aggregation enabled={true} />
           </Series>

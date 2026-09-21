@@ -2,7 +2,7 @@
 // The right-hand panel's container: Details (NowTypeDetailsList), Chat
 // (ContactsPanel) or AI (AiChatPanel), chosen by the right rail.
 
-import { resolveAssetProperties } from '../model/assetQueries';
+import { assetTypeIdOf, getAssetProperties } from '../model/assetQueries';
 import { CURRENT_ASSET_MAP } from '../model/modelData';
 import { AiChatPanel } from './AiChatPanel';
 import { ContactsPanel } from './ContactsPanel';
@@ -29,7 +29,7 @@ export function SidePanel({ mode, contacts, activeContactId, onSelectContact, on
               if (!typeEntry) {
                 return <div className="op-now-detail-placeholder-note">Select a type from the list to view it.</div>;
               }
-              const { properties } = resolveAssetProperties(typeEntry.exampleAssetId);
+              const properties = getAssetProperties(typeEntry.exampleAssetId);
               return (
                 <NowTypeDetailsList
                   key={selectedNowThing.id}
@@ -58,8 +58,8 @@ export function SidePanel({ mode, contacts, activeContactId, onSelectContact, on
               if (!asset) {
                 return <div className="op-now-detail-placeholder-note">Select an asset from the tree to view it.</div>;
               }
-              const relationshipTypeId = `TYPE_${asset.assetLevel}_${asset.assetType}`;
-              const { properties } = resolveAssetProperties(selectedNowThing.id);
+              const relationshipTypeId = assetTypeIdOf(asset);
+              const properties = getAssetProperties(selectedNowThing.id);
               return (
                 <NowTypeDetailsList
                   key={selectedNowThing.id}

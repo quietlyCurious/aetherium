@@ -1,7 +1,7 @@
 // nowSelectionStorage.js
 // Browser localStorage-backed persistence for which asset/type was last
-// selected in the Now area, scoped per model (refinery/water/wastewater
-// have entirely different asset/type ids, so a selection from one model
+// selected in the Now area, scoped per model (each model has its own
+// asset/type ids, so a selection from one model
 // should never be applied to another). Same pattern as queriesStorage.js.
 //
 // This exists specifically so that after a reload, a user who saved a

@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import ButtonGroup from 'devextreme-react/button-group';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import { PlayPauseIcon } from '../icons';
-import { getAttentionItemAssetEntry, getAttentionItemTypeId, isAttentionItemActiveAtTime, getAttentionItemPrimarySeries, getAttentionItemExplanation } from '../model/assetQueries';
+import { assetTypeIdOf, getAttentionItemAssetEntry, getAttentionItemTypeId, isAttentionItemActiveAtTime, getAttentionItemPrimarySeries, getAttentionItemExplanation } from '../model/assetQueries';
 import { CURRENT_TIMESTAMPS, ATTENTION_ITEMS } from '../model/modelData';
 import { ReadOnlyRelatedAssetsView } from '../relatedAssets/ReadOnlyViews';
 import { TimeScrubContext, AssetCard } from '../relatedAssets/AssetCard';
@@ -92,14 +92,11 @@ export function InvestigatePanel({ item, onCreateWorkItem, onOpenWorkItem, workI
   const severityColor = SEVERITY_COLORS[item.severity];
   const explained = getAttentionItemExplanation(item);
 
-  // Related Assets: resolves via attentionAssetToAssetEntry/CURRENT_ASSET_DATA
-  // for all three models, including refinery (its own hardcoded ASSET_DATA
-  // constant, not a fetched file, but resolved the same way). Stays null
-  // only if an attention item's asset string genuinely doesn't match any
-  // real asset id, in which case the tab shows a plain "not available"
-  // message rather than an empty/broken diagram.
+  // Related Assets: the item's own asset (item.assetId). Null only if that
+  // id isn't in the model, in which case the tab shows a plain "not
+  // available" message rather than an empty diagram.
   const relatedAssetsAssetEntry = getAttentionItemAssetEntry(item);
-  const relatedAssetsTypeId = relatedAssetsAssetEntry ? `TYPE_${relatedAssetsAssetEntry.assetLevel}_${relatedAssetsAssetEntry.assetType}` : null;
+  const relatedAssetsTypeId = relatedAssetsAssetEntry ? assetTypeIdOf(relatedAssetsAssetEntry) : null;
   const relatedAssetsTypeEntry = relatedAssetsTypeId ? typeList.find(t => t.id === relatedAssetsTypeId) : null;
 
   // Related Alarms: other attention items on the same asset type as this

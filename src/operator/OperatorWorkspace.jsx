@@ -27,7 +27,7 @@ import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from '../typeDispl
 import { loadRelatedAssetsTemplates, saveRelatedAssetsTemplates } from '../relatedAssetsTemplatesStorage';
 import { loadAllAssetsTemplate, saveAllAssetsTemplate } from '../allAssetsTemplateStorage';
 import { loadNowSelection, saveNowSelection } from '../nowSelectionStorage';
-import { loadModelRegistry, getModelDataFiles, MODEL_SHAPES } from '../modelRegistry';
+import { loadModelRegistry, getModelDataFiles } from '../modelRegistry';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from '../typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from '../typeRelatedAssetConfigsStorage';
 import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from '../assetDisplayTemplatesStorage';
@@ -40,7 +40,7 @@ import { loadTypeRelatedAssetOrders, saveTypeRelatedAssetOrders } from '../typeR
 import { loadAssetRelatedAssetOrders, saveAssetRelatedAssetOrders } from '../assetRelatedAssetOrderStorage';
 import notify from 'devextreme/ui/notify';
 import { assetTypeIdOf, buildTypeList, getAssetPathLabel, deslugifyType } from './model/assetQueries';
-import { activateLoadedModel, ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS, CURRENT_MODEL_SHAPE } from './model/modelData';
+import { activateLoadedModel, ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from './model/modelData';
 import { normalizedLayout, UNDO_TOAST_MS, computeAssetCustomizations, assetCustomizationStore, EMPTY_CUSTOMIZATIONS } from './settings/customizations';
 import { displayOrderStore, EMPTY_DISPLAY_ORDERS } from './settings/displayOrder';
 import { PROPERTY_VIEW_MODE_DEFAULT, KPI_VIEW_MODE_ITEMS } from './settings/propertyDisplay';
@@ -54,7 +54,6 @@ import { NowAssetDetail } from './configurator/NowAssetDetail';
 import { NowAssetTreePanel } from './configurator/NowAssetTreePanel';
 import { AttentionPanel } from './operatorViews/AttentionPanel';
 import { InvestigatePanel } from './operatorViews/InvestigatePanel';
-import { IssueMapOverlay } from './operatorViews/IssueMap';
 import { NowStrip } from './operatorViews/NowStrip';
 import { OperatorAssetDetail, OperatorAssetTreePanel } from './operatorViews/OperatorAssetsView';
 import { TaskDetailPanel } from './operatorViews/TaskDetailPanel';
@@ -197,32 +196,6 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     operatorPersona === 'configurator' ? 'now' : (deepLinkAppliesHere ? 'assets' : 'attention')
   ); // 'now' | 'attention' | 'work' | 'assets' — drives both the list and detail slots; default depends on which rail items this persona can see
   const [leftPanelHidden, setLeftPanelHidden] = useState(false);
-  const [issueMapExpanded, setIssueMapExpanded] = useState(false);
-  const [selectedDetailLine, setSelectedDetailLine] = useState(null);
-  const nowSectionRef = useRef(null);
-  const [nowSectionBottom, setNowSectionBottom] = useState(160);
-  useEffect(() => {
-    function measure() {
-      if (nowSectionRef.current) {
-        setNowSectionBottom(nowSectionRef.current.getBoundingClientRect().bottom);
-      }
-    }
-    measure();
-    window.addEventListener('resize', measure);
-    // Things above the strip can change size after mount and move it
-    // without the window resizing. The one that showed this: DevExtreme's
-    // license banner takes space at the top of the page until App hides
-    // it, and when the first DevExtreme widget on the page is one of this
-    // workspace's, the strip is measured while the banner is still there —
-    // leaving the issue map's pull tab 52px too low. Watching the page
-    // body's size catches those shifts.
-    const bodyObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
-    bodyObserver?.observe(document.body);
-    return () => {
-      window.removeEventListener('resize', measure);
-      bodyObserver?.disconnect();
-    };
-  }, []);
   const [selectedAttentionId, setSelectedAttentionId] = useState(
     (ATTENTION_ITEMS.find(i => i.attentionState === 'investigate') || ATTENTION_ITEMS[0])?.id ?? null
   );
@@ -1087,17 +1060,6 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     setSelectedWorkItemId(id);
   };
 
-  // Fixed for this mount's lifetime — a model switch remounts this component.
-  // The Issue Map / Line Detail overlay only knows the refinery's layout
-  // (spec §10), so every other model hides it and opens a clicked Now-strip
-  // tile in the Assets area instead.
-  const usesAssetTiles = CURRENT_MODEL_SHAPE !== MODEL_SHAPES.REFINERY;
-
-  const handleSelectIssueFromMap = (attentionId) => {
-    setRailMode('attention');
-    setSelectedAttentionId(attentionId);
-  };
-
   // Set to true to bring back the "Operator Interface" title banner —
   // hidden for now per request, left in place rather than deleted.
   const SHOW_WORKSPACE_BANNER = false;
@@ -1112,34 +1074,17 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
       )}
 
       {operatorPersona !== 'configurator' && (
-        <div className="op-now-section" ref={nowSectionRef}>
+        <div className="op-now-section">
           <NowStrip
-            selectedLine={usesAssetTiles ? (railMode === 'assets' ? selectedAssetId : null) : selectedDetailLine}
-            onSelectLine={(lineId) => {
-              if (usesAssetTiles) {
-                // Open the unit in the Assets area — the one view that
-                // works for any asset at any level.
-                setRailMode('assets');
-                setLeftPanelHidden(false);
-                setSelectedAssetId(lineId);
-                return;
-              }
-              if (selectedDetailLine === lineId) {
-                setSelectedDetailLine(null);
-              } else {
-                setSelectedDetailLine(lineId);
-                setIssueMapExpanded(true);
-              }
+            selectedUnitId={railMode === 'assets' ? selectedAssetId : null}
+            onSelectUnit={(unitId) => {
+              // Open the unit in the Assets area — the one view that works
+              // for any asset at any level.
+              setRailMode('assets');
+              setLeftPanelHidden(false);
+              setSelectedAssetId(unitId);
             }}
           />
-          {!usesAssetTiles && <IssueMapOverlay
-            expanded={issueMapExpanded}
-            onToggle={() => setIssueMapExpanded(e => !e)}
-            onSelectIssue={handleSelectIssueFromMap}
-            selectedDetailLine={selectedDetailLine}
-            onCloseDetailLine={() => setSelectedDetailLine(null)}
-            topOffset={nowSectionBottom}
-          />}
         </div>
       )}
 

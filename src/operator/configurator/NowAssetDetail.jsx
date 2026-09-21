@@ -5,7 +5,7 @@
 // saved template changes, so editors always start from saved state.
 
 import { useState } from 'react';
-import { resolveAssetProperties } from '../model/assetQueries';
+import { assetTypeIdOf, getAssetProperties } from '../model/assetQueries';
 import { CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../model/modelData';
 import { NowTypeMainPreview } from './NowTypeMainPreview';
 
@@ -56,9 +56,8 @@ export function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, s
     title = asset.name;
     assetIdForProperties = selectedThing.id;
     // This asset's own real type — used for relationship lookups and as
-    // the type-level fallback key, same TYPE_<level>_<type> shape
-    // attentionAssetToTypeId uses elsewhere for the same purpose.
-    relationshipTypeId = `TYPE_${asset.assetLevel}_${asset.assetType}`;
+    // the type-level fallback key.
+    relationshipTypeId = assetTypeIdOf(asset);
     thisAssetExampleId = selectedThing.id;
   }
 
@@ -68,7 +67,7 @@ export function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, s
     ? [{ time: CURRENT_TIMESTAMPS[0] }, { time: CURRENT_TIMESTAMPS[CURRENT_TIMESTAMPS.length - 1] }]
     : [];
 
-  const { properties, sparklineSource } = resolveAssetProperties(assetIdForProperties);
+  const properties = getAssetProperties(assetIdForProperties);
 
   // Main preview area — the visual playground matching whichever Details-
   // panel tab is active (Properties/Related Assets/All Assets). Editing
@@ -96,7 +95,7 @@ export function NowAssetDetail({ selectedThing, typeList, typePropertyConfigs, s
       thisAssetExampleId={thisAssetExampleId}
       typeList={typeList}
       properties={properties}
-      sparklineSource={sparklineSource}
+      seriesAssetId={assetIdForProperties}
       evidencePoints={fullRangeEvidencePoints}
       typePropertyConfigs={typePropertyConfigs}
       typeRelatedAssetConfigs={typeRelatedAssetConfigs}

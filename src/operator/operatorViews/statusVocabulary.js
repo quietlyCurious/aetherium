@@ -1,10 +1,8 @@
 // operator/operatorViews/statusVocabulary.js
 // The shared colour and label maps the Operator views read a status
-// through: line state, severity, attention state, operating mode, and the
-// display labels for station types, highlight fields and sparkline
-// properties. Data only — one definition per concept, so the strip, the
-// issue map, attention cards, Line Detail and Investigate can't drift
-// apart on what "degraded" looks like.
+// through: unit state, severity, attention state and operating mode. Data
+// only — one definition per concept, so the Now strip, attention cards and
+// Investigate can't drift apart on what "degraded" looks like.
 
 export const STATE_COLORS = {
   running:    '#4ade80',
@@ -51,9 +49,8 @@ export const ATTENTION_STATE_LABELS = {
 // Most urgent first, mirroring the high-to-low convention severity already uses.
 export const ATTENTION_STATE_ORDER = { urgent: 0, act: 1, investigate: 2, watch: 3 };
 
-// Mined from OperatingContext in the nextgen workbook, at the same 14:05
-// reference used for Work — this is what makes Ferrum F4 show CHANGEOVER
-// while everything else is STEADY (its changeover window is 13:50–14:18).
+// A unit's operating mode (unit-status.json). Industry-specific modes
+// (CURTAILED, …) have no entry and show in a neutral colour.
 export const OPERATING_MODE_COLORS = {
   STEADY: '#3fa66c',
   CHANGEOVER: '#0078d4',
@@ -62,30 +59,4 @@ export const OPERATING_MODE_COLORS = {
   STOPPED: '#8c8c8c',
   MAINTENANCE: '#6a3fd6',
   CONTROLLED_HOLD: '#d64545',
-};
-
-export const STATION_TYPE_LABELS = {
-  INTAKE: 'Intake', STABILIZATION: 'Stabilization', REFINEMENT: 'Refinement',
-  INSPECTION: 'Inspection', BUFFER: 'Buffer', OUTPUT: 'Output',
-  BULK_INTAKE: 'Bulk Intake', POWER_CHARGE: 'Power Charge', SHAPING: 'Shaping', TRANSFER: 'Transfer',
-};
-
-export const HIGHLIGHT_FIELD_LABELS = {
-  input_quality_score: 'Input quality', batch_variability: 'Batch variability',
-  stability_score: 'Stability', oscillation_index: 'Oscillation',
-  yield_rate: 'Yield', consistency_index: 'Consistency',
-  inspection_pass_rate: 'Pass rate', first_pass_yield: 'First-pass yield',
-  buffer_level: 'Buffer level', saturation_risk_index: 'Saturation risk',
-  output_quality_score: 'Output quality', on_time_output_rate: 'On-time rate',
-  material_availability: 'Material availability', supply_variability: 'Supply variability',
-  charge_rate: 'Charge rate', system_stress: 'System stress',
-  defect_rate: 'Defect rate', blocking_time: 'Blocking time', starvation_time: 'Starvation time',
-};
-
-// Raw nextgen-workbook property names -> readable labels, for captioning
-// each real station's sparkline with what it's actually plotting.
-export const SPARKLINE_PROPERTY_LABELS = {
-  ThroughputRate: 'Throughput', RejectRatePct: 'Reject Rate', PurityPct: 'Purity',
-  BufferLevelPct: 'Buffer Level', ChargePV: 'Charge Rate', TransferRate: 'Transfer Rate',
-  PressurePV: 'Pressure',
 };
