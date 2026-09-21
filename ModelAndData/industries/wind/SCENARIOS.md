@@ -162,6 +162,54 @@ resolved. Archetype 01 (normal) is the rest of the farm, and archetype 02
 - **Routine work:** shift huddle, met-mast check and substation
   inspection (done).
 
+## Detectors and explanations (spec §14)
+
+`explain.py` runs nine detectors, one per failure mode, on every asset each
+applies to, and writes `public/data/wind/explanations.json`. Each one reads
+only the runtime files, never this sheet or `generate.py`'s constants.
+
+| Item | Detector | Ran on | Fired on | Raised at | Confidence |
+|---|---|---|---|---|---|
+| BSIT01 | `wind.hs_bearing_damage` | 19 HS bearings | WTG-05 | 10:00 | medium |
+| BSIT02 | `wind.generator_cooling_loss` | 24 generators | WTG-03 | 10:10 | high |
+| BSIT03 | `wind.feeder_trip` | 4 feeders | Feeder 2 | 10:10 | high |
+| BSIT04 | `wind.anemometer_fault` | 24 turbines | WTG-12 | 07:10 | high |
+| BSIT05 | `wind.converter_condensation_trip` | 24 converters | WTG-09 | 12:30 | medium |
+| BSIT06 | `wind.pitch_battery_weak` | 24 pitch systems | WTG-14 | 13:20 | high |
+| BSIT07 | `wind.static_yaw_misalignment` | 24 turbines | WTG-17 | 05:50 | medium |
+| BSIT08 | `wind.blade_icing` | 24 turbines | WTG-20, WTG-22 (grouped into one Feeder 4 item) | 07:00 | high |
+| BSIT09 | `wind.curtailment_compliance` | 1 substation | Collector Substation | 13:50 | n/a |
+
+No detector fired anywhere else. Every computed confidence matches the
+item's `confidenceLevel`.
+
+**Robustness.** `robustness.py 10` regenerates the pack with 10 other seeds.
+Every item was found on all 10, with no extra detections. Seeds only change
+the noise, so the size of the fault was also varied for two detectors
+(5 seeds each):
+
+- HS bearing: found every time at +7 °C of extra heat by 14:00, once in 5
+  at +6 °C, never at +5.5 °C. The alert level is +5 °C and must be held
+  for 60 minutes, so faults much under +7 °C are too young to raise by
+  "now".
+- Yaw misalignment: found every time at 9° or more, 2 in 5 at 8°, never at
+  7°. Under about 8° the loss is under 3 points, which today's
+  performance noise hides. Real screening would use weeks of data.
+
+**Timing differences with the item narratives.** The detectors raise some
+items at a different time than the hand-written text implies. It's worth
+aligning the text (in `generate.py`) the next time it is regenerated:
+
+- BSIT01: the text says the residual crossed its band at 06:00; the
+  detector sees it from 07:30 and raises at 10:00, after the +5 °C alert
+  level has held for an hour.
+- BSIT07: the text says it was flagged at 09:00; with 6 hours of data the
+  detector raises at 05:50.
+
+**Limits.** These are reference detectors. Their thresholds come from
+RESEARCH.md and were checked against this simulated data. On real SCADA
+they are a starting point, to be tuned on the site's own history.
+
 ## Validator warnings and why they're accepted
 
 - `collector_feeder instances have different child types`: Feeder 4

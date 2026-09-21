@@ -222,6 +222,105 @@ the generated series, so this sheet, the data and the narrative agree.
 - **Found:** 13:45 in the DAHS review (the "new" item, 20 minutes old).
 - **Work items:** wk-h13 (urgent, due 14:30).
 
+## Detectors and explanations (spec §14)
+
+`explain.py` runs eleven detectors, one per failure mode, on every asset each
+applies to, and writes `public/data/ccgt/explanations.json`. Each one reads
+only the runtime files, never this sheet or `generate.py`'s constants.
+Almost everything on a 2x1 block comes in pairs, so "expected" here usually
+means "what the sister unit does at the same moment" (CTG-1 against CTG-2,
+HRSG-1 against HRSG-2, the running BFP against the other HRSG's). The
+condenser uses physics instead: backpressure is split into the part the
+extra tower approach explains (Antoine saturation curve), with no fitted
+coefficients.
+
+| Item | Detector | Ran on | Fired on | Raised at | Confidence |
+|---|---|---|---|---|---|
+| HSIT01 | `ccgt.bfp_bearing_wear` | 4 pump bearing sets | HRSG-2 BFP-A | 11:25 | medium |
+| HSIT02 | `ccgt.compressor_fouling` | 2 GT compressors | CTG-2 | 10:10 | high |
+| HSIT03 | `ccgt.exhaust_tc_fault` | 2 GT turbine sections | CTG-2 | 10:15 | high |
+| HSIT04 | `ccgt.tower_cooling_loss` | 1 condenser | STG-1 condenser (root cause: CT cell 6) | 11:05 | high |
+| HSIT05 | `ccgt.drum_level_oscillation` | 6 HRSG drums | HRSG-1 HP drum | 13:35 | medium |
+| HSIT06 | `ccgt.fuel_heater_cascade` | 1 fuel gas heater | Performance heater | 08:45 | high |
+| HSIT07 | `ccgt.hidden_steam_loss` | 1 plant | Halcyon Point | 13:05 | medium |
+| HSIT08 | `ccgt.scr_overfeed_slip` | 2 SCR systems | HRSG-1 SCR | 09:45 | high |
+| HSIT09 | `ccgt.dynamics_excursions` | 2 DLN combustors | CTG-1 | 12:50 | medium |
+| HSIT10 | `ccgt.ammonia_supply_loss` | 2 ammonia skids | HRSG-2 skid | 12:25 | high |
+| HSIT11 | `ccgt.cems_calibration_deadline` | 2 CEMS analyzers | HRSG-2 CEMS | 12:35 | n/a |
+
+No detector fired anywhere else. Every computed confidence matches the
+item's `confidenceLevel`. The standby pumps (both BFP-Bs) are candidates
+for the BFP detector but never fire: a pump that isn't running has no
+residual. The drum detector needs a feedwater control valve under the drum
+to test the loop, so it can only raise on the two HP drums.
+
+Several detectors confirm with work items rather than a second sensor, the
+same way wind's curtailment detector reads its setpoint task: a done
+compressor wash (HSIT02), a done thermocouple rejection (HSIT03), an open
+instrument calibration on the HRSG (HSIT05, supporting only) and an open
+calibration task (HSIT11). Detectors never read attention-item text.
+
+**Robustness.** `robustness.py 10` regenerates the pack with 10 other seeds.
+Every item was found on all 10, with no extra detections and the same
+confidence each time. Raise times move a little with the noise: HSIT01
+11:10–11:40, HSIT02 09:35–10:00, HSIT08 09:20–09:55, HSIT05 13:30–13:40,
+the rest within 10 minutes. Seeds only change the noise, so the size of the
+fault was also varied for three detectors (5 seeds each, by editing the
+constant in a temporary copy of `generate.py`):
+
+- BFP bearing (`BFP_TEMP_RISE_F`, 24 °F in the pack): found every time at
+  12 °F, 4 in 5 at 9 °F, 2 in 5 at 8 °F, never at 6 °F. The alert level is
+  +6 °F against the sister pump, held 30 minutes, with a rise of at least
+  2 °F/h, so smaller faults are too young to raise by "now".
+- Hidden steam loss (`LEAK_FRAC_NOW`, 3.4 % of HP steam): found every time
+  at 2.5 %, 2 in 5 at 2.0 %, never at 1.7 %. Below about 2 % the heat rate
+  rises less than 0.5 % in two hours, inside what hotter air alone does.
+- Compressor fouling (`FOUL_DRIFT_PTS`, 0.95 points by 11:25): found every
+  time at 0.55 points, 4 in 5 at 0.45, 2 in 5 at 0.40.
+
+**Timing differences with the item narratives.** Worth aligning the text in
+`generate.py` the next time it is regenerated:
+
+- HSIT01: the text says the residual crossed its band at 09:30. The
+  detector sees the divergence from 10:15 (+3 °F) and raises at 11:25, once
+  +6 °F has held for 30 minutes.
+- HSIT07: the item starts at 11:45. The detector needs two hours at the same
+  AGC target to compare like with like, so it can't look before 12:50, and
+  raises at 13:05.
+- HSIT08: flagged at 09:30 in the text; the detector raises at 09:45, after
+  slip has held above 3 ppm for 20 minutes.
+- HSIT11: the text says the DAHS review found it at 13:45. The detector
+  raises at 12:35, as soon as the calibration is past its 24-hour interval,
+  which would have left 1 h 55 min instead of 25 minutes.
+- HSIT04 and HSIT06 raise 15 and 10 minutes after the trigger (sustain
+  times); HSIT09 raises at the third excursion (12:50), not the first.
+
+**Data quirks found while building them.**
+
+- HSIT01 says motor current is up about 7 A. In the data, HRSG-2 BFP-A's
+  motor current tracks HRSG-1's at the same flow, so the explanation doesn't
+  claim it. From 13:20, HRSG-1 BFP-A's flow and bearing temperature
+  alternate with the HRSG-1 drum oscillation, which makes the sister-pump
+  reference noisier; the "no jump" check uses the bearing's own reading.
+- HSIT02's "recovered about 60 %" is measured against the 08:00 efficiency;
+  against CTG-1 the wash closed 79 % of the gap by 12:30.
+- HSIT03 names TC-14, but the pack holds only the spread, not individual
+  thermocouples, so the explanation says which position failed has to come
+  from the control system.
+- HSIT05 says the steam-flow transmitter is valved out, yet
+  `hp_steam_flow_klb_h` on HRSG-1 keeps reading normally. The detector
+  treats it as an independent steam-flow measurement.
+- HSIT06's STG lag is 5 minutes at the halfway point (08:45 → 08:50), not
+  the 10–15 minutes the text gives.
+
+**Limits.** These are reference detectors. Thresholds come from RESEARCH.md
+(ISO vibration alert, 20–60 °F normal spread, 1–3 psi dynamics, 5 ppm slip
+limit, 26-hour CEMS validity) and were checked against this simulated data.
+Comparing against a sister unit fails if both units degrade together, and
+the BFP offset is learned from the first hour of the window, so a fault
+already present at 08:00 would be hidden. On a real plant they are a
+starting point, to be tuned on the site's own history.
+
 ## Validator warnings and why they're accepted
 
 - `extra categories (listed after the standard six): ['Electrical',

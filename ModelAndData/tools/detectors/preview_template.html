@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explanations Preview</title>
+<style>
+  :root{
+    --bg:#f9f9f9; --card:#fff; --line:#ebebeb; --ink:#222; --ink2:#555; --muted:#8a8f96;
+    --accent:#0078d4; --accent-soft:#e8f2ff; --ref:#4b5563; --peer:#c9ced6; --band:#eef0f3; --gap:#dbe9f8;
+    --ok:#2f8f5b; --no:#9a3b3b; --pend:#8a6414;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif}
+  .app{display:grid;grid-template-columns:300px minmax(0,1fr);height:100%}
+  @media (max-width:860px){.app{grid-template-columns:1fr;height:auto}.list{max-height:260px}}
+  .list{background:#fff;border-right:1px solid var(--line);overflow:auto}
+  .zone{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 14px 6px}
+  .it{padding:9px 14px;border-top:1px solid #f2f2f2;cursor:pointer;display:grid;grid-template-columns:10px 1fr;gap:8px}
+  .it:hover{background:#fafbfc}
+  .it.sel{background:var(--accent-soft)}
+  .it .dot{width:9px;height:9px;border-radius:50%;margin-top:4px}
+  .it .a{font-size:12px;color:var(--muted)}
+  .it .s{font-size:12.5px}
+  .it .m{font-size:11px;color:var(--muted);margin-top:2px}
+  .main{overflow:auto;padding:14px 18px 30px}
+  .col{max-width:980px;margin:0 auto}
+  .ihead{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+  .ihead .dot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex:none}
+  .ihead .asset{font-size:12px;color:var(--muted)}
+  .ihead .sig{font-size:16px;font-weight:600}
+  .tabs{display:inline-flex;border:1px solid #cfd3d8;border-radius:4px;overflow:hidden;margin:4px 0 12px}
+  .tabs span{padding:4px 12px;font-size:12px;color:var(--ink2);border-left:1px solid #cfd3d8}
+  .tabs span:first-child{border-left:none}
+  .tabs span.on{background:var(--accent);color:#fff}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:12px}
+  .card h2{font-size:13px;margin:0 0 2px;font-weight:600}
+  .card .sub{font-size:12px;color:var(--muted);margin:0 0 10px}
+  .step{display:inline-flex;width:18px;height:18px;border-radius:50%;background:var(--accent-soft);color:#0055aa;font-size:11px;font-weight:600;align-items:center;justify-content:center;margin-right:6px}
+  .verdict{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 18px;align-items:center}
+  .verdict .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .verdict .big{font-size:15px;font-weight:600;margin:2px 0 4px}
+  .stats{display:flex;gap:14px;flex-wrap:wrap}
+  .stat{font-size:12px;color:var(--ink2)} .stat b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:500}
+  .conf{display:inline-flex;gap:3px;align-items:center;font-size:12px;color:var(--ink2)}
+  .conf i{width:20px;height:6px;border-radius:3px;background:#e3e6ea;display:inline-block}
+  .conf i.on{background:var(--ink2)}
+  .conf span{margin-left:6px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .chip{font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid var(--line);background:#fafafa;color:var(--ink2)}
+  .chip.det{background:var(--accent-soft);border-color:#cfe3fb;color:#0055aa}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:0 0 6px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:16px;height:0;border-top:2px solid}
+  .sw.dash{border-top-style:dashed}
+  .sw.thin{border-top-width:1.5px}
+  .sw.area{height:10px;border:none;border-radius:2px}
+  .chart{position:relative;width:100%}
+  .chart svg{display:block;width:100%;overflow:visible}
+  .tip{position:absolute;pointer-events:none;background:#fff;border:1px solid #d9dce0;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:6px 8px;font-size:12px;white-space:nowrap;display:none;z-index:5}
+  .tip .t{font-weight:600;margin-bottom:2px}
+  .tip .r{display:flex;gap:10px;justify-content:space-between}
+  .tip .r em{font-style:normal;color:var(--ink2)}
+  .axis text{fill:var(--muted);font-size:11px}
+  .gl{stroke:#f0f1f3}
+  .tally{display:flex;gap:16px;font-size:12px;color:var(--ink2);margin:-2px 0 4px}
+  .ind{display:grid;grid-template-columns:22px minmax(0,1fr) 150px;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .ind:first-of-type{border-top:none}
+  .ic{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+  .ic.match{background:var(--ok)} .ic.nomatch{background:#b9bec5} .ic.pending{background:#fff;color:var(--pend);border:1.5px dashed #c9a34a}
+  .ind .ttl{font-weight:600}
+  .ind .val{font-variant-numeric:tabular-nums}
+  .ind .why{color:var(--muted);font-size:12px;margin-top:2px}
+  .kind{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-left:6px;font-weight:500}
+  .spark svg{width:150px;height:40px;display:block}
+  @media (max-width:640px){.ind{grid-template-columns:22px minmax(0,1fr)}.spark{grid-column:2}}
+  .refs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  @media (max-width:900px){.refs{grid-template-columns:1fr}}
+  .ref{border:1px solid var(--line);border-radius:8px;padding:10px;background:#fcfcfd;display:flex;flex-direction:column}
+  .ref.best{border-color:#9cc7ef;box-shadow:0 0 0 1px #9cc7ef inset}
+  .ref .rt{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+  .ref .rt b{font-size:12px}
+  .ref .tag{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+  .ref .desc{font-size:12px;color:var(--ink2);margin:4px 0 6px;min-height:52px}
+  .ref .ct{font-size:11px;color:var(--muted);margin-top:4px}
+  .ref .cmp{font-size:12px;margin-top:auto;padding-top:6px;border-top:1px dashed var(--line)}
+  .ref .cmp .m{font-weight:600}
+  .ref .cmp .m.match{color:var(--ok)} .ref .cmp .m.nomatch{color:var(--no)} .ref .cmp .m.partial{color:var(--pend)}
+  .ref ul{margin:4px 0 0;padding-left:16px;color:var(--ink2);font-size:12px}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  .two.flat>div:first-child{display:none}
+  .two.flat>div:last-child{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+  @media (max-width:900px){.two,.two.flat>div:last-child{grid-template-columns:1fr}}
+  .ro{padding:8px 0;border-top:1px solid var(--line)}
+  .ro:first-of-type{border-top:none;padding-top:0}
+  .ro .q{font-weight:600;display:flex;gap:6px;align-items:baseline}
+  .ro .q .x{font-size:11px;color:var(--muted);font-weight:500;border:1px solid var(--line);border-radius:10px;padding:0 6px}
+  .ro .a{color:var(--ink2);font-size:12px;margin-top:2px}
+  .note{font-size:12px;color:var(--muted);background:#fafafa;border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-top:8px}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12px}
+  .kv dt{color:var(--muted)} .kv dd{margin:0}
+  .up{color:var(--ok)!important} .down{color:var(--no)!important}
+  .work{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-top:8px;font-size:12px}
+  .work b{display:block}
+  .aipill{font-size:10px;font-weight:600;color:#6a3fd6;background:#f1ecff;border-radius:8px;padding:1px 6px;margin-left:4px}
+  .btnrow{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .btn{font:inherit;font-size:12px;border:1px solid #cfd3d8;background:#fff;border-radius:4px;padding:5px 10px}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+  details.eng{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 16px}
+  details.eng summary{cursor:pointer;font-weight:600}
+  details.eng summary span{font-weight:400;color:var(--muted);margin-left:6px}
+  .pipe{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px 0;margin:12px 0}
+  .blk{border:1px solid #d6dbe1;border-radius:6px;padding:8px 10px;background:#fbfcfd;width:170px;font-size:12px}
+  .blk b{display:block;margin-bottom:2px}
+  .arr{align-self:center;color:#aab0b8;padding:0 6px}
+  .run{font-size:12px;color:var(--ink2);margin:6px 0 10px}
+  pre{background:#f6f8fa;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:11.5px;line-height:1.45;overflow:auto;max-height:380px}
+  .foot{font-size:11px;color:var(--muted);margin:14px 0 4px;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="list" id="list"></div>
+  <div class="main"><div class="col" id="view"></div></div>
+</div>
+<script>
+const DATA = __DATA__;
+const E = DATA.explanations, ITEMS = DATA.attention, WORK = DATA.work, TS = DATA.timestamps;
+const SEV = {high:'#d64545', medium:'#e0a336', low:'#8c8c8c'};
+const STATE = {watch:'Watch', investigate:'Investigate', act:'Act', urgent:'Urgent'};
+const STYLE = {
+  primary:{c:'#0078d4',w:2}, expected:{c:'#4b5563',w:1.6,d:'5 4'}, reference:{c:'#4b5563',w:1.8},
+  secondary:{c:'#7a8699',w:1.6}, peer:{c:'#c9ced6',w:1.2}
+};
+const NS = 'http://www.w3.org/2000/svg';
+const el = (t,a={},p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;};
+const esc = s => String(s ?? '').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = (v,d=1)=> v==null||isNaN(v) ? '—' : (+v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}).replace('-','−');
+
+/* x-axis for a chart spec: the pack timeline, or a relative axis (hours/minutes from onset). */
+function axisOf(spec){
+  if(spec.x){ const u=spec.x.unit; return {vals:spec.x.values, label:v=> u==='h' ? `${+v.toFixed(2)}h` : `${v} min`}; }
+  return {vals:TS, label:v=>v};
+}
+function sliceRange(spec, n){
+  if(!spec.window) return [0,n-1];
+  return [Math.max(0,TS.indexOf(spec.window[0])), Math.min(n-1,TS.indexOf(spec.window[1]))];
+}
+function niceTicks(lo,hi,count){
+  const span=hi-lo; if(span<=0) return [lo];
+  const raw=span/count, mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,2.5,5,10].map(k=>k*mag).find(s=>span/s<=count+0.5)||10*mag;
+  const out=[]; for(let v=Math.ceil(lo/step-1e-9)*step; v<=hi+1e-9; v+=step) out.push(+v.toFixed(6)); return out;
+}
+function ticks(i0,i1,count){ const out=[]; const step=Math.max(1,Math.round((i1-i0)/count)); for(let i=i0;i<=i1;i+=step) out.push(i); return out; }
+
+/* One renderer for every chart in the file: main, rule-out and reference charts. */
+function drawChart(host, spec, {height=220, compact=false}={}){
+  host.innerHTML='';
+  const ax=axisOf(spec), n=ax.vals.length, [i0,i1]=sliceRange(spec,n);
+  const thLen=Math.max(0,...(spec.thresholds||[]).map(t=>String(t.label).length));
+  const W=host.clientWidth||600, H=height, m={l:compact?34:44,r:thLen?Math.min(120,thLen*6+10):12,t:compact?6:10,b:20};
+  const xs=i=>m.l+((i-i0)/Math.max(1,i1-i0))*(W-m.l-m.r);
+  const [y0,y1]=spec.y, ys=v=>m.t+(1-(v-y0)/(y1-y0))*(H-m.t-m.b);
+  const clampY=v=>Math.max(y0,Math.min(y1,v));
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,height:H},host);
+  const g=el('g',{class:'axis'},svg);
+  const yt=niceTicks(y0,y1,compact?3:5), yd=yt.length>1&&(yt[1]-yt[0])<1?1:0;
+  yt.forEach(v=>{el('line',{x1:m.l,x2:W-m.r,y1:ys(v),y2:ys(v),class:'gl'},g);
+    const t=el('text',{x:m.l-6,y:ys(v)+4,'text-anchor':'end'},g); t.textContent=fmt(v, yd);});
+  const xt = spec.x ? niceTicks(ax.vals[i0],ax.vals[i1],compact?3:6).map(v=>ax.vals.findIndex(u=>Math.abs(u-v)<1e-6)).filter(i=>i>=0)
+                    : ticks(i0,i1,compact?3:6);
+  xt.forEach(i=>{const t=el('text',{x:xs(i),y:H-4,'text-anchor':'middle'},g);t.textContent=ax.label(ax.vals[i]);});
+  const path=vals=>{let d='',pen=false;for(let i=i0;i<=i1;i++){const v=vals[i];if(v==null){pen=false;continue;}d+=(pen?'L':'M')+xs(i).toFixed(1)+','+ys(clampY(v)).toFixed(1);pen=true;}return d;};
+  if(spec.band){let d='',pen=false;const lo=spec.band.lo,hi=spec.band.hi;const seg=[];let cur=[];
+    for(let i=i0;i<=i1;i++){ if(lo[i]==null||hi[i]==null){ if(cur.length) seg.push(cur); cur=[]; } else cur.push(i); } if(cur.length) seg.push(cur);
+    seg.forEach(s=>{let d='';s.forEach((i,k)=>d+=(k?'L':'M')+xs(i)+','+ys(clampY(hi[i])));[...s].reverse().forEach(i=>d+='L'+xs(i)+','+ys(clampY(lo[i])));el('path',{d:d+'Z',fill:'#eef0f3'},svg);});}
+  if(spec.shadeGap){const a=spec.series.find(s=>s.id===spec.shadeGap[0]).values,b=spec.series.find(s=>s.id===spec.shadeGap[1]).values;
+    let cur=[];const flush=()=>{if(cur.length>1){let d='';cur.forEach((i,k)=>d+=(k?'L':'M')+xs(i)+','+ys(clampY(a[i])));[...cur].reverse().forEach(i=>d+='L'+xs(i)+','+ys(clampY(b[i])));el('path',{d:d+'Z',fill:'#dbe9f8'},svg);}cur=[];};
+    for(let i=i0;i<=i1;i++){ if(a[i]!=null&&b[i]!=null&&a[i]>b[i]) cur.push(i); else flush(); } flush();}
+  (spec.thresholds||[]).forEach(t=>{el('line',{x1:m.l,x2:W-m.r,y1:ys(t.value),y2:ys(t.value),stroke:'#d64545','stroke-width':1.2,'stroke-dasharray':'4 3'},svg);
+    const tx=el('text',{x:W-m.r+4,y:ys(t.value)+4,'font-size':11,fill:'#555'},svg);tx.textContent=t.label;});
+  const order=['peer','reference','expected','secondary','primary'];
+  [...spec.series].sort((a,b)=>order.indexOf(a.style)-order.indexOf(b.style)).forEach(s=>{const st=STYLE[s.style]||STYLE.primary;
+    el('path',{d:path(s.values),fill:'none',stroke:st.c,'stroke-width':st.w,'stroke-dasharray':st.d||'','stroke-linejoin':'round','stroke-linecap':'round'},svg);});
+  // Marker labels: each goes on the first row where it doesn't overlap an earlier label.
+  const rowsEnd=[];
+  if(!spec.x)(spec.markers||[]).forEach(mk=>{const i=TS.indexOf(mk.time); if(i<i0||i>i1) return;
+    el('line',{x1:xs(i),x2:xs(i),y1:m.t,y2:H-m.b,stroke:'#b8bec6','stroke-width':1},svg);
+    const wLab=String(mk.label).length*6+8, right=xs(i)>W-m.r-wLab;
+    const x0=right?xs(i)-4-wLab:xs(i)+4, x1=x0+wLab;
+    let row=rowsEnd.findIndex(end=>end<x0); if(row<0){row=rowsEnd.length;rowsEnd.push(0);} rowsEnd[row]=x1;
+    const t=el('text',{x:right?xs(i)-4:xs(i)+4,y:m.t+11+row*13,'font-size':11,fill:'#666','text-anchor':right?'end':'start'},svg);t.textContent=mk.label;});
+  const prim=spec.series.filter(s=>s.style==='primary').pop();
+  if(prim&&!spec.x){for(let i=i1;i>=i0;i--){if(prim.values[i]!=null){el('circle',{cx:xs(i),cy:ys(clampY(prim.values[i])),r:3.5,fill:'#0078d4',stroke:'#fff','stroke-width':2},svg);break;}}}
+  // hover
+  const tip=document.createElement('div');tip.className='tip';host.appendChild(tip);
+  const cross=el('line',{y1:m.t,y2:H-m.b,stroke:'#9aa1a9','stroke-width':1,visibility:'hidden'},svg);
+  const hit=el('rect',{x:m.l,y:0,width:Math.max(1,W-m.l-m.r),height:H,fill:'transparent'},svg);
+  const d=spec.decimals??1, unit=spec.unit;
+  hit.addEventListener('mousemove',ev=>{const r=svg.getBoundingClientRect(),px=(ev.clientX-r.left)*W/r.width;
+    const i=Math.max(i0,Math.min(i1,Math.round(i0+(px-m.l)/(W-m.l-m.r)*(i1-i0))));
+    cross.setAttribute('x1',xs(i));cross.setAttribute('x2',xs(i));cross.setAttribute('visibility','visible');
+    const named=spec.series.filter(s=>s.style!=='peer');const peers=spec.series.filter(s=>s.style==='peer').map(s=>s.values[i]).filter(v=>v!=null);
+    let h=`<div class="t">${esc(ax.label(ax.vals[i]))}</div>`+named.map(s=>`<div class="r"><em>${esc(s.label)}</em>${s.values[i]==null?'—':fmt(s.values[i],d)+' '+esc(unit)}</div>`).join('');
+    if(peers.length) h+=`<div class="r"><em>Others (${peers.length})</em>${fmt(Math.min(...peers),d)} to ${fmt(Math.max(...peers),d)} ${esc(unit)}</div>`;
+    if(spec.band&&spec.band.lo[i]!=null) h+=`<div class="r"><em>${esc(spec.band.label)}</em>${fmt(spec.band.lo[i],d)}–${fmt(spec.band.hi[i],d)} ${esc(unit)}</div>`;
+    tip.innerHTML=h;tip.style.display='block';const L=xs(i)*r.width/W;tip.style.left=Math.max(0,Math.min(L+12,r.width-tip.offsetWidth-4))+'px';tip.style.top='6px';});
+  hit.addEventListener('mouseleave',()=>{tip.style.display='none';cross.setAttribute('visibility','hidden');});
+}
+function legendOf(spec){
+  const parts=[]; const peers=spec.series.filter(s=>s.style==='peer');
+  spec.series.filter(s=>s.style!=='peer').forEach(s=>{const st=STYLE[s.style];parts.push(`<span><i class="sw ${st.d?'dash':''}" style="border-color:${st.c}"></i>${esc(s.label)}</span>`);});
+  if(peers.length) parts.push(`<span><i class="sw thin" style="border-color:${STYLE.peer.c}"></i>${peers.length===1?esc(peers[0].label):peers.length+' others'}</span>`);
+  if(spec.band) parts.push(`<span><i class="sw area" style="background:#eef0f3;border:1px solid #dde1e6"></i>${esc(spec.band.label)} (range)</span>`);
+  if(spec.shadeGap) parts.push(`<span><i class="sw area" style="background:#dbe9f8"></i>Gap</span>`);
+  return `<div class="legend">${parts.join('')}</div>`;
+}
+function spark(host, sp){
+  const W=150,H=40, all=sp.values; let i0=0,i1=all.length-1;
+  if(sp.window){i0=TS.indexOf(sp.window[0]);i1=TS.indexOf(sp.window[1]);}
+  const xs=i=>2+(i-i0)/Math.max(1,i1-i0)*(W-4), [y0,y1]=sp.y, ys=v=>3+(1-(Math.max(y0,Math.min(y1,v))-y0)/(y1-y0))*(H-6);
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`},host);
+  if(sp.highlight){const a=Math.max(i0,TS.indexOf(sp.highlight[0])),b=Math.min(i1,TS.indexOf(sp.highlight[1]));el('rect',{x:xs(a),width:Math.max(1,xs(b)-xs(a)),y:0,height:H,fill:'#dbe9f8',opacity:.6},svg);}
+  if(sp.band){let d='',pen=false;for(let i=i0;i<=i1;i++){const v=sp.band.hi[i];if(v==null)continue;d+=(pen?'L':'M')+xs(i)+','+ys(v);pen=true;}
+    for(let i=i1;i>=i0;i--){const v=sp.band.lo[i];if(v==null)continue;d+='L'+xs(i)+','+ys(v);}if(d)el('path',{d:d+'Z',fill:'#e6e9ed'},svg);}
+  if(sp.threshold!=null) el('line',{x1:0,x2:W,y1:ys(sp.threshold),y2:ys(sp.threshold),stroke:'#d64545','stroke-dasharray':'3 2','stroke-width':1},svg);
+  let d='',pen=false;for(let i=i0;i<=i1;i++){const v=all[i];if(v==null){pen=false;continue;}d+=(pen?'L':'M')+xs(i)+','+ys(v);pen=true;}
+  el('path',{d,fill:'none',stroke:'#0078d4','stroke-width':1.6},svg);
+}
+const BARS={high:3,medium:2,low:1,'n/a':0};
+const confBars=l=>`<span class="conf">${[1,2,3].map(k=>`<i class="${k<=(BARS[l]??0)?'on':''}"></i>`).join('')}</span>`;
+const cap=s=>s? s[0].toUpperCase()+s.slice(1):s;
+
+function render(id){
+  const item=ITEMS.find(a=>a.id===id), x=E.items[id], det=x?E.detectors[x.detectorId]:null, dd=item.detail;
+  document.querySelectorAll('.it').forEach(n=>n.classList.toggle('sel',n.dataset.id===id));
+  const v=document.getElementById('view');
+  if(!x){v.innerHTML=`<div class="card">No explanation for this item — the app keeps its plain AI view.</div>`;return;}
+  const req=x.checks.filter(c=>c.role==='required'), sup=x.checks.filter(c=>c.role==='supporting');
+  const matched=x.checks.filter(c=>c.status==='match').length;
+  const works=(x.action.workItemIds||[]).map(w=>WORK.find(k=>k.id===w)).filter(Boolean);
+  const risk=dd.riskLevel, out=dd.outcomeStatus;
+  let h=`
+  <div class="ihead"><span class="dot" style="background:${SEV[item.severity]}"></span><div><div class="asset">${esc(item.asset)}</div><div class="sig">${esc(item.signal)}</div></div></div>
+  <div class="tabs"><span>Trend</span><span>Assets</span><span class="on">Why?</span></div>
+  <div class="card"><div class="verdict">
+    <div><div class="lbl">${esc(x.conclusion.label)}</div><div class="big">${esc(x.conclusion.text)}</div>
+      <div>${x.conclusion.confidence!=='n/a'?confBars(x.conclusion.confidence)+`<span class="conf"><span>${cap(x.conclusion.confidence)} confidence · ${esc(x.conclusion.confidenceText)}</span></span>`:`<span class="conf"><span>${esc(x.conclusion.confidenceText)}</span></span>`}</div></div>
+    <div class="stats"><div class="stat"><b>Risk</b>${cap(risk)}</div><div class="stat"><b>Outcome</b>${out==='none'?'Open':cap(out)}</div><div class="stat"><b>State</b>${STATE[item.attentionState]} · ${esc(item.since)}</div></div>
+  </div>
+  <div class="chips"><span class="chip det">Detector: ${esc(det.name)} · v${esc(det.version)}</span><span class="chip">Raised ${esc(x.detectedAt)}</span><span class="chip">Archetype ${esc(det.archetype)}</span></div></div>
+
+  <div class="card"><h2><span class="step">1</span>${esc(x.chart.title||'What we see')}</h2><p class="sub">${esc(x.chart.caption||'')}</p>${legendOf(x.chart)}<div class="chart" id="cMain"></div></div>
+
+  <div class="card"><h2><span class="step">2</span>Why we think so</h2><p class="sub">The signature of this failure, checked against the data.</p>
+    <div class="tally"><span>${matched} of ${x.checks.length} checks match</span><span>${req.length} required · ${sup.length} supporting</span></div>
+    ${x.checks.map((c,k)=>`<div class="ind"><div class="ic ${c.status}" title="${c.status}">${c.status==='match'?'✓':c.status==='pending'?'?':'–'}</div>
+      <div><div class="ttl">${esc(c.label)}<span class="kind">${c.role}${c.status==='pending'?' · not yet checked':''}</span></div><div class="val">${esc(c.value)}</div><div class="why">${esc(c.why)}</div></div>
+      <div class="spark" id="sp${k}"></div></div>`).join('')}
+  </div>
+
+  <div class="card"><h2><span class="step">3</span>What this looks like</h2><p class="sub">Reference examples, with this case drawn over each from its onset.</p>
+    <div class="legend"><span><i class="sw" style="border-color:#4b5563"></i>Reference example</span><span><i class="sw" style="border-color:#0078d4"></i>This case</span></div>
+    <div class="refs">${x.references.map((r,k)=>`<div class="ref ${r.verdict.kind==='match'?'best':''}"><div class="rt"><b>${esc(r.title)}</b><span class="tag">${esc(r.tag)}</span></div>
+      <div class="desc">${esc(r.description)}</div>${r.charts.map((c,j)=>`<div class="ct">${esc(c.title)}</div><div class="chart" id="rf${k}_${j}"></div>`).join('')}
+      <div class="cmp"><span class="m ${r.verdict.kind}">${r.verdict.kind==='match'?'✓':r.verdict.kind==='nomatch'?'✗':'≈'} ${esc(r.verdict.text)}</span><ul>${r.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></div></div>`).join('')}</div>
+  </div>
+
+  <div class="two${x.ruledOut.length?'':' flat'}"><div>
+  ${x.ruledOut.length?`<div class="card"><h2><span class="step">4</span>What we ruled out</h2><p class="sub">Other causes of the same symptom, and why they don't fit.</p>
+    ${x.ruledOut.map((r,k)=>`<div class="ro"><div class="q">${esc(r.cause)} <span class="x">${esc(r.verdict)}</span></div><div class="a">${esc(r.reason)}</div>${r.chart?`${legendOf(r.chart)}<div class="chart" id="ro${k}"></div>`:''}</div>`).join('')}
+    ${x.excluded?`<div class="note">${esc(x.excluded)}</div>`:''}</div>`:''}
+  </div><div>
+  <div class="card"><h2><span class="step">${x.ruledOut.length?5:4}</span>How sure are we</h2>
+    <div style="margin:4px 0 8px">${confBars(x.confidence.level)}<span class="conf"><span><b>${x.confidence.level==='n/a'?'Not applicable':cap(x.confidence.level)}</b></span></span></div>
+    <dl class="kv"><dt>Because</dt><dd>${esc(x.confidence.because)}</dd>
+      ${x.confidence.confirmedBy?`<dt class="up">Confirmed by</dt><dd>${esc(x.confidence.confirmedBy)}</dd>`:''}
+      ${x.confidence.notHigherBecause?`<dt>Not higher because</dt><dd>${esc(x.confidence.notHigherBecause)}</dd>`:''}
+      ${x.confidence.raiseIf?`<dt class="up">Raise if</dt><dd>${esc(x.confidence.raiseIf)}</dd>`:''}
+      ${x.confidence.lowerIf?`<dt class="down">Lower if</dt><dd>${esc(x.confidence.lowerIf)}</dd>`:''}</dl></div>
+  <div class="card"><h2><span class="step">${x.ruledOut.length?6:5}</span>What to do</h2><div class="a" style="font-size:12px;color:var(--ink2)">${esc(x.action.text)}</div>
+    ${x.impact?`<div class="note">${esc(x.impact)}</div>`:''}
+    ${works.map(w=>`<div class="work"><b>${esc(w.text)}${w.source==='ai'?'<span class="aipill">AI</span>':''}</b>${esc(w.assignedRole)} · ${w.done?'done '+esc((w.completedAt||'').slice(11,16)):'due '+esc((w.dueAt||'').slice(11,16))+' · not done'}</div>`).join('')}
+    <div class="btnrow"><button class="btn pri">Create work item</button><button class="btn">This doesn't look right</button></div></div>
+  ${dd.relatedOccurrences?.length?`<div class="card"><h2>Seen here before</h2>${dd.relatedOccurrences.map(o=>`<div class="ro"><div class="q">${esc(o.date)}</div><div class="a">${esc(o.summary)}</div></div>`).join('')}</div>`:''}
+  </div></div>
+
+  <details class="eng"><summary>How this detector works <span>for engineers: ${esc(det.summary)}</span></summary>
+    <div class="pipe">${det.pipeline.map((b,i)=>(i?'<span class="arr">→</span>':'')+`<div class="blk"><b>${esc(b.title)}</b>${esc(b.text)}</div>`).join('')}</div>
+    <div class="run">Ran on ${det.run.evaluated} ${esc(det.appliesTo)} on ${esc(det.run.date)}; raised on ${det.run.fired.length}: ${det.run.fired.map(f=>esc(f.label)+' at '+esc(f.at)).join(', ')}.${x.model?` Expected value: <code>${esc(x.model.formula)}</code>, fitted on ${esc(x.model.fittedOn)}.`:''}</div>
+    <pre>${esc(JSON.stringify(det.definition,null,2))}</pre></details>
+  <div class="foot">Preview · rendered from public/data/${esc(E.model)}/explanations.json, generated by ${esc(E.generatedBy)}</div>`;
+  v.innerHTML=h;
+  drawChart(document.getElementById('cMain'),x.chart,{height:240});
+  x.checks.forEach((c,k)=>{if(c.spark) spark(document.getElementById('sp'+k),c.spark);});
+  x.references.forEach((r,k)=>r.charts.forEach((c,j)=>drawChart(document.getElementById(`rf${k}_${j}`),c,{height:j===0?110:80,compact:true})));
+  x.ruledOut.forEach((r,k)=>{if(r.chart) drawChart(document.getElementById('ro'+k),r.chart,{height:140,compact:true});});
+  document.querySelector('.main').scrollTop=0;
+}
+function list(){
+  const order={urgent:0,act:1,investigate:2,watch:3};
+  const items=[...ITEMS].sort((a,b)=>order[a.attentionState]-order[b.attentionState]);
+  document.getElementById('list').innerHTML=`<div class="zone">Attention · ${esc(E.model)}</div>`+items.map(a=>`<div class="it" data-id="${a.id}"><span class="dot" style="background:${SEV[a.severity]}"></span><div><div class="a">${esc(a.asset)}</div><div class="s">${esc(a.signal)}</div><div class="m">${STATE[a.attentionState]} · ${esc(a.since)}${E.items[a.id]?'':' · no explanation'}</div></div></div>`).join('');
+  document.querySelectorAll('.it').forEach(n=>n.addEventListener('click',()=>{render(n.dataset.id);try{history.replaceState(null,'','#'+n.dataset.id);}catch(e){}}));
+  const start=(location.hash||'').slice(1);
+  render(ITEMS.some(a=>a.id===start)?start:items[0].id);
+}
+list();
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const s=document.querySelector('.it.sel');if(s)render(s.dataset.id);},150);});
+</script>
+</body>
+</html>

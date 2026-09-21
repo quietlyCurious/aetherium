@@ -48,6 +48,9 @@ top of `RESEARCH.md`, and carry on.
 | 5 | The `models.json` entry (§9) | `public/data/models.json` |
 | 6 | A validator run with zero errors (§8) | `ModelAndData/tools/validate_industry_pack.py <model>` |
 | 7 | Browser check: switch to the model, then click through Configurator → Types/Assets and Operator → Attention/Assets/Investigate, with screenshots | Claude's sandbox (per `PROJECT_CONTEXT.md`) |
+| 8 | Detectors, one per failure mode behind an attention item (§14) | `ModelAndData/industries/<model>/explain.py` |
+| 9 | Explanations: the "why" behind each attention item (§14) | `public/data/<model>/explanations.json` |
+| 10 | Robustness run: detectors on regenerated data (§14.6) | `ModelAndData/industries/<model>/robustness.py` |
 
 `<model>` is a short lowercase slug with no spaces (for example `wind`).
 It's the folder name, the `models.json` id, and the key used by
@@ -415,6 +418,9 @@ scrubber depends on this. Static properties appear only in
 
 ## 6. File contracts — the 8 files in `public/data/<model>/`
 
+(Plus an optional ninth, `explanations.json`, written by the pack's
+detectors rather than its generator. See §14.)
+
 | # | File | Role | Contents |
 |---|---|---|---|
 | 1 | `assets.json` | assets | the hierarchy |
@@ -619,6 +625,7 @@ For generic packs it checks:
   `sinceMinutes` agree.
 - **Scenario coverage** minimums (§4.1).
 - **Budgets** (§7).
+- **Explanations** (§14), when `explanations.json` is present.
 
 Errors must be zero. Warnings need a reason, written down in
 SCENARIOS.md.
@@ -721,6 +728,13 @@ Still open:
   to keep them refinery-only (§10).
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
+- `explanations.json` (§14) exists for wind, ccgt and pipeline (not yet
+  pharma or grid), and the app doesn't read
+  it yet: the Investigate panel's AI tab still shows the plain
+  interpretation. Wiring it in means an optional `explanations` role in
+  `modelRegistry.js` (a missing file is fine), a loader variable, and an
+  `ExplanationView` that replaces the AI tab when the selected item has an
+  explanation.
 
 ---
 
@@ -768,6 +782,157 @@ these):
       SCENARIOS.md
 - [ ] the model loads with no console errors, and screenshots of the
       Configurator and Operator views have been reviewed
+- [ ] `explain.py` explains every attention item, fires nowhere else (or
+      the extra detections are listed in SCENARIOS.md with a reason), and
+      `robustness.py` finds every item on 10 regenerated datasets (§14)
 - [ ] handed to Amy as a zip of full files in repo folder layout (her
       laptop blocks some single-file downloads), with a short note on the
       scenarios and which archetypes they cover
+
+---
+
+## 14. Detectors and explanations (`explain.py` → `explanations.json`)
+
+An attention item says *what* needs attention. Its explanation shows *why*
+the system thinks so, the way an experienced engineer would: the evidence
+checked against the known signature of the failure, what else could cause
+the same symptom and why it doesn't fit, what the failure looks like in
+reference examples, and how sure the system is. The operator should be able
+to check the reasoning, not just trust it.
+
+### 14.1 The rule that keeps it honest
+
+**Detectors read only the runtime files**, through
+`ModelAndData/tools/detectors/pack.py`, exactly as the app would. They
+never import the generator or read its scenario constants. The runner
+evaluates each detector on **every** asset it applies to (all 19 HS
+bearings, not just the one with a story), so a detector that fires
+everywhere, or nowhere, shows up immediately.
+
+### 14.2 What to build
+
+One detector per attention item's failure mode, written in
+`ModelAndData/industries/<model>/explain.py` from the shared toolkit in
+`ModelAndData/tools/detectors/`:
+
+- `pack.py`: read-only access to the runtime files, including the
+  hierarchy and relationship layers (`sources` and `targets`).
+- `blocks.py`: the signal building blocks. Running masks, an
+  expected-value model fitted on peers (`fleet_expected`), residuals,
+  slope per hour, largest single step, sustained-since, peer min/median/max,
+  episodes.
+- `build.py`: the `Detector` base class, the builders for charts, checks,
+  rule-outs and reference examples, and `run_pack`, which runs everything
+  and writes the file.
+
+Each detector has:
+
+- a `definition` dict: inputs, peers, the expected-value model, **every
+  threshold in `params`** (the code reads them from there, so what the
+  engineer view shows can't drift from what runs), the checks with their
+  roles, and the confidence rule;
+- `candidates(pack)`: every asset it applies to;
+- `evaluate(pack, aid)`: returns a `Finding` that fired at the first time
+  point where every required check held, or didn't fire;
+- `explain(pack, finding, item)`: builds the explanation from the finding
+  and the data.
+
+Checks come in two roles:
+
+- **required:** the detector only raises when all of them match;
+- **supporting:** each one that matches raises confidence. Mark the ones
+  that come from an independent sensor (`independent: true`); confidence
+  depends on those.
+
+Each check carries its own evidence: `value` is the numbers in a sentence,
+`why` is the physics in a sentence, and `spark` is a small chart.
+
+### 14.3 What each explanation contains
+
+`explanations.json`:
+
+```jsonc
+{
+  "version": 1, "model": "wind", "generatedBy": "…/explain.py",
+  "detectors": { "<detectorId>": { "id", "name", "version", "archetype", "appliesTo", "summary",
+                                   "pipeline": [{ "title", "text" }], "definition": { … },
+                                   "run": { "evaluated": 19, "fired": [{ "assetId", "label", "at" }], "date" } } },
+  "items": { "<attentionItemId>": {
+    "detectorId", "detectedAt": "10:00",
+    "conclusion": { "label": "Most likely cause|Cause|What's needed", "text", "confidence": "high|medium|low|n/a", "confidenceText" },
+    "rootCauseAssetId": "…",                    // optional: when the cause is a different asset
+    "chart": <chart>,                            // "What we see"
+    "checks": [{ "id", "label", "role": "required|supporting", "status": "match|nomatch|pending",
+                 "value", "why", "spark": { "values", "y", "band"?, "threshold"?, "highlight"?, "window"? } }],
+    "references": [{ "id", "kind": "textbook|early|lookalike|variant", "tag", "title", "description",
+                     "verdict": { "kind": "match|partial|nomatch", "text" }, "notes": [], "charts": [<chart with x>] }],
+    "ruledOut": [{ "cause", "verdict": "ruled out|unlikely|not yet checked", "reason", "chart"? }],
+    "excluded": "…" | null,                     // assets left out of the comparison, and why
+    "confidence": { "level", "because", "notHigherBecause"?, "raiseIf"?, "lowerIf"?, "confirmedBy"? },
+    "action": { "text", "workItemIds": [] },
+    "model"?: { "target", "formula", "fittedOn" }, "impact"?: "…", "grouped"?: []
+  } }
+}
+```
+
+A `<chart>` is `{ unit, y: [lo, hi], decimals, series: [{ id, label,
+style, values }], title?, caption?, band?: { label, lo, hi }, shadeGap?:
+[idA, idB], thresholds?: [{ value, label }], markers?: [{ time, label }],
+window?: [from, to], x?: { unit: "h"|"min", values } }`. Without `x`, the
+axis is the pack timeline. Series `style` is one of `primary` (the asset
+being explained), `expected` (what it should read, dashed), `reference`,
+`secondary` or `peer` (thin comparison lines). The UI picks the colours.
+
+### 14.4 Reference examples
+
+Two or three per explanation, with the live asset overlaid from its onset:
+
+- **textbook:** the fully developed failure;
+- **early** (or **variant**): what it looks like while there is still time,
+  or the same symptom from a sibling cause;
+- **look-alike:** something that resembles it but isn't, with the
+  reason it doesn't match. At least one per explanation. It's where
+  operators learn the most.
+
+Reference curves are synthetic, seeded with `build.Rng` so they're
+reproducible, and shaped from the RESEARCH.md failure physics. Their
+verdicts are written by hand, as teaching content, and aren't computed.
+
+### 14.5 Confidence
+
+Set by the detector's rule, not by hand:
+
+- `low`: required checks only;
+- `medium`: at least one independent supporting check;
+- `high`: confirmed, by recovery after acting on the cause, or by an
+  inspection.
+
+An open item that nobody has inspected rarely deserves `high`. The runner
+warns when the computed level differs from the attention item's
+`confidenceLevel`.
+
+### 14.6 Checks before handing back
+
+- `python3 ModelAndData/industries/<model>/explain.py`: every attention
+  item explained (exit 1 otherwise), and the run report lists where each
+  detector fired. An extra detection is either covered by an item (icing
+  on several turbines of one string, grouped via `Detector.group`) or
+  listed in SCENARIOS.md with a reason.
+- `python3 ModelAndData/industries/<model>/robustness.py 10`: reruns the
+  generator with 10 other seeds and runs the detectors on each copy. Every
+  item should be found every time, with no extra detections. This only
+  varies noise, not the size or timing of the faults, so also note each
+  detector's detection floor (the smallest fault it catches) in
+  SCENARIOS.md.
+- The validator checks the file (§8): item and detector references resolve,
+  every required check matches, series lengths fit their axis, times are
+  on the grid, and work items exist.
+
+### 14.7 Limits to state plainly
+
+These are **reference detectors**. Their thresholds come from the research
+and were checked against simulated data, so they are a starting point to
+tune on a customer's own history, not a validated product. Say so in
+RESEARCH.md or SCENARIOS.md, together with each detector's detection
+floor.
+

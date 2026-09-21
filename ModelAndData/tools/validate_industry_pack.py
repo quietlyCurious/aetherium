@@ -402,6 +402,15 @@ def validate_generic(repo, model, entry, R):
     if not 8 <= len(WK) <= 15: R.warn('budget', f'{len(WK)} work items (§7: 8–15)')
     if sum(1 for w in WK if not w.get('done')) < 2: R.warn(S, 'fewer than 2 open work items')
 
+    # ── Explanations (optional, spec §14) ───────────────────────────────
+    exp_path = os.path.join(d, 'explanations.json')
+    exp_kb = 0
+    if os.path.exists(exp_path):
+        exp_kb = os.path.getsize(exp_path) // 1024
+        with open(exp_path, encoding='utf-8') as f:
+            validate_explanations(json.load(f), ATT, WK, TEL, M, R)
+        if exp_kb > 1024: R.warn('budget', f'explanations.json is {exp_kb} KB (§14: ≤ 1 MB)')
+
     # ── Sizes ───────────────────────────────────────────────────────────
     total = 0
     for name in set(files.values()):
@@ -410,8 +419,103 @@ def validate_generic(repo, model, entry, R):
     if total > 5_000_000: R.err('budget', f'pack is {total // 1024} KB (§7: ≤ 5 MB)')
 
     print(f'Industry pack: {model}  (generic; {len(levels)} levels, {len(M)} assets, {len(units)} units, '
-          f'{len(REL)} edges, {len(used)} property keys, {npts} points, {len(ATT)} attention, {len(WK)} work, {total // 1024} KB)\n')
+          f'{len(REL)} edges, {len(used)} property keys, {npts} points, {len(ATT)} attention, {len(WK)} work, {total // 1024} KB'
+          + (f'; explanations {exp_kb} KB' if exp_kb else '') + ')\n')
     sys.exit(1 if R.print() else 0)
+
+
+EXP_ITEM_KEYS = ['detectorId', 'detectedAt', 'conclusion', 'chart', 'checks', 'references', 'ruledOut', 'confidence', 'action']
+CHECK_STATUS = {'match', 'nomatch', 'pending'}
+CHECK_ROLE = {'required', 'supporting'}
+SERIES_STYLES = {'primary', 'expected', 'reference', 'secondary', 'peer'}
+REF_KINDS = {'textbook', 'early', 'lookalike', 'variant'}
+VERDICT_KINDS = {'match', 'partial', 'nomatch'}
+RULE_OUT_VERDICTS = {'ruled out', 'unlikely', 'not yet checked'}
+
+
+def validate_explanations(E, ATT, WK, TEL, M, R):
+    """explanations.json (spec §14): every item and detector reference
+    resolves, every chart's series fits its axis, every time is on the grid."""
+    S = 'explanations'
+    ts = TEL.get('timestamps') or []
+    on_grid = set(ts)
+    att_ids = {a['id'] for a in ATT}
+    work_ids = {w['id'] for w in WK}
+    dets = E.get('detectors') or {}
+    items = E.get('items') or {}
+
+    def chart_ok(where, c):
+        if not isinstance(c, dict):
+            R.err(S, f'{where}: chart is not an object'); return
+        x = c.get('x')
+        n = len(x['values']) if x else len(ts)
+        if x and x.get('unit') not in ('h', 'min'): R.err(S, f'{where}: x.unit {x.get("unit")!r}')
+        y = c.get('y')
+        if not (isinstance(y, list) and len(y) == 2 and y[0] < y[1]): R.err(S, f'{where}: y must be [lo, hi]')
+        for sr in c.get('series') or []:
+            if sr.get('style') not in SERIES_STYLES: R.err(S, f'{where}: series {sr.get("id")} style {sr.get("style")!r}')
+            if len(sr.get('values') or []) != n: R.err(S, f'{where}: series {sr.get("id")} has {len(sr.get("values") or [])} points, axis has {n}')
+        if not c.get('series'): R.err(S, f'{where}: no series')
+        b = c.get('band')
+        if b and (len(b.get('lo') or []) != n or len(b.get('hi') or []) != n): R.err(S, f'{where}: band length')
+        sg = c.get('shadeGap')
+        if sg and not all(any(sr.get('id') == g for sr in c['series']) for g in sg): R.err(S, f'{where}: shadeGap ids')
+        for m in c.get('markers') or []:
+            if not x and m.get('time') not in on_grid: R.err(S, f'{where}: marker time {m.get("time")!r} off the grid')
+        for t in c.get('window') or []:
+            if t not in on_grid: R.err(S, f'{where}: window time {t!r} off the grid')
+
+    def spark_ok(where, sp):
+        if len(sp.get('values') or []) != len(ts): R.err(S, f'{where}: spark has {len(sp.get("values") or [])} points')
+        b = sp.get('band')
+        if b and (len(b['lo']) != len(ts) or len(b['hi']) != len(ts)): R.err(S, f'{where}: spark band length')
+        for t in (sp.get('highlight') or []) + (sp.get('window') or []):
+            if t not in on_grid: R.err(S, f'{where}: spark time {t!r} off the grid')
+
+    for did, dd in dets.items():
+        for k in ['id', 'name', 'archetype', 'summary', 'pipeline', 'definition', 'run']:
+            if k not in dd: R.err(S, f'detector {did} missing {k}')
+        for f in (dd.get('run') or {}).get('fired') or []:
+            if f.get('assetId') not in M: R.err(S, f'detector {did} fired on unknown asset {f.get("assetId")!r}')
+    for iid, x in items.items():
+        w = iid
+        if iid not in att_ids: R.err(S, f'{iid} is not an attention item'); continue
+        for k in EXP_ITEM_KEYS:
+            if k not in x: R.err(S, f'{w} missing {k}')
+        if x.get('detectorId') not in dets: R.err(S, f'{w} detectorId {x.get("detectorId")!r} not in detectors')
+        if x.get('detectedAt') not in on_grid: R.err(S, f'{w} detectedAt {x.get("detectedAt")!r} off the grid')
+        con = x.get('conclusion') or {}
+        if con.get('confidence') not in CONF: R.err(S, f'{w} conclusion.confidence {con.get("confidence")!r}')
+        if (x.get('confidence') or {}).get('level') not in CONF: R.err(S, f'{w} confidence.level')
+        if x.get('rootCauseAssetId') and x['rootCauseAssetId'] not in M: R.err(S, f'{w} rootCauseAssetId unknown')
+        if 'chart' in x: chart_ok(f'{w} chart', x['chart'])
+        req = [c for c in x.get('checks') or [] if c.get('role') == 'required']
+        if not req: R.err(S, f'{w} has no required checks')
+        for c in x.get('checks') or []:
+            cw = f'{w} check {c.get("id")}'
+            if c.get('status') not in CHECK_STATUS: R.err(S, f'{cw} status {c.get("status")!r}')
+            if c.get('role') not in CHECK_ROLE: R.err(S, f'{cw} role {c.get("role")!r}')
+            if c.get('role') == 'required' and c.get('status') != 'match': R.err(S, f'{cw}: a raised item needs every required check to match')
+            for k in ('label', 'value', 'why'):
+                if not c.get(k): R.err(S, f'{cw} missing {k}')
+            if c.get('spark'): spark_ok(cw, c['spark'])
+        refs = x.get('references') or []
+        if not 2 <= len(refs) <= 3: R.warn(S, f'{w} has {len(refs)} reference examples (§14: 2–3)')
+        if refs and not any(r.get('kind') == 'lookalike' for r in refs): R.warn(S, f'{w} has no look-alike reference')
+        for r in refs:
+            rw = f'{w} reference {r.get("id")}'
+            if r.get('kind') not in REF_KINDS: R.err(S, f'{rw} kind {r.get("kind")!r}')
+            if (r.get('verdict') or {}).get('kind') not in VERDICT_KINDS: R.err(S, f'{rw} verdict kind')
+            for k, ch in enumerate(r.get('charts') or []):
+                chart_ok(f'{rw} chart {k}', ch)
+                if not ch.get('x'): R.err(S, f'{rw} chart {k} needs a relative x axis')
+        for ro in x.get('ruledOut') or []:
+            if ro.get('verdict') not in RULE_OUT_VERDICTS: R.err(S, f'{w} rule-out {ro.get("cause")!r} verdict {ro.get("verdict")!r}')
+            if ro.get('chart'): chart_ok(f'{w} rule-out {ro.get("cause")!r}', ro['chart'])
+        for wid in (x.get('action') or {}).get('workItemIds') or []:
+            if wid not in work_ids: R.err(S, f'{w} action work item {wid!r} does not exist')
+    missing = sorted(att_ids - set(items))
+    if missing: R.warn(S, f'attention items with no explanation (the app falls back to the plain AI view): {missing}')
 
 
 def main():
