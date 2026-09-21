@@ -1,6 +1,7 @@
 // DataListGrid.jsx
 // Shared DevExtreme DataGrid-based list view for the left panel of definition workspaces
-// (Data Sources, Queries, Scripts, ...). Replaces hand-rolled <div> list rows with a real
+// (Data Sources, Queries, Entities, via designer/DefinitionWorkspace), the Theme
+// lists, and the Configurator's Types tab and Details grids. Replaces hand-rolled <div> list rows with a real
 // grid so search, paging, and multi-column display come for free and stay consistent
 // across every workspace that needs a "pick one item from a list" panel.
 //
@@ -43,6 +44,20 @@ const DataListGrid = React.forwardRef(function DataListGrid({
     currentOnReorder?.(newItems);
   }, []);
 
+  // One click raises both onSelectionChanged and onRowClick, so without
+  // this every click reached onSelect twice. Harmless for a handler that
+  // just sets state, but one that asks first — "you have unsaved changes,
+  // discard them?" — asked twice. Passes each choice on once: a repeat of
+  // the same key within the same event turn is dropped.
+  const lastSelectRef = React.useRef(null);
+  const emitSelect = (key) => {
+    if (lastSelectRef.current && lastSelectRef.current.key === key) return;
+    const marker = { key };
+    lastSelectRef.current = marker;
+    setTimeout(() => { if (lastSelectRef.current === marker) lastSelectRef.current = null; }, 0);
+    onSelect(key);
+  };
+
   return (
     <DataGrid
       ref={ref}
@@ -58,8 +73,8 @@ const DataListGrid = React.forwardRef(function DataListGrid({
       columnAutoWidth={columnAutoWidth}
       noDataText={noDataText}
       selectedRowKeys={selectedId != null ? [selectedId] : []}
-      onSelectionChanged={(e) => onSelect(e.selectedRowKeys[0] ?? null)}
-      onRowClick={(e) => onSelect(e.key)}
+      onSelectionChanged={(e) => emitSelect(e.selectedRowKeys[0] ?? null)}
+      onRowClick={(e) => emitSelect(e.key)}
     >
       <Selection mode="single" />
       {reorderable && <RowDragging allowReordering={true} onReorder={handleReorder} />}

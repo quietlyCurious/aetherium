@@ -326,6 +326,7 @@ function AetheriumEditor() {
 
   const handleNavigate = async (view) => {
     if (!confirmDiscardIfDirty()) return;
+    if (view !== currentView && !confirmLeaveDefinitionArea()) return;
     if (view !== currentView) await resolveOperatorUnsaved();
     setCurrentView(view);
     setMenuOpen(false);
@@ -336,6 +337,7 @@ function AetheriumEditor() {
   // changes, which controls which rail items that workspace shows.
   const handleNavigateOperatorPersona = async (persona) => {
     if (!confirmDiscardIfDirty()) return;
+    if (currentView !== 'operator' && !confirmLeaveDefinitionArea()) return;
     if (currentView !== 'operator' || persona !== operatorPersona) await resolveOperatorUnsaved();
     setCurrentView('operator');
     setOperatorPersona(persona);
@@ -555,7 +557,16 @@ function AetheriumEditor() {
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
-  const operatorHasUnsavedChanges = useHasUnsavedChanges(); // drives the Save button's unsaved marker (Configurator only)
+  // The three definition areas share one shell (designer/DefinitionWorkspace),
+  // which knows whether its open editor has unsaved changes. Leaving one of
+  // them asks first, the way switching items inside it does — otherwise
+  // navigating away unmounted the editor and dropped the edits silently.
+  const DEFINITION_WORKSPACE_REFS = { datasources: dataSourcesWorkspaceRef, entities: entitiesWorkspaceRef, queries: queriesWorkspaceRef };
+  const confirmLeaveDefinitionArea = () => DEFINITION_WORKSPACE_REFS[currentView]?.current?.confirmLeave?.() ?? true;
+  // Whether the open editor has unsaved changes — the Configurator's
+  // editors and the definition workspaces both publish here. Drives the
+  // Save button's amber marker.
+  const hasUnsavedChanges = useHasUnsavedChanges();
   const [operatorSaveAvailable, setOperatorSaveAvailable] = useState(false); // whether a type is currently selected (Now area's Types tab) — mirrors the same static, per-context enablement pattern the other workspaces already use, not new dirty-tracking
 
   React.useEffect(() => {
@@ -1602,26 +1613,25 @@ function AetheriumEditor() {
           // personas that have nothing to save here.
           if (currentView === 'operator' && operatorPersona !== 'configurator') return null;
 
-          // Only 'screens' and 'entities' have a title-bar Save concept.
-          // Everything else (widgets, theme, datasources, queries, scripts)
-          // either auto-saves on every keystroke already or has nothing to
-          // save at all — this used to silently fall through to the PAGE
-          // save handler for all of those, which is how phantom pages named
-          // after whatever was being tested on another screen got created.
+          // Screens and the three definition areas (data sources, entities,
+          // queries) have a title-bar Save. Widgets, theme and scripts have
+          // nothing to save — these used to silently fall through to the
+          // PAGE save handler, which is how phantom pages named after
+          // whatever was being tested on another screen got created.
           const saveInfo = currentView === 'operator'
             ? {
                 enabled: operatorSaveAvailable,
                 label: !operatorSaveAvailable
                   ? 'Select a type or asset in the Now area to save its display template'
-                  : operatorHasUnsavedChanges
+                  : hasUnsavedChanges
                     ? 'You have unsaved changes — save them'
                     : "Save this type or asset's display template (no unsaved changes)",
               }
             : {
                 screens:      { enabled: true,  label: currentView === 'screens' && activePageId ? 'Save this screen' : 'Save as a new screen' },
-                entities:     { enabled: true,  label: 'Save entity data' },
-                datasources:  { enabled: true,  label: 'Save this data source' },
-                queries:      { enabled: true,  label: 'Save this query' },
+                entities:     { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save entity data' },
+                datasources:  { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save this data source' },
+                queries:      { enabled: true,  label: hasUnsavedChanges ? 'You have unsaved changes — save them' : 'Save this query' },
                 theme:        { enabled: false, label: 'Nothing to save on this screen' },
                 widgets:      { enabled: false, label: 'Nothing to save on this screen' },
                 scripts:      { enabled: false, label: 'Nothing to save on this screen' },
@@ -1660,9 +1670,9 @@ function AetheriumEditor() {
             >
               💾 Save
               {/* Unsaved marker — same amber dot convention as a modified
-                  editor tab. Operator workspace only; the page builder has
-                  its own dirty handling. */}
-              {currentView === 'operator' && operatorHasUnsavedChanges && (
+                  editor tab. The Configurator and the definition areas;
+                  Screens still has its own dirty handling. */}
+              {(currentView === 'operator' || DEFINITION_WORKSPACE_REFS[currentView]) && hasUnsavedChanges && (
                 <span className="app-titlebar-unsaved-dot" aria-label="Unsaved changes" />
               )}
             </button>

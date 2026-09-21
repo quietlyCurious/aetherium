@@ -2,13 +2,13 @@
 // Left-panel list of data sources + right-panel detail editor.
 // Connectivity fields adapt to the selected product type.
 
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Splitter, Item as SplitterItem } from 'devextreme-react/splitter';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
 import { Switch } from 'devextreme-react/switch';
 import notify from 'devextreme/ui/notify';
 import { Field, TxtInput, InfoNote, SectionTitle, SubSectionLabel } from './FormFields';
-import DataListGrid from './DataListGrid';
+import { DefinitionWorkspace, UnsavedDot } from './designer/DefinitionWorkspace';
+import { useDefinitionDraft } from './designer/useDefinitionDraft';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Product catalog
@@ -501,34 +501,13 @@ function PlantApplicationsFields({ config, onChange }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DataSourceEditor = forwardRef(function DataSourceEditor({ ds: committedDs, onUpdate, onDelete, onDirtyChange }, ref) {
-  const [draft, setDraft] = useState(committedDs);
-  const [syncedId, setSyncedId] = useState(committedDs.id);
-
-  // Resets draft the moment the SELECTED data source changes — done
-  // synchronously DURING render (React's recommended pattern for this), not
-  // via useEffect. An effect-based reset runs AFTER the render that already
-  // compared stale draft data against the new committedDs, producing one
-  // real render where isDirty was wrongly true — the same false "unsaved
-  // changes" bug confirmed and fixed in QueriesWorkspace.
-  if (committedDs.id !== syncedId) {
-    setSyncedId(committedDs.id);
-    setDraft(committedDs);
-  }
+  const { draft, setDraft, isDirty } = useDefinitionDraft(committedDs, onDirtyChange);
 
   // Everything below this line reads/writes `ds` exactly as before this
   // refactor — aliasing it to the draft means the whole existing render body
   // (General section, all five connectivity field sets) needed ZERO changes
   // to become draft-aware.
   const ds = draft;
-
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(committedDs);
-
-  // Propagate live dirty status up to the list (for its dirty-dot indicator)
-  // — a ref alone wouldn't trigger the parent to re-render as you type.
-  useEffect(() => {
-    onDirtyChange?.(isDirty);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDirty]);
 
   useImperativeHandle(ref, () => ({
     isDirty: () => isDirty,
@@ -717,9 +696,7 @@ function makeColumns(selectedId, selectedIsDirty) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: product?.dot || '#bbb', flexShrink: 0 }} />
-        {isActiveDirty && (
-          <span title="Unsaved changes" style={{ width: 6, height: 6, borderRadius: '50%', background: '#e08a00', flexShrink: 0 }} />
-        )}
+        {isActiveDirty && <UnsavedDot />}
         <span style={{ color: ds.name ? '#222' : '#aaa' }}>{ds.name || '(unnamed)'}</span>
         {ds.isSystemManaged && <span style={{ fontSize: 9, color: '#aaa' }}>sys</span>}
       </div>
@@ -737,109 +714,22 @@ function makeColumns(selectedId, selectedIsDirty) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DataSourcesWorkspace = forwardRef(function DataSourcesWorkspace({ dataSources, onAdd, onUpdate, onDelete }, ref) {
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedIsDirty, setSelectedIsDirty] = useState(false);
-  const editorRef = useRef(null);
-
-  // If the selected item gets deleted, clear the selection
-  const selected = dataSources.find(ds => ds.id === selectedId) || null;
-  const columns = makeColumns(selectedId, selectedIsDirty);
-
-  useImperativeHandle(ref, () => ({
-    save: () => editorRef.current?.save(),
-  }), []);
-
-  const confirmDiscardIfDirty = () => {
-    if (!editorRef.current?.isDirty()) return true;
-    return window.confirm('You have unsaved changes on this data source. Discard them and continue?');
-  };
-
-  const handleAdd = () => {
-    if (!confirmDiscardIfDirty()) return;
-    const id = onAdd();
-    setSelectedId(id);
-  };
-
-  const handleSelect = (id) => {
-    if (id === selectedId) return;
-    if (!confirmDiscardIfDirty()) return;
-    setSelectedId(id);
-  };
-
-  const handleDelete = (id) => {
-    const result = onDelete(id);
-    if (result !== false) setSelectedId(null);
-    return result;
-  };
-
   return (
-    <Splitter orientation="horizontal" style={{ height: '100%' }}>
-
-      {/* ── Left panel: data source list ──────────────────────────────────── */}
-      <SplitterItem size="280px" minSize="180px" resizable={true}>
-        <div className="app-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 12px',
-            flexShrink: 0,
-          }}>
-            <p className="panel-label" style={{ margin: 0 }}>Data Sources</p>
-            <button
-              className="focus-mode-btn"
-              style={{ fontSize: 16, padding: '0 6px', lineHeight: 1 }}
-              title="Add data source"
-              onClick={handleAdd}
-            >+</button>
-          </div>
-
-          <div style={{ flex: 1, overflow: 'hidden', paddingTop: 4 }}>
-            <DataListGrid
-              items={dataSources}
-              columns={columns}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              noDataText="No data sources yet. Click + to add one."
-            />
-          </div>
-        </div>
-      </SplitterItem>
-
-
-      {/* ── Right panel: detail editor ────────────────────────────────────── */}
-      <SplitterItem resizable={true}>
-        <div className="app-panel" style={{ height: '100%', overflow: 'hidden' }}>
-          {selected ? (
-            <DataSourceEditor
-              ref={editorRef}
-              ds={selected}
-              onUpdate={onUpdate}
-              onDelete={handleDelete}
-              onDirtyChange={setSelectedIsDirty}
-            />
-          ) : (
-            <div style={{
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <div className="data-workspace-placeholder">
-                <div className="data-workspace-placeholder-icon">🔌</div>
-                <div className="data-workspace-placeholder-title" style={{ fontSize: 14 }}>
-                  No data source selected
-                </div>
-                <div className="data-workspace-placeholder-desc">
-                  Select a data source from the list, or click <strong>+</strong> to create a new one.
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </SplitterItem>
-
-    </Splitter>
+    <DefinitionWorkspace
+      ref={ref}
+      items={dataSources}
+      title="Data Sources"
+      noun="data source"
+      addTitle="Add data source"
+      noDataText="No data sources yet. Click + to add one."
+      columns={makeColumns}
+      placeholder={{ icon: '🔌', title: 'No data source selected', what: 'a data source' }}
+      onAdd={onAdd}
+      onDelete={onDelete}
+      renderEditor={({ item, editorRef, onDelete: handleDelete, onDirtyChange }) => (
+        <DataSourceEditor ref={editorRef} ds={item} onUpdate={onUpdate} onDelete={handleDelete} onDirtyChange={onDirtyChange} />
+      )}
+    />
   );
 });
 

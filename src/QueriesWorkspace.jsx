@@ -4,12 +4,12 @@
 // output parameter lists (via the shared ParamListEditor), and type-specific
 // configuration for REST, SQL, OPC UA, and Entity queries.
 
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Splitter, Item as SplitterItem } from 'devextreme-react/splitter';
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
 import { Switch } from 'devextreme-react/switch';
 import { Field, TxtInput, InfoNote, SectionTitle } from './FormFields';
-import DataListGrid from './DataListGrid';
+import { DefinitionWorkspace, UnsavedDot } from './designer/DefinitionWorkspace';
+import { useDefinitionDraft } from './designer/useDefinitionDraft';
 import ParamListEditor from './ParamListEditor';
 import {
   QUERY_TYPE_LABELS, QUERY_TYPES,
@@ -51,9 +51,7 @@ function makeColumns(dataSourceById, selectedId, selectedIsDirty) {
     const isActiveDirty = q.id === selectedId && selectedIsDirty;
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        {isActiveDirty && (
-          <span title="Unsaved changes" style={{ width: 6, height: 6, borderRadius: '50%', background: '#e08a00', flexShrink: 0 }} />
-        )}
+        {isActiveDirty && <UnsavedDot />}
         {q._ophubFlowUuid && <span title="Synced from Operations Hub — read-only" style={{ fontSize: 10, flexShrink: 0 }}>🔒</span>}
         <span style={{ color: q.name ? '#222' : '#aaa' }}>{q.name || '(unnamed)'}</span>
       </div>
@@ -339,32 +337,13 @@ function TestQueryPanel({ query, dataSource }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dataSources, onUpdate, onDelete, onDirtyChange }, ref) {
-  const [draft, setDraft] = useState(committedQuery);
-  const [syncedId, setSyncedId] = useState(committedQuery.id);
-
-  // Resets draft the moment the SELECTED query changes — done synchronously
-  // DURING render (React's recommended pattern for this), not via useEffect.
-  // An effect-based reset runs AFTER the render that already compared stale
-  // draft data against the new committedQuery, producing one real render
-  // where isDirty was wrongly true — exactly the false "unsaved changes"
-  // prompt reported when just clicking between queries with no edits made.
-  if (committedQuery.id !== syncedId) {
-    setSyncedId(committedQuery.id);
-    setDraft(committedQuery);
-  }
+  const { draft, setDraft, isDirty } = useDefinitionDraft(committedQuery, onDirtyChange);
 
   // Everything below reads/writes `query` exactly as before this refactor —
   // aliasing it to the draft means the whole existing render body (General,
   // Data Source, Inputs, Outputs, Configuration, Test) needed ZERO changes
   // to become draft-aware.
   const query = draft;
-
-  const isDirty = JSON.stringify(draft) !== JSON.stringify(committedQuery);
-
-  useEffect(() => {
-    onDirtyChange?.(isDirty);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDirty]);
 
   // Queries synced in from Operations Hub carry _ophubFlowUuid — treated as
   // the source of truth there, so Aetherium shouldn't let local edits drift
@@ -630,43 +609,11 @@ const QueryEditor = forwardRef(function QueryEditor({ query: committedQuery, dat
 // ─────────────────────────────────────────────────────────────────────────────
 
 const QueriesWorkspace = forwardRef(function QueriesWorkspace({ queries, dataSources, onAdd, onUpdate, onDelete }, ref) {
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedIsDirty, setSelectedIsDirty] = useState(false);
   const [syncDataSourceId, setSyncDataSourceId] = useState(null);
   const [syncing, setSyncing] = useState(false);
-  const editorRef = useRef(null);
 
-  const selected = queries.find(q => q.id === selectedId) || null;
   const dataSourceById = Object.fromEntries(dataSources.map(ds => [ds.id, ds]));
-  const columns = makeColumns(dataSourceById, selectedId, selectedIsDirty);
   const restDataSources = dataSources.filter(ds => ds.type === 'rest' || ds.type === 'historian');
-
-  useImperativeHandle(ref, () => ({
-    save: () => editorRef.current?.save(),
-  }), []);
-
-  const confirmDiscardIfDirty = () => {
-    if (!editorRef.current?.isDirty()) return true;
-    return window.confirm('You have unsaved changes on this query. Discard them and continue?');
-  };
-
-  const handleAdd = () => {
-    if (!confirmDiscardIfDirty()) return;
-    const id = onAdd();
-    setSelectedId(id);
-  };
-
-  const handleSelect = (id) => {
-    if (id === selectedId) return;
-    if (!confirmDiscardIfDirty()) return;
-    setSelectedId(id);
-  };
-
-  const handleDelete = (id) => {
-    const result = onDelete(id);
-    if (result !== false) setSelectedId(null);
-    return result;
-  };
 
   const handleSyncFromOphub = async () => {
     const ds = dataSources.find(d => d.id === syncDataSourceId);
@@ -723,101 +670,59 @@ const QueriesWorkspace = forwardRef(function QueriesWorkspace({ queries, dataSou
     notify(`Linked ${unlinked.length} ${unlinked.length === 1 ? 'query' : 'queries'} to "${ds.name}"`, 'success', 3000);
   };
 
+  // The OpHub sync row sits under the list title — the one thing this list
+  // has that the other definition lists don't.
+  const syncToolbar = (
+    <div style={{ display: 'flex', gap: 4, padding: '6px 12px', flexShrink: 0, alignItems: 'center' }}>
+      <SelectBox
+        dataSource={restDataSources.map(ds => ({ value: ds.id, label: ds.name || '(unnamed)' }))}
+        valueExpr="value"
+        displayExpr="label"
+        value={syncDataSourceId}
+        placeholder="Sync from…"
+        onValueChanged={e => setSyncDataSourceId(e.value)}
+        stylingMode="outlined"
+        width="100%"
+        height={24}
+      />
+      <button
+        className="focus-mode-btn"
+        style={{ fontSize: 10, flexShrink: 0, padding: '0 6px' }}
+        onClick={handleSyncFromOphub}
+        disabled={syncing || !syncDataSourceId}
+        title="Sync queries from OpHub"
+      >
+        {syncing ? '…' : '↻ Sync'}
+      </button>
+      <button
+        className="focus-mode-btn"
+        style={{ fontSize: 10, flexShrink: 0, padding: '0 6px' }}
+        onClick={handleLinkUnlinkedOphubQueries}
+        disabled={!syncDataSourceId}
+        title="Link every unlinked OpHub-synced query to this data source"
+      >
+        🔗 Link Unlinked
+      </button>
+    </div>
+  );
+
   return (
-    <Splitter orientation="horizontal" style={{ height: '100%' }}>
-
-      {/* ── Left panel: query list ──────────────────────────────────────────── */}
-      <SplitterItem size="280px" minSize="180px" resizable={true}>
-        <div className="app-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 12px',
-            flexShrink: 0,
-          }}>
-            <p className="panel-label" style={{ margin: 0 }}>Queries</p>
-            <button
-              className="focus-mode-btn"
-              style={{ fontSize: 16, padding: '0 6px', lineHeight: 1 }}
-              title="Add query"
-              onClick={handleAdd}
-            >+</button>
-          </div>
-
-          <div style={{ display: 'flex', gap: 4, padding: '6px 12px', flexShrink: 0, alignItems: 'center' }}>
-            <SelectBox
-              dataSource={restDataSources.map(ds => ({ value: ds.id, label: ds.name || '(unnamed)' }))}
-              valueExpr="value"
-              displayExpr="label"
-              value={syncDataSourceId}
-              placeholder="Sync from…"
-              onValueChanged={e => setSyncDataSourceId(e.value)}
-              stylingMode="outlined"
-              width="100%"
-              height={24}
-            />
-            <button
-              className="focus-mode-btn"
-              style={{ fontSize: 10, flexShrink: 0, padding: '0 6px' }}
-              onClick={handleSyncFromOphub}
-              disabled={syncing || !syncDataSourceId}
-              title="Sync queries from OpHub"
-            >
-              {syncing ? '…' : '↻ Sync'}
-            </button>
-            <button
-              className="focus-mode-btn"
-              style={{ fontSize: 10, flexShrink: 0, padding: '0 6px' }}
-              onClick={handleLinkUnlinkedOphubQueries}
-              disabled={!syncDataSourceId}
-              title="Link every unlinked OpHub-synced query to this data source"
-            >
-              🔗 Link Unlinked
-            </button>
-          </div>
-
-          <div style={{ flex: 1, overflow: 'hidden', paddingTop: 4 }}>
-            <DataListGrid
-              items={queries}
-              columns={columns}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              noDataText="No queries yet. Click + to add one."
-            />
-          </div>
-        </div>
-      </SplitterItem>
-
-      {/* ── Right panel: detail editor ────────────────────────────────────── */}
-      <SplitterItem resizable={true}>
-        <div className="app-panel" style={{ height: '100%', overflow: 'hidden' }}>
-          {selected ? (
-            <QueryEditor
-              ref={editorRef}
-              query={selected}
-              dataSources={dataSources}
-              onUpdate={onUpdate}
-              onDelete={handleDelete}
-              onDirtyChange={setSelectedIsDirty}
-            />
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="data-workspace-placeholder">
-                <div className="data-workspace-placeholder-icon">⚡</div>
-                <div className="data-workspace-placeholder-title" style={{ fontSize: 14 }}>
-                  No query selected
-                </div>
-                <div className="data-workspace-placeholder-desc">
-                  Select a query from the list, or click <strong>+</strong> to create a new one.
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </SplitterItem>
-
-    </Splitter>
+    <DefinitionWorkspace
+      ref={ref}
+      items={queries}
+      title="Queries"
+      noun="query"
+      addTitle="Add query"
+      noDataText="No queries yet. Click + to add one."
+      columns={(selectedId, selectedIsDirty) => makeColumns(dataSourceById, selectedId, selectedIsDirty)}
+      listToolbar={syncToolbar}
+      placeholder={{ icon: '⚡', title: 'No query selected', what: 'a query' }}
+      onAdd={onAdd}
+      onDelete={onDelete}
+      renderEditor={({ item, editorRef, onDelete: handleDelete, onDirtyChange }) => (
+        <QueryEditor ref={editorRef} query={item} dataSources={dataSources} onUpdate={onUpdate} onDelete={handleDelete} onDirtyChange={onDirtyChange} />
+      )}
+    />
   );
 });
 

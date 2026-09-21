@@ -140,6 +140,24 @@ side calls `AssetCardsView`/`AssetDiagramView` more directly via
 underneath, so the type/asset fallback above applies identically in
 either mode without extra work.
 
+## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries)
+
+Not refactored the way the Operator side was — it isn't seven comparable
+areas. Screens is ~2,400 lines inside `App.js` (its left tabs, canvas and
+right-hand property editor); Theme, Widgets and Scripts are small; Data
+Sources, Entities and Queries are "a list of definitions plus an editor".
+
+Those three now share `src/designer/DefinitionWorkspace.jsx`: it owns
+selection, the confirm-before-losing-edits prompt, and publishing the open
+editor's dirty state to `unsavedChangesStore` — the same store the
+Configurator uses, which is what puts the amber dot on the title-bar Save.
+Each area supplies its nouns, its list columns and its editor. An editor
+exposes `isDirty()` and `save()` on its ref and reports dirty changes;
+`useDefinitionDraft` does both halves of that for a simple form editor.
+
+`App.js` asks the active workspace `confirmLeave()` before navigating, so
+leaving an area with unsaved edits asks first.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
@@ -222,6 +240,12 @@ class names match, as of phase 5: `op-property-tile-*`,
   file.
 - `src/HierarchyTree.jsx`, `src/DataListGrid.jsx` — small shared
   components reused across both the page-builder and Operator sides.
+  `DataListGrid` passes a row click on once: DevExtreme raises both
+  `onSelectionChanged` and `onRowClick`, which used to make any handler
+  that prompts ask twice.
+- `src/designer/` — pieces shared by the designer areas:
+  `DefinitionWorkspace` (the list + editor shell behind Data Sources,
+  Entities and Queries) and `useDefinitionDraft`.
 - `public/data/<model>/*.json` — per-model generated data. Generic packs
   have 8 files (`assets`, `asset-values`, `asset-telemetry`,
   `properties`…, spec §6). The legacy description below is for the

@@ -139,5 +139,37 @@
       }
     ],
     "unitLevel": "unit"
+  },
+  {
+    "id": "grid",
+    "label": "Transmission Grid",
+    "shape": "generic",
+    "levels": [
+      {
+        "id": "network",
+        "label": "Network"
+      },
+      {
+        "id": "district",
+        "label": "District"
+      },
+      {
+        "id": "substation",
+        "label": "Substation"
+      },
+      {
+        "id": "bay",
+        "label": "Bay"
+      },
+      {
+        "id": "device",
+        "label": "Device"
+      },
+      {
+        "id": "component",
+        "label": "Component"
+      }
+    ],
+    "unitLevel": "substation"
   }
 ]

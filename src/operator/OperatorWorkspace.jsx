@@ -526,10 +526,12 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     setPropertyVisualDraft({ entityId: null, modes: {} });
     setHiddenAssetIds(new Set(allAssetsTemplate?.hiddenAssetIds ?? []));
   };
-  // One prompt at a time: a single click can fire more than one of the
-  // guarded handlers (DataListGrid reports a row click through both its
-  // selection-changed and row-click events), and each must wait on the
-  // same answer rather than stacking a second dialog.
+  // One prompt at a time: if more than one guarded handler runs for a
+  // single user action, each must wait on the same answer rather than
+  // stacking a second dialog. (Found because DataListGrid used to report
+  // every row click twice, through both its selection-changed and
+  // row-click events. It now passes a click on once; this guard stays for
+  // any other path that fires more than one handler.)
   const pendingUnsavedPromptRef = useRef(null);
   const resolveUnsavedChanges = () => {
     if (pendingUnsavedPromptRef.current) return pendingUnsavedPromptRef.current;

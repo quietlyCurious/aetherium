@@ -18,11 +18,10 @@
 // it feels redundant in practice.
 
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import { Splitter, Item as SplitterItem } from 'devextreme-react/splitter';
 import DataGrid, { Column, Editing as GridEditing } from 'devextreme-react/data-grid';
 import notify from 'devextreme/ui/notify';
 import { SectionTitle } from './FormFields';
-import DataListGrid from './DataListGrid';
+import { DefinitionWorkspace, UnsavedDot } from './designer/DefinitionWorkspace';
 import ParamListEditor from './ParamListEditor';
 import { generateDataId } from './dataModel';
 import {
@@ -39,10 +38,16 @@ const COLUMN_FIELDS = [
 // List grid columns
 // ─────────────────────────────────────────────────────────────────────────────
 
-function makeListColumns() {
+function makeListColumns(selectedId, selectedIsDirty) {
   const nameCellRender = (cellInfo) => {
     const e = cellInfo.data;
-    return <span style={{ color: e.name ? '#222' : '#aaa' }}>{e.name || '(unnamed)'}</span>;
+    const isActiveDirty = e.id === selectedId && selectedIsDirty;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {isActiveDirty && <UnsavedDot />}
+        <span style={{ color: e.name ? '#222' : '#aaa' }}>{e.name || '(unnamed)'}</span>
+      </div>
+    );
   };
   return [
     { dataField: 'name', caption: 'Name', cellRender: nameCellRender, minWidth: 120 },
@@ -55,11 +60,15 @@ function makeListColumns() {
 // Entity detail editor
 // ─────────────────────────────────────────────────────────────────────────────
 
-const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDelete }, ref) {
+const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDelete, onDirtyChange }, ref) {
   const [draftColumns, setDraftColumns] = useState(() => [...entity.columns]);
   const [draftRows, setDraftRows] = useState(() => [...entity.rows]);
   const [editingColumns, setEditingColumns] = useState(entity.columns.length === 0);
   const [bulkCount, setBulkCount] = useState(5);
+  // Batch-mode cell edits live inside the grid until saveEditData() — they
+  // are unsaved work too, so the grid reports them here (see
+  // onOptionChanged below).
+  const [gridHasPendingEdits, setGridHasPendingEdits] = useState(false);
 
   const dataGridRef = useRef(null);
   // Mirrors draftRows synchronously (updated inside each grid event handler,
@@ -69,18 +78,41 @@ const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDele
 
   // Reset local draft state whenever the SELECTED entity changes (not on every
   // keystroke — those only live in draft state until an explicit Save).
-  useEffect(() => {
+  // Done during render, the same way useDefinitionDraft does it: an effect
+  // would run only after a render that had already compared the previous
+  // entity's rows against the new one, reporting it as unsaved for a frame.
+  const [syncedId, setSyncedId] = useState(entity.id);
+  if (entity.id !== syncedId) {
+    setSyncedId(entity.id);
     setDraftColumns([...entity.columns]);
     setDraftRows([...entity.rows]);
     draftRowsRef.current = [...entity.rows];
     setEditingColumns(entity.columns.length === 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setGridHasPendingEdits(false);
+  }
+  // Edits still pending inside the grid belong to the entity being left;
+  // without this they would carry over onto the next one's rows.
+  useEffect(() => {
+    dataGridRef.current?.instance()?.cancelEditData();
   }, [entity.id]);
+
+  // Unsaved work, in any of its three places: a column schema being edited,
+  // rows added or changed since the last save, or cell edits still pending
+  // in the grid.
+  const isDirty = (editingColumns && JSON.stringify(draftColumns) !== JSON.stringify(entity.columns))
+    || JSON.stringify(draftRows) !== JSON.stringify(entity.rows)
+    || gridHasPendingEdits;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty]);
 
   const isNewEntity = entity.columns.length === 0;
 
   // ── Imperative save, triggered by the app's top title-bar Save button ────
   useImperativeHandle(ref, () => ({
+    isDirty: () => isDirty,
     save: () => {
       if (editingColumns) {
         notify('You\u2019re editing columns \u2014 use the Save/Cancel buttons below.', 'warning', 2500);
@@ -97,7 +129,7 @@ const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDele
         commit();
       }
     },
-  }), [editingColumns, entity.id, onUpdate]);
+  }), [isDirty, editingColumns, entity.id, onUpdate]);
 
   const handleSaveColumns = () => {
     const cleaned = draftColumns.filter(c => c.field.trim() !== '');
@@ -210,6 +242,9 @@ const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDele
               keyExpr="__rowId"
               showBorders={true}
               height="100%"
+              onOptionChanged={(e) => {
+                if (e.fullName === 'editing.changes') setGridHasPendingEdits(Array.isArray(e.value) && e.value.length > 0);
+              }}
               onInitNewRow={(e) => {
                 e.data.__rowId = generateDataId();
                 entity.columns.forEach(col => {
@@ -256,72 +291,23 @@ const EntityEditor = forwardRef(function EntityEditor({ entity, onUpdate, onDele
 // ─────────────────────────────────────────────────────────────────────────────
 
 const EntitiesWorkspace = forwardRef(function EntitiesWorkspace({ entities, onAdd, onUpdate, onDelete }, ref) {
-  const [selectedId, setSelectedId] = useState(null);
-  const selected = entities.find(e => e.id === selectedId) || null;
-  const columns = makeListColumns();
-  const editorRef = useRef(null);
-
-  useImperativeHandle(ref, () => ({
-    save: () => editorRef.current?.save(),
-  }), []);
-
-  const handleAdd = () => {
-    const id = onAdd();
-    setSelectedId(id);
-  };
-
-  const handleDelete = (id) => {
-    onDelete(id);
-    if (id === selectedId) setSelectedId(null);
-  };
-
   return (
-    <Splitter orientation="horizontal" style={{ height: '100%' }}>
-
-      {/* ── Left panel: entity list ──────────────────────────────────────── */}
-      <SplitterItem size="260px" minSize="180px" resizable={true}>
-        <div className="app-panel" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px', flexShrink: 0 }}>
-            <p className="panel-label" style={{ margin: 0 }}>Entities</p>
-            <button
-              className="focus-mode-btn"
-              style={{ fontSize: 16, padding: '0 6px', lineHeight: 1 }}
-              title="Add entity"
-              onClick={handleAdd}
-            >+</button>
-          </div>
-          <div style={{ flex: 1, overflow: 'hidden', paddingTop: 4 }}>
-            <DataListGrid
-              items={entities}
-              columns={columns}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              noDataText="No entities yet. Click + to add one."
-            />
-          </div>
-        </div>
-      </SplitterItem>
-
-      {/* ── Right panel: detail editor ───────────────────────────────────── */}
-      <SplitterItem resizable={true}>
-        <div className="app-panel" style={{ height: '100%', overflow: 'hidden' }}>
-          {selected ? (
-            <EntityEditor ref={editorRef} entity={selected} onUpdate={onUpdate} onDelete={handleDelete} />
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div className="data-workspace-placeholder">
-                <div className="data-workspace-placeholder-icon">🗂️</div>
-                <div className="data-workspace-placeholder-title" style={{ fontSize: 14 }}>No entity selected</div>
-                <div className="data-workspace-placeholder-desc">
-                  Select an entity from the list, or click <strong>+</strong> to create a new one.
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </SplitterItem>
-
-    </Splitter>
+    <DefinitionWorkspace
+      ref={ref}
+      items={entities}
+      title="Entities"
+      noun="entity"
+      addTitle="Add entity"
+      noDataText="No entities yet. Click + to add one."
+      listWidth="260px"
+      columns={makeListColumns}
+      placeholder={{ icon: '🗂️', title: 'No entity selected', what: 'an entity' }}
+      onAdd={onAdd}
+      onDelete={onDelete}
+      renderEditor={({ item, editorRef, onDelete: handleDelete, onDirtyChange }) => (
+        <EntityEditor ref={editorRef} entity={item} onUpdate={onUpdate} onDelete={handleDelete} onDirtyChange={onDirtyChange} />
+      )}
+    />
   );
 });
 
