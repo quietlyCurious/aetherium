@@ -1,1193 +1,1207 @@
 [
-  {
-    "id": "SIT02",
-    "severity": "low",
-    "asset": "Ferrum · F4",
-    "line": "Ferrum · F4",
-    "signal": "Busy shift, no equipment issues",
-    "aiInterpretation": "Heavy planned workload (sample, inspection, huddle, changeover prep) — all handled on schedule.",
-    "since": "Resolved 1h 40m ago",
-    "sinceMinutes": 100,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Ferrum F4 carried a full slate of planned work today — quality sample, Power Charge inspection, production huddle, and changeover preparation — alongside routine production.",
-      "observed": "All four planned activities on F4 completed on or ahead of schedule; no equipment faults logged.",
-      "derived": "Workload density was high for this shift, but every task had a clear owner and none competed for the same window.",
-      "inferred": "This is what \"busy but healthy\" looks like — task volume alone is not a signal of trouble.",
-      "recommendation": "No action needed — included here to show the AI stayed quiet through a genuinely busy (not broken) shift.",
-      "evidence": [
-        1,
-        1
-      ],
-      "evidencePoints": [
-        {
-          "time": "08:00",
-          "value": "Shift start",
-          "label": ""
-        },
-        {
-          "time": "12:25",
-          "value": "All planned work clear",
-          "label": "Resolved"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "Nothing changed — this is a record of normal operation under a heavier-than-usual workload.",
-      "whatChanged": [],
-      "confidence": "Confirmed — routine workload, not a fault",
-      "confidenceLevel": "high",
-      "risk": "None at this time",
-      "riskLevel": "none",
-      "expectedOutcome": "Shift concluded with all planned work complete",
-      "outcomeStatus": "resolved"
+ {
+  "id": "SIT02",
+  "severity": "low",
+  "asset": "F4",
+  "line": "F4",
+  "signal": "Busy shift, no equipment issues",
+  "aiInterpretation": "Heavy planned workload (sample, inspection, huddle, changeover prep) — all handled on schedule.",
+  "since": "Resolved 1h 40m ago",
+  "sinceMinutes": 100,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Ferrum F4 carried a full slate of planned work today — quality sample, Power Charge inspection, production huddle, and changeover preparation — alongside routine production.",
+   "observed": "All four planned activities on F4 completed on or ahead of schedule; no equipment faults logged.",
+   "derived": "Workload density was high for this shift, but every task had a clear owner and none competed for the same window.",
+   "inferred": "This is what \"busy but healthy\" looks like — task volume alone is not a signal of trouble.",
+   "recommendation": "No action needed — included here to show the AI stayed quiet through a genuinely busy (not broken) shift.",
+   "evidence": [
+    1,
+    1
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:00",
+     "value": "Shift start",
+     "label": ""
+    },
+    {
+     "time": "12:25",
+     "value": "All planned work clear",
+     "label": "Resolved"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Nothing changed — this is a record of normal operation under a heavier-than-usual workload.",
+   "whatChanged": [],
+   "confidence": "Confirmed — routine workload, not a fault",
+   "confidenceLevel": "high",
+   "risk": "None at this time",
+   "riskLevel": "none",
+   "expectedOutcome": "Shift concluded with all planned work complete",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT03",
-    "severity": "medium",
-    "asset": "Aurelia · A3 · Refinement",
-    "line": "Aurelia · A3",
-    "signal": "Refinement regulator response slowed, since corrected",
-    "aiInterpretation": "Throughput dipped as control effort rose — a sluggish regulating element, confirmed and adjusted.",
-    "since": "Resolved 4h 25m ago",
-    "sinceMinutes": 265,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Refinement throughput drifted from ~121 down to ~111 units/min between 08:46 and 09:24, while control effort rose to compensate.",
-      "observed": "Throughput persistently below expected profile; control effort increased while output declined.",
-      "derived": "The rising-effort/falling-output combination is a classic early signature of a mechanical response problem, not a demand change.",
-      "inferred": "A sluggish regulating element — confirmed by inspection, which found the regulator responding slower than spec.",
-      "recommendation": "Inspect and adjust the regulating element before the drift compounds further.",
-      "evidence": [
-        120.6,
-        119.28,
-        118.31,
-        115.43,
-        112.72,
-        110.93,
-        118.18,
-        120.33
-      ],
-      "evidencePoints": [
-        {
-          "time": "08:20",
-          "value": "120.6/min",
-          "label": ""
-        },
-        {
-          "time": "08:33",
-          "value": "119.3/min",
-          "label": ""
-        },
-        {
-          "time": "08:46",
-          "value": "118.3/min",
-          "label": "Drift begins"
-        },
-        {
-          "time": "08:59",
-          "value": "115.4/min",
-          "label": ""
-        },
-        {
-          "time": "09:11",
-          "value": "112.7/min",
-          "label": ""
-        },
-        {
-          "time": "09:24",
-          "value": "110.9/min",
-          "label": "Lowest point"
-        },
-        {
-          "time": "09:37",
-          "value": "118.2/min",
-          "label": "Adjusted, recovering"
-        },
-        {
-          "time": "09:50",
-          "value": "120.3/min",
-          "label": "Back to baseline"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Measurement bias considered and rejected — the drift showed up consistently across multiple independent signals, not one sensor."
-        }
-      ],
-      "whatChangedSummary": "Operator inspection at 09:14 found and adjusted a sluggish regulating element — that is what actually changed.",
-      "whatChanged": [
-        {
-          "time": "09:14",
-          "source": "Operator Action",
-          "description": "Began Refinement regulator inspection.",
-          "related": true
-        },
-        {
-          "time": "09:24",
-          "source": "Result",
-          "description": "Adjustment completed; throughput back to baseline within minutes.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by inspection",
-      "confidenceLevel": "high",
-      "risk": "Low — caught and corrected before quality impact",
-      "riskLevel": "low",
-      "expectedOutcome": "Refinement returned to expected operating profile",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F4",
+  "unitId": "FERRUM_F4",
+  "primaryProperty": "line_throughput"
+ },
+ {
+  "id": "SIT03",
+  "severity": "medium",
+  "asset": "A3 · Refinement",
+  "line": "A3",
+  "signal": "Refinement regulator response slowed, since corrected",
+  "aiInterpretation": "Throughput dipped as control effort rose — a sluggish regulating element, confirmed and adjusted.",
+  "since": "Resolved 4h 25m ago",
+  "sinceMinutes": 265,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Refinement throughput drifted from ~121 down to ~111 units/min between 08:46 and 09:24, while control effort rose to compensate.",
+   "observed": "Throughput persistently below expected profile; control effort increased while output declined.",
+   "derived": "The rising-effort/falling-output combination is a classic early signature of a mechanical response problem, not a demand change.",
+   "inferred": "A sluggish regulating element — confirmed by inspection, which found the regulator responding slower than spec.",
+   "recommendation": "Inspect and adjust the regulating element before the drift compounds further.",
+   "evidence": [
+    120.6,
+    119.28,
+    118.31,
+    115.43,
+    112.72,
+    110.93,
+    118.18,
+    120.33
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:20",
+     "value": "120.6/min",
+     "label": ""
+    },
+    {
+     "time": "08:35",
+     "value": "119.3/min",
+     "label": ""
+    },
+    {
+     "time": "08:45",
+     "value": "118.3/min",
+     "label": "Drift begins"
+    },
+    {
+     "time": "09:00",
+     "value": "115.4/min",
+     "label": ""
+    },
+    {
+     "time": "09:10",
+     "value": "112.7/min",
+     "label": ""
+    },
+    {
+     "time": "09:25",
+     "value": "110.9/min",
+     "label": "Lowest point"
+    },
+    {
+     "time": "09:35",
+     "value": "118.2/min",
+     "label": "Adjusted, recovering"
+    },
+    {
+     "time": "09:50",
+     "value": "120.3/min",
+     "label": "Back to baseline"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Measurement bias considered and rejected — the drift showed up consistently across multiple independent signals, not one sensor."
+    }
+   ],
+   "whatChangedSummary": "Operator inspection at 09:14 found and adjusted a sluggish regulating element — that is what actually changed.",
+   "whatChanged": [
+    {
+     "time": "09:14",
+     "source": "Operator Action",
+     "description": "Began Refinement regulator inspection.",
+     "related": true
+    },
+    {
+     "time": "09:24",
+     "source": "Result",
+     "description": "Adjustment completed; throughput back to baseline within minutes.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by inspection",
+   "confidenceLevel": "high",
+   "risk": "Low — caught and corrected before quality impact",
+   "riskLevel": "low",
+   "expectedOutcome": "Refinement returned to expected operating profile",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT04",
-    "severity": "medium",
-    "asset": "Aurelia · A4 · Buffer",
-    "line": "Aurelia · A4",
-    "signal": "Buffer accumulation reversed after downstream fix",
-    "aiInterpretation": "Output ran below incoming flow for ~22 minutes; downstream restriction cleared and buffer normalized.",
-    "since": "Resolved 3h 37m ago",
-    "sinceMinutes": 217,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Buffer level on A4 climbed from ~42% to a peak of ~71% between 09:14 and 10:10 while Output ran below incoming flow.",
-      "observed": "Output rate below incoming flow while upstream remained stable; net accumulation positive for 22 minutes.",
-      "derived": "A persistent (not momentary) rate gap — this is a capacity problem downstream, not a supply spike upstream.",
-      "inferred": "Downstream Output capacity restriction — confirmed by inspection and cleared.",
-      "recommendation": "Inspect Output capacity; once cleared, briefly pace upstream to help the buffer normalize faster.",
-      "evidence": [
-        42.59,
-        44.5,
-        53.03,
-        62.3,
-        70.12,
-        70.66,
-        54.66,
-        43
-      ],
-      "evidencePoints": [
-        {
-          "time": "09:00",
-          "value": "42.6%",
-          "label": "Baseline"
-        },
-        {
-          "time": "09:14",
-          "value": "44.5%",
-          "label": ""
-        },
-        {
-          "time": "09:28",
-          "value": "53.0%",
-          "label": ""
-        },
-        {
-          "time": "09:42",
-          "value": "62.3%",
-          "label": ""
-        },
-        {
-          "time": "09:56",
-          "value": "70.1%",
-          "label": "Near peak"
-        },
-        {
-          "time": "10:10",
-          "value": "70.7%",
-          "label": "Restriction cleared"
-        },
-        {
-          "time": "10:24",
-          "value": "54.7%",
-          "label": "Draining"
-        },
-        {
-          "time": "10:38",
-          "value": "43.0%",
-          "label": "Back to normal"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "Output capacity inspection at 09:54 found and cleared the restriction — buffer recovery began within minutes.",
-      "whatChanged": [
-        {
-          "time": "09:54",
-          "source": "Work Event",
-          "description": "Output capacity inspection started.",
-          "related": true
-        },
-        {
-          "time": "10:05",
-          "source": "Operator Action",
-          "description": "Output restriction cleared.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by inspection",
-      "confidenceLevel": "high",
-      "risk": "Low — resolved before hitting capacity",
-      "riskLevel": "low",
-      "expectedOutcome": "Buffer returned to normal working range",
-      "outcomeStatus": "resolved"
+  "assetId": "AURELIA_A3_REFINEMENT",
+  "unitId": "AURELIA_A3",
+  "primaryProperty": "throughput_per_min"
+ },
+ {
+  "id": "SIT04",
+  "severity": "medium",
+  "asset": "A4 · Buffer",
+  "line": "A4",
+  "signal": "Buffer accumulation reversed after downstream fix",
+  "aiInterpretation": "Output ran below incoming flow for ~22 minutes; downstream restriction cleared and buffer normalized.",
+  "since": "Resolved 3h 37m ago",
+  "sinceMinutes": 217,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Buffer level on A4 climbed from ~42% to a peak of ~71% between 09:14 and 10:10 while Output ran below incoming flow.",
+   "observed": "Output rate below incoming flow while upstream remained stable; net accumulation positive for 22 minutes.",
+   "derived": "A persistent (not momentary) rate gap — this is a capacity problem downstream, not a supply spike upstream.",
+   "inferred": "Downstream Output capacity restriction — confirmed by inspection and cleared.",
+   "recommendation": "Inspect Output capacity; once cleared, briefly pace upstream to help the buffer normalize faster.",
+   "evidence": [
+    42.59,
+    44.5,
+    53.03,
+    62.3,
+    70.12,
+    70.66,
+    54.66,
+    43
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:00",
+     "value": "42.6%",
+     "label": "Baseline"
+    },
+    {
+     "time": "09:15",
+     "value": "44.5%",
+     "label": ""
+    },
+    {
+     "time": "09:30",
+     "value": "53.0%",
+     "label": ""
+    },
+    {
+     "time": "09:40",
+     "value": "62.3%",
+     "label": ""
+    },
+    {
+     "time": "09:55",
+     "value": "70.1%",
+     "label": "Near peak"
+    },
+    {
+     "time": "10:10",
+     "value": "70.7%",
+     "label": "Restriction cleared"
+    },
+    {
+     "time": "10:25",
+     "value": "54.7%",
+     "label": "Draining"
+    },
+    {
+     "time": "10:40",
+     "value": "43.0%",
+     "label": "Back to normal"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Output capacity inspection at 09:54 found and cleared the restriction — buffer recovery began within minutes.",
+   "whatChanged": [
+    {
+     "time": "09:54",
+     "source": "Work Event",
+     "description": "Output capacity inspection started.",
+     "related": true
+    },
+    {
+     "time": "10:05",
+     "source": "Operator Action",
+     "description": "Output restriction cleared.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by inspection",
+   "confidenceLevel": "high",
+   "risk": "Low — resolved before hitting capacity",
+   "riskLevel": "low",
+   "expectedOutcome": "Buffer returned to normal working range",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT05",
-    "severity": "medium",
-    "asset": "Ferrum · F2 · Power Charge",
-    "line": "Ferrum · F2",
-    "signal": "Power Charge vibration climbing at steady load",
-    "aiInterpretation": "Vibration has risen steadily since morning at comparable load — consistent with prior bearing wear, still being confirmed.",
-    "since": "5h 5m ago",
-    "sinceMinutes": 305,
-    "attentionState": "investigate",
-    "detail": {
-      "signal": "Power Charge drive vibration has climbed from ~2.5 to ~4.4 mm/s since 08:50, at comparable operating load each time.",
-      "observed": "Vibration elevated at comparable load; prior inspection noted minor bearing wear; faint roughness audible near the drive housing.",
-      "derived": "Because load hasn't changed, the rising vibration points at the equipment itself rather than a process condition.",
-      "inferred": "Progressive bearing wear — same leading theory as the last inspection, not yet confirmed by a new one.",
-      "recommendation": "Planned drive inspection already underway — do not defer past this cycle.",
-      "evidence": [
-        2.47,
-        2.7,
-        3.08,
-        3.31,
-        3.92,
-        4.11,
-        4.38,
-        2.57
-      ],
-      "evidencePoints": [
-        {
-          "time": "08:50",
-          "value": "2.5 mm/s",
-          "label": "Baseline"
-        },
-        {
-          "time": "09:41",
-          "value": "2.7 mm/s",
-          "label": ""
-        },
-        {
-          "time": "10:31",
-          "value": "3.1 mm/s",
-          "label": ""
-        },
-        {
-          "time": "11:22",
-          "value": "3.3 mm/s",
-          "label": ""
-        },
-        {
-          "time": "12:13",
-          "value": "3.9 mm/s",
-          "label": ""
-        },
-        {
-          "time": "13:04",
-          "value": "4.1 mm/s",
-          "label": ""
-        },
-        {
-          "time": "13:54",
-          "value": "4.4 mm/s",
-          "label": "Highest reading"
-        },
-        {
-          "time": "14:45",
-          "value": "2.6 mm/s",
-          "label": "Post-inspection"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Temporary load variation considered and rejected — vibration keeps climbing even at matched load."
-        }
-      ],
-      "whatChangedSummary": "A planned drive inspection began at 14:00 — evaluating whether it confirms bearing wear.",
-      "whatChanged": [
-        {
-          "time": "14:00",
-          "source": "Maintenance",
-          "description": "Planned drive inspection started.",
-          "related": true
-        }
-      ],
-      "confidence": "Likely, pending inspection result",
-      "confidenceLevel": "medium",
-      "risk": "Medium — degrading component, not yet failed",
-      "riskLevel": "medium",
-      "expectedOutcome": "Inspection in progress as of this reading",
-      "outcomeStatus": "none"
+  "assetId": "AURELIA_A4_BUFFER",
+  "unitId": "AURELIA_A4",
+  "primaryProperty": "buffer_level"
+ },
+ {
+  "id": "SIT05",
+  "severity": "medium",
+  "asset": "F2 · Power Charge",
+  "line": "F2",
+  "signal": "Power Charge vibration climbing at steady load",
+  "aiInterpretation": "Vibration has risen steadily since morning at comparable load — consistent with prior bearing wear, still being confirmed.",
+  "since": "5h 5m ago",
+  "sinceMinutes": 305,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Power Charge drive vibration has climbed from ~2.5 to ~4.4 mm/s since 08:50, at comparable operating load each time.",
+   "observed": "Vibration elevated at comparable load; prior inspection noted minor bearing wear; faint roughness audible near the drive housing.",
+   "derived": "Because load hasn't changed, the rising vibration points at the equipment itself rather than a process condition.",
+   "inferred": "Progressive bearing wear — same leading theory as the last inspection, not yet confirmed by a new one.",
+   "recommendation": "Planned drive inspection already underway — do not defer past this cycle.",
+   "evidence": [
+    2.47,
+    2.7,
+    3.08,
+    3.31,
+    3.92,
+    4.11,
+    4.38
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:50",
+     "value": "2.5 mm/s",
+     "label": "Baseline"
+    },
+    {
+     "time": "09:40",
+     "value": "2.7 mm/s",
+     "label": ""
+    },
+    {
+     "time": "10:30",
+     "value": "3.1 mm/s",
+     "label": ""
+    },
+    {
+     "time": "11:20",
+     "value": "3.3 mm/s",
+     "label": ""
+    },
+    {
+     "time": "12:15",
+     "value": "3.9 mm/s",
+     "label": ""
+    },
+    {
+     "time": "13:05",
+     "value": "4.1 mm/s",
+     "label": ""
+    },
+    {
+     "time": "13:55",
+     "value": "4.4 mm/s",
+     "label": "Highest reading"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Temporary load variation considered and rejected — vibration keeps climbing even at matched load."
+    }
+   ],
+   "whatChangedSummary": "A planned drive inspection began at 14:00 — evaluating whether it confirms bearing wear.",
+   "whatChanged": [
+    {
+     "time": "14:00",
+     "source": "Maintenance",
+     "description": "Planned drive inspection started.",
+     "related": true
+    }
+   ],
+   "confidence": "Likely, pending inspection result",
+   "confidenceLevel": "medium",
+   "risk": "Medium — degrading component, not yet failed",
+   "riskLevel": "medium",
+   "expectedOutcome": "Inspection in progress as of this reading",
+   "outcomeStatus": "none"
   },
-  {
-    "id": "SIT06",
-    "severity": "low",
-    "asset": "Aurelia · A5 · Stabilization",
-    "line": "Aurelia · A5",
-    "signal": "Pressure transmitter noise traced to loose connection",
-    "aiInterpretation": "Transmitter read erratically while the local gauge stayed steady — a measurement fault, not a process problem.",
-    "since": "Resolved 3h 47m ago",
-    "sinceMinutes": 227,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Stabilization pressure transmitter swung between roughly 80 and 95 psi from 09:40, while the local mechanical gauge and downstream flow stayed steady throughout.",
-      "observed": "Pressure signal varies rapidly in both directions; local mechanical gauge remains steady.",
-      "derived": "Related flow remained stable the whole time — a real process swing this large would have shown up there too.",
-      "inferred": "Measurement/transmitter instability, not a real pressure event — confirmed by reseating the connection.",
-      "recommendation": "Validate the instrument against the local gauge before trusting the transmitter reading again.",
-      "evidence": [
-        80.58,
-        79.62,
-        79.32,
-        85.61,
-        95.14,
-        80.26,
-        80.32,
-        79.58
-      ],
-      "evidencePoints": [
-        {
-          "time": "09:10",
-          "value": "80.6 psi",
-          "label": "Baseline"
-        },
-        {
-          "time": "09:21",
-          "value": "79.6 psi",
-          "label": ""
-        },
-        {
-          "time": "09:32",
-          "value": "79.3 psi",
-          "label": ""
-        },
-        {
-          "time": "09:43",
-          "value": "85.6 psi",
-          "label": "Signal noise begins"
-        },
-        {
-          "time": "09:55",
-          "value": "95.1 psi",
-          "label": "Peak noise"
-        },
-        {
-          "time": "10:06",
-          "value": "80.3 psi",
-          "label": "Reseated"
-        },
-        {
-          "time": "10:17",
-          "value": "80.3 psi",
-          "label": ""
-        },
-        {
-          "time": "10:28",
-          "value": "79.6 psi",
-          "label": "Steady"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "True process pressure oscillation considered and rejected — related flow signal never moved."
-        }
-      ],
-      "whatChangedSummary": "Field validation compared the transmitter against the local gauge and found the mismatch.",
-      "whatChanged": [
-        {
-          "time": "09:50",
-          "source": "Field Check",
-          "description": "Instrument validated against local gauge.",
-          "related": true
-        },
-        {
-          "time": "10:04",
-          "source": "Result",
-          "description": "Transmitter reseated; signal restored.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by corroborating signals",
-      "confidenceLevel": "high",
-      "risk": "Low — measurement-only, no real process risk",
-      "riskLevel": "low",
-      "expectedOutcome": "Sensor agreement restored",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F2_POWER_CHARGE",
+  "unitId": "FERRUM_F2",
+  "primaryProperty": "vibration_mms"
+ },
+ {
+  "id": "SIT06",
+  "severity": "low",
+  "asset": "A5 · Stabilization",
+  "line": "A5",
+  "signal": "Pressure transmitter noise traced to loose connection",
+  "aiInterpretation": "Transmitter read erratically while the local gauge stayed steady — a measurement fault, not a process problem.",
+  "since": "Resolved 3h 47m ago",
+  "sinceMinutes": 227,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Stabilization pressure transmitter swung between roughly 80 and 95 psi from 09:40, while the local mechanical gauge and downstream flow stayed steady throughout.",
+   "observed": "Pressure signal varies rapidly in both directions; local mechanical gauge remains steady.",
+   "derived": "Related flow remained stable the whole time — a real process swing this large would have shown up there too.",
+   "inferred": "Measurement/transmitter instability, not a real pressure event — confirmed by reseating the connection.",
+   "recommendation": "Validate the instrument against the local gauge before trusting the transmitter reading again.",
+   "evidence": [
+    80.58,
+    79.62,
+    79.32,
+    85.61,
+    95.14,
+    80.26,
+    80.32,
+    79.58
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:10",
+     "value": "80.6 psi",
+     "label": "Baseline"
+    },
+    {
+     "time": "09:20",
+     "value": "79.6 psi",
+     "label": ""
+    },
+    {
+     "time": "09:30",
+     "value": "79.3 psi",
+     "label": ""
+    },
+    {
+     "time": "09:45",
+     "value": "85.6 psi",
+     "label": "Signal noise begins"
+    },
+    {
+     "time": "09:55",
+     "value": "95.1 psi",
+     "label": "Peak noise"
+    },
+    {
+     "time": "10:05",
+     "value": "80.3 psi",
+     "label": "Reseated"
+    },
+    {
+     "time": "10:15",
+     "value": "80.3 psi",
+     "label": ""
+    },
+    {
+     "time": "10:30",
+     "value": "79.6 psi",
+     "label": "Steady"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "True process pressure oscillation considered and rejected — related flow signal never moved."
+    }
+   ],
+   "whatChangedSummary": "Field validation compared the transmitter against the local gauge and found the mismatch.",
+   "whatChanged": [
+    {
+     "time": "09:50",
+     "source": "Field Check",
+     "description": "Instrument validated against local gauge.",
+     "related": true
+    },
+    {
+     "time": "10:04",
+     "source": "Result",
+     "description": "Transmitter reseated; signal restored.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by corroborating signals",
+   "confidenceLevel": "high",
+   "risk": "Low — measurement-only, no real process risk",
+   "riskLevel": "low",
+   "expectedOutcome": "Sensor agreement restored",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT07",
-    "severity": "medium",
-    "asset": "Aurelia · A1 · Inspection",
-    "line": "Aurelia · A1",
-    "signal": "Inspection rejects traced to upstream Refinement, not Inspection itself",
-    "aiInterpretation": "Rejects rose at Inspection first, but the real cause was upstream — confirmed and corrected.",
-    "since": "Resolved 2h 57m ago",
-    "sinceMinutes": 177,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Inspection reject rate rose from ~1.9% to a peak of 6.6% between 10:15 and 10:40, then declined after Refinement was adjusted.",
-      "observed": "Reject rate elevated at Inspection; independent quality check confirmed the rejects were real, not a false read.",
-      "derived": "Refinement purity drift began before the reject rise — the timing points upstream, not at Inspection itself.",
-      "inferred": "Upstream Refinement quality degradation was the true cause — Inspection was just where it became visible first.",
-      "recommendation": "Correct the upstream Refinement condition rather than adjusting Inspection settings.",
-      "evidence": [
-        1.87,
-        1.8,
-        3.46,
-        5.33,
-        6.64,
-        5.24,
-        2.01,
-        1.73
-      ],
-      "evidencePoints": [
-        {
-          "time": "09:50",
-          "value": "1.9%",
-          "label": "Baseline"
-        },
-        {
-          "time": "10:03",
-          "value": "1.8%",
-          "label": ""
-        },
-        {
-          "time": "10:15",
-          "value": "3.5%",
-          "label": "Rejects rising"
-        },
-        {
-          "time": "10:28",
-          "value": "5.3%",
-          "label": ""
-        },
-        {
-          "time": "10:40",
-          "value": "6.6%",
-          "label": "Peak"
-        },
-        {
-          "time": "10:53",
-          "value": "5.2%",
-          "label": "Recovering"
-        },
-        {
-          "time": "11:05",
-          "value": "2.0%",
-          "label": ""
-        },
-        {
-          "time": "11:18",
-          "value": "1.7%",
-          "label": "Back to baseline"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Inspection calibration fault considered and rejected — calibration checked healthy throughout."
-        },
-        {
-          "date": "Ruled out",
-          "summary": "Material variation considered and rejected — multiple lots showed the same pattern."
-        }
-      ],
-      "whatChangedSummary": "An independent quality check at 10:40 confirmed the rejects were real, then Refinement was adjusted at 10:43.",
-      "whatChanged": [
-        {
-          "time": "10:40",
-          "source": "Quality Event",
-          "description": "Independent check confirmed Inspection rejects were valid.",
-          "related": true
-        },
-        {
-          "time": "10:43",
-          "source": "Operator Action",
-          "description": "Refinement condition adjusted.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed — upstream link established",
-      "confidenceLevel": "high",
-      "risk": "Medium — real quality impact while the source was unclear",
-      "riskLevel": "medium",
-      "expectedOutcome": "Upstream recovered, rejects returned to expected range",
-      "outcomeStatus": "resolved"
+  "assetId": "AURELIA_A5_STABILIZATION",
+  "unitId": "AURELIA_A5",
+  "primaryProperty": "process_pressure_psi"
+ },
+ {
+  "id": "SIT07",
+  "severity": "medium",
+  "asset": "A1 · Inspection",
+  "line": "A1",
+  "signal": "Inspection rejects traced to upstream Refinement, not Inspection itself",
+  "aiInterpretation": "Rejects rose at Inspection first, but the real cause was upstream — confirmed and corrected.",
+  "since": "Resolved 2h 57m ago",
+  "sinceMinutes": 177,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Inspection reject rate rose from ~1.9% to a peak of 6.6% between 10:15 and 10:40, then declined after Refinement was adjusted.",
+   "observed": "Reject rate elevated at Inspection; independent quality check confirmed the rejects were real, not a false read.",
+   "derived": "Refinement purity drift began before the reject rise — the timing points upstream, not at Inspection itself.",
+   "inferred": "Upstream Refinement quality degradation was the true cause — Inspection was just where it became visible first.",
+   "recommendation": "Correct the upstream Refinement condition rather than adjusting Inspection settings.",
+   "evidence": [
+    1.87,
+    1.8,
+    3.46,
+    5.33,
+    6.64,
+    5.24,
+    2.01,
+    1.73
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:50",
+     "value": "1.9%",
+     "label": "Baseline"
+    },
+    {
+     "time": "10:05",
+     "value": "1.8%",
+     "label": ""
+    },
+    {
+     "time": "10:15",
+     "value": "3.5%",
+     "label": "Rejects rising"
+    },
+    {
+     "time": "10:30",
+     "value": "5.3%",
+     "label": ""
+    },
+    {
+     "time": "10:40",
+     "value": "6.6%",
+     "label": "Peak"
+    },
+    {
+     "time": "10:55",
+     "value": "5.2%",
+     "label": "Recovering"
+    },
+    {
+     "time": "11:05",
+     "value": "2.0%",
+     "label": ""
+    },
+    {
+     "time": "11:20",
+     "value": "1.7%",
+     "label": "Back to baseline"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Inspection calibration fault considered and rejected — calibration checked healthy throughout."
+    },
+    {
+     "date": "Ruled out",
+     "summary": "Material variation considered and rejected — multiple lots showed the same pattern."
+    }
+   ],
+   "whatChangedSummary": "An independent quality check at 10:40 confirmed the rejects were real, then Refinement was adjusted at 10:43.",
+   "whatChanged": [
+    {
+     "time": "10:40",
+     "source": "Quality Event",
+     "description": "Independent check confirmed Inspection rejects were valid.",
+     "related": true
+    },
+    {
+     "time": "10:43",
+     "source": "Operator Action",
+     "description": "Refinement condition adjusted.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — upstream link established",
+   "confidenceLevel": "high",
+   "risk": "Medium — real quality impact while the source was unclear",
+   "riskLevel": "medium",
+   "expectedOutcome": "Upstream recovered, rejects returned to expected range",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT08",
-    "severity": "medium",
-    "asset": "Ferrum · F5 · Power Charge",
-    "line": "Ferrum · F5",
-    "signal": "Headline throughput looked fine while effective output quietly slipped",
-    "aiInterpretation": "Gross rate stayed near target while WIP and micro-stops crept up — an unsustainable pace, since corrected.",
-    "since": "Resolved 2h 30m ago",
-    "sinceMinutes": 150,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "F5's gross throughput held near 120-126 units/min throughout, but effective good-output rate and micro-stop frequency showed the line was working harder than the headline number suggested.",
-      "observed": "Headline throughput remains near target.",
-      "derived": "WIP and micro-stop frequency rose despite the headline number holding — a gap between the top-line KPI and what is actually sustainable.",
-      "inferred": "Power Charge demand exceeded sustainable downstream capacity — the \"good\" number was hiding a real cost.",
-      "recommendation": "Reduce the aggressive upstream pacing rather than chasing the headline rate.",
-      "evidence": [
-        122.7,
-        124.94,
-        124.38,
-        123.85,
-        125.13,
-        121.31,
-        122.29,
-        120.55
-      ],
-      "evidencePoints": [
-        {
-          "time": "10:00",
-          "value": "122.7/min",
-          "label": "Gross rate — looks fine"
-        },
-        {
-          "time": "10:15",
-          "value": "124.9/min",
-          "label": ""
-        },
-        {
-          "time": "10:30",
-          "value": "124.4/min",
-          "label": ""
-        },
-        {
-          "time": "10:45",
-          "value": "123.9/min",
-          "label": ""
-        },
-        {
-          "time": "11:00",
-          "value": "125.1/min",
-          "label": "Still looks fine"
-        },
-        {
-          "time": "11:15",
-          "value": "121.3/min",
-          "label": "Effective output diverging"
-        },
-        {
-          "time": "11:30",
-          "value": "122.3/min",
-          "label": ""
-        },
-        {
-          "time": "11:45",
-          "value": "120.6/min",
-          "label": "Demand reduced"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Downstream hardware degradation considered and rejected — no equipment fault signal present."
-        }
-      ],
-      "whatChangedSummary": "Operating demand was reduced by roughly 4% once the effective-vs-gross gap was recognized.",
-      "whatChanged": [
-        {
-          "time": "11:35",
-          "source": "Setpoint Change",
-          "description": "Power Charge demand reduced ~4%.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed — pattern held across gross/effective/WIP together",
-      "confidenceLevel": "high",
-      "risk": "Medium — hidden losses, not visible on the headline KPI alone",
-      "riskLevel": "medium",
-      "expectedOutcome": "Flow stabilized and effective output improved",
-      "outcomeStatus": "resolved"
+  "assetId": "AURELIA_A1_INSPECTION",
+  "unitId": "AURELIA_A1",
+  "primaryProperty": "reject_rate_pct"
+ },
+ {
+  "id": "SIT08",
+  "severity": "medium",
+  "asset": "F5 · Power Charge",
+  "line": "F5",
+  "signal": "Headline throughput looked fine while effective output quietly slipped",
+  "aiInterpretation": "Gross rate stayed near target while WIP and micro-stops crept up — an unsustainable pace, since corrected.",
+  "since": "Resolved 2h 30m ago",
+  "sinceMinutes": 150,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "F5's gross throughput held near 120-126 units/min throughout, but effective good-output rate and micro-stop frequency showed the line was working harder than the headline number suggested.",
+   "observed": "Headline throughput remains near target.",
+   "derived": "WIP and micro-stop frequency rose despite the headline number holding — a gap between the top-line KPI and what is actually sustainable.",
+   "inferred": "Power Charge demand exceeded sustainable downstream capacity — the \"good\" number was hiding a real cost.",
+   "recommendation": "Reduce the aggressive upstream pacing rather than chasing the headline rate.",
+   "evidence": [
+    122.7,
+    124.94,
+    124.38,
+    123.85,
+    125.13,
+    121.31,
+    122.29,
+    120.55
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:00",
+     "value": "122.7/min",
+     "label": "Gross rate — looks fine"
+    },
+    {
+     "time": "10:15",
+     "value": "124.9/min",
+     "label": ""
+    },
+    {
+     "time": "10:30",
+     "value": "124.4/min",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "123.9/min",
+     "label": ""
+    },
+    {
+     "time": "11:00",
+     "value": "125.1/min",
+     "label": "Still looks fine"
+    },
+    {
+     "time": "11:15",
+     "value": "121.3/min",
+     "label": "Effective output diverging"
+    },
+    {
+     "time": "11:30",
+     "value": "122.3/min",
+     "label": ""
+    },
+    {
+     "time": "11:45",
+     "value": "120.6/min",
+     "label": "Demand reduced"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Downstream hardware degradation considered and rejected — no equipment fault signal present."
+    }
+   ],
+   "whatChangedSummary": "Operating demand was reduced by roughly 4% once the effective-vs-gross gap was recognized.",
+   "whatChanged": [
+    {
+     "time": "11:35",
+     "source": "Setpoint Change",
+     "description": "Power Charge demand reduced ~4%.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — pattern held across gross/effective/WIP together",
+   "confidenceLevel": "high",
+   "risk": "Medium — hidden losses, not visible on the headline KPI alone",
+   "riskLevel": "medium",
+   "expectedOutcome": "Flow stabilized and effective output improved",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT09",
-    "severity": "high",
-    "asset": "Ferrum · F3 · Power Charge",
-    "line": "Ferrum · F3",
-    "signal": "Power Charge fault cascaded downstream, now recovered",
-    "aiInterpretation": "Repeated Power Charge interruptions triggered starvation and WIP surges downstream — source repaired, line recovered.",
-    "since": "Resolved 1h 45m ago",
-    "sinceMinutes": 105,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Power Charge suffered repeated output interruptions starting 11:42, with Shaping starving and Transfer accumulating within a minute each time.",
-      "observed": "Power Charge interruptions precede each downstream disturbance, in a consistent order.",
-      "derived": "Event ordering and topology point at Power Charge as the origin, not a coincidence across three stations.",
-      "inferred": "A power-delivery fault at Power Charge was the cascade origin — confirmed and repaired.",
-      "recommendation": "Reduce demand immediately to stop propagation, then repair the source fault directly.",
-      "evidence": [
-        125,
-        17.75,
-        125,
-        125,
-        118,
-        118,
-        118,
-        118
-      ],
-      "evidencePoints": [
-        {
-          "time": "11:38",
-          "value": "125.0/min",
-          "label": "Baseline"
-        },
-        {
-          "time": "11:42",
-          "value": "17.8/min",
-          "label": "Power fault — first interruption"
-        },
-        {
-          "time": "11:46",
-          "value": "125.0/min",
-          "label": "Brief recovery"
-        },
-        {
-          "time": "11:50",
-          "value": "125.0/min",
-          "label": ""
-        },
-        {
-          "time": "11:55",
-          "value": "118.0/min",
-          "label": "Reduced demand"
-        },
-        {
-          "time": "11:59",
-          "value": "118.0/min",
-          "label": ""
-        },
-        {
-          "time": "12:03",
-          "value": "118.0/min",
-          "label": ""
-        },
-        {
-          "time": "12:08",
-          "value": "118.0/min",
-          "label": "Stabilized"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "Demand was reduced immediately to stop the cascade, then the power-delivery fault at the source was repaired.",
-      "whatChanged": [
-        {
-          "time": "11:42",
-          "source": "Event",
-          "description": "Power Charge output interruption (first of several).",
-          "related": true
-        },
-        {
-          "time": "11:43",
-          "source": "Event",
-          "description": "Transfer accumulation rising during recovery.",
-          "related": true
-        },
-        {
-          "time": "11:55",
-          "source": "Operator Action",
-          "description": "Demand reduced to stop propagation.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by event ordering and topology",
-      "confidenceLevel": "high",
-      "risk": "High — fleet-wide propagation while active",
-      "riskLevel": "high",
-      "expectedOutcome": "Line recovered from cascade",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F5_POWER_CHARGE",
+  "unitId": "FERRUM_F5",
+  "primaryProperty": "throughput_per_min"
+ },
+ {
+  "id": "SIT09",
+  "severity": "high",
+  "asset": "F3 · Power Charge",
+  "line": "F3",
+  "signal": "Power Charge fault cascaded downstream, now recovered",
+  "aiInterpretation": "Repeated Power Charge interruptions triggered starvation and WIP surges downstream — source repaired, line recovered.",
+  "since": "Resolved 1h 45m ago",
+  "sinceMinutes": 105,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Power Charge suffered repeated output interruptions starting 11:42, with Shaping starving and Transfer accumulating within a minute each time.",
+   "observed": "Power Charge interruptions precede each downstream disturbance, in a consistent order.",
+   "derived": "Event ordering and topology point at Power Charge as the origin, not a coincidence across three stations.",
+   "inferred": "A power-delivery fault at Power Charge was the cascade origin — confirmed and repaired.",
+   "recommendation": "Reduce demand immediately to stop propagation, then repair the source fault directly.",
+   "evidence": [
+    125,
+    17.75,
+    125,
+    125,
+    118,
+    118,
+    118,
+    118
+   ],
+   "evidencePoints": [
+    {
+     "time": "11:35",
+     "value": "125.0/min",
+     "label": "Baseline"
+    },
+    {
+     "time": "11:40",
+     "value": "17.8/min",
+     "label": "Power fault — first interruption"
+    },
+    {
+     "time": "11:45",
+     "value": "125.0/min",
+     "label": "Brief recovery"
+    },
+    {
+     "time": "11:50",
+     "value": "125.0/min",
+     "label": ""
+    },
+    {
+     "time": "11:55",
+     "value": "118.0/min",
+     "label": "Reduced demand"
+    },
+    {
+     "time": "12:00",
+     "value": "118.0/min",
+     "label": ""
+    },
+    {
+     "time": "12:05",
+     "value": "118.0/min",
+     "label": ""
+    },
+    {
+     "time": "12:10",
+     "value": "118.0/min",
+     "label": "Stabilized"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Demand was reduced immediately to stop the cascade, then the power-delivery fault at the source was repaired.",
+   "whatChanged": [
+    {
+     "time": "11:42",
+     "source": "Event",
+     "description": "Power Charge output interruption (first of several).",
+     "related": true
+    },
+    {
+     "time": "11:43",
+     "source": "Event",
+     "description": "Transfer accumulation rising during recovery.",
+     "related": true
+    },
+    {
+     "time": "11:55",
+     "source": "Operator Action",
+     "description": "Demand reduced to stop propagation.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by event ordering and topology",
+   "confidenceLevel": "high",
+   "risk": "High — fleet-wide propagation while active",
+   "riskLevel": "high",
+   "expectedOutcome": "Line recovered from cascade",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT10",
-    "severity": "high",
-    "asset": "Ferrum · F1 · Power Charge",
-    "line": "Ferrum · F1",
-    "signal": "Manual corrections amplified an oscillation, since damped",
-    "aiInterpretation": "Charge variable swung further with each manual correction — aggressive response, not a sensor fault.",
-    "since": "Resolved 55m ago",
-    "sinceMinutes": 55,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Power Charge variable oscillated between roughly 44% and 57% from 12:35, with manual corrections issued every few minutes.",
-      "observed": "Oscillation amplitude increases across successive cycles; manual corrections occur within the process response lag.",
-      "derived": "Each correction was issued before the prior one settled — that timing pattern grows the oscillation, not the process itself.",
-      "inferred": "Control response too aggressive for current process dynamics — confirmed, not a sensor issue.",
-      "recommendation": "Stop repeated manual correction and return to the validated stabilization setting.",
-      "evidence": [
-        50.17,
-        51.92,
-        43.81,
-        56.55,
-        47.16,
-        50.5,
-        49.99,
-        50.08
-      ],
-      "evidencePoints": [
-        {
-          "time": "12:28",
-          "value": "50.2%",
-          "label": "Baseline"
-        },
-        {
-          "time": "12:34",
-          "value": "51.9%",
-          "label": ""
-        },
-        {
-          "time": "12:40",
-          "value": "43.8%",
-          "label": "Manual correction"
-        },
-        {
-          "time": "12:46",
-          "value": "56.6%",
-          "label": "Overshoot"
-        },
-        {
-          "time": "12:53",
-          "value": "47.2%",
-          "label": "Manual correction"
-        },
-        {
-          "time": "12:59",
-          "value": "50.5%",
-          "label": "Damping"
-        },
-        {
-          "time": "13:05",
-          "value": "50.0%",
-          "label": ""
-        },
-        {
-          "time": "13:12",
-          "value": "50.1%",
-          "label": "Stabilized"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Sensor instability considered and rejected — the swings tracked real control actions, not a bad reading."
-        }
-      ],
-      "whatChangedSummary": "Repeated manual corrections were the change — returning to the validated stabilization setting is what actually damped it.",
-      "whatChanged": [
-        {
-          "time": "12:36",
-          "source": "Setpoint Change",
-          "description": "Manual correction, target 47%.",
-          "related": true
-        },
-        {
-          "time": "12:39",
-          "source": "Setpoint Change",
-          "description": "Manual correction, target 53%.",
-          "related": true
-        },
-        {
-          "time": "12:42",
-          "source": "Setpoint Change",
-          "description": "Manual correction, target 46%.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by action timing vs. response lag",
-      "confidenceLevel": "high",
-      "risk": "High — dynamic instability while active",
-      "riskLevel": "high",
-      "expectedOutcome": "Oscillation damped and process stabilized",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F3_POWER_CHARGE",
+  "unitId": "FERRUM_F3",
+  "primaryProperty": "throughput_per_min"
+ },
+ {
+  "id": "SIT10",
+  "severity": "high",
+  "asset": "F1 · Power Charge",
+  "line": "F1",
+  "signal": "Manual corrections amplified an oscillation, since damped",
+  "aiInterpretation": "Charge variable swung further with each manual correction — aggressive response, not a sensor fault.",
+  "since": "Resolved 55m ago",
+  "sinceMinutes": 55,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Power Charge variable oscillated between roughly 44% and 57% from 12:35, with manual corrections issued every few minutes.",
+   "observed": "Oscillation amplitude increases across successive cycles; manual corrections occur within the process response lag.",
+   "derived": "Each correction was issued before the prior one settled — that timing pattern grows the oscillation, not the process itself.",
+   "inferred": "Control response too aggressive for current process dynamics — confirmed, not a sensor issue.",
+   "recommendation": "Stop repeated manual correction and return to the validated stabilization setting.",
+   "evidence": [
+    50.17,
+    51.92,
+    43.81,
+    56.55,
+    47.16,
+    50.5,
+    49.99,
+    50.08
+   ],
+   "evidencePoints": [
+    {
+     "time": "12:30",
+     "value": "50.2%",
+     "label": "Baseline"
+    },
+    {
+     "time": "12:35",
+     "value": "51.9%",
+     "label": ""
+    },
+    {
+     "time": "12:40",
+     "value": "43.8%",
+     "label": "Manual correction"
+    },
+    {
+     "time": "12:45",
+     "value": "56.6%",
+     "label": "Overshoot"
+    },
+    {
+     "time": "12:55",
+     "value": "47.2%",
+     "label": "Manual correction"
+    },
+    {
+     "time": "13:00",
+     "value": "50.5%",
+     "label": "Damping"
+    },
+    {
+     "time": "13:05",
+     "value": "50.0%",
+     "label": ""
+    },
+    {
+     "time": "13:10",
+     "value": "50.1%",
+     "label": "Stabilized"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Sensor instability considered and rejected — the swings tracked real control actions, not a bad reading."
+    }
+   ],
+   "whatChangedSummary": "Repeated manual corrections were the change — returning to the validated stabilization setting is what actually damped it.",
+   "whatChanged": [
+    {
+     "time": "12:36",
+     "source": "Setpoint Change",
+     "description": "Manual correction, target 47%.",
+     "related": true
+    },
+    {
+     "time": "12:39",
+     "source": "Setpoint Change",
+     "description": "Manual correction, target 53%.",
+     "related": true
+    },
+    {
+     "time": "12:42",
+     "source": "Setpoint Change",
+     "description": "Manual correction, target 46%.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by action timing vs. response lag",
+   "confidenceLevel": "high",
+   "risk": "High — dynamic instability while active",
+   "riskLevel": "high",
+   "expectedOutcome": "Oscillation damped and process stabilized",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT11",
-    "severity": "high",
-    "asset": "Ferrum · F6 · Transfer",
-    "line": "Ferrum · F6",
-    "signal": "Transfer physically blocked, cleared via validated procedure",
-    "aiInterpretation": "Flow dropped to zero with a motor current spike — a physical obstruction, confirmed and cleared.",
-    "since": "Resolved 17m ago",
-    "sinceMinutes": 17,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Transfer rate dropped to zero at 13:20 while motor current spiked — flow stayed at zero for roughly 18 minutes before clearing.",
-      "observed": "Transfer rate dropped to zero while motor current spiked; an Aetherium shard was visible in the Transfer gate.",
-      "derived": "A current spike alongside a hard stop (not a gradual decline) is the signature of a physical obstruction, not a control issue.",
-      "inferred": "Physical Transfer obstruction — confirmed visually, cleared by validated procedure.",
-      "recommendation": "Controlled hold, confirm the obstruction, then use the validated block-clearing procedure — do not attempt to force flow.",
-      "evidence": [
-        125.1,
-        0,
-        0,
-        0,
-        0,
-        59.16,
-        103.65,
-        124.79
-      ],
-      "evidencePoints": [
-        {
-          "time": "13:18",
-          "value": "125.1/min",
-          "label": "Baseline"
-        },
-        {
-          "time": "13:20",
-          "value": "0.0/min",
-          "label": "Blocked — alarm"
-        },
-        {
-          "time": "13:22",
-          "value": "0.0/min",
-          "label": "Controlled hold"
-        },
-        {
-          "time": "13:27",
-          "value": "0.0/min",
-          "label": ""
-        },
-        {
-          "time": "13:31",
-          "value": "0.0/min",
-          "label": "Shard confirmed"
-        },
-        {
-          "time": "13:36",
-          "value": "0.0/min",
-          "label": ""
-        },
-        {
-          "time": "13:40",
-          "value": "59.2/min",
-          "label": "Clearing"
-        },
-        {
-          "time": "13:45",
-          "value": "103.7/min",
-          "label": "Recovering"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "A confirmed physical obstruction was cleared using the validated block-clearing procedure.",
-      "whatChanged": [
-        {
-          "time": "13:20",
-          "source": "Alarm",
-          "description": "Transfer movement blocked.",
-          "related": true
-        },
-        {
-          "time": "13:21",
-          "source": "Operator Action",
-          "description": "Line entered controlled hold.",
-          "related": true
-        },
-        {
-          "time": "13:31",
-          "source": "Maintenance",
-          "description": "Aetherium shard confirmed at Transfer gate.",
-          "related": true
-        },
-        {
-          "time": "13:38",
-          "source": "Maintenance",
-          "description": "Validated block-clearing procedure completed.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed visually",
-      "confidenceLevel": "high",
-      "risk": "High — full stoppage while active",
-      "riskLevel": "high",
-      "expectedOutcome": "Transfer flow and WIP returned to normal",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F1_POWER_CHARGE",
+  "unitId": "FERRUM_F1",
+  "primaryProperty": "charge_rate"
+ },
+ {
+  "id": "SIT11",
+  "severity": "high",
+  "asset": "F6 · Transfer",
+  "line": "F6",
+  "signal": "Transfer physically blocked, cleared via validated procedure",
+  "aiInterpretation": "Flow dropped to zero with a motor current spike — a physical obstruction, confirmed and cleared.",
+  "since": "Resolved 17m ago",
+  "sinceMinutes": 17,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Transfer rate dropped to zero at 13:20 while motor current spiked — flow stayed at zero for roughly 18 minutes before clearing.",
+   "observed": "Transfer rate dropped to zero while motor current spiked; an Aetherium shard was visible in the Transfer gate.",
+   "derived": "A current spike alongside a hard stop (not a gradual decline) is the signature of a physical obstruction, not a control issue.",
+   "inferred": "Physical Transfer obstruction — confirmed visually, cleared by validated procedure.",
+   "recommendation": "Controlled hold, confirm the obstruction, then use the validated block-clearing procedure — do not attempt to force flow.",
+   "evidence": [
+    125.1,
+    0,
+    0,
+    0,
+    0,
+    59.16,
+    103.65,
+    124.79
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:15",
+     "value": "125.1/min",
+     "label": "Baseline"
+    },
+    {
+     "time": "13:20",
+     "value": "0.0/min",
+     "label": "Blocked — alarm"
+    },
+    {
+     "time": "13:25",
+     "value": "0.0/min",
+     "label": "Controlled hold"
+    },
+    {
+     "time": "13:30",
+     "value": "0.0/min",
+     "label": ""
+    },
+    {
+     "time": "13:35",
+     "value": "0.0/min",
+     "label": "Shard confirmed"
+    },
+    {
+     "time": "13:40",
+     "value": "0.0/min",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "59.2/min",
+     "label": "Clearing"
+    },
+    {
+     "time": "13:50",
+     "value": "103.7/min",
+     "label": "Recovering"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "A confirmed physical obstruction was cleared using the validated block-clearing procedure.",
+   "whatChanged": [
+    {
+     "time": "13:20",
+     "source": "Alarm",
+     "description": "Transfer movement blocked.",
+     "related": true
+    },
+    {
+     "time": "13:21",
+     "source": "Operator Action",
+     "description": "Line entered controlled hold.",
+     "related": true
+    },
+    {
+     "time": "13:31",
+     "source": "Maintenance",
+     "description": "Aetherium shard confirmed at Transfer gate.",
+     "related": true
+    },
+    {
+     "time": "13:38",
+     "source": "Maintenance",
+     "description": "Validated block-clearing procedure completed.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed visually",
+   "confidenceLevel": "high",
+   "risk": "High — full stoppage while active",
+   "riskLevel": "high",
+   "expectedOutcome": "Transfer flow and WIP returned to normal",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT12",
-    "severity": "medium",
-    "asset": "Ferrum · F2 · Power Charge",
-    "line": "Ferrum · F2",
-    "signal": "Recurring Power Charge micro-stops accumulating real loss",
-    "aiInterpretation": "Individually trivial interruptions are now ~3x baseline frequency — not urgent alone, meaningful together.",
-    "since": "55m ago",
-    "sinceMinutes": 55,
-    "attentionState": "investigate",
-    "detail": {
-      "signal": "21 short Power Charge interruptions logged since 13:10, running at roughly 3x the normal frequency for this operating state.",
-      "observed": "Micro-stop frequency ~3x contextual baseline; interruptions strongest at the highest charge-demand periods.",
-      "derived": "Individually each stop is seconds long and recovers on its own — the significance is in the accumulation, not any single event.",
-      "inferred": "Unstable high-demand operating region is the leading theory; progressive component degradation is possible but less supported so far.",
-      "recommendation": "Inspect during the next planned pause; current pattern doesn't justify an immediate stop, but recurrence is increasing.",
-      "evidence": [
-        125.83,
-        125.4,
-        12.62,
-        125.32,
-        125.5,
-        124.8,
-        124.07,
-        124.7
-      ],
-      "evidencePoints": [
-        {
-          "time": "13:10",
-          "value": "125.8/min",
-          "label": "Baseline"
-        },
-        {
-          "time": "13:27",
-          "value": "125.4/min",
-          "label": ""
-        },
-        {
-          "time": "13:44",
-          "value": "12.6/min",
-          "label": "Interruption"
-        },
-        {
-          "time": "14:01",
-          "value": "125.3/min",
-          "label": "Recovered"
-        },
-        {
-          "time": "14:18",
-          "value": "125.5/min",
-          "label": ""
-        },
-        {
-          "time": "14:35",
-          "value": "124.8/min",
-          "label": ""
-        },
-        {
-          "time": "14:52",
-          "value": "124.1/min",
-          "label": ""
-        },
-        {
-          "time": "15:10",
-          "value": "124.7/min",
-          "label": "Current"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ferrum · F2 · Power Charge — Component Degradation",
-          "summary": "Same station is also showing rising vibration — worth investigating whether these two are connected."
-        }
-      ],
-      "whatChangedSummary": "No single triggering change — frequency has been building since 13:10 without one specific cause yet identified.",
-      "whatChanged": [],
-      "confidence": "Likely, not yet confirmed",
-      "confidenceLevel": "medium",
-      "risk": "Medium — estimated 4.2% production loss and still accumulating",
-      "riskLevel": "medium",
-      "expectedOutcome": "Still active as of the latest reading",
-      "outcomeStatus": "none"
+  "assetId": "FERRUM_F6_TRANSFER",
+  "unitId": "FERRUM_F6",
+  "primaryProperty": "transfer_rate_per_min"
+ },
+ {
+  "id": "SIT12",
+  "severity": "medium",
+  "asset": "F2 · Power Charge",
+  "line": "F2",
+  "signal": "Recurring Power Charge micro-stops accumulating real loss",
+  "aiInterpretation": "Individually trivial interruptions are now ~3x baseline frequency — not urgent alone, meaningful together.",
+  "since": "55m ago",
+  "sinceMinutes": 55,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "21 short Power Charge interruptions logged since 13:10, running at roughly 3x the normal frequency for this operating state.",
+   "observed": "Micro-stop frequency ~3x contextual baseline; interruptions strongest at the highest charge-demand periods.",
+   "derived": "Individually each stop is seconds long and recovers on its own — the significance is in the accumulation, not any single event.",
+   "inferred": "Unstable high-demand operating region is the leading theory; progressive component degradation is possible but less supported so far.",
+   "recommendation": "Inspect during the next planned pause; current pattern doesn't justify an immediate stop, but recurrence is increasing.",
+   "evidence": [
+    125.83,
+    125.4,
+    12.62,
+    125.32,
+    124.43
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:10",
+     "value": "125.8/min",
+     "label": "Baseline"
+    },
+    {
+     "time": "13:25",
+     "value": "125.4/min",
+     "label": ""
+    },
+    {
+     "time": "13:45",
+     "value": "12.6/min",
+     "label": "Interruption"
+    },
+    {
+     "time": "14:00",
+     "value": "125.3/min",
+     "label": "Recovered"
+    },
+    {
+     "time": "14:05",
+     "value": "124.43/min",
+     "label": "Current"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ferrum · F2 · Power Charge — Component Degradation",
+     "summary": "Same station is also showing rising vibration — worth investigating whether these two are connected."
+    }
+   ],
+   "whatChangedSummary": "No single triggering change — frequency has been building since 13:10 without one specific cause yet identified.",
+   "whatChanged": [],
+   "confidence": "Likely, not yet confirmed",
+   "confidenceLevel": "medium",
+   "risk": "Medium — estimated 4.2% production loss and still accumulating",
+   "riskLevel": "medium",
+   "expectedOutcome": "Still active as of the latest reading",
+   "outcomeStatus": "none"
   },
-  {
-    "id": "SIT13",
-    "severity": "medium",
-    "asset": "Aurelia · A6 · Refinement",
-    "line": "Aurelia · A6",
-    "signal": "Purity trended toward spec limit, corrected before breach",
-    "aiInterpretation": "An input characteristic shift pushed purity down gradually — caught and corrected before going out of spec.",
-    "since": "Resolved 23m ago",
-    "sinceMinutes": 23,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Purity on A6 drifted from ~99.3% down to ~98.7% between 12:00 and 12:48, staying within spec but trending the wrong way.",
-      "observed": "Input characteristic shifted before the purity decline began; purity remained in specification but the trend was persistent.",
-      "derived": "A persistent trend rather than noise — the direction mattered more than any single reading.",
-      "inferred": "An input characteristic shift not fully compensated by the current Refinement setting — confirmed and corrected.",
-      "recommendation": "Apply a small validated Refinement adjustment before the margin narrows further; coordinate with Quality.",
-      "evidence": [
-        99.28,
-        99.18,
-        99,
-        98.84,
-        98.65,
-        98.89,
-        99.26,
-        99.28
-      ],
-      "evidencePoints": [
-        {
-          "time": "12:00",
-          "value": "99.28%",
-          "label": "Baseline"
-        },
-        {
-          "time": "12:16",
-          "value": "99.18%",
-          "label": ""
-        },
-        {
-          "time": "12:32",
-          "value": "99.00%",
-          "label": ""
-        },
-        {
-          "time": "12:48",
-          "value": "98.84%",
-          "label": "Margin narrowing"
-        },
-        {
-          "time": "13:04",
-          "value": "98.65%",
-          "label": "Lowest point"
-        },
-        {
-          "time": "13:20",
-          "value": "98.89%",
-          "label": "Adjusted"
-        },
-        {
-          "time": "13:36",
-          "value": "99.26%",
-          "label": "Recovering"
-        },
-        {
-          "time": "13:52",
-          "value": "99.28%",
-          "label": "Back to baseline"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Ruled out",
-          "summary": "Quality measurement drift considered and rejected — the input characteristic shift was independently confirmed."
-        }
-      ],
-      "whatChangedSummary": "A small validated Refinement adjustment at 13:08 is what reversed the trend.",
-      "whatChanged": [
-        {
-          "time": "12:48",
-          "source": "Quality Event",
-          "description": "Purity margin narrowing flagged.",
-          "related": true
-        },
-        {
-          "time": "13:08",
-          "source": "Setpoint Change",
-          "description": "Small validated Refinement adjustment applied.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed",
-      "confidenceLevel": "high",
-      "risk": "Medium while trending — real risk of a quality escape if left uncorrected",
-      "riskLevel": "medium",
-      "expectedOutcome": "Quality margin restored",
-      "outcomeStatus": "resolved"
+  "assetId": "FERRUM_F2_POWER_CHARGE",
+  "unitId": "FERRUM_F2",
+  "primaryProperty": "throughput_per_min"
+ },
+ {
+  "id": "SIT13",
+  "severity": "medium",
+  "asset": "A6 · Refinement",
+  "line": "A6",
+  "signal": "Purity trended toward spec limit, corrected before breach",
+  "aiInterpretation": "An input characteristic shift pushed purity down gradually — caught and corrected before going out of spec.",
+  "since": "Resolved 23m ago",
+  "sinceMinutes": 23,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Purity on A6 drifted from ~99.3% down to ~98.7% between 12:00 and 12:48, staying within spec but trending the wrong way.",
+   "observed": "Input characteristic shifted before the purity decline began; purity remained in specification but the trend was persistent.",
+   "derived": "A persistent trend rather than noise — the direction mattered more than any single reading.",
+   "inferred": "An input characteristic shift not fully compensated by the current Refinement setting — confirmed and corrected.",
+   "recommendation": "Apply a small validated Refinement adjustment before the margin narrows further; coordinate with Quality.",
+   "evidence": [
+    99.28,
+    99.18,
+    99,
+    98.84,
+    98.65,
+    98.89,
+    99.26,
+    99.28
+   ],
+   "evidencePoints": [
+    {
+     "time": "12:00",
+     "value": "99.28%",
+     "label": "Baseline"
+    },
+    {
+     "time": "12:15",
+     "value": "99.18%",
+     "label": ""
+    },
+    {
+     "time": "12:30",
+     "value": "99.00%",
+     "label": ""
+    },
+    {
+     "time": "12:50",
+     "value": "98.84%",
+     "label": "Margin narrowing"
+    },
+    {
+     "time": "13:05",
+     "value": "98.65%",
+     "label": "Lowest point"
+    },
+    {
+     "time": "13:20",
+     "value": "98.89%",
+     "label": "Adjusted"
+    },
+    {
+     "time": "13:35",
+     "value": "99.26%",
+     "label": "Recovering"
+    },
+    {
+     "time": "13:50",
+     "value": "99.28%",
+     "label": "Back to baseline"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Ruled out",
+     "summary": "Quality measurement drift considered and rejected — the input characteristic shift was independently confirmed."
+    }
+   ],
+   "whatChangedSummary": "A small validated Refinement adjustment at 13:08 is what reversed the trend.",
+   "whatChanged": [
+    {
+     "time": "12:48",
+     "source": "Quality Event",
+     "description": "Purity margin narrowing flagged.",
+     "related": true
+    },
+    {
+     "time": "13:08",
+     "source": "Setpoint Change",
+     "description": "Small validated Refinement adjustment applied.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed",
+   "confidenceLevel": "high",
+   "risk": "Medium while trending — real risk of a quality escape if left uncorrected",
+   "riskLevel": "medium",
+   "expectedOutcome": "Quality margin restored",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "SIT14",
-    "severity": "low",
-    "asset": "Ferrum · F4",
-    "line": "Ferrum · F4",
-    "signal": "Changeover prerequisites were behind, now clear",
-    "aiInterpretation": "Material staging and quality release were at risk of missing the 14:00 changeover — both cleared, changeover proceeding.",
-    "since": "2h 5m ago",
-    "sinceMinutes": 125,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "At 12:00, material staging (40 min typical) and quality release (20 min typical) for the Grade B changeover had not yet started, threatening the 14:00 target.",
-      "observed": "Material staging not started (typical duration 40 minutes); quality release pending (typical duration 20 minutes).",
-      "derived": "Both prerequisites were sequential enough that finishing on time required starting soon — a schedule-risk read, not an equipment problem.",
-      "inferred": "Incomplete cross-team prerequisites were the risk — resolved by parallelizing the two requests instead of running them back-to-back.",
-      "recommendation": "Parallelize Materials and Quality requests rather than sequencing them — already done here.",
-      "evidence": [
-        0,
-        0,
-        1,
-        1,
-        1,
-        1,
-        1,
-        1
-      ],
-      "evidencePoints": [
-        {
-          "time": "12:00",
-          "value": "Not started",
-          "label": "Material + quality both pending"
-        },
-        {
-          "time": "12:30",
-          "value": "Requested",
-          "label": "Both requests parallelized"
-        },
-        {
-          "time": "13:10",
-          "value": "In progress",
-          "label": "Material staging underway"
-        },
-        {
-          "time": "13:31",
-          "value": "Quality cleared",
-          "label": "Release complete"
-        },
-        {
-          "time": "13:52",
-          "value": "Material cleared",
-          "label": "Staging complete"
-        },
-        {
-          "time": "14:00",
-          "value": "Changeover started",
-          "label": ""
-        },
-        {
-          "time": "14:05",
-          "value": "In progress",
-          "label": "Changeover running slightly long"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "Parallelizing the two prerequisite requests (instead of running them in sequence) is what cleared the risk.",
-      "whatChanged": [
-        {
-          "time": "12:30",
-          "source": "Work Coordination",
-          "description": "Materials and Quality requests parallelized.",
-          "related": true
-        },
-        {
-          "time": "13:31",
-          "source": "Quality",
-          "description": "Grade B quality release complete.",
-          "related": true
-        },
-        {
-          "time": "13:52",
-          "source": "Materials",
-          "description": "Grade B material staging complete.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed",
-      "confidenceLevel": "high",
-      "risk": "Low — prerequisites clear, changeover itself just running a few minutes long",
-      "riskLevel": "low",
-      "expectedOutcome": "All prerequisites met; changeover in progress toward Grade B",
-      "outcomeStatus": "recovering"
+  "assetId": "AURELIA_A6_REFINEMENT",
+  "unitId": "AURELIA_A6",
+  "primaryProperty": "purity_pct"
+ },
+ {
+  "id": "SIT14",
+  "severity": "low",
+  "asset": "F4",
+  "line": "F4",
+  "signal": "Changeover prerequisites were behind, now clear",
+  "aiInterpretation": "Material staging and quality release were at risk of missing the 14:00 changeover — both cleared, changeover proceeding.",
+  "since": "2h 5m ago",
+  "sinceMinutes": 125,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "At 12:00, material staging (40 min typical) and quality release (20 min typical) for the Grade B changeover had not yet started, threatening the 14:00 target.",
+   "observed": "Material staging not started (typical duration 40 minutes); quality release pending (typical duration 20 minutes).",
+   "derived": "Both prerequisites were sequential enough that finishing on time required starting soon — a schedule-risk read, not an equipment problem.",
+   "inferred": "Incomplete cross-team prerequisites were the risk — resolved by parallelizing the two requests instead of running them back-to-back.",
+   "recommendation": "Parallelize Materials and Quality requests rather than sequencing them — already done here.",
+   "evidence": [
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "evidencePoints": [
+    {
+     "time": "12:00",
+     "value": "Not started",
+     "label": "Material + quality both pending"
+    },
+    {
+     "time": "12:30",
+     "value": "Requested",
+     "label": "Both requests parallelized"
+    },
+    {
+     "time": "13:10",
+     "value": "In progress",
+     "label": "Material staging underway"
+    },
+    {
+     "time": "13:30",
+     "value": "Quality cleared",
+     "label": "Release complete"
+    },
+    {
+     "time": "13:50",
+     "value": "Material cleared",
+     "label": "Staging complete"
+    },
+    {
+     "time": "14:00",
+     "value": "Changeover started",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "In progress",
+     "label": "Changeover running slightly long"
     }
-  }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Parallelizing the two prerequisite requests (instead of running them in sequence) is what cleared the risk.",
+   "whatChanged": [
+    {
+     "time": "12:30",
+     "source": "Work Coordination",
+     "description": "Materials and Quality requests parallelized.",
+     "related": true
+    },
+    {
+     "time": "13:31",
+     "source": "Quality",
+     "description": "Grade B quality release complete.",
+     "related": true
+    },
+    {
+     "time": "13:52",
+     "source": "Materials",
+     "description": "Grade B material staging complete.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed",
+   "confidenceLevel": "high",
+   "risk": "Low — prerequisites clear, changeover itself just running a few minutes long",
+   "riskLevel": "low",
+   "expectedOutcome": "All prerequisites met; changeover in progress toward Grade B",
+   "outcomeStatus": "recovering"
+  },
+  "assetId": "FERRUM_F4",
+  "unitId": "FERRUM_F4",
+  "primaryProperty": "line_throughput"
+ }
 ]

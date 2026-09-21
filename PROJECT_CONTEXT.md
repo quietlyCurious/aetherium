@@ -223,6 +223,10 @@ state vs. drawing:
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
   is wired, the settings chain, the rendering stack, the patterns to know,
   and where each piece lives. Start here when orienting.
+- `docs/INDUSTRY_PACK_MAP.html` — the same kind of map for the industry
+  pack area: generators, detectors and tools under `ModelAndData/`, the
+  pack files, the registry, and the runtime modules that load and read a
+  pack. Keep it in step when the pack format or those modules change.
 - `src/operator/OperatorWorkspace.jsx` — the shell: loading a model's
   data, and `OperatorWorkspaceInner`, which owns the shared state and
   arranges the panels into slots. Everything it renders sits beside it.

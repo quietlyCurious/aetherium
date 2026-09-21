@@ -1,0 +1,707 @@
+{
+ "properties": {
+  "air_distribution_uniformity_pct": {
+   "label": "Air Distribution",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    70,
+    100
+   ],
+   "decimals": 1
+  },
+  "air_flow_scfm": {
+   "label": "Air Flow",
+   "unit": "scfm",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    500,
+    3000
+   ],
+   "decimals": 1
+  },
+  "backpressure_psi": {
+   "label": "Backpressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    4
+   ],
+   "decimals": 2
+  },
+  "bearing_temp_c": {
+   "label": "Bearing Temp",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    30,
+    90
+   ],
+   "decimals": 1
+  },
+  "blower_air_flow_scfm": {
+   "label": "Blower Air Flow",
+   "unit": "scfm",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    3500,
+    4900
+   ],
+   "decimals": 1
+  },
+  "blower_discharge_pressure_psi": {
+   "label": "Discharge Pressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    4,
+    10
+   ],
+   "decimals": 2
+  },
+  "chlorine_residual_mg_l": {
+   "label": "Chlorine Residual",
+   "unit": "mg/L",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0.3,
+    1.8
+   ],
+   "decimals": 2
+  },
+  "clarifier_torque_pct": {
+   "label": "Clarifier Torque",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    30,
+    80
+   ],
+   "decimals": 1
+  },
+  "cleaning_cycles_per_hr": {
+   "label": "Cleaning Cycles",
+   "unit": "/hr",
+   "category": "Events / Losses",
+   "tier": "P3",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "ct_value_actual": {
+   "label": "CT Value (Actual)",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    51.2,
+    170
+   ],
+   "decimals": 1
+  },
+  "cycle_time_min": {
+   "label": "Cycle Time",
+   "unit": "min",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    5,
+    30
+   ],
+   "decimals": 1
+  },
+  "dechlorination_residual_mg_l": {
+   "label": "Dechlorination Residual",
+   "unit": "mg/L",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    0,
+    0.15
+   ],
+   "decimals": 2
+  },
+  "differential_pressure_psi": {
+   "label": "Differential Pressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "discharge_pressure_psi": {
+   "label": "Discharge Pressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 1
+  },
+  "discharge_temp_c": {
+   "label": "Discharge Temp",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    40,
+    100
+   ],
+   "decimals": 1
+  },
+  "dissolved_oxygen_mg_l": {
+   "label": "Dissolved Oxygen",
+   "unit": "mg/L",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    4
+   ],
+   "decimals": 2
+  },
+  "dosing_flow_rate_gpm": {
+   "label": "Flow Rate",
+   "unit": "gpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "effluent_fecal_coliform_risk": {
+   "label": "Fecal Coliform Risk",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 1
+  },
+  "flow_efficiency": {
+   "label": "Flow Efficiency",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    95,
+    102
+   ],
+   "decimals": 1
+  },
+  "flow_rate_gpm": {
+   "label": "Flow Rate",
+   "unit": "gpm",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    100,
+    500
+   ],
+   "decimals": 1
+  },
+  "food_to_microorganism_ratio": {
+   "label": "F:M Ratio",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0.15,
+    0.45
+   ],
+   "decimals": 2
+  },
+  "grit_removal_efficiency_pct": {
+   "label": "Grit Removal Efficiency",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    85,
+    98
+   ],
+   "decimals": 1
+  },
+  "influent_flow_variability": {
+   "label": "Influent Flow Variability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    25
+   ],
+   "decimals": 1
+  },
+  "instability_index": {
+   "label": "Instability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    15
+   ],
+   "decimals": 2
+  },
+  "level_pct": {
+   "label": "Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    40,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_availability": {
+   "label": "Availability",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    96,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_oee": {
+   "label": "OEE",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    93,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_quality_factor": {
+   "label": "Quality Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_target_rate": {
+   "label": "Target Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    3,
+    7
+   ],
+   "decimals": 2
+  },
+  "line_throughput": {
+   "label": "Throughput",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    3,
+    7
+   ],
+   "decimals": 2
+  },
+  "mlss_mg_l": {
+   "label": "MLSS",
+   "unit": "mg/L",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    2200,
+    3400
+   ],
+   "decimals": 1
+  },
+  "motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Condition",
+   "tier": "P1",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "odor_index": {
+   "label": "Odor Index",
+   "unit": "",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    35
+   ],
+   "decimals": 1
+  },
+  "plant_availability": {
+   "label": "Availability",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "plant_health_index": {
+   "label": "Health Index",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    88,
+    100
+   ],
+   "decimals": 1
+  },
+  "plant_instability_index": {
+   "label": "Instability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 2
+  },
+  "plant_oee": {
+   "label": "OEE",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    90,
+    100
+   ],
+   "decimals": 1
+  },
+  "plant_quality_factor": {
+   "label": "Quality Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "plant_target_rate": {
+   "label": "Target Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    15,
+    45
+   ],
+   "decimals": 1
+  },
+  "plant_throughput": {
+   "label": "Throughput",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    15,
+    45
+   ],
+   "decimals": 1
+  },
+  "primary_bod_removal_pct": {
+   "label": "Primary BOD Removal",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    20,
+    45
+   ],
+   "decimals": 1
+  },
+  "primary_tss_removal_pct": {
+   "label": "Primary TSS Removal",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    36.2,
+    75
+   ],
+   "decimals": 1
+  },
+  "process_motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    10,
+    45
+   ],
+   "decimals": 1
+  },
+  "rake_motor_torque_pct": {
+   "label": "Rake Torque",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "ras_rate_pct": {
+   "label": "RAS Rate",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    30,
+    60
+   ],
+   "decimals": 1
+  },
+  "residence_time_min": {
+   "label": "Residence Time",
+   "unit": "min",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    461.6
+   ],
+   "decimals": 1
+  },
+  "residual_offset_mg_l": {
+   "label": "Residual Offset",
+   "unit": "mg/L",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    -0.5,
+    0.5
+   ],
+   "decimals": 2
+  },
+  "screenings_removal_rate_ft3_mg": {
+   "label": "Screenings Removal",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P3",
+   "range": [
+    3,
+    8
+   ],
+   "decimals": 2
+  },
+  "scum_removal_rate": {
+   "label": "Scum Removal Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P3",
+   "range": [
+    85,
+    100
+   ],
+   "decimals": 1
+  },
+  "secondary_tss_removal_pct": {
+   "label": "Secondary TSS Removal",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    78,
+    97.5
+   ],
+   "decimals": 1
+  },
+  "sludge_age_days": {
+   "label": "Sludge Age",
+   "unit": "days",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    6,
+    13
+   ],
+   "decimals": 1
+  },
+  "sludge_blanket_level_pct": {
+   "label": "Sludge Blanket Level",
+   "unit": "%",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    10,
+    65
+   ],
+   "decimals": 1
+  },
+  "sludge_settleability_svi": {
+   "label": "Sludge Settleability (SVI)",
+   "unit": "mL/g",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    57.5,
+    160
+   ],
+   "decimals": 1
+  },
+  "surge_control_index": {
+   "label": "Surge Control",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    26.3
+   ],
+   "decimals": 1
+  },
+  "system_health_index": {
+   "label": "Health Index",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    92,
+    100
+   ],
+   "decimals": 1
+  },
+  "total_wip": {
+   "label": "Total WIP",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    15,
+    45
+   ],
+   "decimals": 1
+  },
+  "travel_speed_pct": {
+   "label": "Travel Speed",
+   "unit": "%",
+   "category": "Condition",
+   "tier": "P3",
+   "range": [
+    0,
+    100
+   ],
+   "decimals": 1
+  },
+  "vibration_mms": {
+   "label": "Vibration",
+   "unit": "mm/s",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "plant",
+   "property": "plant_throughput",
+   "fn": "sum",
+   "of": "line_throughput",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_target_rate",
+   "fn": "sum",
+   "of": "line_target_rate",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_oee",
+   "fn": "mean",
+   "of": "line_oee",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_availability",
+   "fn": "mean",
+   "of": "line_availability",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_quality_factor",
+   "fn": "mean",
+   "of": "line_quality_factor",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_health_index",
+   "fn": "mean",
+   "of": "system_health_index",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "plant",
+   "property": "plant_instability_index",
+   "fn": "max",
+   "of": "instability_index",
+   "fromType": "train",
+   "scope": "children"
+  },
+  {
+   "assetType": "train",
+   "property": "line_oee",
+   "fn": "formula",
+   "note": "line_availability × line_performance × line_quality_factor (legacy line model)"
+  }
+ ],
+ "typeLabels": {}
+}

@@ -1,423 +1,437 @@
 [
-  {
-    "id": "WSIT08",
-    "severity": "high",
-    "asset": "Confluence \u00b7 T03 \u00b7 Aeration",
-    "line": "Confluence \u00b7 T03",
-    "signal": "Blower underperformance dropped dissolved oxygen, since corrected",
-    "aiInterpretation": "DO fell well below the nitrification-support range for over two hours before a blower fault was found and corrected.",
-    "since": "Resolved 3h 20m ago",
-    "sinceMinutes": 200,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "Dissolved oxygen in T03's aeration basin fell from 2.3 to 0.6 mg/L between 08:20 and 10:45, well below the level needed to reliably support nitrification.",
-      "observed": "DO declining steadily; blower air flow reading below its normal setpoint for the same period.",
-      "derived": "The DO decline tracks the air flow shortfall closely \u2014 this points at the blower itself, not an oxygen demand spike from the incoming flow.",
-      "inferred": "A partially fouled blower filter was restricting air flow \u2014 confirmed on inspection and cleared.",
-      "recommendation": "Clear the blower intake filter and confirm air flow recovers; monitor DO closely for the next two hours.",
-      "evidence": [
-        2.3,
-        1.9,
-        1.5,
-        1.1,
-        0.8,
-        0.6,
-        1.8,
-        2.2
-      ],
-      "evidencePoints": [
-        {
-          "time": "08:20",
-          "value": "2.3 mg/L",
-          "label": "Baseline"
-        },
-        {
-          "time": "08:55",
-          "value": "1.9 mg/L",
-          "label": ""
-        },
-        {
-          "time": "09:30",
-          "value": "1.5 mg/L",
-          "label": ""
-        },
-        {
-          "time": "10:05",
-          "value": "1.1 mg/L",
-          "label": ""
-        },
-        {
-          "time": "10:25",
-          "value": "0.8 mg/L",
-          "label": ""
-        },
-        {
-          "time": "10:45",
-          "value": "0.6 mg/L",
-          "label": "Lowest \u2014 blower inspected"
-        },
-        {
-          "time": "11:05",
-          "value": "1.8 mg/L",
-          "label": "Filter cleared"
-        },
-        {
-          "time": "11:25",
-          "value": "2.2 mg/L",
-          "label": "Back to normal"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "Blower intake filter was found fouled and cleared at 10:52, and DO recovered within 30 minutes.",
-      "whatChanged": [
-        {
-          "time": "10:48",
-          "source": "Maintenance",
-          "description": "Blower inspection started.",
-          "related": true
-        },
-        {
-          "time": "10:52",
-          "source": "Maintenance",
-          "description": "Intake filter cleared; air flow restored.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by inspection",
-      "confidenceLevel": "high",
-      "risk": "High while active \u2014 sustained low DO risks incomplete nitrification",
-      "riskLevel": "high",
-      "expectedOutcome": "Dissolved oxygen returned to the normal operating range",
-      "outcomeStatus": "resolved"
+ {
+  "id": "WSIT08",
+  "severity": "high",
+  "asset": "T03 · Aeration",
+  "line": "T03",
+  "signal": "Blower underperformance dropped dissolved oxygen, since corrected",
+  "aiInterpretation": "DO fell well below the nitrification-support range for over two hours before a blower fault was found and corrected.",
+  "since": "Resolved 3h 20m ago",
+  "sinceMinutes": 200,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "Dissolved oxygen in T03's aeration basin fell from 2.3 to 0.6 mg/L between 08:20 and 10:45, well below the level needed to reliably support nitrification.",
+   "observed": "DO declining steadily; blower air flow reading below its normal setpoint for the same period.",
+   "derived": "The DO decline tracks the air flow shortfall closely — this points at the blower itself, not an oxygen demand spike from the incoming flow.",
+   "inferred": "A partially fouled blower filter was restricting air flow — confirmed on inspection and cleared.",
+   "recommendation": "Clear the blower intake filter and confirm air flow recovers; monitor DO closely for the next two hours.",
+   "evidence": [
+    2.3,
+    1.9,
+    1.5,
+    1.1,
+    0.8,
+    0.6,
+    1.8,
+    2.2
+   ],
+   "evidencePoints": [
+    {
+     "time": "08:20",
+     "value": "2.3 mg/L",
+     "label": "Baseline"
+    },
+    {
+     "time": "08:55",
+     "value": "1.9 mg/L",
+     "label": ""
+    },
+    {
+     "time": "09:30",
+     "value": "1.5 mg/L",
+     "label": ""
+    },
+    {
+     "time": "10:05",
+     "value": "1.1 mg/L",
+     "label": ""
+    },
+    {
+     "time": "10:25",
+     "value": "0.8 mg/L",
+     "label": ""
+    },
+    {
+     "time": "10:45",
+     "value": "0.6 mg/L",
+     "label": "Lowest — blower inspected"
+    },
+    {
+     "time": "11:05",
+     "value": "1.8 mg/L",
+     "label": "Filter cleared"
+    },
+    {
+     "time": "11:25",
+     "value": "2.2 mg/L",
+     "label": "Back to normal"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "Blower intake filter was found fouled and cleared at 10:52, and DO recovered within 30 minutes.",
+   "whatChanged": [
+    {
+     "time": "10:48",
+     "source": "Maintenance",
+     "description": "Blower inspection started.",
+     "related": true
+    },
+    {
+     "time": "10:52",
+     "source": "Maintenance",
+     "description": "Intake filter cleared; air flow restored.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by inspection",
+   "confidenceLevel": "high",
+   "risk": "High while active — sustained low DO risks incomplete nitrification",
+   "riskLevel": "high",
+   "expectedOutcome": "Dissolved oxygen returned to the normal operating range",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "WSIT09",
-    "severity": "medium",
-    "asset": "Confluence \u00b7 T01 \u00b7 Secondary Clarifier",
-    "line": "Confluence \u00b7 T01",
-    "signal": "Sludge settleability worsening \u2014 SVI trending up",
-    "aiInterpretation": "Sludge volume index has been climbing since early shift, a classic early sign of bulking that raises TSS carryover risk if left unaddressed.",
-    "since": "5h 5m ago",
-    "sinceMinutes": 305,
-    "attentionState": "investigate",
-    "detail": {
-      "signal": "Sludge volume index (SVI) on T01's secondary clarifier has risen from 95 to 142 mL/g since 09:00, while clarifier torque and RAS rate have both stayed within normal range.",
-      "observed": "SVI climbing steadily; no corresponding change in RAS rate or clarifier mechanical load.",
-      "derived": "A rising SVI without a RAS or loading change points at the biology itself \u2014 a shift in the microbial population, not an equipment or flow issue.",
-      "inferred": "Early-stage filamentous bulking is the leading theory, consistent with the gradual, biology-driven pattern \u2014 not yet confirmed by a microscopic exam.",
-      "recommendation": "Pull a mixed liquor sample for microscopic exam; consider a small RAS rate increase if SVI continues climbing past 150.",
-      "evidence": [
-        95,
-        103,
-        112,
-        121,
-        130,
-        136,
-        140,
-        142
-      ],
-      "evidencePoints": [
-        {
-          "time": "09:00",
-          "value": "95 mL/g",
-          "label": "Baseline"
-        },
-        {
-          "time": "09:48",
-          "value": "103 mL/g",
-          "label": ""
-        },
-        {
-          "time": "10:36",
-          "value": "112 mL/g",
-          "label": ""
-        },
-        {
-          "time": "11:24",
-          "value": "121 mL/g",
-          "label": ""
-        },
-        {
-          "time": "12:12",
-          "value": "130 mL/g",
-          "label": ""
-        },
-        {
-          "time": "13:00",
-          "value": "136 mL/g",
-          "label": ""
-        },
-        {
-          "time": "13:32",
-          "value": "140 mL/g",
-          "label": ""
-        },
-        {
-          "time": "14:05",
-          "value": "142 mL/g",
-          "label": "Current"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Confluence \u00b7 T02 \u00b7 Aeration \u2014 RAS Rate Drift",
-          "summary": "Same plant, adjacent process \u2014 worth checking whether the two are related."
-        }
-      ],
-      "whatChangedSummary": "No triggering event identified \u2014 the SVI rise has been gradual and biology-driven all shift.",
-      "whatChanged": [],
-      "confidence": "Likely, pending microscopic exam",
-      "confidenceLevel": "medium",
-      "risk": "Medium \u2014 real risk of TSS carryover if bulking progresses further",
-      "riskLevel": "medium",
-      "expectedOutcome": "Still active as of the latest reading",
-      "outcomeStatus": "none"
+  "assetId": "CONFLUENCE_T03_AERATION",
+  "unitId": "CONFLUENCE_T03",
+  "primaryProperty": "dissolved_oxygen_mg_l"
+ },
+ {
+  "id": "WSIT09",
+  "severity": "medium",
+  "asset": "T01 · Secondary Clarifier",
+  "line": "T01",
+  "signal": "Sludge settleability worsening — SVI trending up",
+  "aiInterpretation": "Sludge volume index has been climbing since early shift, a classic early sign of bulking that raises TSS carryover risk if left unaddressed.",
+  "since": "5h 5m ago",
+  "sinceMinutes": 305,
+  "attentionState": "investigate",
+  "detail": {
+   "signal": "Sludge volume index (SVI) on T01's secondary clarifier has risen from 95 to 142 mL/g since 09:00, while clarifier torque and RAS rate have both stayed within normal range.",
+   "observed": "SVI climbing steadily; no corresponding change in RAS rate or clarifier mechanical load.",
+   "derived": "A rising SVI without a RAS or loading change points at the biology itself — a shift in the microbial population, not an equipment or flow issue.",
+   "inferred": "Early-stage filamentous bulking is the leading theory, consistent with the gradual, biology-driven pattern — not yet confirmed by a microscopic exam.",
+   "recommendation": "Pull a mixed liquor sample for microscopic exam; consider a small RAS rate increase if SVI continues climbing past 150.",
+   "evidence": [
+    95,
+    103,
+    112,
+    121,
+    130,
+    136,
+    140,
+    142
+   ],
+   "evidencePoints": [
+    {
+     "time": "09:00",
+     "value": "95 mL/g",
+     "label": "Baseline"
+    },
+    {
+     "time": "09:50",
+     "value": "103 mL/g",
+     "label": ""
+    },
+    {
+     "time": "10:35",
+     "value": "112 mL/g",
+     "label": ""
+    },
+    {
+     "time": "11:25",
+     "value": "121 mL/g",
+     "label": ""
+    },
+    {
+     "time": "12:10",
+     "value": "130 mL/g",
+     "label": ""
+    },
+    {
+     "time": "13:00",
+     "value": "136 mL/g",
+     "label": ""
+    },
+    {
+     "time": "13:30",
+     "value": "140 mL/g",
+     "label": ""
+    },
+    {
+     "time": "14:05",
+     "value": "142 mL/g",
+     "label": "Current"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Confluence · T02 · Aeration — RAS Rate Drift",
+     "summary": "Same plant, adjacent process — worth checking whether the two are related."
+    }
+   ],
+   "whatChangedSummary": "No triggering event identified — the SVI rise has been gradual and biology-driven all shift.",
+   "whatChanged": [],
+   "confidence": "Likely, pending microscopic exam",
+   "confidenceLevel": "medium",
+   "risk": "Medium — real risk of TSS carryover if bulking progresses further",
+   "riskLevel": "medium",
+   "expectedOutcome": "Still active as of the latest reading",
+   "outcomeStatus": "none"
   },
-  {
-    "id": "WSIT10",
-    "severity": "high",
-    "asset": "Confluence \u00b7 T05 \u00b7 Primary Clarifier",
-    "line": "Confluence \u00b7 T05",
-    "signal": "Clarifier mechanism fault during a peak flow period, cleared",
-    "aiInterpretation": "The rake mechanism stalled during a peak flow window, briefly risking a TSS exceedance before being restarted.",
-    "since": "Resolved 2h 0m ago",
-    "sinceMinutes": 120,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "T05's primary clarifier rake mechanism stalled at 10:20, during the morning peak flow period, with TSS removal falling from 61% to 38% before the mechanism was restarted at 10:33.",
-      "observed": "Rake mechanism torque dropped to zero; TSS removal efficiency declined within minutes.",
-      "derived": "The timing lines up exactly with known peak-flow mechanism stress \u2014 a common trigger for this specific failure mode in primary clarifiers.",
-      "inferred": "Mechanical overload during peak flow \u2014 confirmed by inspection, restarted without further damage.",
-      "recommendation": "Log for the peak-flow maintenance review; inspect drive chain tension before the next peak flow period.",
-      "evidence": [
-        61,
-        58,
-        52,
-        45,
-        38,
-        52,
-        59,
-        61
-      ],
-      "evidencePoints": [
-        {
-          "time": "10:15",
-          "value": "61%",
-          "label": "Baseline"
-        },
-        {
-          "time": "10:20",
-          "value": "58%",
-          "label": "Mechanism stalled"
-        },
-        {
-          "time": "10:23",
-          "value": "52%",
-          "label": ""
-        },
-        {
-          "time": "10:28",
-          "value": "45%",
-          "label": ""
-        },
-        {
-          "time": "10:33",
-          "value": "38%",
-          "label": "Lowest \u2014 restarted"
-        },
-        {
-          "time": "10:38",
-          "value": "52%",
-          "label": "Recovering"
-        },
-        {
-          "time": "10:45",
-          "value": "59%",
-          "label": ""
-        },
-        {
-          "time": "10:55",
-          "value": "61%",
-          "label": "Back to baseline"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "The rake mechanism was manually restarted at 10:33 after a brief inspection found no damage.",
-      "whatChanged": [
-        {
-          "time": "10:20",
-          "source": "Alarm",
-          "description": "Rake mechanism torque loss detected.",
-          "related": true
-        },
-        {
-          "time": "10:33",
-          "source": "Operator Action",
-          "description": "Mechanism restarted after inspection.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed by inspection",
-      "confidenceLevel": "high",
-      "risk": "High while active \u2014 real TSS permit exceedance risk during peak flow",
-      "riskLevel": "high",
-      "expectedOutcome": "TSS removal returned to baseline",
-      "outcomeStatus": "resolved"
+  "assetId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
+  "unitId": "CONFLUENCE_T01",
+  "primaryProperty": "sludge_settleability_svi"
+ },
+ {
+  "id": "WSIT10",
+  "severity": "high",
+  "asset": "T05 · Primary Clarifier",
+  "line": "T05",
+  "signal": "Clarifier mechanism fault during a peak flow period, cleared",
+  "aiInterpretation": "The rake mechanism stalled during a peak flow window, briefly risking a TSS exceedance before being restarted.",
+  "since": "Resolved 2h 0m ago",
+  "sinceMinutes": 120,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "T05's primary clarifier rake mechanism stalled at 10:20, during the morning peak flow period, with TSS removal falling from 61% to 38% before the mechanism was restarted at 10:33.",
+   "observed": "Rake mechanism torque dropped to zero; TSS removal efficiency declined within minutes.",
+   "derived": "The timing lines up exactly with known peak-flow mechanism stress — a common trigger for this specific failure mode in primary clarifiers.",
+   "inferred": "Mechanical overload during peak flow — confirmed by inspection, restarted without further damage.",
+   "recommendation": "Log for the peak-flow maintenance review; inspect drive chain tension before the next peak flow period.",
+   "evidence": [
+    61,
+    58,
+    52,
+    45,
+    38,
+    52,
+    59,
+    61
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:15",
+     "value": "61%",
+     "label": "Baseline"
+    },
+    {
+     "time": "10:20",
+     "value": "58%",
+     "label": "Mechanism stalled"
+    },
+    {
+     "time": "10:25",
+     "value": "52%",
+     "label": ""
+    },
+    {
+     "time": "10:30",
+     "value": "45%",
+     "label": ""
+    },
+    {
+     "time": "10:35",
+     "value": "38%",
+     "label": "Lowest — restarted"
+    },
+    {
+     "time": "10:40",
+     "value": "52%",
+     "label": "Recovering"
+    },
+    {
+     "time": "10:45",
+     "value": "59%",
+     "label": ""
+    },
+    {
+     "time": "10:55",
+     "value": "61%",
+     "label": "Back to baseline"
     }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "The rake mechanism was manually restarted at 10:33 after a brief inspection found no damage.",
+   "whatChanged": [
+    {
+     "time": "10:20",
+     "source": "Alarm",
+     "description": "Rake mechanism torque loss detected.",
+     "related": true
+    },
+    {
+     "time": "10:33",
+     "source": "Operator Action",
+     "description": "Mechanism restarted after inspection.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed by inspection",
+   "confidenceLevel": "high",
+   "risk": "High while active — real TSS permit exceedance risk during peak flow",
+   "riskLevel": "high",
+   "expectedOutcome": "TSS removal returned to baseline",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "WSIT11",
-    "severity": "medium",
-    "asset": "Confluence \u00b7 T02 \u00b7 Aeration",
-    "line": "Confluence \u00b7 T02",
-    "signal": "RAS rate drifted out of balance with F:M ratio, corrected",
-    "aiInterpretation": "Return activated sludge rate ran below the level the current food-to-microorganism ratio called for, since corrected.",
-    "since": "Resolved 1h 55m ago",
-    "sinceMinutes": 115,
-    "attentionState": "watch",
-    "detail": {
-      "signal": "RAS rate on T02 held near 38% from 10:30 while incoming BOD loading rose, pushing the F:M ratio above its normal 0.28 target toward 0.35 before RAS was adjusted at 12:05.",
-      "observed": "RAS rate flat while incoming load increased; F:M ratio climbed as a direct mathematical consequence.",
-      "derived": "RAS rate and incoming load are the only two inputs to F:M \u2014 the imbalance traces cleanly to RAS not being adjusted as load rose.",
-      "inferred": "RAS setpoint was not updated when incoming load shifted earlier in the shift \u2014 corrected manually.",
-      "recommendation": "Adjust RAS rate to track incoming load more responsively; review the auto-adjustment logic if available.",
-      "evidence": [
-        0.28,
-        0.3,
-        0.32,
-        0.34,
-        0.35,
-        0.31,
-        0.28
-      ],
-      "evidencePoints": [
-        {
-          "time": "10:30",
-          "value": "0.28",
-          "label": "Baseline"
-        },
-        {
-          "time": "11:00",
-          "value": "0.30",
-          "label": ""
-        },
-        {
-          "time": "11:30",
-          "value": "0.32",
-          "label": ""
-        },
-        {
-          "time": "12:00",
-          "value": "0.34",
-          "label": "Near threshold"
-        },
-        {
-          "time": "12:05",
-          "value": "0.35",
-          "label": "RAS adjusted"
-        },
-        {
-          "time": "12:20",
-          "value": "0.31",
-          "label": "Recovering"
-        },
-        {
-          "time": "12:40",
-          "value": "0.28",
-          "label": "Back to target"
-        }
-      ],
-      "relatedOccurrences": [
-        {
-          "date": "Confluence \u00b7 T01 \u00b7 Secondary Clarifier \u2014 Sludge Bulking",
-          "summary": "Same plant, adjacent process \u2014 worth checking whether the two are related."
-        }
-      ],
-      "whatChangedSummary": "RAS rate was manually increased at 12:05 once the F:M drift was noticed.",
-      "whatChanged": [
-        {
-          "time": "12:05",
-          "source": "Operator Action",
-          "description": "RAS rate increased to match current loading.",
-          "related": true
-        }
-      ],
-      "confidence": "Confirmed \u2014 F:M responded immediately to the RAS change",
-      "confidenceLevel": "high",
-      "risk": "Medium while active \u2014 sustained high F:M risks poor settling and effluent quality",
-      "riskLevel": "medium",
-      "expectedOutcome": "F:M ratio returned to target range",
-      "outcomeStatus": "resolved"
+  "assetId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
+  "unitId": "CONFLUENCE_T05",
+  "primaryProperty": "primary_tss_removal_pct"
+ },
+ {
+  "id": "WSIT11",
+  "severity": "medium",
+  "asset": "T02 · Aeration",
+  "line": "T02",
+  "signal": "RAS rate drifted out of balance with F:M ratio, corrected",
+  "aiInterpretation": "Return activated sludge rate ran below the level the current food-to-microorganism ratio called for, since corrected.",
+  "since": "Resolved 1h 55m ago",
+  "sinceMinutes": 115,
+  "attentionState": "watch",
+  "detail": {
+   "signal": "RAS rate on T02 held near 38% from 10:30 while incoming BOD loading rose, pushing the F:M ratio above its normal 0.28 target toward 0.35 before RAS was adjusted at 12:05.",
+   "observed": "RAS rate flat while incoming load increased; F:M ratio climbed as a direct mathematical consequence.",
+   "derived": "RAS rate and incoming load are the only two inputs to F:M — the imbalance traces cleanly to RAS not being adjusted as load rose.",
+   "inferred": "RAS setpoint was not updated when incoming load shifted earlier in the shift — corrected manually.",
+   "recommendation": "Adjust RAS rate to track incoming load more responsively; review the auto-adjustment logic if available.",
+   "evidence": [
+    0.28,
+    0.3,
+    0.32,
+    0.34,
+    0.35,
+    0.31,
+    0.28
+   ],
+   "evidencePoints": [
+    {
+     "time": "10:30",
+     "value": "0.28",
+     "label": "Baseline"
+    },
+    {
+     "time": "11:00",
+     "value": "0.30",
+     "label": ""
+    },
+    {
+     "time": "11:30",
+     "value": "0.32",
+     "label": ""
+    },
+    {
+     "time": "12:00",
+     "value": "0.34",
+     "label": "Near threshold"
+    },
+    {
+     "time": "12:05",
+     "value": "0.35",
+     "label": "RAS adjusted"
+    },
+    {
+     "time": "12:20",
+     "value": "0.31",
+     "label": "Recovering"
+    },
+    {
+     "time": "12:40",
+     "value": "0.28",
+     "label": "Back to target"
     }
+   ],
+   "relatedOccurrences": [
+    {
+     "date": "Confluence · T01 · Secondary Clarifier — Sludge Bulking",
+     "summary": "Same plant, adjacent process — worth checking whether the two are related."
+    }
+   ],
+   "whatChangedSummary": "RAS rate was manually increased at 12:05 once the F:M drift was noticed.",
+   "whatChanged": [
+    {
+     "time": "12:05",
+     "source": "Operator Action",
+     "description": "RAS rate increased to match current loading.",
+     "related": true
+    }
+   ],
+   "confidence": "Confirmed — F:M responded immediately to the RAS change",
+   "confidenceLevel": "high",
+   "risk": "Medium while active — sustained high F:M risks poor settling and effluent quality",
+   "riskLevel": "medium",
+   "expectedOutcome": "F:M ratio returned to target range",
+   "outcomeStatus": "resolved"
   },
-  {
-    "id": "WSIT12",
-    "severity": "low",
-    "asset": "Confluence \u00b7 T04 \u00b7 Disinfection",
-    "line": "Confluence \u00b7 T04",
-    "signal": "DMR deadline approaching with effluent quality borderline",
-    "aiInterpretation": "Today's discharge monitoring report is due soon, and fecal coliform risk has been running close to the reporting threshold for the past hour.",
-    "since": "55m ago",
-    "sinceMinutes": 55,
-    "attentionState": "act",
-    "detail": {
-      "signal": "Effluent fecal coliform risk index on T04 has held between 12 and 15 (against a threshold of 20) since 13:10, and today's Discharge Monitoring Report is due to the state within 24 hours of shift end.",
-      "observed": "Fecal coliform risk elevated but within threshold; chlorine residual and CT both nominal.",
-      "derived": "The risk index has been stable, not worsening \u2014 this reads as a genuinely borderline period, not a developing failure.",
-      "inferred": "Likely tied to a slightly higher influent load this shift \u2014 nothing has been confirmed as a fault.",
-      "recommendation": "Confirm final effluent sample before end of shift and ensure the DMR is filed within the 24-hour window regardless of outcome.",
-      "evidence": [
-        10,
-        11,
-        13,
-        14,
-        15,
-        13,
-        12
-      ],
-      "evidencePoints": [
-        {
-          "time": "13:10",
-          "value": "10",
-          "label": "Baseline"
-        },
-        {
-          "time": "13:25",
-          "value": "11",
-          "label": ""
-        },
-        {
-          "time": "13:40",
-          "value": "13",
-          "label": ""
-        },
-        {
-          "time": "13:55",
-          "value": "14",
-          "label": ""
-        },
-        {
-          "time": "14:00",
-          "value": "15",
-          "label": "Highest, still under 20 threshold"
-        },
-        {
-          "time": "14:05",
-          "value": "12",
-          "label": "Current"
-        }
-      ],
-      "relatedOccurrences": [],
-      "whatChangedSummary": "No fault identified \u2014 this is a monitoring and deadline-tracking item, not a corrective-action item.",
-      "whatChanged": [],
-      "confidence": "Confirmed \u2014 within compliance, being tracked proactively",
-      "confidenceLevel": "high",
-      "risk": "Low on water quality, but a missed DMR filing carries real regulatory consequences",
-      "riskLevel": "low",
-      "expectedOutcome": "Final sample and DMR filing expected before deadline",
-      "outcomeStatus": "none"
+  "assetId": "CONFLUENCE_T02_AERATION",
+  "unitId": "CONFLUENCE_T02",
+  "primaryProperty": "food_to_microorganism_ratio"
+ },
+ {
+  "id": "WSIT12",
+  "severity": "low",
+  "asset": "T04 · Disinfection",
+  "line": "T04",
+  "signal": "DMR deadline approaching with effluent quality borderline",
+  "aiInterpretation": "Today's discharge monitoring report is due soon, and fecal coliform risk has been running close to the reporting threshold for the past hour.",
+  "since": "55m ago",
+  "sinceMinutes": 55,
+  "attentionState": "act",
+  "detail": {
+   "signal": "Effluent fecal coliform risk index on T04 has held between 12 and 15 (against a threshold of 20) since 13:10, and today's Discharge Monitoring Report is due to the state within 24 hours of shift end.",
+   "observed": "Fecal coliform risk elevated but within threshold; chlorine residual and CT both nominal.",
+   "derived": "The risk index has been stable, not worsening — this reads as a genuinely borderline period, not a developing failure.",
+   "inferred": "Likely tied to a slightly higher influent load this shift — nothing has been confirmed as a fault.",
+   "recommendation": "Confirm final effluent sample before end of shift and ensure the DMR is filed within the 24-hour window regardless of outcome.",
+   "evidence": [
+    10,
+    11,
+    13,
+    14,
+    15,
+    13
+   ],
+   "evidencePoints": [
+    {
+     "time": "13:10",
+     "value": "10",
+     "label": "Baseline"
+    },
+    {
+     "time": "13:25",
+     "value": "11",
+     "label": ""
+    },
+    {
+     "time": "13:40",
+     "value": "13",
+     "label": ""
+    },
+    {
+     "time": "13:55",
+     "value": "14",
+     "label": ""
+    },
+    {
+     "time": "14:00",
+     "value": "15",
+     "label": "Highest, still under 20 threshold"
+    },
+    {
+     "time": "14:05",
+     "value": "12",
+     "label": "Current"
     }
-  }
+   ],
+   "relatedOccurrences": [],
+   "whatChangedSummary": "No fault identified — this is a monitoring and deadline-tracking item, not a corrective-action item.",
+   "whatChanged": [],
+   "confidence": "Confirmed — within compliance, being tracked proactively",
+   "confidenceLevel": "high",
+   "risk": "Low on water quality, but a missed DMR filing carries real regulatory consequences",
+   "riskLevel": "low",
+   "expectedOutcome": "Final sample and DMR filing expected before deadline",
+   "outcomeStatus": "none"
+  },
+  "assetId": "CONFLUENCE_T04_DISINFECTION",
+  "unitId": "CONFLUENCE_T04",
+  "primaryProperty": "effluent_fecal_coliform_risk"
+ }
 ]

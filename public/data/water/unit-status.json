@@ -1,0 +1,38 @@
+{
+ "MERIDIAN_T01": {
+  "state": "attention",
+  "statusSinceMinutes": 335,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ },
+ "MERIDIAN_T02": {
+  "state": "attention",
+  "statusSinceMinutes": 65,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ },
+ "MERIDIAN_T03": {
+  "state": "running",
+  "statusSinceMinutes": 85,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ },
+ "MERIDIAN_T04": {
+  "state": "running",
+  "statusSinceMinutes": 105,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ },
+ "MERIDIAN_T05": {
+  "state": "running",
+  "statusSinceMinutes": 175,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ },
+ "MERIDIAN_T06": {
+  "state": "attention",
+  "statusSinceMinutes": 185,
+  "mode": "STEADY",
+  "product": "Potable Supply"
+ }
+}

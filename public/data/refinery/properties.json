@@ -1,0 +1,891 @@
+{
+ "properties": {
+  "batch_variability": {
+   "label": "Batch Variability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "bearing_temp_c": {
+   "label": "Bearing Temp",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    55,
+    75
+   ],
+   "decimals": 1
+  },
+  "blocking_time": {
+   "label": "Blocking Time",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "buffer_capacity_utilization": {
+   "label": "Capacity Utilization",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    20,
+    60
+   ],
+   "decimals": 1
+  },
+  "buffer_inflow_rate": {
+   "label": "Inflow Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    100,
+    140
+   ],
+   "decimals": 1
+  },
+  "buffer_level": {
+   "label": "Buffer Level",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    15,
+    78.0
+   ],
+   "decimals": 1
+  },
+  "buffer_outflow_rate": {
+   "label": "Outflow Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    100,
+    140
+   ],
+   "decimals": 1
+  },
+  "buffer_turnover_rate": {
+   "label": "Turnover Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    1,
+    5
+   ],
+   "decimals": 2
+  },
+  "calibration_score": {
+   "label": "Calibration",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "charge_rate": {
+   "label": "Charge Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    35,
+    65
+   ],
+   "decimals": 1
+  },
+  "consistency_index": {
+   "label": "Consistency",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    85,
+    100
+   ],
+   "decimals": 1
+  },
+  "control_effort": {
+   "label": "Control Effort",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    40,
+    60
+   ],
+   "decimals": 1
+  },
+  "control_effort_pct": {
+   "label": "Control Effort",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    40,
+    63.0
+   ],
+   "decimals": 1
+  },
+  "controller_output_pct": {
+   "label": "Controller Output",
+   "unit": "%",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    35,
+    65
+   ],
+   "decimals": 1
+  },
+  "defect_rate": {
+   "label": "Defect Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "deviation": {
+   "label": "Deviation",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    1
+   ],
+   "decimals": 2
+  },
+  "energy_per_unit": {
+   "label": "Energy / Unit",
+   "unit": "",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    3,
+    6
+   ],
+   "decimals": 2
+  },
+  "false_accept_rate": {
+   "label": "False Accept Rate",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0,
+    1
+   ],
+   "decimals": 2
+  },
+  "false_reject_rate": {
+   "label": "False Reject Rate",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    0,
+    1.5
+   ],
+   "decimals": 2
+  },
+  "final_defect_rate": {
+   "label": "Final Defect Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    1.5
+   ],
+   "decimals": 2
+  },
+  "first_pass_yield": {
+   "label": "First-Pass Yield",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    90,
+    100
+   ],
+   "decimals": 1
+  },
+  "flow_efficiency": {
+   "label": "Flow Efficiency",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    97,
+    102
+   ],
+   "decimals": 1
+  },
+  "flow_rate_per_min": {
+   "label": "Flow Rate",
+   "unit": "/min",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    110,
+    130
+   ],
+   "decimals": 1
+  },
+  "input_characteristic_index": {
+   "label": "Input Characteristic",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    40,
+    65
+   ],
+   "decimals": 1
+  },
+  "input_defect_rate": {
+   "label": "Input Defect Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    1.5
+   ],
+   "decimals": 2
+  },
+  "input_quality_score": {
+   "label": "Input Quality",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "input_signal_noise": {
+   "label": "Input Signal Noise",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "input_variability": {
+   "label": "Input Variability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "inspection_pass_rate": {
+   "label": "Pass Rate",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    92,
+    100
+   ],
+   "decimals": 1
+  },
+  "instability_index": {
+   "label": "Instability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 1
+  },
+  "line_availability": {
+   "label": "Availability",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_oee": {
+   "label": "OEE",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_performance": {
+   "label": "Performance",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_quality_factor": {
+   "label": "Quality Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    98,
+    100
+   ],
+   "decimals": 1
+  },
+  "line_scrap_rate": {
+   "label": "Scrap Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P1",
+   "range": [
+    0,
+    1.5
+   ],
+   "decimals": 2
+  },
+  "line_target_rate": {
+   "label": "Target Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0,
+    130
+   ],
+   "decimals": 1
+  },
+  "line_throughput": {
+   "label": "Throughput",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    130
+   ],
+   "decimals": 1
+  },
+  "local_gauge_pressure_psi": {
+   "label": "Local Gauge Pressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    75,
+    85
+   ],
+   "decimals": 1
+  },
+  "material_availability": {
+   "label": "Material Availability",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P3",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "measurement_noise": {
+   "label": "Measurement Noise",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "motor_current_a": {
+   "label": "Motor Current",
+   "unit": "A",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    17.5,
+    146.5
+   ],
+   "decimals": 1
+  },
+  "on_time_output_rate": {
+   "label": "On-Time Rate",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    92,
+    100
+   ],
+   "decimals": 1
+  },
+  "order_fulfillment_rate": {
+   "label": "Fulfillment Rate",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    94,
+    100
+   ],
+   "decimals": 1
+  },
+  "oscillation_index": {
+   "label": "Oscillation",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  },
+  "output_consistency_index": {
+   "label": "Output Consistency",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    88,
+    100
+   ],
+   "decimals": 1
+  },
+  "output_quality_score": {
+   "label": "Output Quality",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    94,
+    100
+   ],
+   "decimals": 1
+  },
+  "process_pressure_psi": {
+   "label": "Pressure",
+   "unit": "psi",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    70,
+    100
+   ],
+   "decimals": 1
+  },
+  "process_variability": {
+   "label": "Process Variability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "purity_pct": {
+   "label": "Purity",
+   "unit": "%",
+   "category": "Quality",
+   "tier": "P1",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_availability": {
+   "label": "Availability",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_health_index": {
+   "label": "Health Index",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    85,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_instability_index": {
+   "label": "Instability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    0,
+    50
+   ],
+   "decimals": 1
+  },
+  "refinery_oee": {
+   "label": "OEE",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    95,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_performance": {
+   "label": "Performance",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    97,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_quality_factor": {
+   "label": "Quality Factor",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    98,
+    100
+   ],
+   "decimals": 1
+  },
+  "refinery_target_rate": {
+   "label": "Target Rate",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    500,
+    750
+   ],
+   "decimals": 1
+  },
+  "refinery_throughput": {
+   "label": "Throughput",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    500,
+    771.9
+   ],
+   "decimals": 1
+  },
+  "reject_rate_pct": {
+   "label": "Reject Rate",
+   "unit": "%",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "rework_rate": {
+   "label": "Rework Rate",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    2
+   ],
+   "decimals": 2
+  },
+  "saturation_risk_index": {
+   "label": "Saturation Risk",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0,
+    20
+   ],
+   "decimals": 1
+  },
+  "settling_time": {
+   "label": "Settling Time",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P3",
+   "range": [
+    5,
+    30
+   ],
+   "decimals": 1
+  },
+  "stability_score": {
+   "label": "Stability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P1",
+   "range": [
+    88,
+    100
+   ],
+   "decimals": 1
+  },
+  "starvation_risk_index": {
+   "label": "Starvation Risk",
+   "unit": "",
+   "category": "Derived Metric",
+   "tier": "P2",
+   "range": [
+    0,
+    18
+   ],
+   "decimals": 1
+  },
+  "starvation_time": {
+   "label": "Starvation Time",
+   "unit": "",
+   "category": "Events / Losses",
+   "tier": "P2",
+   "range": [
+    0,
+    3
+   ],
+   "decimals": 2
+  },
+  "supply_variability": {
+   "label": "Supply Variability",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    5
+   ],
+   "decimals": 2
+  },
+  "system_health_index": {
+   "label": "Health Index",
+   "unit": "%",
+   "category": "Derived Metric",
+   "tier": "P1",
+   "range": [
+    85,
+    100
+   ],
+   "decimals": 1
+  },
+  "system_stress": {
+   "label": "System Stress",
+   "unit": "",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    30
+   ],
+   "decimals": 1
+  },
+  "temperature_c": {
+   "label": "Temperature",
+   "unit": "°C",
+   "category": "Condition",
+   "tier": "P2",
+   "range": [
+    65,
+    75
+   ],
+   "decimals": 1
+  },
+  "throughput_per_min": {
+   "label": "Throughput",
+   "unit": "/min",
+   "category": "Flow / WIP",
+   "tier": "P2",
+   "range": [
+    0.9,
+    141.5
+   ],
+   "decimals": 1
+  },
+  "time_in_buffer": {
+   "label": "Time in Buffer",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P3",
+   "range": [
+    0,
+    8
+   ],
+   "decimals": 2
+  },
+  "total_wip": {
+   "label": "Total WIP",
+   "unit": "",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    25,
+    60
+   ],
+   "decimals": 1
+  },
+  "transfer_rate_per_min": {
+   "label": "Transfer Rate",
+   "unit": "/min",
+   "category": "Flow / WIP",
+   "tier": "P1",
+   "range": [
+    0,
+    130
+   ],
+   "decimals": 1
+  },
+  "vibration_mms": {
+   "label": "Vibration",
+   "unit": "mm/s",
+   "category": "Stability",
+   "tier": "P2",
+   "range": [
+    0,
+    6
+   ],
+   "decimals": 2
+  },
+  "yield_rate": {
+   "label": "Yield",
+   "unit": "",
+   "category": "Quality",
+   "tier": "P2",
+   "range": [
+    92,
+    100
+   ],
+   "decimals": 1
+  }
+ },
+ "derivations": [
+  {
+   "assetType": "refinery",
+   "property": "refinery_throughput",
+   "fn": "sum",
+   "of": "line_throughput",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_target_rate",
+   "fn": "sum",
+   "of": "line_target_rate",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_oee",
+   "fn": "mean",
+   "of": "line_oee",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_availability",
+   "fn": "mean",
+   "of": "line_availability",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_performance",
+   "fn": "mean",
+   "of": "line_performance",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_quality_factor",
+   "fn": "mean",
+   "of": "line_quality_factor",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_health_index",
+   "fn": "mean",
+   "of": "system_health_index",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "refinery",
+   "property": "refinery_instability_index",
+   "fn": "max",
+   "of": "instability_index",
+   "fromType": "line",
+   "scope": "children"
+  },
+  {
+   "assetType": "line",
+   "property": "line_oee",
+   "fn": "formula",
+   "note": "line_availability × line_performance × line_quality_factor (legacy line model)"
+  }
+ ],
+ "typeLabels": {}
+}

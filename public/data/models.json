@@ -2,28 +2,71 @@
   {
     "id": "refinery",
     "label": "Refinery",
-    "shape": "refinery"
+    "levels": [
+      {
+        "id": "refinery",
+        "label": "Refinery"
+      },
+      {
+        "id": "line",
+        "label": "Line"
+      },
+      {
+        "id": "station",
+        "label": "Station"
+      }
+    ],
+    "unitLevel": "line"
   },
   {
     "id": "water",
     "label": "Water",
-    "shape": "four-level",
-    "files": {
-      "assetData": "water-asset-data.json"
-    }
+    "levels": [
+      {
+        "id": "plant",
+        "label": "Plant"
+      },
+      {
+        "id": "train",
+        "label": "Train"
+      },
+      {
+        "id": "stage",
+        "label": "Stage"
+      },
+      {
+        "id": "equipment",
+        "label": "Equipment"
+      }
+    ],
+    "unitLevel": "train"
   },
   {
     "id": "wastewater",
     "label": "Wastewater",
-    "shape": "four-level",
-    "files": {
-      "assetData": "water-asset-data.json"
-    }
+    "levels": [
+      {
+        "id": "plant",
+        "label": "Plant"
+      },
+      {
+        "id": "train",
+        "label": "Train"
+      },
+      {
+        "id": "stage",
+        "label": "Stage"
+      },
+      {
+        "id": "equipment",
+        "label": "Equipment"
+      }
+    ],
+    "unitLevel": "train"
   },
   {
     "id": "wind",
     "label": "Wind",
-    "shape": "generic",
     "levels": [
       {
         "id": "site",
@@ -54,7 +97,6 @@
   {
     "id": "ccgt",
     "label": "Combined Cycle",
-    "shape": "generic",
     "levels": [
       {
         "id": "site",
@@ -89,7 +131,6 @@
   {
     "id": "pipeline",
     "label": "Gas Pipeline",
-    "shape": "generic",
     "levels": [
       {
         "id": "system",
@@ -120,7 +161,6 @@
   {
     "id": "pharma",
     "label": "Biologics (mAb)",
-    "shape": "generic",
     "levels": [
       {
         "id": "site",
@@ -152,7 +192,6 @@
   {
     "id": "grid",
     "label": "Transmission Grid",
-    "shape": "generic",
     "levels": [
       {
         "id": "network",

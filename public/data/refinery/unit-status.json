@@ -1,0 +1,74 @@
+{
+ "AURELIA_A1": {
+  "state": "running",
+  "statusSinceMinutes": 177,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "AURELIA_A2": {
+  "state": "running",
+  "statusSinceMinutes": 365,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "AURELIA_A3": {
+  "state": "running",
+  "statusSinceMinutes": 265,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "AURELIA_A4": {
+  "state": "running",
+  "statusSinceMinutes": 217,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "AURELIA_A5": {
+  "state": "running",
+  "statusSinceMinutes": 227,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "AURELIA_A6": {
+  "state": "running",
+  "statusSinceMinutes": 23,
+  "mode": "STEADY",
+  "product": "Product A"
+ },
+ "FERRUM_F1": {
+  "state": "running",
+  "statusSinceMinutes": 55,
+  "mode": "STEADY",
+  "product": "Product B"
+ },
+ "FERRUM_F2": {
+  "state": "attention",
+  "statusSinceMinutes": 305,
+  "mode": "STEADY",
+  "product": "Product B"
+ },
+ "FERRUM_F3": {
+  "state": "running",
+  "statusSinceMinutes": 105,
+  "mode": "STEADY",
+  "product": "Product B"
+ },
+ "FERRUM_F4": {
+  "state": "changeover",
+  "statusSinceMinutes": 15,
+  "mode": "CHANGEOVER",
+  "product": "Product A → Product C"
+ },
+ "FERRUM_F5": {
+  "state": "running",
+  "statusSinceMinutes": 150,
+  "mode": "STEADY",
+  "product": "Product B"
+ },
+ "FERRUM_F6": {
+  "state": "running",
+  "statusSinceMinutes": 17,
+  "mode": "STEADY",
+  "product": "Product B"
+ }
+}

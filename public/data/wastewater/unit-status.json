@@ -1,0 +1,38 @@
+{
+ "CONFLUENCE_T01": {
+  "state": "attention",
+  "statusSinceMinutes": 305,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ },
+ "CONFLUENCE_T02": {
+  "state": "running",
+  "statusSinceMinutes": 115,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ },
+ "CONFLUENCE_T03": {
+  "state": "running",
+  "statusSinceMinutes": 200,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ },
+ "CONFLUENCE_T04": {
+  "state": "attention",
+  "statusSinceMinutes": 55,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ },
+ "CONFLUENCE_T05": {
+  "state": "running",
+  "statusSinceMinutes": 120,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ },
+ "CONFLUENCE_T06": {
+  "state": "running",
+  "statusSinceMinutes": 365,
+  "mode": "STEADY",
+  "product": "Reclaimed Effluent"
+ }
+}

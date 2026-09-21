@@ -1,0 +1,891 @@
+[
+ {
+  "id": "CONFLUENCE",
+  "parentId": null,
+  "name": "Confluence",
+  "assetType": "plant",
+  "assetLevel": "plant"
+ },
+ {
+  "id": "CONFLUENCE_T01",
+  "parentId": "CONFLUENCE",
+  "name": "T01",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRELIMINARY",
+  "parentId": "CONFLUENCE_T01",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T01_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T01_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T01_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T01",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T01_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_AERATION",
+  "parentId": "CONFLUENCE_T01",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T01_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T01_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T01_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T01_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T01",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T01_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_DISINFECTION",
+  "parentId": "CONFLUENCE_T01",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T01_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T01_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T01_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T01_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T01_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02",
+  "parentId": "CONFLUENCE",
+  "name": "T02",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRELIMINARY",
+  "parentId": "CONFLUENCE_T02",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T02_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T02_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T02_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T02",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T02_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_AERATION",
+  "parentId": "CONFLUENCE_T02",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T02_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T02_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T02_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T02_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T02",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T02_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_DISINFECTION",
+  "parentId": "CONFLUENCE_T02",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T02_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T02_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T02_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T02_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T02_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03",
+  "parentId": "CONFLUENCE",
+  "name": "T03",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRELIMINARY",
+  "parentId": "CONFLUENCE_T03",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T03_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T03_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T03_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T03",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T03_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_AERATION",
+  "parentId": "CONFLUENCE_T03",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T03_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T03_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T03_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T03_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T03",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T03_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_DISINFECTION",
+  "parentId": "CONFLUENCE_T03",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T03_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T03_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T03_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T03_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T03_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04",
+  "parentId": "CONFLUENCE",
+  "name": "T04",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRELIMINARY",
+  "parentId": "CONFLUENCE_T04",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T04_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T04_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T04_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T04",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T04_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_AERATION",
+  "parentId": "CONFLUENCE_T04",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T04_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T04_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T04_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T04_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T04",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T04_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_DISINFECTION",
+  "parentId": "CONFLUENCE_T04",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T04_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T04_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T04_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T04_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T04_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05",
+  "parentId": "CONFLUENCE",
+  "name": "T05",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRELIMINARY",
+  "parentId": "CONFLUENCE_T05",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T05_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T05_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T05_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T05",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T05_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_AERATION",
+  "parentId": "CONFLUENCE_T05",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T05_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T05_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T05_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T05_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T05",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T05_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_DISINFECTION",
+  "parentId": "CONFLUENCE_T05",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T05_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T05_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T05_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T05_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T05_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06",
+  "parentId": "CONFLUENCE",
+  "name": "T06",
+  "assetType": "train",
+  "assetLevel": "train"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRELIMINARY",
+  "parentId": "CONFLUENCE_T06",
+  "name": "Preliminary",
+  "assetType": "preliminary",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRELIMINARY_BARSCREEN",
+  "parentId": "CONFLUENCE_T06_PRELIMINARY",
+  "name": "Bar Screen",
+  "assetType": "bar_screen",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRELIMINARY_GRITCHAMBER",
+  "parentId": "CONFLUENCE_T06_PRELIMINARY",
+  "name": "Grit Chamber",
+  "assetType": "grit_chamber",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRELIMINARY_INFLUENTPUMP",
+  "parentId": "CONFLUENCE_T06_PRELIMINARY",
+  "name": "Influent Pump",
+  "assetType": "influent_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T06",
+  "name": "Primary Clarifier",
+  "assetType": "primary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_PRIMARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
+  "name": "Primary Clarifier Basin",
+  "assetType": "primary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_PRIMARY_CLARIFIER_SCUMSKIMMER",
+  "parentId": "CONFLUENCE_T06_PRIMARY_CLARIFIER",
+  "name": "Scum Skimmer",
+  "assetType": "scum_skimmer",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_AERATION",
+  "parentId": "CONFLUENCE_T06",
+  "name": "Aeration",
+  "assetType": "aeration",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T06_AERATION_AERATIONBASIN",
+  "parentId": "CONFLUENCE_T06_AERATION",
+  "name": "Aeration Basin",
+  "assetType": "aeration_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_AERATION_BLOWER",
+  "parentId": "CONFLUENCE_T06_AERATION",
+  "name": "Blower",
+  "assetType": "blower",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_AERATION_DIFFUSERGRID",
+  "parentId": "CONFLUENCE_T06_AERATION",
+  "name": "Diffuser Grid",
+  "assetType": "diffuser_grid",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
+  "parentId": "CONFLUENCE_T06",
+  "name": "Secondary Clarifier",
+  "assetType": "secondary_clarifier",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_SECONDARYCLARIFIERBASIN",
+  "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
+  "name": "Secondary Clarifier Basin",
+  "assetType": "secondary_clarifier_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_RASPUMP",
+  "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
+  "name": "RAS Pump",
+  "assetType": "ras_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_SECONDARY_CLARIFIER_SLUDGECOLLECTOR",
+  "parentId": "CONFLUENCE_T06_SECONDARY_CLARIFIER",
+  "name": "Sludge Collector",
+  "assetType": "sludge_collector",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_DISINFECTION",
+  "parentId": "CONFLUENCE_T06",
+  "name": "Disinfection",
+  "assetType": "disinfection",
+  "assetLevel": "stage"
+ },
+ {
+  "id": "CONFLUENCE_T06_DISINFECTION_CHLORINECONTACTBASIN",
+  "parentId": "CONFLUENCE_T06_DISINFECTION",
+  "name": "Chlorine Contact Basin",
+  "assetType": "chlorine_contact_basin",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_DISINFECTION_CHLORINEFEEDPUMP",
+  "parentId": "CONFLUENCE_T06_DISINFECTION",
+  "name": "Chlorine Feed Pump",
+  "assetType": "chlorine_feed_pump",
+  "assetLevel": "equipment"
+ },
+ {
+  "id": "CONFLUENCE_T06_DISINFECTION_DECHLORINATIONSYSTEM",
+  "parentId": "CONFLUENCE_T06_DISINFECTION",
+  "name": "Dechlorination System",
+  "assetType": "dechlorination_system",
+  "assetLevel": "equipment"
+ }
+]

@@ -1,0 +1,646 @@
+<!doctype html>
+<!-- docs/INDUSTRY_PACK_MAP.html — how industry packs are built, stored, loaded and read.
+     Open it in a browser. Companion to docs/CODE_MAP.html (the interface) and
+     INDUSTRY_PACK_SPEC.md (the contract). Keep it in step when the pack format
+     or the runtime modules change. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Industry Pack Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #f4f6f5;
+    --surface: #ffffff;
+    --ink: #1a232b;
+    --muted: #5b6873;
+    --faint: #8a96a0;
+    --rule: #d8dee2;
+    --accent: #0a6fb8;
+    --accent-soft: #e3eef8;
+    --save: #a86b12;
+    --save-soft: #f7ecd9;
+    --now: #2f7d4f;
+    --now-soft: #e2f1e7;
+    --code-bg: #eef1f3;
+    --fig-bg: #fbfcfc;
+    --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-head: "IBM Plex Sans Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #11161b;
+      --surface: #182028;
+      --ink: #e4eaee;
+      --muted: #9fadb8;
+      --faint: #74828d;
+      --rule: #2c3842;
+      --accent: #5fb0ee;
+      --accent-soft: #1b3346;
+      --save: #e0a54a;
+      --save-soft: #3a2c16;
+      --now: #6cc58f;
+      --now-soft: #1c3526;
+      --code-bg: #212b34;
+      --fig-bg: #151c23;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #11161b;
+    --surface: #182028;
+    --ink: #e4eaee;
+    --muted: #9fadb8;
+    --faint: #74828d;
+    --rule: #2c3842;
+    --accent: #5fb0ee;
+    --accent-soft: #1b3346;
+    --save: #e0a54a;
+    --save-soft: #3a2c16;
+    --now: #6cc58f;
+    --now-soft: #1c3526;
+    --code-bg: #212b34;
+    --fig-bg: #151c23;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 16px;
+    padding-block: 32px 64px;
+  }
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: 48px;
+  }
+  @media (max-width: 900px) {
+    .page { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+    nav.toc { position: static; }
+  }
+
+  /* Table of contents */
+  nav.toc {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + 24px);
+    align-self: start;
+    font-size: 13px;
+  }
+  nav.toc .eyebrow { margin-bottom: 10px; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  nav.toc a {
+    display: block;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-left: 2px solid var(--rule);
+  }
+  nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+
+  main { min-width: 0; }
+  header.intro { margin-bottom: 40px; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  h1 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 1.1;
+    margin: 6px 0 12px;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 18px;
+    margin: 28px 0 8px;
+  }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 14px; }
+  .lede { font-size: 17px; color: var(--muted); max-width: 64ch; }
+  a { color: var(--accent); }
+
+  section { padding-block: 36px; border-top: 1px solid var(--rule); scroll-margin-top: 16px; }
+  section:first-of-type { border-top: none; padding-top: 0; }
+
+  code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+
+  /* At-a-glance numbers */
+  .glance {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 20px 0 8px;
+  }
+  .glance div { background: var(--surface); padding: 14px 16px; }
+  @media (max-width: 560px) { .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .glance strong {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 28px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .glance span { font-size: 13px; color: var(--muted); }
+
+  /* Figures */
+  figure {
+    margin: 20px 0 24px;
+    background: var(--fig-bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .fig-scroll { overflow-x: auto; }
+  figure svg { display: block; width: 100%; height: auto; min-width: 640px; color: var(--ink); font-family: var(--font-body); }
+  figcaption { font-size: 13px; color: var(--muted); margin-top: 12px; max-width: 80ch; }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 16px 0 20px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 500;
+    background: var(--fig-bg);
+  }
+  td.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--muted); }
+  td .mono { white-space: nowrap; }
+
+  /* Chips for save behaviour */
+  .chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .chip.save { background: var(--save-soft); color: var(--save); }
+  .chip.now { background: var(--now-soft); color: var(--now); }
+  .chip.flag { background: var(--accent-soft); color: var(--accent); }
+
+  /* Notes / gotchas */
+  .notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-top: 16px; }
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .note h4 { font-family: var(--font-head); font-weight: 600; font-size: 16px; margin: 0 0 6px; }
+  .note p { font-size: 14px; margin: 0 0 8px; color: var(--muted); }
+  .note p:last-child { margin-bottom: 0; }
+  .note .where { font-family: var(--font-mono); font-size: 12px; color: var(--faint); }
+
+  /* File tree */
+  pre.tree {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 18px;
+    overflow-x: auto;
+    margin: 16px 0;
+    color: var(--ink);
+  }
+  pre.tree .c { color: var(--faint); }
+
+  ul.tight, ol.tight { padding-left: 20px; margin: 0 0 14px; }
+  ol.tight li { margin-bottom: 8px; }
+  ul.tight li { margin-bottom: 4px; }
+  u { text-decoration-color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 2px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+<style>body { margin: 0; }</style>
+</head>
+<body>
+<div class="page">
+  <nav class="toc" aria-label="Contents">
+    <div class="eyebrow">Contents</div>
+    <ol>
+      <li><a href="#glance">At a glance</a></li>
+      <li><a href="#flow">From research to screen</a></li>
+      <li><a href="#tree">Where the files live</a></li>
+      <li><a href="#files">The pack's files</a></li>
+      <li><a href="#registry">The registry</a></li>
+      <li><a href="#loading">Loading a model</a></li>
+      <li><a href="#queries">Asking the model questions</a></li>
+      <li><a href="#detectors">Detectors &amp; explanations</a></li>
+      <li><a href="#packs">The eight packs</a></li>
+      <li><a href="#rules">Rules the area leans on</a></li>
+      <li><a href="#add">Adding a pack</a></li>
+      <li><a href="#open">Still open</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="intro">
+      <div class="eyebrow">quietlyCurious/aetherium · main @ 004d401 + uniform packs</div>
+      <h1>Industry Pack Map</h1>
+      <p class="lede">How a simulated industry gets from a research brief to the Operator's screen: the Python that writes a pack, the nine JSON files it produces, the registry that lists it, and the four runtime modules that load it and answer questions about it.</p>
+      <p class="lede" style="font-size:15px">Status: <span class="chip now">one format</span> every model is a generic pack (<code>INDUSTRY_PACK_SPEC.md</code> §6), keyed by real asset id. Refinery, water and wastewater were converted from the older layouts; nothing in <code>src/operator/</code> knows any model by name. Companion to <code>docs/CODE_MAP.html</code>, which covers the interface itself.</p>
+    </header>
+
+    <section id="glance">
+      <h2>At a glance</h2>
+      <p>The area has three layers that only meet at files on disk: an <strong>authoring</strong> layer in Python under <code>ModelAndData/</code>, a <strong>data</strong> layer of JSON under <code>public/data/</code>, and a <strong>runtime</strong> layer of four JavaScript modules in <code>src/</code>. Python never imports app code and the app never runs Python.</p>
+      <div class="glance" role="list">
+        <div role="listitem"><strong>8</strong><span>industry models in <code>models.json</code></span></div>
+        <div role="listitem"><strong>8 + 1</strong><span>files per pack (plus optional <code>explanations.json</code>)</span></div>
+        <div role="listitem"><strong>5</strong><span>packs with a committed <code>generate.py</code></span></div>
+        <div role="listitem"><strong>31</strong><span>detectors across wind, ccgt and pipeline</span></div>
+        <div role="listitem"><strong>4</strong><span>runtime modules that load and read a pack</span></div>
+        <div role="listitem"><strong>0</strong><span>model names hardcoded in the Operator code</span></div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <h2>From research to screen</h2>
+      <p>A pack is built left to right, once, by hand-run scripts. The app reads the result at runtime. The dashed arrows are the optional detector path; packs without detectors skip it and the AI tab falls back to plain text.</p>
+
+      <figure>
+        <div class="fig-scroll">
+        <svg viewBox="0 0 980 520" role="img" aria-label="Authoring: RESEARCH.md and SCENARIOS.md inform generate.py, which writes the 8 pack files. explain.py reads those files through detectors/pack.py and writes explanations.json; robustness.py reruns generate.py with other seeds. validate_industry_pack.py checks the pack. models.json registers it. At runtime modelRegistry.js reads models.json, OperatorWorkspace fetches the files, activateLoadedModel fills modelData.js, and assetQueries.js answers the views.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+          </defs>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.6">
+            <text x="20" y="22">AUTHORING · ModelAndData/  (Python, run by hand)</text>
+            <text x="20" y="262">DATA · public/data/  (static JSON)</text>
+            <text x="20" y="372">RUNTIME · src/  (React app)</text>
+          </g>
+          <line x1="10" y1="244" x2="970" y2="244" stroke="currentColor" stroke-opacity="0.2"/>
+          <line x1="10" y1="354" x2="970" y2="354" stroke="currentColor" stroke-opacity="0.2"/>
+
+          <g font-size="13" fill="currentColor">
+            <!-- authoring -->
+            <rect x="20" y="40" width="170" height="60" rx="5" fill="none" stroke="currentColor"/>
+            <text x="34" y="64" font-weight="600">RESEARCH.md</text>
+            <text x="34" y="84" font-weight="600">SCENARIOS.md</text>
+
+            <rect x="240" y="40" width="190" height="60" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="254" y="64" font-weight="600">generate.py</text>
+            <text x="254" y="84" opacity="0.7" font-size="12">fixed seed · rerunnable</text>
+
+            <rect x="500" y="40" width="210" height="60" rx="5" fill="none" style="stroke:var(--save)" stroke-width="1.5" stroke-dasharray="5 4"/>
+            <text x="514" y="64" font-weight="600">explain.py</text>
+            <text x="514" y="84" opacity="0.7" font-size="12">detectors, via tools/detectors</text>
+
+            <rect x="760" y="40" width="200" height="60" rx="5" fill="none" style="stroke:var(--save)" stroke-dasharray="5 4"/>
+            <text x="774" y="64" font-weight="600">robustness.py</text>
+            <text x="774" y="84" opacity="0.7" font-size="12">regenerate × 10 seeds</text>
+
+            <rect x="20" y="150" width="210" height="60" rx="5" fill="none" stroke="currentColor"/>
+            <text x="32" y="174" font-weight="600">validate_industry_pack.py</text>
+            <text x="32" y="194" opacity="0.7" font-size="12">0 errors required · --all</text>
+
+            <rect x="560" y="150" width="200" height="60" rx="5" fill="none" style="stroke:var(--save)" stroke-dasharray="5 4"/>
+            <text x="574" y="174" font-weight="600">detectors/preview.py</text>
+            <text x="574" y="194" opacity="0.7" font-size="12">explanations_preview.html</text>
+
+            <!-- data -->
+            <rect x="240" y="272" width="250" height="62" rx="5" style="fill:var(--accent-soft)" stroke="none"/>
+            <text x="254" y="296" font-weight="600">&lt;model&gt;/  8 files</text>
+            <text x="254" y="316" opacity="0.75" font-size="12">assets · properties · telemetry …</text>
+
+            <rect x="530" y="272" width="200" height="62" rx="5" style="fill:var(--save-soft)" stroke="none"/>
+            <text x="544" y="296" font-weight="600">explanations.json</text>
+            <text x="544" y="316" opacity="0.75" font-size="12">optional role</text>
+
+            <rect x="20" y="272" width="170" height="62" rx="5" style="fill:var(--now-soft)" stroke="none"/>
+            <text x="34" y="296" font-weight="600">models.json</text>
+            <text x="34" y="316" opacity="0.75" font-size="12">one entry per pack</text>
+
+            <!-- runtime -->
+            <rect x="20" y="390" width="170" height="60" rx="5" fill="none" stroke="currentColor"/>
+            <text x="34" y="414" font-weight="600">modelRegistry.js</text>
+            <text x="34" y="434" opacity="0.7" font-size="12">list + file URLs</text>
+
+            <rect x="240" y="390" width="250" height="60" rx="5" fill="none" stroke="currentColor"/>
+            <text x="254" y="414" font-weight="600">OperatorWorkspace (loader)</text>
+            <text x="254" y="434" opacity="0.7" font-size="12">fetch all → activateLoadedModel</text>
+
+            <rect x="530" y="390" width="200" height="60" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="544" y="414" font-weight="600">modelData.js</text>
+            <text x="544" y="434" opacity="0.7" font-size="12">23 live variables</text>
+
+            <rect x="770" y="390" width="190" height="60" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
+            <text x="784" y="414" font-weight="600">assetQueries.js</text>
+            <text x="784" y="434" opacity="0.7" font-size="12">read-only questions</text>
+
+            <text x="770" y="490" opacity="0.7" font-size="12">→ Now strip, Attention, Investigate,</text>
+            <text x="770" y="508" opacity="0.7" font-size="12">   Assets, Configurator, Work</text>
+          </g>
+
+          <g stroke="currentColor" fill="none" stroke-width="1.2">
+            <path d="M190,70 H236" marker-end="url(#ar)"/>
+            <path d="M365,100 V268" marker-end="url(#ar)"/>
+            <path d="M430,62 H496" stroke-dasharray="4 4" style="stroke:var(--save)" marker-end="url(#ar)"/>
+            <path d="M760,70 H714" stroke-dasharray="4 4" style="stroke:var(--save)" marker-end="url(#ar)"/>
+            <path d="M860,100 V120 H400 V104" stroke-dasharray="4 4" style="stroke:var(--save)" marker-end="url(#ar)"/>
+            <path d="M600,100 V268" stroke-dasharray="4 4" style="stroke:var(--save)" marker-end="url(#ar)"/>
+            <path d="M660,268 V214" stroke-dasharray="4 4" style="stroke:var(--save)" marker-end="url(#ar)"/>
+            <path d="M280,268 V180 H234" marker-end="url(#ar)"/>
+            <path d="M105,334 V386" marker-end="url(#ar)"/>
+            <path d="M190,420 H236" marker-end="url(#ar)"/>
+            <path d="M365,334 V386" marker-end="url(#ar)"/>
+            <path d="M630,334 V360 H400 V386" stroke-dasharray="4 4" style="stroke:var(--save)"/>
+            <path d="M490,420 H526" marker-end="url(#ar)"/>
+            <path d="M730,420 H766" marker-end="url(#ar)"/>
+            <path d="M865,450 V474" marker-end="url(#ar)"/>
+          </g>
+        </svg>
+        </div>
+        <figcaption>Solid: every pack. Dashed amber: only packs with detectors (wind, ccgt, pipeline). The validator reads both the 8 files and <code>explanations.json</code>. <code>explain.py</code> reads only the published files, never <code>generate.py</code>'s scenario constants.</figcaption>
+      </figure>
+    </section>
+
+    <section id="tree">
+      <h2>Where the files live</h2>
+<pre class="tree">INDUSTRY_PACK_SPEC.md            <span class="c">the contract: research → design → files → checks (§0–§14)</span>
+ModelAndData/
+  industries/&lt;model&gt;/            <span class="c">one folder per generated pack (wind, ccgt, pipeline, pharma, grid)</span>
+    RESEARCH.md                  <span class="c">process, hierarchy, KPIs, failure modes, sources</span>
+    SCENARIOS.md                 <span class="c">each attention item's story, timing and data footprint</span>
+    generate.py                  <span class="c">writes the 8 runtime files; fixed seed, standard library only</span>
+    explain.py                   <span class="c">detectors → explanations.json            (wind, ccgt, pipeline)</span>
+    robustness.py                <span class="c">detectors vs. regenerated data            (wind, ccgt, pipeline)</span>
+    explanations_preview.html    <span class="c">standalone review page for the explanations</span>
+  tools/
+    validate_industry_pack.py    <span class="c">checks one pack, or every pack with --all</span>
+    convert_legacy_to_generic.py <span class="c">one-off: produced refinery, water, wastewater (spec §12)</span>
+    detectors/                   <span class="c">shared detector toolkit</span>
+      pack.py                    <span class="c">Pack.load(): read-only view of the 8 files</span>
+      blocks.py                  <span class="c">signal building blocks (masks, smoothing, residuals, runs)</span>
+      build.py                   <span class="c">Detector base class, explanation builders, run_pack()</span>
+      preview.py + preview_template.html  <span class="c">explanations.json → one HTML page</span>
+public/data/
+  models.json                    <span class="c">the registry: every model, its levels, its unit level</span>
+  &lt;model&gt;/                       <span class="c">8 files (+ explanations.json), one folder per model</span>
+src/
+  modelRegistry.js               <span class="c">reads models.json; default file names; optional roles</span>
+  operator/model/modelData.js    <span class="c">the loaded model as live module variables; the only writer</span>
+  operator/model/assetQueries.js <span class="c">every read-only question the views ask about the model</span>
+  operator/OperatorWorkspace.jsx <span class="c">the loader effect: fetch → activateLoadedModel → remount</span>
+  operator/operatorViews/explanation/  <span class="c">ExplanationView + ExplanationChart (the AI tab's "why")</span>
+  assetData.js                   <span class="c">designer only (Screens Model tab, Wizard); not part of this area</span></pre>
+    </section>
+
+    <section id="files">
+      <h2>The pack's files</h2>
+      <p>Each file has a <em>role</em>. The role is what <code>models.json</code> and the loader talk about; the file name is just the default for that role. Every file is keyed by real asset id, so there are no id conversions anywhere between disk and screen.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File (role)</th><th>What's in it</th><th>Lands in</th><th>Read by</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">assets.json<br><span class="chip flag">assets</span></td><td>The hierarchy: <code>{ id, parentId, name, assetType, assetLevel }</code>, depth-first, any depth.</td><td class="mono">CURRENT_ASSET_DATA<br>CURRENT_ASSET_MAP</td><td>Asset trees, type list, breadcrumbs, customizations</td></tr>
+            <tr><td class="mono">asset-relationships.json<br><span class="chip flag">assetRelationships</span></td><td>Edges between assets, each with a <code>layer</code> (process, electrical…). Containment comes from <code>parentId</code>, not edges.</td><td class="mono">ASSET_RELATIONSHIPS</td><td>Related Assets, All Assets diagram</td></tr>
+            <tr><td class="mono">properties.json<br><span class="chip flag">properties</span></td><td>Per key: label, unit, category, tier, range, decimals. Plus <code>derivations</code> (rollup rules) and <code>typeLabels</code>.</td><td class="mono">PROPERTY_LABELS … PROPERTY_DECIMALS<br>PROPERTY_DERIVATIONS, TYPE_LABELS</td><td>Every tile, gauge and grid column</td></tr>
+            <tr><td class="mono">asset-values.json<br><span class="chip flag">assetValues</span></td><td>Current value of every property: <code>{ assetId: { key: value } }</code>.</td><td class="mono">ASSET_VALUES</td><td>Property tiles, asset cards, side panel</td></tr>
+            <tr><td class="mono">asset-telemetry.json<br><span class="chip flag">assetTelemetry</span></td><td><code>timeline</code> (date, start, end, step), <code>timestamps</code>, and <code>series[assetId][key]</code>, one value per step.</td><td class="mono">ASSET_TELEMETRY<br>CURRENT_TIMESTAMPS</td><td>Sparklines, Trend chart, time scrubber, explanation charts</td></tr>
+            <tr><td class="mono">unit-status.json<br><span class="chip flag">unitStatus</span></td><td>Per unit-level asset: state, since when, mode, product.</td><td class="mono">UNIT_STATUS_TILES<br>UNIT_OPERATING_CONTEXT</td><td>Now strip</td></tr>
+            <tr><td class="mono">attention-items.json<br><span class="chip flag">attentionItems</span></td><td>Situations: <code>assetId</code>, <code>unitId</code>, <code>primaryProperty</code>, severity, state, evidence points, AI text.</td><td class="mono">ATTENTION_ITEMS</td><td>Attention list, Investigate</td></tr>
+            <tr><td class="mono">work-items.json<br><span class="chip flag">workItems</span></td><td>Tasks with local-time dates, <code>assetId</code>, role, priority, dependencies.</td><td class="mono">INITIAL_WORK_ITEMS</td><td>Work list, task detail</td></tr>
+            <tr><td class="mono">explanations.json<br><span class="chip save">explanations · optional</span></td><td>Detector definitions, and per attention item: conclusion, checks, chart, reference examples, ruled out, confidence, action (spec §14).</td><td class="mono">EXPLANATIONS</td><td>Investigate → AI tab (<code>ExplanationView</code>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>One invariant ties two of these together: an asset's value in <code>asset-values.json</code> is always the <strong>last point</strong> of the same key's series in <code>asset-telemetry.json</code>. The time scrubber depends on it, and the validator enforces it.</p>
+    </section>
+
+    <section id="registry">
+      <h2>The registry</h2>
+      <p><code>public/data/models.json</code> is the one list of models. Both the title-bar model switcher (<code>App.js</code>) and the workspace loader read it through <code>modelRegistry.js</code>, which fetches it once per page load and shares the promise.</p>
+<pre class="tree">{
+  "id": "wind",                               <span class="c">folder name, switcher id, key for saved state</span>
+  "label": "Wind",                            <span class="c">what the switcher shows</span>
+  "levels": [{ "id": "site", "label": "Site" }, … { "id": "component", … }],
+  "unitLevel": "turbine",                     <span class="c">one Now-strip tile per asset at this level</span>
+  "files": { "explanations": "explanations.json" }   <span class="c">only to add an optional role</span>
+}</pre>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Export</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">DEFAULT_FILES</td><td>Role → default filename for the 8 required roles.</td></tr>
+            <tr><td class="mono">OPTIONAL_ROLES</td><td><code>explanations</code>. A listed optional file that's missing loads as <code>null</code> instead of failing the model.</td></tr>
+            <tr><td class="mono">loadModelRegistry()</td><td>Fetches and checks <code>models.json</code>: non-empty <code>levels</code>, <code>unitLevel</code> is one of them, no unknown roles, no duplicate ids. A failed fetch clears the cache so a later call retries.</td></tr>
+            <tr><td class="mono">getModelDataFiles(model)</td><td><code>[role, url, optional]</code> triples, ready to fetch.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="loading">
+      <h2>Loading a model</h2>
+      <p>Switching models is a full reload of the workspace, never an in-place update. That keeps the whole area simple: nothing has to subscribe to model changes.</p>
+      <ol class="tight">
+        <li><strong>Pick.</strong> The switcher sets <code>selectedModel</code>; <code>OperatorWorkspace</code>'s loader effect runs.</li>
+        <li><strong>Fetch.</strong> It looks the model up in the registry and fetches every file in parallel. Required files fail the load with a visible message; optional ones become <code>null</code> (a dev server's HTML fallback counts as missing too).</li>
+        <li><strong>Activate.</strong> <code>activateLoadedModel(model, files, results)</code> resets <em>every</em> model variable, then maps each role to its variable (<code>ROLE_TO_VARIABLE</code>), splits <code>properties.json</code> into its lookups, builds the Now-strip tiles from the unit-level assets, parses work-item dates, and applies the pack's own timeline.</li>
+        <li><strong>Remount.</strong> <code>OperatorWorkspaceInner</code> remounts keyed by model, so every view starts fresh against the new data.</li>
+      </ol>
+      <div class="notes">
+        <div class="note">
+          <h4>One writer, many readers</h4>
+          <p>The model lives in 23 <code>export let</code> variables in <code>modelData.js</code>. ES modules make those live, read-only bindings everywhere else, so only <code>modelData.js</code> can assign them and no view passes model data around as props.</p>
+          <p class="where">operator/model/modelData.js</p>
+        </div>
+        <div class="note">
+          <h4>Each pack brings its own clock</h4>
+          <p>"Now", the shift start and the sample grid come from the pack's <code>timeline</code>. Most packs run 08:00–14:05 at 5 minutes; wind runs 00:00–14:00 at 10 minutes on a January date. The scrubber, lateness maths and chart axes all follow it.</p>
+          <p class="where">applyTimeline · CURRENT_TIMESTAMPS · WORK_NOW_REFERENCE</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="queries">
+      <h2>Asking the model questions</h2>
+      <p>Views don't dig through the variables themselves; they ask <code>assetQueries.js</code>. It's the single place that knows how the files fit together, so a format change lands here rather than in twenty components.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Function</th><th>Answers</th><th>Used by</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">assetTypeIdOf(asset)</td><td>The type id, <code>TYPE_&lt;level&gt;_&lt;assetType&gt;</code>. Saved type customizations are keyed by it.</td><td>Configurator, Investigate, side panel</td></tr>
+            <tr><td class="mono">buildTypeList(assets)</td><td>One row per distinct type, for the Types tab.</td><td>OperatorWorkspace</td></tr>
+            <tr><td class="mono">getAssetProperties(id)</td><td>That asset's current values.</td><td>NowAssetDetail, AssetCard, SidePanel</td></tr>
+            <tr><td class="mono">getAssetPropertySeries(id, key)</td><td>That property's series, aligned to <code>CURRENT_TIMESTAMPS</code>.</td><td>PropertyTilesView, AssetCard</td></tr>
+            <tr><td class="mono">getAssetPathLabel / getAssetDisplayLabel</td><td>Breadcrumb and short labels, starting at the unit-level ancestor.</td><td>Configurator, Assets view</td></tr>
+            <tr><td class="mono">getRelatedAssetsForType</td><td>Which other types a type connects to, by relationship layer.</td><td>Related Assets rows, customizations</td></tr>
+            <tr><td class="mono">getAllAssetRelationshipsForModel</td><td>Every edge plus containment, for the All Assets diagram.</td><td>AssetDiagramView</td></tr>
+            <tr><td class="mono">getAttentionItemAssetEntry / TypeId</td><td>The asset and type an attention item points at.</td><td>Investigate</td></tr>
+            <tr><td class="mono">getAttentionItemPrimarySeries</td><td>The item's <code>primaryProperty</code> series, for the Trend chart.</td><td>Investigate</td></tr>
+            <tr><td class="mono">getAttentionItemExplanation</td><td>The item's explanation, or <code>null</code>.</td><td>Investigate (chooses the AI tab view)</td></tr>
+            <tr><td class="mono">isAttentionItemActiveAtTime</td><td>Whether an item was open at a scrubbed time.</td><td>Attention, Investigate</td></tr>
+            <tr><td class="mono">getPropertyVisibilityForType</td><td>Which properties show for a type or asset, after customizations.</td><td>Details grids, AssetCard</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="detectors">
+      <h2>Detectors &amp; explanations</h2>
+      <p>The detector path is what turns an attention item from "the AI says so" into something an operator can check: which signals were compared, against what, what else was ruled out, and how sure the system is. It's optional per pack and entirely offline; the app only ever reads the JSON it produces.</p>
+
+      <h3>The shared toolkit</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th class="num">Lines</th><th>Owns</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">detectors/pack.py</td><td class="num">168</td><td><code>Pack.load(repo, model)</code>: read-only access to the 8 files (series, children by type, units). The only way a detector sees data.</td></tr>
+            <tr><td class="mono">detectors/blocks.py</td><td class="num">223</td><td>Small explainable signal steps: running masks, smoothing, expected-vs-actual residuals, runs above a limit. Each one fits in one operator sentence.</td></tr>
+            <tr><td class="mono">detectors/build.py</td><td class="num">307</td><td>The <code>Detector</code> base class (thresholds live in its <code>definition</code>, so the engineer view and the code can't drift), explanation builders, and <code>run_pack()</code>.</td></tr>
+            <tr><td class="mono">detectors/preview.py</td><td class="num">42</td><td>Renders a pack's <code>explanations.json</code> into one standalone HTML page for content review.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Per pack</h3>
+      <ul class="tight">
+        <li><code>explain.py</code> defines one <code>Detector</code> subclass per failure mode (wind: <code>HsBearingDamage</code>, <code>FeederTrip</code>, <code>BladeIcing</code>…), runs them all through <code>run_pack()</code> on <strong>every</strong> asset they apply to, and writes <code>explanations.json</code>. It reports detections with no attention item, and exits 1 if an item goes unexplained.</li>
+        <li><code>robustness.py</code> reruns <code>generate.py</code> with 10 other seeds into a temp folder and checks every scenario is still found, and nothing extra fires. A detector that only works on the committed data has learned the noise, not the failure.</li>
+      </ul>
+
+      <h3>In the app</h3>
+      <p><code>InvestigatePanel</code> asks <code>getAttentionItemExplanation(item)</code>. With an explanation, the AI tab is <code>ExplanationView</code> (what we see → why we think so → reference examples → ruled out → confidence → what to do), drawn by <code>ExplanationChart</code>. Without one, it's <code>AiInterpretationView</code>. Both share <code>InvestigateStatCards</code>.</p>
+      <div class="notes">
+        <div class="note">
+          <h4>The honesty rule</h4>
+          <p>Detectors never read <code>generate.py</code>'s scenario constants. If a detector fires, it found the problem in the same data the operator sees, not because it was told where to look.</p>
+          <p class="where">spec §14.1 · detectors/pack.py</p>
+        </div>
+        <div class="note">
+          <h4>Coverage today</h4>
+          <p>Wind 9, ccgt 11 and pipeline 11 detectors, one per attention item, spanning archetypes 03–14. Pharma, grid and the three converted packs use the plain AI tab.</p>
+          <p class="where">public/data/{wind,ccgt,pipeline}/explanations.json</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="packs">
+      <h2>The eight packs</h2>
+      <p>Picked to cover different hierarchy shapes, so a new pack should add a shape the list doesn't have yet (spec §0).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Model</th><th>Levels (unit level <u>underlined</u>)</th><th class="num">Assets</th><th class="num">Items</th><th class="num">Size</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">refinery</td><td>refinery · <u>line</u> · station</td><td class="num">80</td><td class="num">13 / 14</td><td class="num">437 KB</td><td>converted</td></tr>
+            <tr><td class="mono">water</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">7 / 9</td><td class="num">351 KB</td><td>converted</td></tr>
+            <tr><td class="mono">wastewater</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">5 / 5</td><td class="num">330 KB</td><td>converted</td></tr>
+            <tr><td class="mono">wind</td><td>site · circuit · <u>turbine</u> · subsystem · component</td><td class="num">328</td><td class="num">9 / 12</td><td class="num">622 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
+            <tr><td class="mono">ccgt</td><td>site · area · <u>unit</u> · system · equipment · component</td><td class="num">129</td><td class="num">11 / 14</td><td class="num">422 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
+            <tr><td class="mono">pipeline</td><td>system · district · <u>facility</u> · equipment · component</td><td class="num">111</td><td class="num">11 / 14</td><td class="num">439 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
+            <tr><td class="mono">pharma</td><td>site · area · process_cell · <u>unit</u> · equipment_module · control_module</td><td class="num">96</td><td class="num">11 / 15</td><td class="num">200 KB</td><td>generate.py</td></tr>
+            <tr><td class="mono">grid</td><td>network · district · <u>substation</u> · bay · device · component</td><td class="num">386</td><td class="num">12 / 13</td><td class="num">781 KB</td><td>generate.py</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--muted)">Items = attention / work. Size includes <code>explanations.json</code> where present. "Converted" packs were produced once by <code>convert_legacy_to_generic.py</code> and have no generator.</p>
+    </section>
+
+    <section id="rules">
+      <h2>Rules the area leans on</h2>
+      <div class="notes">
+        <div class="note">
+          <h4>Ids are forever</h4>
+          <p>Saved Configurator settings are keyed by asset id or type id (<code>TYPE_&lt;level&gt;_&lt;assetType&gt;</code>). Regenerating or converting a pack must keep ids, types and levels stable, or customizations silently stop applying.</p>
+          <p class="where">assetTypeIdOf · src/*Storage.js</p>
+        </div>
+        <div class="note">
+          <h4>Reset before every load</h4>
+          <p><code>activateLoadedModel</code> clears all 23 variables first, so a role the new model doesn't fill (say, <code>explanations</code>) can't keep the previous model's data.</p>
+          <p class="where">resetModelData()</p>
+        </div>
+        <div class="note">
+          <h4>Data only, no code</h4>
+          <p>Adding a model is a folder plus one <code>models.json</code> entry. If a new pack seems to need a code change, that's a sign the spec or the query layer is missing something general.</p>
+          <p class="where">INDUSTRY_PACK_SPEC.md §9</p>
+        </div>
+        <div class="note">
+          <h4>Deterministic, standard library</h4>
+          <p>Every script uses a fixed seed and only the Python standard library, so anyone can rerun it and get byte-identical files.</p>
+          <p class="where">generate.py · explain.py · tools/</p>
+        </div>
+        <div class="note">
+          <h4>Evidence sits on the series</h4>
+          <p>An attention item's evidence points fall on the pack's sample grid, and its primary series passes through their values, so the Trend chart and the evidence table always agree.</p>
+          <p class="where">spec §4 · validator</p>
+        </div>
+        <div class="note">
+          <h4>Budgets are soft limits with reasons</h4>
+          <p>≤ 400 assets (diagram layout time), ≤ 24 units (Now strip width), 2–8 properties per type, ≤ 5 MB per pack. The validator warns; SCENARIOS.md explains any it keeps.</p>
+          <p class="where">spec §7</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="add">
+      <h2>Adding a pack</h2>
+      <p>The full checklist is spec §1 and §13. In short:</p>
+<pre class="tree"><span class="c"># 1  research and scenarios</span>
+ModelAndData/industries/&lt;model&gt;/RESEARCH.md, SCENARIOS.md
+<span class="c"># 2  generate the 8 files, register, validate</span>
+python3 ModelAndData/industries/&lt;model&gt;/generate.py
+<span class="c">#    add the entry to public/data/models.json</span>
+python3 ModelAndData/tools/validate_industry_pack.py &lt;model&gt;
+<span class="c"># 3  detectors (optional, recommended)</span>
+python3 ModelAndData/industries/&lt;model&gt;/explain.py
+python3 ModelAndData/industries/&lt;model&gt;/robustness.py
+python3 ModelAndData/tools/detectors/preview.py &lt;model&gt;
+<span class="c">#    add "files": { "explanations": "explanations.json" } to the entry</span>
+<span class="c"># 4  check every pack still passes, then click through in the browser</span>
+python3 ModelAndData/tools/validate_industry_pack.py --all</pre>
+    </section>
+
+    <section id="open">
+      <h2>Still open</h2>
+      <ul class="tight">
+        <li><strong>Designer on the loaded model.</strong> The Screens Model tab and Wizard still read <code>src/assetData.js</code> (same ids as <code>refinery/assets.json</code>). Moving them onto <code>modelData.js</code> would retire that file.</li>
+        <li><strong>Detectors for pharma and grid</strong>, and possibly for the converted packs.</li>
+        <li><strong>Derivations in the UI.</strong> Rollup rules are loaded and validated but not yet shown (for example, "OEE = mean of the lines").</li>
+        <li><strong>Converted-pack warnings.</strong> Refinery types with more than 8 properties; scenario-coverage gaps in water and wastewater; SIT09/SIT11 evidence timing versus their narratives.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+</body>
+</html>
