@@ -5,7 +5,7 @@
 import { ChatTabIcon, AiTabIcon, DetailsTabIcon } from '../icons';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Right rail — mirrors NavRail's look, but always icon-only (no expand/
+// Right rail — mirrors the left rail's look (shell/AreaRail), but always icon-only (no expand/
 // collapse — per request, this one never needs a label view) and switches
 // the right panel between Chat and AI. Room to add more icons later for
 // other right-panel content, same pattern as the left rail's items array.
@@ -28,19 +28,19 @@ const RIGHT_RAIL_ITEMS_CONFIGURATOR = [
 export function RightRail({ mode, hidden, onIconClick, hasUnread, operatorPersona }) {
   const items = operatorPersona === 'configurator' ? RIGHT_RAIL_ITEMS_CONFIGURATOR : RIGHT_RAIL_ITEMS;
   return (
-    <div className="op-nav-rail op-nav-rail--right">
+    <div className="app-rail app-rail--right">
       {items.map(item => {
         const isActive = mode === item.id && !hidden;
         return (
           <button
             key={item.id}
-            className={`op-nav-rail-item${isActive ? ' op-nav-rail-item--active' : ''}`}
+            className={`app-rail-item${isActive ? ' app-rail-item--active' : ''}`}
             onClick={() => onIconClick(item.id)}
             title={mode === item.id ? (hidden ? `Show ${item.label}` : `Hide ${item.label}`) : item.label}
           >
-            <span className="op-nav-rail-icon">
+            <span className="app-rail-icon">
               <item.Icon />
-              {item.id === 'chat' && hasUnread && <span className="op-nav-rail-dot" />}
+              {item.id === 'chat' && hasUnread && <span className="app-rail-dot" />}
             </span>
           </button>
         );

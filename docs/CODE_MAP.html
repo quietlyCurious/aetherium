@@ -269,7 +269,7 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ dd89e25 + designer steps 3–4a</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ e6e5489 + designer step 4b</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the Operator and Configurator interfaces are put together today: which file owns what, how a setting travels from a click to a box on screen, and the handful of patterns the whole thing leans on.</p>
       <p class="lede" style="font-size:15px">Refactor status: <span class="chip now">refactor complete</span> the Operator/Configurator interface is 47 modules and 7 stylesheets under <code>src/operator/</code>, down from one 9,074-line file and one 3,191-line stylesheet. Class names now match the components they style.</p>
@@ -361,7 +361,7 @@
             <rect x="870" y="30" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
             <text x="880" y="47">NowStrip</text>
             <rect x="870" y="62" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
-            <text x="880" y="79">NavRail</text>
+            <text x="880" y="79">AreaRail</text>
             <rect x="870" y="94" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
             <text x="880" y="111">left list</text>
             <rect x="870" y="126" width="100" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -398,11 +398,11 @@
 
     <section id="screen">
       <h2>Screen → component</h2>
-      <p>The workspace is a set of slots. The left rail (<code>NavRail</code>) sets a <code>railMode</code>, and that picks what goes in the left list and the center. The right rail picks what the right panel shows. The persona decides which rail items exist: Configurator sees only <em>Visualization</em> (<code>railMode 'now'</code>); Operator sees Attention, Work and Assets.</p>
+      <p>The workspace is a set of slots. The left rail (<code>shell/AreaRail</code>) picks what goes in the left list and the center. The right rail picks what the right panel shows. In the Operator Experience the rail is the workspace's own: Attention, Work and Assets, which set <code>railMode</code>. In the Configuration Experience the rail is App's, drawn outside the workspace: <em>Visualization</em> (this workspace, <code>railMode 'now'</code>), then Screens, Widgets and Theme, then Data Sources, Entities, Queries and Scripts.</p>
 
       <figure>
         <div class="fig-scroll">
-        <svg viewBox="0 0 980 380" role="img" aria-label="Wireframe of the workspace: title bar from App.js across the top, NowStrip below it, then left NavRail, left list, center detail, right SidePanel and RightRail, each labeled with the components that fill it in the Configurator.">
+        <svg viewBox="0 0 980 380" role="img" aria-label="Wireframe of the workspace: title bar from App.js across the top, NowStrip below it, then left AreaRail, left list, center detail, right SidePanel and RightRail, each labeled with the components that fill it in the Configurator.">
           <!-- frame -->
           <rect x="10" y="10" width="960" height="360" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
           <!-- title bar -->
@@ -414,7 +414,7 @@
           <text x="24" y="70" font-size="12" fill="currentColor"><tspan font-weight="600">NowStrip</tspan><tspan opacity="0.7"> · IssueMapOverlay (Operator: lines/units at a glance)</tspan></text>
           <!-- nav rail -->
           <rect x="10" y="82" width="46" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
-          <text x="33" y="226" font-size="12" font-weight="600" fill="currentColor" text-anchor="middle" transform="rotate(-90 33 226)">NavRail</text>
+          <text x="33" y="226" font-size="12" font-weight="600" fill="currentColor" text-anchor="middle" transform="rotate(-90 33 226)">AreaRail</text>
           <!-- left list -->
           <rect x="56" y="82" width="230" height="288" fill="none" stroke="currentColor" stroke-width="1"/>
           <text x="70" y="106" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">LEFT LIST</text>
@@ -794,7 +794,6 @@
             <tr><td class="mono">operatorViews/WorkListPanel.jsx</td><td class="num">123</td><td>The Work list and its cards</td></tr>
             <tr><td class="mono">operatorViews/TaskDetailPanel.jsx</td><td class="num">101</td><td>One work item's detail panel</td></tr>
             <tr><td class="mono">operatorViews/OperatorAssetsView.jsx</td><td class="num">136</td><td>Operator &rsaquo; Assets: the asset tree and the read-only asset detail</td></tr>
-            <tr><td class="mono">chrome/NavRail.jsx</td><td class="num">53</td><td>The left rail: the persona's work areas</td></tr>
             <tr><td class="mono">chrome/RightRail.jsx</td><td class="num">50</td><td>The right rail: Details / Chat / AI</td></tr>
             <tr><td class="mono">chrome/SidePanel.jsx</td><td class="num">96</td><td>The right panel's container</td></tr>
             <tr><td class="mono">chrome/ContactsPanel.jsx</td><td class="num">121</td><td>The Chat panel and its seed data</td></tr>
@@ -869,7 +868,8 @@
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
             <tr><td class="mono">App.js</td><td>Title bar, persona/model switchers, Save button, and the switch between app areas. Also the data definitions the designer areas share, and it calls <span class="mono">useScreenEditor</span> so the Screens canvas survives switching areas.</td></tr>
-            <tr><td class="mono">shell/appAreas.js</td><td>The list of areas: label, menu group, and what Save says in each. Every area gives App the same handle, <span class="mono">save()</span> and <span class="mono">confirmLeave()</span>.</td></tr>
+            <tr><td class="mono">shell/appAreas.js</td><td>The two workspaces and their areas: label, rail group, icon, and what Save says in each. Every area gives App the same handle, <span class="mono">save()</span> and <span class="mono">confirmLeave()</span>.</td></tr>
+            <tr><td class="mono">shell/AreaRail.jsx · appRail.css</td><td>The left rail, in groups (both workspaces), and the rail styles shared with the Operator's right rail.</td></tr>
             <tr><td class="mono">operator/styles/*.css</td><td>Seven stylesheets, one per area of <span class="mono">src/operator/</span>. Every rule for a given class lives in exactly one of them.</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td>Reads <span class="mono">public/data/models.json</span>; the list of models and which files each one loads.</td></tr>
             <tr><td class="mono">assetData.js</td><td>The refinery model's static hierarchy (the other models load theirs as JSON).</td></tr>
@@ -922,7 +922,7 @@
             <tr><td>2</td><td>The read-only screen renderer: <span class="mono">ScreenView</span>, <span class="mono">usePageQueryResults</span>, <span class="mono">widgetBindings</span></td><td><span class="chip now">done</span></td></tr>
             <tr><td>3</td><td>The Screens editor out of <span class="mono">App.js</span>: <span class="mono">useScreenEditor</span>, <span class="mono">screenEdits</span>, <span class="mono">ScreensWorkspace</span> and its panels</td><td><span class="chip now">done</span></td></tr>
             <tr><td>4a</td><td>One list of areas (<span class="mono">shell/appAreas.js</span>) behind the menu and Save; one area handle (<span class="mono">save</span> / <span class="mono">confirmLeave</span>); Widgets and Scripts as workspaces</td><td><span class="chip now">done</span></td></tr>
-            <tr><td>4b</td><td>The area rail itself</td><td><span class="chip flag">next</span></td></tr>
+            <tr><td>4b</td><td>The area rail: two workspaces (Operator, Configuration); the Configuration rail holds Visualization plus the Design and Data areas (<span class="mono">shell/AreaRail</span>)</td><td><span class="chip now">done</span></td></tr>
           </tbody>
         </table>
       </div>

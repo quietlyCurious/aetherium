@@ -4,11 +4,12 @@
 //
 // Each area draws itself — OperatorWorkspace, ScreensWorkspace, the
 // definition workspaces (Data Sources, Entities, Queries), ThemeWorkspace,
-// WidgetsWorkspace, ScriptsWorkspace. The list of areas — names, menu
-// groups, what Save says — is shell/appAreas.js. What stays here is what
-// spans areas: navigation and its unsaved-changes check, the title-bar
-// Save for whichever area is open, and the data definitions (data sources,
-// entities, queries) more than one area reads.
+// WidgetsWorkspace, ScriptsWorkspace. The workspaces and their areas —
+// names, rail groups, what Save says — are shell/appAreas.js. What stays
+// here is what spans areas: the title bar (workspace menu, model switcher,
+// Launch, Save), the Configuration Experience's rail, navigation and its
+// unsaved-changes check, and the data definitions (data sources, entities,
+// queries) more than one area reads.
 //
 // The Screens editor's state comes from useScreenEditor, called here rather
 // than inside ScreensWorkspace so the open page and its unsaved edits
@@ -52,7 +53,9 @@ import { ScreensWorkspace } from './designer/screens/ScreensWorkspace';
 import { useScreenEditor } from './designer/screens/useScreenEditor';
 import { WidgetsWorkspace } from './designer/WidgetsWorkspace';
 import { ScriptsWorkspace } from './designer/ScriptsWorkspace';
-import { APP_AREAS, AREA_GROUPS, findArea } from './shell/appAreas';
+import { APP_AREAS, WORKSPACES, findArea, railGroupsFor } from './shell/appAreas';
+import { AreaRail } from './shell/AreaRail';
+import './shell/appRail.css';
 import { generateDataId, DEFAULT_DATA_SOURCE, DEFAULT_QUERY } from './dataModel';
 import { useHasUnsavedChanges } from './unsavedChangesStore';
 
@@ -88,16 +91,20 @@ function AetheriumEditor() {
   // areaHandles below):
   //  - Data Sources, Entities, Queries: confirm; leaving drops the unsaved
   //    edits, since their editor unmounts.
-  //  - Configurator: its Save/Discard dialog. Always goes ahead.
+  //  - Visualization: the Configurator's Save/Discard dialog. Always goes
+  //    ahead.
   //  - Screens: nothing to ask. The canvas lives here in App, so unsaved
   //    edits are still there when you come back (with the Save button's
   //    amber dot). Opening or creating another screen still asks, since
   //    that does replace the canvas.
-  // Operator ↔ Configurator is the same workspace with a different
-  // persona; the open Configurator editor still unmounts, so it gets the
-  // same Save/Discard prompt.
+  // Operator ↔ Visualization is the same workspace component with a
+  // different persona; the open Configurator editor still unmounts, so it
+  // gets the same Save/Discard prompt.
+  // Every Configuration Experience area runs with the 'configurator'
+  // persona, so the title and rail follow wherever you are in it.
   const navigateTo = async (area) => {
-    const alreadyThere = area.view === currentView && (!area.persona || area.persona === operatorPersona);
+    const persona = area.persona ?? 'configurator';
+    const alreadyThere = area.view === currentView && persona === operatorPersona;
     if (!alreadyThere) {
       if (area.view !== currentView) {
         if (!(await confirmLeaveCurrentArea())) return;
@@ -105,9 +112,30 @@ function AetheriumEditor() {
         await operatorWorkspaceRef.current?.resolveUnsavedChanges?.();
       }
       setCurrentView(area.view);
-      if (area.persona) setOperatorPersona(area.persona);
+      setOperatorPersona(persona);
     }
+    if (area.workspace === 'configurator') setLastConfigurationAreaId(area.id);
     setMenuOpen(false);
+  };
+
+  // The title-bar menu picks a workspace; the Configuration Experience
+  // reopens on the area you last used in it.
+  const openWorkspace = (workspaceId) => {
+    const area = workspaceId === 'operator'
+      ? APP_AREAS.find(a => a.id === 'operator')
+      : APP_AREAS.find(a => a.id === lastConfigurationAreaId);
+    navigateTo(area);
+  };
+
+  // A rail click. Clicking the area that's showing again hides or shows
+  // its list panel, where the area has one to hide (Visualization).
+  const selectRailArea = (areaId) => {
+    const area = APP_AREAS.find(a => a.id === areaId);
+    if (area === currentArea) {
+      if (area.collapsesList) operatorWorkspaceRef.current?.toggleListPanel?.();
+      return;
+    }
+    navigateTo(area);
   };
 
   const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
@@ -122,6 +150,10 @@ function AetheriumEditor() {
   const [initialDeepLink, setInitialDeepLink] = useState(() => parseDeepLinkFromPathname(window.location.pathname));
   const [operatorPersona, setOperatorPersona] = useState(() => initialDeepLink?.persona || loadOperatorNavigation()?.operatorPersona || 'operator'); // 'operator' | 'configurator' — both render the same workspace, just with different rail items visible
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lastConfigurationAreaId, setLastConfigurationAreaId] = useState('visualization');
+  // Whether Visualization's list panel is hidden (reported by
+  // OperatorWorkspace), so its rail item can show that.
+  const [visualizationListHidden, setVisualizationListHidden] = useState(false);
   // The model switcher's list comes from public/data/models.json (via
   // modelRegistry.js) rather than being hardcoded here, so adding an
   // industry pack needs no code change. Empty until the fetch resolves —
@@ -181,6 +213,7 @@ function AetheriumEditor() {
   };
   const confirmLeaveCurrentArea = async () => (await areaHandles[currentView]?.current?.confirmLeave?.()) ?? true;
   const currentArea = findArea(currentView, operatorPersona);
+  const currentWorkspace = WORKSPACES.find(w => w.id === currentArea?.workspace) ?? WORKSPACES[0];
 
   // ── Phase 2 Data Layer Handlers ───────────────────────────────────────────
 
@@ -296,34 +329,31 @@ function AetheriumEditor() {
             onClick={() => setMenuOpen(o => !o)}
             style={{ cursor: 'pointer', userSelect: 'none' }}
           >
-            {currentView === 'operator'
-              ? `Next Gen | ${operatorPersona === 'configurator' ? 'Configuration' : 'Operator'} Experience ▾`
-              : 'Aetherium ▾'}
+            {`Next Gen | ${currentWorkspace.label} ▾`}
           </span>
           {menuOpen && (
             <div className="app-titlebar-dropdown">
-              {AREA_GROUPS.map((group, i) => (
-                <React.Fragment key={group}>
-                  {i > 0 && <div className="app-titlebar-dropdown-divider" />}
-                  {APP_AREAS.filter(a => a.group === group).map(area => (
-                    <div
-                      key={area.id}
-                      className={`app-titlebar-dropdown-item${area === currentArea ? ' active' : ''}`}
-                      onClick={() => navigateTo(area)}
-                    >
-                      {area.label}
-                    </div>
-                  ))}
-                </React.Fragment>
+              {WORKSPACES.map(workspace => (
+                <div
+                  key={workspace.id}
+                  className={`app-titlebar-dropdown-item${workspace === currentWorkspace ? ' active' : ''}`}
+                  onClick={() => openWorkspace(workspace.id)}
+                >
+                  {workspace.label}
+                </div>
               ))}
+              <div className="app-titlebar-dropdown-note">Areas are on the left rail.</div>
             </div>
           )}
         </div>
-        {/* The industry model only drives the Operator/Configurator
-            interfaces, so the switcher is hidden in the page-builder areas. */}
-        {currentView === 'operator' && (
+        {/* The industry model drives the Operator and Visualization. The
+            other areas don't use it yet, so there it's shown dimmed and
+            can't be opened. */}
+        {(() => {
+          const modelApplies = !!currentArea?.usesModel;
+          return (
           <div
-            className="app-titlebar-model-switcher"
+            className={`app-titlebar-model-switcher${modelApplies ? '' : ' app-titlebar-model-switcher--inactive'}`}
             ref={modelMenuRef => {
               if (modelMenuRef) {
                 modelMenuRef.onmouseleave = () => setModelMenuOpen(false);
@@ -332,15 +362,15 @@ function AetheriumEditor() {
           >
             <div
               className="app-titlebar-model-trigger"
-              onClick={() => setModelMenuOpen(o => !o)}
-              title="Switch model"
+              onClick={() => { if (modelApplies) setModelMenuOpen(o => !o); }}
+              title={modelApplies ? 'Switch model' : 'The model isn\'t used in this area yet'}
             >
               <span className="app-titlebar-title app-titlebar-model-pipe">|</span>
               <span className="app-titlebar-title app-titlebar-model-label">
                 {availableModels.find(m => m.id === selectedModel)?.label ?? selectedModel} ▾
               </span>
             </div>
-            {modelMenuOpen && (
+            {modelMenuOpen && modelApplies && (
               <div className="app-titlebar-dropdown">
                 {availableModels.map(m => (
                   <div
@@ -358,7 +388,8 @@ function AetheriumEditor() {
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
         <div className="app-titlebar-right-cluster">
         {currentArea?.showsLaunch && (
           <button
@@ -437,6 +468,21 @@ function AetheriumEditor() {
 
       {/* Main content area */}
       <div className="app-body">
+        {/* The Configuration Experience's rail lives here, outside its
+            areas, so it stays put while you move between them. The
+            Operator Experience's rail is drawn inside OperatorWorkspace.
+            The row is always here, so switching workspace doesn't remount
+            the area beside it. */}
+        <div className="app-area-row">
+        {currentWorkspace.id === 'configurator' && (
+          <AreaRail
+            groups={railGroupsFor('configurator')}
+            activeId={currentArea?.id}
+            hidden={!!currentArea?.collapsesList && visualizationListHidden}
+            onSelect={selectRailArea}
+          />
+        )}
+        <div className="app-area-content">
         {currentView === 'widgets' ? (
           <WidgetsWorkspace />
 
@@ -480,6 +526,7 @@ function AetheriumEditor() {
             selectedModel={selectedModel}
             operatorPersona={operatorPersona}
             onSaveAvailabilityChange={setOperatorSaveAvailable}
+            onListPanelHiddenChange={setVisualizationListHidden}
             initialDeepLink={initialDeepLink}
             onNavigate={({ id, tab }) => {
               const pathname = buildDeepLinkPathname({ persona: operatorPersona, id, tab });
@@ -495,6 +542,8 @@ function AetheriumEditor() {
         ) : (
           <ScreensWorkspace editor={screens} queries={queries} />
         )}
+        </div>
+        </div>
       </div>
     </div>
   );

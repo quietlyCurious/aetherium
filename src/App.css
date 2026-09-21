@@ -1306,3 +1306,25 @@
   background: #f5b041;
   vertical-align: 1px;
 }
+
+/* The model switcher in areas that don't use the model yet (Screens
+   through Scripts): shown, so the Configuration Experience's context
+   stays visible, but dimmed and not openable. */
+.app-titlebar-model-switcher--inactive {
+  opacity: 0.35;
+}
+
+.app-titlebar-model-switcher--inactive .app-titlebar-model-trigger,
+.app-titlebar-model-switcher--inactive .app-titlebar-model-trigger:hover {
+  cursor: default;
+  background: none;
+}
+
+/* A line of help at the foot of a title-bar menu. */
+.app-titlebar-dropdown-note {
+  padding: 8px 16px;
+  border-top: 1px solid #444;
+  color: #999;
+  font-size: 11px;
+  cursor: default;
+}

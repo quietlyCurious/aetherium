@@ -67,10 +67,15 @@ model's data is currently loaded, not from a specific model by name.
 
 ## The two personas, and what each one is for
 
-`OperatorWorkspace.jsx` renders differently depending on
-`operatorPersona`:
+The app has two workspaces, picked from the title-bar menu: the
+**Operator Experience** and the **Configuration Experience**. The
+Configuration Experience's left rail holds Visualization (below), then the
+page-builder areas (Design: Screens, Widgets, Theme) and the data
+definitions (Data: Data Sources, Entities, Queries, Scripts) — see "The
+designer half". `OperatorWorkspace.jsx` renders both the Operator
+Experience and Visualization, differently depending on `operatorPersona`:
 
-- **`configurator`** — where display preferences get *set*. Left panel:
+- **`configurator`** (Visualization) — where display preferences get *set*. Left panel:
   a "Now" work area with **Types** and **Assets** tabs (a type is an
   abstract equipment category like "Bar Screen"; an asset is one real
   instance of it, like "Confluence T01 Bar Screen"). Selecting either
@@ -155,9 +160,17 @@ Each area supplies its nouns, its list columns and its editor. An editor
 exposes `isDirty()` and `save()` on its ref and reports dirty changes;
 `useDefinitionDraft` does both halves of that for a simple form editor.
 
-The areas themselves are listed once, in `src/shell/appAreas.js`: label,
-menu group, and what the title-bar Save says there. The menu and the Save
-button read it. Every area gives App the same handle — `save()` and
+The workspaces and their areas are listed once, in
+`src/shell/appAreas.js`: label, rail group, icon, and what the title-bar
+Save says there. The title-bar menu lists the workspaces; the left rail
+(`src/shell/AreaRail.jsx`) lists the open workspace's areas. The
+Configuration Experience's rail is drawn by App, outside its areas, so it
+stays put while you move between them; the Operator's is drawn inside
+OperatorWorkspace, which owns its counts. The Configuration Experience
+reopens on the area you last used in it. Clicking Visualization again
+hides its list panel (OperatorWorkspace's `toggleListPanel`). The model
+switcher is dimmed outside Visualization and the Operator, and Launch only
+shows in Screens. Every area gives App the same handle — `save()` and
 `confirmLeave()` (true, or a promise of true, to go ahead) — and
 navigating asks only the area being left: the definition areas confirm
 (leaving drops their unsaved edits), the Configurator shows its
@@ -252,8 +265,9 @@ state vs. drawing:
   reference examples, what was ruled out, confidence — see below), and
   `AiInterpretationView` otherwise. `explanation/ExplanationChart.jsx` is
   the one SVG renderer for every chart spec in an explanation.
-- `src/operator/chrome/` — the two rails, the side panel, Contacts and
-  the AI chat panel.
+- `src/operator/chrome/` — the right rail, the side panel, Contacts and
+  the AI chat panel. (The left rail is `src/shell/AreaRail.jsx`; both
+  rails are styled by `src/shell/appRail.css`, class prefix `app-rail`.)
 - `src/operator/icons.jsx` — every inline-SVG icon; `badges.jsx` — the
   `AiPill` marker.
 

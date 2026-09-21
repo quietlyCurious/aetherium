@@ -46,7 +46,8 @@ import { displayOrderStore, EMPTY_DISPLAY_ORDERS } from './settings/displayOrder
 import { PROPERTY_VIEW_MODE_DEFAULT, KPI_VIEW_MODE_ITEMS } from './settings/propertyDisplay';
 import '@xyflow/react/dist/style.css';
 import { CONTACTS_SEED } from './chrome/ContactsPanel';
-import { NavRail } from './chrome/NavRail';
+import { AreaRail } from '../shell/AreaRail';
+import { AttentionRailIcon, WorkTabIcon, AssetsRailIcon } from './icons';
 import { RightRail } from './chrome/RightRail';
 import { SidePanel } from './chrome/SidePanel';
 import { NowAssetDetail } from './configurator/NowAssetDetail';
@@ -60,9 +61,8 @@ import { TaskDetailPanel } from './operatorViews/TaskDetailPanel';
 import { WorkListPanel } from './operatorViews/WorkListPanel';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Nav rail — Gmail-style collapsible rail (icon+label+count expanded,
-// icon+dot collapsed), sitting as its own element alongside the existing
-// Attention panel and Work/Chat/AI tabs — not a replacement for either.
+// The Operator's rail (shell/AreaRail): Attention, Work and Assets, with a
+// count of what's new on the first two (a dot when collapsed).
 // "New" is derived from data already on hand rather than separate state:
 //   - Attention: items that surfaced within the last 15 minutes
 //   - Work: not-yet-done items the AI created (source: 'ai')
@@ -73,7 +73,7 @@ import { WorkListPanel } from './operatorViews/WorkListPanel';
 // mean anything (at 15 min, nothing in the new data would ever qualify).
 const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 
-const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }, ref) {
+const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange, onListPanelHiddenChange, initialDeepLink, onNavigate, onNavigateToConfig }, ref) {
   const [dataState, setDataState] = useState({ loaded: false, error: null, loadedModel: null });
   // Holds whatever "save the current thing" function the deepest-nested
   // relevant component last registered (currently: NowTypeMainPreview's type
@@ -84,8 +84,14 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   // changes (Save/Discard prompt) before App.js navigates away — switching
   // model, persona or app area all unmount the editor holding them.
   const unsavedGuardRef = useRef(null);
+  // Filled in by OperatorWorkspaceInner: hides or shows the list panel.
+  // In the Configuration Experience the rail is App's, not this
+  // workspace's, so clicking Visualization again reaches the panel
+  // through here.
+  const listPanelToggleRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
+    toggleListPanel: () => listPanelToggleRef.current?.(),
     save: () => activeSaveHandlerRef.current?.(),
     resolveUnsavedChanges: () => unsavedGuardRef.current?.() ?? Promise.resolve(),
     // The handle every area gives App (see shell/appAreas.js). Leaving
@@ -154,6 +160,8 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
   return (
     <OperatorWorkspaceInner
       unsavedGuardRef={unsavedGuardRef}
+      listPanelToggleRef={listPanelToggleRef}
+      onListPanelHiddenChange={onListPanelHiddenChange}
       key={`${selectedModel}-${operatorPersona}`}
       operatorPersona={operatorPersona}
       activeSaveHandlerRef={activeSaveHandlerRef}
@@ -173,7 +181,7 @@ export default OperatorWorkspace;
 // all sequence, so one mapping serves both.
 const DEEP_LINK_TAB_NAMES = ['properties', 'related', 'all'];
 
-function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsavedGuardRef, onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }) {
+function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsavedGuardRef, listPanelToggleRef, onListPanelHiddenChange, onSaveAvailabilityChange, initialDeepLink, onNavigate, onNavigateToConfig }) {
   // A deep link (checked against the current persona) seeds this fresh
   // mount's initial selection. It's read once here, on mount, but it is
   // NOT necessarily fixed for the app's whole lifetime the way a URL-only
@@ -995,6 +1003,10 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
       setLeftPanelHidden(false);
     }
   };
+  // App's rail (Configuration Experience) toggles the list through the
+  // workspace's handle, and shows its Visualization item as hidden too.
+  if (listPanelToggleRef) listPanelToggleRef.current = () => setLeftPanelHidden(h => !h);
+  useEffect(() => { onListPanelHiddenChange?.(leftPanelHidden); }, [leftPanelHidden, onListPanelHiddenChange]);
 
   const handleRightIconClick = (id) => {
     if (rightPanelMode === id && !rightPanelHidden) {
@@ -1132,14 +1144,20 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
       )}
 
       <div className="op-main-row">
-        <NavRail
-          mode={railMode}
-          hidden={leftPanelHidden}
-          onIconClick={handleLeftIconClick}
-          attentionCount={newAttentionItems.length}
-          workCount={newWorkItems.length}
-          operatorPersona={operatorPersona}
-        />
+        {/* The Configuration Experience's rail is App's (it also lists the
+            page-builder areas), so only the Operator draws one here. */}
+        {operatorPersona !== 'configurator' && (
+          <AreaRail
+            groups={[{ id: 'operate', items: [
+              { id: 'attention', label: 'Attention', Icon: AttentionRailIcon, count: newAttentionItems.length, collapsesList: true },
+              { id: 'work', label: 'Work', Icon: WorkTabIcon, count: newWorkItems.length, collapsesList: true },
+              { id: 'assets', label: 'Assets', Icon: AssetsRailIcon, collapsesList: true },
+            ] }]}
+            activeId={railMode}
+            hidden={leftPanelHidden}
+            onSelect={handleLeftIconClick}
+          />
+        )}
 
         <Splitter orientation="horizontal" style={{ flex: 1, minHeight: 0 }} onResize={handleOuterSplitterResize}>
           {!leftPanelHidden && (
