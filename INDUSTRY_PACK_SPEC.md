@@ -49,7 +49,7 @@ top of `RESEARCH.md`, and carry on.
 | 6 | A validator run with zero errors (§8) | `ModelAndData/tools/validate_industry_pack.py <model>` |
 | 7 | Browser check: switch to the model, then click through Configurator → Types/Assets and Operator → Attention/Assets/Investigate, with screenshots | Claude's sandbox (per `PROJECT_CONTEXT.md`) |
 | 8 | Detectors, one per failure mode behind an attention item (§14) | `ModelAndData/industries/<model>/explain.py` |
-| 9 | Explanations: the "why" behind each attention item (§14) | `public/data/<model>/explanations.json` |
+| 9 | Explanations: the "why" behind each attention item (§14), listed in the pack's `models.json` `"files"` block (§14.7) | `public/data/<model>/explanations.json` |
 | 10 | Robustness run: detectors on regenerated data (§14.6) | `ModelAndData/industries/<model>/robustness.py` |
 
 `<model>` is a short lowercase slug with no spaces (for example `wind`).
@@ -728,13 +728,9 @@ Still open:
   to keep them refinery-only (§10).
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
-- `explanations.json` (§14) exists for wind, ccgt and pipeline (not yet
-  pharma or grid), and the app doesn't read
-  it yet: the Investigate panel's AI tab still shows the plain
-  interpretation. Wiring it in means an optional `explanations` role in
-  `modelRegistry.js` (a missing file is fine), a loader variable, and an
-  `ExplanationView` that replaces the AI tab when the selected item has an
-  explanation.
+- `explanations.json` (§14) exists for wind, ccgt and pipeline, not yet
+  pharma or grid. Those two keep the plain AI tab until they get
+  detectors.
 
 ---
 
@@ -928,7 +924,21 @@ warns when the computed level differs from the attention item's
   every required check matches, series lengths fit their axis, times are
   on the grid, and work items exist.
 
-### 14.7 Limits to state plainly
+### 14.7 Registering and showing it
+
+List the file under the pack's `"files"` block in `models.json`:
+
+```json
+"files": { "explanations": "explanations.json" }
+```
+
+It's an optional role, so packs without detectors leave it out (and the
+browser never asks for a file that isn't there). The validator errors if
+the file is listed but missing, and warns if it exists but isn't listed.
+In the app, Investigate's AI tab shows `ExplanationView` for any attention
+item that has an explanation, and the plain interpretation otherwise.
+
+### 14.8 Limits to state plainly
 
 These are **reference detectors**. Their thresholds come from the research
 and were checked against simulated data, so they are a starting point to

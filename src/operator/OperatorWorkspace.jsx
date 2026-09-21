@@ -107,10 +107,18 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
         if (!model) throw new Error(`model "${selectedModel}" is not listed in /data/models.json`);
         files = getModelDataFiles(model);
         return Promise.all(
-          files.map(([, url]) =>
+          files.map(([, url, optional]) =>
             fetch(url).then(r => {
-              if (!r.ok) throw new Error(`${url} — ${r.status}`);
-              return r.json();
+              if (!r.ok) {
+                if (optional) return null;
+                throw new Error(`${url} — ${r.status}`);
+              }
+              // A dev server answers a missing file with index.html (200),
+              // so an optional file that isn't JSON counts as absent too.
+              return optional ? r.json().catch(() => null) : r.json();
+            }, err => {
+              if (optional) return null;
+              throw err;
             })
           )
         );
@@ -1046,6 +1054,12 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
     ]);
   };
 
+  // A task linked from an explanation's "What to do": open it in Work.
+  const handleOpenWorkItem = (id) => {
+    setSelectedWorkItemId(id);
+    setRailMode('work');
+  };
+
   const handleToggleWorkItem = (id) => {
     setWorkItems(prev => prev.map(w => (w.id === id ? { ...w, done: !w.done, completedAt: !w.done ? new Date() : null } : w)));
   };
@@ -1182,6 +1196,8 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
               <InvestigatePanel
                 item={selectedItem}
                 onCreateWorkItem={handleCreateWorkItem}
+                onOpenWorkItem={handleOpenWorkItem}
+                workItems={workItems}
                 evidenceView={evidenceView}
                 setEvidenceView={setEvidenceView}
                 typeList={nowTypeList}

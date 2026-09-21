@@ -46,7 +46,10 @@
         "label": "Component"
       }
     ],
-    "unitLevel": "turbine"
+    "unitLevel": "turbine",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "ccgt",
@@ -78,7 +81,10 @@
         "label": "Component"
       }
     ],
-    "unitLevel": "unit"
+    "unitLevel": "unit",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "pipeline",
@@ -106,7 +112,10 @@
         "label": "Component"
       }
     ],
-    "unitLevel": "facility"
+    "unitLevel": "facility",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "pharma",

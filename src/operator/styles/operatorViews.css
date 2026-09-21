@@ -1315,3 +1315,437 @@
   border: 1px solid #d5d5d5;
   border-radius: 3px;
 }
+
+/* ── Explanation (Investigate › AI tab, spec §14) ────────────────────────────
+   The detector-built "why" behind an attention item: stat cards pinned at
+   the top, then numbered sections that scroll inside the panel. Colours
+   follow the charts: #0078d4 is the case being explained, greys are
+   context. Every class here is used by operatorViews/explanation/. */
+
+.op-explanation {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.op-explanation-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+}
+.op-explanation-card {
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+.op-explanation-card-title {
+  display: flex;
+  align-items: center;
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+}
+.op-explanation-card-subtitle {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: #8a8f96;
+}
+.op-explanation-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: #e8f2ff;
+  color: #0055aa;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Conclusion */
+.op-explanation-conclusion-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #999;
+}
+.op-explanation-conclusion-text {
+  margin: 2px 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+.op-explanation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.op-explanation-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #ebebeb;
+  background: #fafafa;
+  color: #555;
+}
+.op-explanation-chip--detector {
+  background: #e8f2ff;
+  border-color: #cfe3fb;
+  color: #0055aa;
+}
+
+/* Charts */
+.op-explanation-chart {
+  position: relative;
+  width: 100%;
+}
+.op-explanation-chart svg {
+  display: block;
+  overflow: visible;
+}
+.op-explanation-chart-axis text {
+  fill: #8a8f96;
+  font-size: 11px;
+}
+.op-explanation-chart-grid {
+  stroke: #f0f1f3;
+}
+.op-explanation-chart-note {
+  fill: #666;
+  font-size: 11px;
+}
+.op-explanation-chart-tip {
+  position: absolute;
+  top: 6px;
+  z-index: 5;
+  pointer-events: none;
+  padding: 6px 8px;
+  background: #fff;
+  border: 1px solid #d9dce0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.op-explanation-chart-tip-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.op-explanation-chart-tip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.op-explanation-chart-tip-row em {
+  font-style: normal;
+  color: #555;
+}
+.op-explanation-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.op-explanation-swatch {
+  width: 16px;
+  height: 0;
+  border-top: 2px solid;
+}
+.op-explanation-swatch--dash { border-top-style: dashed; }
+.op-explanation-swatch--thin { border-top-width: 1.5px; }
+.op-explanation-swatch--area {
+  height: 10px;
+  border: none;
+  border-radius: 2px;
+}
+.op-explanation-swatch--band {
+  background: #eef0f3;
+  border: 1px solid #dde1e6;
+}
+.op-explanation-swatch--gap { background: #dbe9f8; }
+.op-explanation-spark {
+  display: block;
+}
+
+/* Checks */
+.op-explanation-tally {
+  display: flex;
+  gap: 16px;
+  margin: -2px 0 4px;
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) 150px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #ebebeb;
+}
+.op-explanation-check:first-of-type { border-top: none; }
+.op-explanation-check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+.op-explanation-check-icon--match { background: #2f8f5b; }
+.op-explanation-check-icon--nomatch { background: #b9bec5; }
+.op-explanation-check-icon--pending {
+  background: #fff;
+  color: #8a6414;
+  border: 1.5px dashed #c9a34a;
+}
+.op-explanation-check-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+}
+.op-explanation-kind {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a8f96;
+}
+.op-explanation-check-value {
+  font-size: 13px;
+  color: #222;
+  font-variant-numeric: tabular-nums;
+}
+.op-explanation-check-why {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #8a8f96;
+}
+
+/* Reference examples */
+.op-explanation-refs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.op-explanation-ref {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: #fcfcfd;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  min-width: 0;
+}
+.op-explanation-ref--best {
+  border-color: #9cc7ef;
+  box-shadow: 0 0 0 1px #9cc7ef inset;
+}
+.op-explanation-ref-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+}
+.op-explanation-ref-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a8f96;
+  white-space: nowrap;
+}
+.op-explanation-ref-desc {
+  min-height: 52px;
+  margin: 4px 0 6px;
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-ref-charttitle {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #8a8f96;
+}
+.op-explanation-ref-verdict {
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px dashed #ebebeb;
+  font-size: 12px;
+}
+.op-explanation-ref-verdict-text { font-weight: 600; }
+.op-explanation-ref-verdict-text--match { color: #2f8f5b; }
+.op-explanation-ref-verdict-text--partial { color: #8a6414; }
+.op-explanation-ref-verdict-text--nomatch { color: #9a3b3b; }
+.op-explanation-ref-verdict ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  color: #555;
+}
+
+/* Ruled out | confidence + action, side by side when there's room */
+.op-explanation-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.op-explanation-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.op-explanation-ruledout {
+  padding: 8px 0;
+  border-top: 1px solid #ebebeb;
+}
+.op-explanation-ruledout:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+.op-explanation-ruledout-cause {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.op-explanation-ruledout-verdict {
+  padding: 0 6px;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a8f96;
+}
+.op-explanation-ruledout-reason {
+  margin: 2px 0 4px;
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-note {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fafafa;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #8a8f96;
+}
+.op-explanation-confidence-level {
+  margin: 2px 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.op-explanation-kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 12px;
+}
+.op-explanation-kv dt { color: #8a8f96; }
+.op-explanation-kv dd { margin: 0; }
+.op-explanation-up { color: #2f8f5b !important; }
+.op-explanation-down { color: #9a3b3b !important; }
+.op-explanation-action {
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-work {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  color: #555;
+  cursor: pointer;
+}
+.op-explanation-work:hover:not(:disabled) { border-color: #9cc7ef; }
+.op-explanation-work b {
+  color: #222;
+}
+.op-explanation-work .op-ai-pill { margin-left: 6px; }
+.op-explanation-create { margin-top: 10px; }
+
+/* For engineers */
+.op-explanation-engineer summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+.op-explanation-engineer summary span {
+  margin-left: 6px;
+  font-weight: 400;
+  color: #8a8f96;
+}
+.op-explanation-pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin: 12px 0;
+}
+.op-explanation-pipeline-step {
+  display: flex;
+  align-items: stretch;
+}
+.op-explanation-pipeline-arrow {
+  align-self: center;
+  padding: 0 6px;
+  color: #aab0b8;
+}
+.op-explanation-pipeline-block {
+  width: 170px;
+  padding: 8px 10px;
+  background: #fbfcfd;
+  border: 1px solid #d6dbe1;
+  border-radius: 6px;
+  font-size: 12px;
+}
+.op-explanation-pipeline-block b {
+  display: block;
+  margin-bottom: 2px;
+}
+.op-explanation-run {
+  margin: 6px 0 10px;
+  font-size: 12px;
+  color: #555;
+}
+.op-explanation-definition {
+  max-height: 380px;
+  overflow: auto;
+  padding: 10px 12px;
+  background: #f6f8fa;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.45;
+}

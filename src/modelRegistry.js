@@ -20,7 +20,9 @@
 //              assetLevel used in assets.json
 //     unitLevel — generic only: the level whose assets get Now-strip tiles
 //     files  — optional per-role filename overrides, merged over the
-//              shape's defaults below. Only legacy packs need any.
+//              shape's defaults below. Legacy packs use it for their own
+//              names; generic packs use it to add an optional role such as
+//              explanations (see OPTIONAL_ROLES).
 
 export const MODEL_SHAPES = {
   GENERIC: 'generic',
@@ -79,6 +81,13 @@ export const DEFAULT_FILES_BY_SHAPE = {
     lineSparklines: 'line-sparklines.json',
   },
 };
+
+// Roles a pack adds only when it has them, by listing them in its
+// models.json "files" block — explanations.json is written by a pack's
+// detectors (INDUSTRY_PACK_SPEC.md §14), so only packs with detectors list
+// it. A listed optional file that fails to load comes through as null
+// instead of failing the whole model.
+export const OPTIONAL_ROLES = new Set(['explanations']);
 
 const MODELS_URL = '/data/models.json';
 
@@ -139,7 +148,7 @@ export function loadModelRegistry() {
   return registryPromise;
 }
 
-// [role, url] pairs for one model, ready to fetch.
+// [role, url, optional] triples for one model, ready to fetch.
 export function getModelDataFiles(model) {
-  return Object.entries(model.files).map(([role, file]) => [role, `/data/${model.id}/${file}`]);
+  return Object.entries(model.files).map(([role, file]) => [role, `/data/${model.id}/${file}`, OPTIONAL_ROLES.has(role)]);
 }

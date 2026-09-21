@@ -459,7 +459,7 @@
           <thead><tr><th>Rail mode</th><th>Persona</th><th>Left list</th><th>Center detail</th></tr></thead>
           <tbody>
             <tr><td>Visualization <span class="mono">('now')</span></td><td>Configurator</td><td><code>NowAssetTreePanel</code></td><td><code>NowAssetDetail</code> → <code>NowTypeMainPreview</code></td></tr>
-            <tr><td>Attention</td><td>Operator</td><td><code>AttentionPanel</code> (<code>AttentionCard</code>s)</td><td><code>InvestigatePanel</code>: trend, timeline, evidence table, related-asset boxes, time scrubber</td></tr>
+            <tr><td>Attention</td><td>Operator</td><td><code>AttentionPanel</code> (<code>AttentionCard</code>s)</td><td><code>InvestigatePanel</code>: trend, timeline, evidence table, related-asset boxes, time scrubber; AI tab: <code>ExplanationView</code> or <code>AiInterpretationView</code></td></tr>
             <tr><td>Work</td><td>Operator</td><td><code>WorkListPanel</code> (<code>WorkCard</code>s)</td><td><code>TaskDetailPanel</code></td></tr>
             <tr><td>Assets</td><td>Operator</td><td><code>OperatorAssetTreePanel</code></td><td><code>OperatorAssetDetail</code>: Properties / Related / All, read-only</td></tr>
           </tbody>
@@ -784,7 +784,11 @@
             <tr><td class="mono">operatorViews/IssueMap.jsx</td><td class="num">162</td><td>The lines &times; stations issue grid and its overlay</td></tr>
             <tr><td class="mono">operatorViews/LineDetail.jsx</td><td class="num">90</td><td>One line's rollups and per-station breakdown</td></tr>
             <tr><td class="mono">operatorViews/AttentionPanel.jsx</td><td class="num">227</td><td>The Attention list, its group/sort controls and its cards</td></tr>
-            <tr><td class="mono">operatorViews/InvestigatePanel.jsx</td><td class="num">386</td><td>Why an item needs attention: trend, evidence, timeline, related assets, time scrubber</td></tr>
+            <tr><td class="mono">operatorViews/InvestigatePanel.jsx</td><td class="num">315</td><td>Why an item needs attention: trend, evidence, timeline, related assets, time scrubber, and the AI tab (picks one of the two views below)</td></tr>
+            <tr><td class="mono">operatorViews/InvestigateStatCards.jsx</td><td class="num">62</td><td>Confidence / Risk / Outcome stat cards, shared by both AI-tab views</td></tr>
+            <tr><td class="mono">operatorViews/AiInterpretationView.jsx</td><td class="num">54</td><td>AI tab for items without an explanation: observed / derived / inferred text and next steps</td></tr>
+            <tr><td class="mono">operatorViews/explanation/ExplanationView.jsx</td><td class="num">240</td><td>AI tab for items with a detector-built explanation (spec §14): what we see, checks, reference examples, ruled out, confidence, what to do, detector details</td></tr>
+            <tr><td class="mono">operatorViews/explanation/ExplanationChart.jsx</td><td class="num">299</td><td>The one SVG renderer for explanation chart specs, plus check sparklines and legends</td></tr>
             <tr><td class="mono">operatorViews/evidenceWidgets.jsx</td><td class="num">119</td><td>Comparison chart, evidence table, vertical timeline</td></tr>
             <tr><td class="mono">operatorViews/workItems.js</td><td class="num">97</td><td>Work vocabulary and the schedule-margin maths</td></tr>
             <tr><td class="mono">operatorViews/WorkListPanel.jsx</td><td class="num">123</td><td>The Work list and its cards</td></tr>

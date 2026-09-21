@@ -7,12 +7,13 @@
 import { useState, useRef, useEffect } from 'react';
 import ButtonGroup from 'devextreme-react/button-group';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
-import { ConfidenceIcon, ShieldCheckIcon, RiskAlertIcon, TrendUpIcon, DashIcon, PlayPauseIcon } from '../icons';
-import { getAttentionItemAssetEntry, getAttentionItemTypeId, isAttentionItemActiveAtTime, getAttentionItemPrimarySeries } from '../model/assetQueries';
+import { PlayPauseIcon } from '../icons';
+import { getAttentionItemAssetEntry, getAttentionItemTypeId, isAttentionItemActiveAtTime, getAttentionItemPrimarySeries, getAttentionItemExplanation } from '../model/assetQueries';
 import { CURRENT_TIMESTAMPS, ATTENTION_ITEMS } from '../model/modelData';
 import { ReadOnlyRelatedAssetsView } from '../relatedAssets/ReadOnlyViews';
 import { TimeScrubContext, AssetCard } from '../relatedAssets/AssetCard';
-import { AiPill } from '../badges';
+import { AiInterpretationView } from './AiInterpretationView';
+import { ExplanationView } from './explanation/ExplanationView';
 import { ComparisonLineChart, EvidenceTable, VerticalTimeline } from './evidenceWidgets';
 import { SEVERITY_COLORS } from './statusVocabulary';
 
@@ -28,32 +29,10 @@ const RELATED_ASSETS_SUBVIEW_ITEMS = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Signal tab visuals — Confidence / Risk / Expected outcome as icon+badge
-// stat cards instead of a plain text grid, plus a shared vertical timeline
-// used for both Evidence readings and What-changed. Built per feedback that
-// the Investigate area reads as too much text — this is a first pass, not
-// a final design.
-// ─────────────────────────────────────────────────────────────────────────────
-
-const CONFIDENCE_COLORS = { high: '#0078d4', medium: '#5b9bd5', low: '#9db3c9', 'n/a': '#c2c6cc' };
-
-const CONFIDENCE_LABELS = { high: 'High', medium: 'Medium', low: 'Low', 'n/a': 'N/A' };
-
-const CONFIDENCE_BARS = { high: 3, medium: 2, low: 1, 'n/a': 0 };
-
-const RISK_COLORS = { high: '#d64545', medium: '#e0a336', low: '#3fa64c', none: '#9096a3' };
-
-const RISK_LABELS = { high: 'High', medium: 'Medium', low: 'Low', none: 'None' };
-
-const OUTCOME_COLORS = { recovering: '#3fa64c', resolved: '#3fa64c', none: '#9096a3' };
-
-const OUTCOME_LABELS = { recovering: 'Improving', resolved: 'Resolved', none: 'N/A' };
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Investigate — detail for the selected Attention item
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvidenceView, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, activeSaveHandlerRef, onTitleClick, onGearClick }) {
+export function InvestigatePanel({ item, onCreateWorkItem, onOpenWorkItem, workItems, evidenceView, setEvidenceView, typeList, typeDisplayTemplates, typePropertyConfigs, typeRelatedAssetConfigs, relatedAssetsTemplates, onSaveRelatedAssetsTemplate, assetDisplayTemplates, assetPropertyConfigs, assetRelatedAssetConfigs, assetRelatedAssetsTemplates, activeSaveHandlerRef, onTitleClick, onGearClick }) {
   // This Asset vs. Related Assets sub-toggle, within the Related Assets
   // tab. Declared before the early return below (not alongside the other
   // computed values further down, which only run once item is known) so
@@ -111,6 +90,7 @@ export function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvid
 
   const d = item.detail;
   const severityColor = SEVERITY_COLORS[item.severity];
+  const explained = getAttentionItemExplanation(item);
 
   // Related Assets: resolves via attentionAssetToAssetEntry/CURRENT_ASSET_DATA
   // for all three models, including refinery (its own hardcoded ASSET_DATA
@@ -169,71 +149,20 @@ export function InvestigatePanel({ item, onCreateWorkItem, evidenceView, setEvid
       </div>
 
       {evidenceView === 'ai' ? (
-        <>
-          <div className="op-dashboard-card op-dashboard-card--ministats">
-            <div className="op-dash-ministat-row">
-              <div className="op-dash-ministat" style={{ color: CONFIDENCE_COLORS[d.confidenceLevel] }}>
-                <div className="op-dash-ministat-top">
-                  <span className="op-dash-ministat-icon"><ConfidenceIcon filled={CONFIDENCE_BARS[d.confidenceLevel]} /></span>
-                  <div className="op-dash-ministat-textblock">
-                    <span className="op-dash-ministat-category">Confidence</span>
-                    <span className="op-dash-ministat-value">{CONFIDENCE_LABELS[d.confidenceLevel]}</span>
-                  </div>
-                </div>
-                <div className="op-dash-ministat-detail">{d.confidence}</div>
-              </div>
-              <div className="op-dash-ministat" style={{ color: RISK_COLORS[d.riskLevel] }}>
-                <div className="op-dash-ministat-top">
-                  <span className="op-dash-ministat-icon">{d.riskLevel === 'none' ? <ShieldCheckIcon /> : <RiskAlertIcon />}</span>
-                  <div className="op-dash-ministat-textblock">
-                    <span className="op-dash-ministat-category">Risk</span>
-                    <span className="op-dash-ministat-value">{RISK_LABELS[d.riskLevel]}</span>
-                  </div>
-                </div>
-                <div className="op-dash-ministat-detail">{d.risk}</div>
-              </div>
-              <div className="op-dash-ministat" style={{ color: OUTCOME_COLORS[d.outcomeStatus] }}>
-                <div className="op-dash-ministat-top">
-                  <span className="op-dash-ministat-icon">{d.outcomeStatus === 'recovering' ? <TrendUpIcon /> : d.outcomeStatus === 'resolved' ? <ShieldCheckIcon /> : <DashIcon />}</span>
-                  <div className="op-dash-ministat-textblock">
-                    <span className="op-dash-ministat-category">Outcome</span>
-                    <span className="op-dash-ministat-value">{OUTCOME_LABELS[d.outcomeStatus]}</span>
-                  </div>
-                </div>
-                <div className="op-dash-ministat-detail">{d.expectedOutcome !== '—' ? d.expectedOutcome : 'No outcome defined'}</div>
-              </div>
-            </div>
-          </div>
-          <div className="op-investigate-dashboard op-investigate-dashboard--ai">
-            <div className="op-dashboard-card op-dashboard-card--interpretation">
-              <div className="op-dashboard-card-title">Interpretation</div>
-              <div className="op-dashboard-card-body op-dashboard-card-body--scrollable">
-                <div className="op-dash-text op-dash-text--clamp3">{d.signal}</div>
-                <div className="op-dash-separator" />
-                <div className="op-evidence-layer">
-                  <span className="op-evidence-layer-label op-evidence-layer-label--observed">Observed</span>
-                  <div className="op-dash-text op-dash-text--clamp2">{d.observed}</div>
-                </div>
-                <div className="op-evidence-layer">
-                  <span className="op-evidence-layer-label op-evidence-layer-label--derived">Derived</span>
-                  <div className="op-dash-text op-dash-text--clamp2">{d.derived}</div>
-                </div>
-                <div className="op-evidence-layer">
-                  <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Inferred</span>
-                  <div className="op-dash-text op-dash-text--clamp2">{d.inferred}</div>
-                </div>
-                <div className="op-dash-separator" />
-                <div className="op-evidence-layer">
-                  <span className="op-evidence-layer-label op-evidence-layer-label--inferred"><AiPill />Next steps</span>
-                  <div className="op-dash-text op-dash-text--clamp3">{d.recommendation}</div>
-                </div>
-                <button className="op-btn op-btn--primary op-investigate-createworkitem-btn" onClick={() => onCreateWorkItem(item)}>
-                  Create work item
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
+        // The detector-built explanation when this item has one (spec §14);
+        // otherwise the item's own interpretation text, as before.
+        explained ? (
+          <ExplanationView
+            item={item}
+            explanation={explained.explanation}
+            detector={explained.detector}
+            workItems={workItems}
+            onCreateWorkItem={onCreateWorkItem}
+            onOpenWorkItem={onOpenWorkItem}
+          />
+        ) : (
+          <AiInterpretationView item={item} onCreateWorkItem={onCreateWorkItem} />
+        )
       ) : evidenceView === 'relatedAssets' ? (
         <>
           <div className="op-investigate-relatedassets-toprow">

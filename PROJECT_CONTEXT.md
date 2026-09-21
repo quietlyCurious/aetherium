@@ -246,7 +246,12 @@ state vs. drawing:
 - `src/operator/operatorViews/` — the Operator's own views: NowStrip, the
   issue map, Line Detail, Attention, Investigate and its evidence
   widgets, Work, task detail, the Assets area, and `statusVocabulary.js`
-  (the status colour/label maps they all share).
+  (the status colour/label maps they all share). Investigate's AI tab has
+  two versions sharing `InvestigateStatCards`: `explanation/ExplanationView`
+  when the item has a detector-built explanation (the "why": checks,
+  reference examples, what was ruled out, confidence — see below), and
+  `AiInterpretationView` otherwise. `explanation/ExplanationChart.jsx` is
+  the one SVG renderer for every chart spec in an explanation.
 - `src/operator/chrome/` — the two rails, the side panel, Contacts and
   the AI chat panel.
 - `src/operator/icons.jsx` — every inline-SVG icon; `badges.jsx` — the
@@ -273,6 +278,17 @@ class names match, as of phase 5: `op-property-tile-*`,
   workspace component; `src/shell/appAreas.js` lists them.
 - `src/designer/WidgetsWorkspace.jsx`, `ScriptsWorkspace.jsx` — the two
   small designer areas (a widget catalog browser; a placeholder).
+- **Explanations and detectors** (`INDUSTRY_PACK_SPEC.md` §14): a pack
+  can ship `explanations.json`, written by its own `explain.py` from
+  detectors built on the shared toolkit in `ModelAndData/tools/detectors/`.
+  Detectors read only the runtime files, run on every asset of their type,
+  and each pack has a `robustness.py` that re-checks them on regenerated
+  data. The file is an optional role: a pack lists it under `"files"` in
+  `models.json`, the loader reads it into `EXPLANATIONS`, and
+  `getAttentionItemExplanation(item)` returns it. Wind, ccgt and pipeline
+  have explanations; the other packs fall back to the plain AI tab.
+  `ModelAndData/tools/detectors/preview.py <model>` renders a pack's
+  explanations as a standalone HTML page for reviewing content.
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of
   industry models (id, label, shape, per-role file overrides), read by both
   the model switcher and `OperatorWorkspace`'s loader. A new industry pack

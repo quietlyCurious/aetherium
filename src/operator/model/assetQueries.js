@@ -6,7 +6,7 @@
 // so callers never branch on the model themselves.
 
 import { MODEL_SHAPES } from '../../modelRegistry';
-import { ASSET_RELATIONSHIPS, ASSET_TELEMETRY, ASSET_VALUES, CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_LEVEL_LABELS, CURRENT_MODEL_SHAPE, CURRENT_TIMESTAMPS, CURRENT_UNIT_LEVEL, EQUIPMENT_METRICS, EQUIPMENT_TELEMETRY, LINE_ROLLUPS, LINE_STATUS, LINE_TELEMETRY, PROPERTY_LABELS, REFINERY_ROLLUPS, REFINERY_TELEMETRY, STATION_FULL_PROPERTIES, STATION_TELEMETRY, TYPE_LABELS, timeToMinutes } from './modelData';
+import { ASSET_RELATIONSHIPS, ASSET_TELEMETRY, ASSET_VALUES, CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_LEVEL_LABELS, CURRENT_MODEL_SHAPE, CURRENT_TIMESTAMPS, CURRENT_UNIT_LEVEL, EQUIPMENT_METRICS, EQUIPMENT_TELEMETRY, EXPLANATIONS, LINE_ROLLUPS, LINE_STATUS, LINE_TELEMETRY, PROPERTY_LABELS, REFINERY_ROLLUPS, REFINERY_TELEMETRY, STATION_FULL_PROPERTIES, STATION_TELEMETRY, TYPE_LABELS, timeToMinutes } from './modelData';
 
 export function assetTypeIdOf(asset) {
   return `TYPE_${asset.assetLevel}_${asset.assetType}`;
@@ -98,6 +98,15 @@ export function getAttentionItemPrimarySeries(item) {
 // an item already "resolved" as of now can still correctly show as
 // active when scrubbed back to a time within its own original window,
 // since it genuinely was active then.
+// The detector-built explanation for an attention item (spec §14), with
+// the detector that produced it — or null, in which case the Investigate
+// panel keeps the plain AI interpretation.
+export function getAttentionItemExplanation(item) {
+  const explanation = item && EXPLANATIONS?.items?.[item.id];
+  if (!explanation) return null;
+  return { explanation, detector: EXPLANATIONS.detectors?.[explanation.detectorId] || null };
+}
+
 export function isAttentionItemActiveAtTime(attentionItem, timeStr) {
   const points = attentionItem?.detail?.evidencePoints;
   if (!points || points.length === 0 || !timeStr) return false;

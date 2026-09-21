@@ -249,6 +249,11 @@ export let CURRENT_LEVEL_LABELS = null;
 
 export let CURRENT_UNIT_LEVEL = null;
 
+// explanations.json (generic packs with detectors, INDUSTRY_PACK_SPEC.md
+// §14): { detectors: { [id]: … }, items: { [attentionItemId]: … } }, or
+// null when the pack has none. Read through getAttentionItemExplanation.
+export let EXPLANATIONS = null;
+
 export let LINE_SPARKLINES = {};
 
 export let STATION_SPARKLINES = {};
@@ -301,6 +306,7 @@ const ROLE_TO_VARIABLE = {
   assetValues: 'ASSET_VALUES',
   assetTelemetry: 'ASSET_TELEMETRY',
   unitStatus: 'UNIT_STATUS',
+  explanations: 'EXPLANATIONS',
 };
 
 // Every model-data variable, reset to empty before each load so switching
@@ -337,6 +343,7 @@ function resetModelVaryingData() {
   ASSET_VALUES = {};
   ASSET_TELEMETRY = null;
   UNIT_STATUS = {};
+  EXPLANATIONS = null;
 }
 
 // properties.json (generic packs) holds what the legacy packs spread over
@@ -426,6 +433,7 @@ function assignModelData(name, value) {
     case 'ASSET_VALUES': ASSET_VALUES = value; break;
     case 'ASSET_TELEMETRY': ASSET_TELEMETRY = value; break;
     case 'UNIT_STATUS': UNIT_STATUS = value; break;
+    case 'EXPLANATIONS': EXPLANATIONS = value && value.items ? value : null; break;
     default: break;
   }
 }

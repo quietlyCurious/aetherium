@@ -89,6 +89,8 @@ GENERIC_FILES = {'assets': 'assets.json', 'assetRelationships': 'asset-relations
                  'properties': 'properties.json', 'assetValues': 'asset-values.json',
                  'assetTelemetry': 'asset-telemetry.json', 'unitStatus': 'unit-status.json',
                  'attentionItems': 'attention-items.json', 'workItems': 'work-items.json'}
+# Optional roles a generic pack adds by listing them in its models.json "files" block.
+GENERIC_OPTIONAL_FILES = {'explanations': 'explanations.json'}
 ID_RE = re.compile(r'^[A-Z0-9_]+$')
 SLUG_RE = re.compile(r'^[a-z0-9_]+$')
 HMI_CATEGORIES = ['Flow / WIP', 'Events / Losses', 'Stability', 'Quality', 'Derived Metric', 'Condition']
@@ -99,7 +101,7 @@ DERIV_FNS = {'sum': sum, 'mean': statistics.mean, 'min': min, 'max': max, 'count
 
 def validate_generic(repo, model, entry, R):
     d = os.path.join(repo, 'public', 'data', model)
-    files = {**GENERIC_FILES, **(entry.get('files') or {})}
+    files = {**GENERIC_FILES, **{k: v for k, v in (entry.get('files') or {}).items() if k in GENERIC_FILES}}
     data = {}
     for role, name in files.items():
         p = os.path.join(d, name)
@@ -107,8 +109,15 @@ def validate_generic(repo, model, entry, R):
             R.err('files', f'missing {name}'); continue
         with open(p, encoding='utf-8') as f:
             data[role] = json.load(f)
-    unknown = set(entry.get('files') or {}) - set(GENERIC_FILES)
+    unknown = set(entry.get('files') or {}) - set(GENERIC_FILES) - set(GENERIC_OPTIONAL_FILES)
     if unknown: R.err('registry', f'files block has unknown roles {sorted(unknown)}')
+    for role, name in GENERIC_OPTIONAL_FILES.items():
+        listed = role in (entry.get('files') or {})
+        present = os.path.exists(os.path.join(d, name))
+        if present and not listed:
+            R.warn('registry', f'{name} exists but models.json doesn\'t list it under "files", so the app won\'t load it (§14)')
+        if listed and not present:
+            R.err('registry', f'models.json lists {name} but the file is missing')
     if R.errors:
         R.print(); sys.exit(1)
     A, REL, PROPS, VAL, TEL, US, ATT, WK = (data[k] for k in GENERIC_FILES)
