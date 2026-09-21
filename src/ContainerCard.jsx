@@ -5,108 +5,7 @@ import { buildDefaultCells } from './GridEditor';
 import { isLockedOrAncestorLocked, findContainerById } from './containerTree';
 import GridEditor from './GridEditor';
 import WidgetPreview from './WidgetPreview';
-import { evaluateExpression } from './expressionEval';
-import { WIDGET_PROPERTIES } from './widgetData';
-
-// Resolves a query-type binding to a concrete value for one widget property.
-// A query's result is fundamentally table-shaped (rows) — even a single
-// output field can come back as multiple rows (e.g. several historian
-// samples) — so this reconciles that against what the property actually
-// needs, mirroring the adapter logic built into WidgetBindingPopover:
-//  - a stored `pickRow` transform (set when the popover detected a scalar
-//    property bound to a multi-row query) reduces the series to one value.
-//  - no transform + a naturally-scalar query (one row) → use that value.
-//  - a collection-typed property always gets the full array — a single row
-//    naturally becomes a one-item list, same as the "auto-wrap" note shown
-//    in the popover.
-function resolveQueryBindingValue(binding, queryResults, queries, isCollectionProp) {
-  const result = queryResults?.[binding.queryInstanceId];
-  if (!result || result.status !== 'success' || !Array.isArray(result.data)) return undefined;
-
-  // Collection-typed properties (chart/grid dataSource, etc.) bind to the
-  // query's result set. If specific fields were selected (outputFields),
-  // each row is narrowed to just those columns — needed for widgets like a
-  // grid where showing every returned column isn't always wanted. No fields
-  // selected means "everything" — the raw row objects, unfiltered.
-  if (isCollectionProp) {
-    const fieldNames = (binding.outputFields || []).map(f => f.fieldName);
-    if (fieldNames.length === 0) return result.data;
-    return result.data.map(row => {
-      const filtered = {};
-      fieldNames.forEach(fn => { filtered[fn] = row[fn]; });
-      return filtered;
-    });
-  }
-
-  // Scalar properties: outputField is a genuine COLUMN NAME within each row
-  // (flat historian rows {timestamp, name, quality, value} and SQL-ish
-  // column-keyed rows alike), never a value to filter rows BY. (An earlier
-  // version filtered rows where row.name === outputField, which could never
-  // match: row.name holds a tag path like "FIX.SF_WINDTURBINE06>...", never
-  // the literal string "value" — that filter always returned nothing.)
-  const values = result.data.map(row => row[binding.outputField]).filter(v => v !== undefined);
-
-  const pickRow = binding.transform?.find(t => t.type === 'pickRow');
-  if (pickRow) {
-    if (values.length === 0) return undefined;
-    return pickRow.mode === 'first' ? values[0] : values[values.length - 1];
-  }
-  // No transform stored — the normal case when the query is naturally
-  // scalar. Falls back to the most recent value defensively otherwise.
-  return values.length > 0 ? values[values.length - 1] : undefined;
-}
-
-// Merges static widgetProps with resolved binding values.
-// Binding values take precedence over static props at render time.
-// Converts flat dot-notation keys ("pager.visible": true) into properly
-// nested objects ({ pager: { visible: true } }) — DevExtreme's React
-// components expect a real nested prop, not a flat key that happens to
-// contain a dot in its name, which is genuinely a different thing and gets
-// silently ignored (React just passes it through as an unrecognized prop).
-// This affects every dot-notation property across the whole widget catalog,
-// not just one widget — applied once, centrally, here.
-function expandDotPaths(flatProps) {
-  const expanded = {};
-  Object.entries(flatProps).forEach(([key, value]) => {
-    if (!key.includes('.')) {
-      if (typeof expanded[key] === 'object' && expanded[key] !== null && typeof value === 'object' && value !== null) {
-        expanded[key] = { ...expanded[key], ...value };
-      } else {
-        expanded[key] = value;
-      }
-      return;
-    }
-    const parts = key.split('.');
-    let cursor = expanded;
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (typeof cursor[part] !== 'object' || cursor[part] === null) {
-        cursor[part] = { ...(cursor[part] || {}) };
-      }
-      cursor = cursor[part];
-    }
-    cursor[parts[parts.length - 1]] = value;
-  });
-  return expanded;
-}
-
-function resolveWidgetProps(widgetProps, bindings, widgetName, queryResults, queries) {
-  const resolved = { ...(widgetProps || {}) };
-  const propDefs = WIDGET_PROPERTIES[widgetName] || [];
-  Object.entries(bindings || {}).forEach(([propName, binding]) => {
-    if (binding?.type === 'expression' && binding.expression != null) {
-      resolved[propName] = evaluateExpression(binding.expression);
-    } else if (binding?.type === 'query') {
-      const propDef = propDefs.find(p => p.name === propName);
-      const isCollectionProp = propDef?.type === 'data';
-      const value = resolveQueryBindingValue(binding, queryResults, queries, isCollectionProp);
-      // undefined (still loading, errored, or no data yet) leaves the
-      // static default in place rather than blanking the widget out.
-      if (value !== undefined) resolved[propName] = value;
-    }
-  });
-  return expandDotPaths(resolved);
-}
+import { resolveWidgetProps } from './designer/screens/widgetBindings';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
   const isActive = dragState.beforeId === beforeId && dragState.overParentId === parentId;
@@ -687,7 +586,7 @@ function ContainerCard({
             ) : (
               <WidgetPreview
                 widgetName={container.widgetName || container.title}
-                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, queryResults, queries)}
+                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries })}
               />
             )}
           </div>

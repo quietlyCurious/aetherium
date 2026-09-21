@@ -34,6 +34,12 @@ export function loadPagesAndFolders() {
   }
 }
 
+// One saved page by id, or undefined — for anything that shows a single
+// screen outside the editor (the runtime view, an embedded ScreenView).
+export function loadPage(pageId) {
+  return loadPagesAndFolders().pages.find(p => p.id === pageId);
+}
+
 export function savePagesAndFolders(pages, folders) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ pages, folders }));

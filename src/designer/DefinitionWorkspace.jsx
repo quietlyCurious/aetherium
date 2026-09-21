@@ -60,6 +60,13 @@ export const DefinitionWorkspace = forwardRef(function DefinitionWorkspace({
 
   // Asks the editor directly rather than trusting selectedIsDirty, which
   // trails the editor by one render.
+  // TODO: use the Configurator's dialog (customDialog with Save / Discard —
+  // see resolveUnsavedChanges in OperatorWorkspace) instead of
+  // window.confirm, so a dirty definition can be saved on the way out
+  // (editorRef.current.save() is already there to call). Unlike the
+  // Configurator this can keep a Cancel, since selection here is ours to
+  // hold back. The dialog is async, so confirmLeave — and App.js's
+  // navigation guard that calls it — become async too. Tracked in TODO.md.
   const confirmDiscardIfDirty = () => {
     if (!editorRef.current?.isDirty?.()) return true;
     return window.confirm(`You have unsaved changes on this ${noun}. Discard them and continue?`);

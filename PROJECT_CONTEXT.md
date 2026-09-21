@@ -158,6 +158,23 @@ exposes `isDirty()` and `save()` on its ref and reports dirty changes;
 `App.js` asks the active workspace `confirmLeave()` before navigating, so
 leaving an area with unsaved edits asks first.
 
+Showing a saved screen is split out of the editor into
+`src/designer/screens/`, so anything can render one — the Launch view
+today, an asset visualization later:
+- `widgetBindings.js` — turns a widget's static props plus its bindings
+  into the props it renders with. One resolver per binding type
+  (`expression`, `query`) in `BINDING_RESOLVERS`; a new kind of binding
+  (e.g. a value from the asset being shown) is one more entry.
+  `ContainerCard` calls it, so the canvas and the runtime resolve
+  identically.
+- `usePageQueryResults(pageId)` — runs a page's query instances (plus
+  app-scoped ones) on mount and every `POLL_INTERVAL_MS`.
+- `ScreenView` — renders a page's containers read-only through
+  `ContainerCard`, supplying all its editing callbacks as no-ops.
+`RuntimeView.jsx` is now just `loadPage` + the hook + `ScreenView` inside
+the title bar. The Screens *editor* (canvas, right panel, query-instance
+handlers) is still in `App.js`.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
@@ -245,7 +262,9 @@ class names match, as of phase 5: `op-property-tile-*`,
   that prompts ask twice.
 - `src/designer/` — pieces shared by the designer areas:
   `DefinitionWorkspace` (the list + editor shell behind Data Sources,
-  Entities and Queries) and `useDefinitionDraft`.
+  Entities and Queries) and `useDefinitionDraft`; `screens/` holds the
+  read-only screen renderer (`ScreenView`, `usePageQueryResults`,
+  `widgetBindings`).
 - `public/data/<model>/*.json` — per-model generated data. Generic packs
   have 8 files (`assets`, `asset-values`, `asset-telemetry`,
   `properties`…, spec §6). The legacy description below is for the
