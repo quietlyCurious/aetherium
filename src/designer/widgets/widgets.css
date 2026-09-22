@@ -49,10 +49,27 @@
 .widgets-options { display: flex; flex-direction: column; height: 100%; }
 .widgets-filter { margin: 8px 12px; width: auto !important; flex-shrink: 0; }
 .widgets-options-list { flex: 1; min-height: 0; overflow: auto; padding-bottom: 6px; }
+/* A group header is the control that opens the group — widgets have up to
+   several hundred options, so they arrive closed unless something in them
+   is exposed. */
 .widgets-options-group {
-  font-size: 11px; font-weight: 600; color: #555; padding: 5px 12px 3px;
-  background: #fafafa; border-top: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  font: inherit; font-size: 11px; font-weight: 600; color: #555; text-align: left;
+  padding: 5px 12px; border: 0; border-top: 1px solid #f0f0f0; background: #fafafa; cursor: pointer;
 }
+.widgets-options-group:hover { background: #f1f6fb; color: #0078d4; }
+.widgets-options-group--open { position: sticky; top: 0; z-index: 1; }
+.widgets-group-caret { color: #999; font-size: 9px; width: 8px; }
+.widgets-options-group--open .widgets-group-caret { color: #0078d4; }
+.widgets-group-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widgets-group-count { display: flex; align-items: center; gap: 8px; font-weight: 400; color: #aaa; }
+.widgets-group-exposed { color: #0078d4; background: #e6f1fb; border-radius: 8px; padding: 0 6px; line-height: 15px; }
+.widgets-note--warn { color: #6b3a00; background: #fff4e5; border-bottom: 1px solid #f3dcbd; }
+.widgets-note--warn code { font-family: Consolas, 'Courier New', monospace; }
+/* The pinned "Exposed" section reads as the widget's own list, so it gets
+   the accent rather than the plain group look. */
+.widgets-group--pinned .widgets-options-group { background: #eef5fc; color: #0f5a9e; border-top: 0; }
+.widgets-group--pinned { border-bottom: 1px solid #e3eef8; margin-bottom: 2px; }
 
 /* One option per row, in columns that line up down the list: the tick and
    its path, the type, the control it's edited with, and the ⋯. A row that

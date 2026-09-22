@@ -211,10 +211,19 @@ The area's Export writes every list back out as a complete
 matches is dropped on the next load. The committed file is itself
 exporter output, and a test checks they stay byte-identical — if you
 hand-edit `widgetProperties.js`, keep the exporter's layout or that test
-fails. "Available options" come from flattening `widgetConfigs.js`
-(`widgetOptionCatalog.js`), which only covers 40 of the 75 widgets and
-often has null defaults (types then guessed from the name and flagged);
-options can also be added by path. A definition is `{ name, label, type,
+fails. The option list comes from
+`public/data/widget-options.json` — all 75 widgets, real types and real
+enum choices, generated from DevExtreme's own TypeScript declarations by
+`scripts/generateWidgetOptions.js` (`npm run widget-options`; re-run it
+after upgrading DevExtreme and commit the result, and read its drift
+report). It's fetched by the Widgets area alone
+(`widgetOptionsFile.js`), not bundled, since it's ~700 KB and no other
+area needs it. `widgetConfigs.js` stays for two jobs: the defaults merged
+into the catalog, and the in-browser fallback list if the file can't be
+loaded (40 widgets, types guessed from names and flagged). A widget can
+have several hundred options, so the list pins what's exposed at the top,
+in details-panel order, and keeps the rest under closed group headings.
+Options can also be added by path. A definition is `{ name, label, type,
 options?, default, bindable?, group? }`; `type` gained `color` and `json`
 (a list or object — a grid's `columns`, a gauge's `rangeContainer.ranges`
 — edited as raw JSON in `JsonField`, committed only when it parses), and a

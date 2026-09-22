@@ -16,6 +16,12 @@
 // An option the catalog doesn't know can be added by typing its path; see
 // widgetOptionCatalog for where the list comes from and its gaps.
 //
+// What's exposed is pinned to the top, in the order the details panel will
+// show it. Everything else sits under its group, closed — a widget can have
+// several hundred options (a Chart has around 870), and neither a flat list
+// of those nor a group opened to 117 rows is much use. A group opens while
+// a filter is running, or when clicked.
+//
 // Order and grouping: exposing adds to the end of the list and nothing
 // else moves, so the list's order is what the details panel shows and a
 // different order comes from the committed widgetProperties.js rather than
@@ -23,11 +29,16 @@
 // part of each option's path — see optionNaming), and a group with nothing
 // exposed doesn't appear there.
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
+import { useWidgetOptions } from './widgetOptionsFile';
 import { getWidgetOptionCatalog, hasConfigCatalog, defFromOption, isValidOptionPath, inferOptionType } from './widgetOptionCatalog';
 import { exposeOption, hideOption, updateDef, setDefField, changeDefType, setDefChoices } from './widgetPropertyEdits';
 import { WidgetPropertyField } from './WidgetPropertyField';
 import { OptionAdvancedFields } from './OptionAdvancedFields';
+
+// The pinned first section — not a real group, so it can't collide with a
+// DevExtreme option path.
+const EXPOSED_GROUP = 'Exposed';
 
 const TYPE_BADGE_TITLES = {
   json: 'A list or object — edited as raw JSON, since there’s no form for one',
@@ -39,11 +50,44 @@ export function WidgetOptionsEditor({ widgetName, defs, onChange, isCustomized, 
   const [filter, setFilter] = useState('');
   const [newPath, setNewPath] = useState('');
   const [openAdvanced, setOpenAdvanced] = useState(null);
+  const [groupChoices, setGroupChoices] = useState({});
 
-  const catalog = useMemo(() => getWidgetOptionCatalog(widgetName, defs), [widgetName, defs]);
+  const optionsFile = useWidgetOptions();
+  const catalog = useMemo(
+    () => getWidgetOptionCatalog(widgetName, defs, optionsFile.widgets),
+    [widgetName, defs, optionsFile.widgets],
+  );
   const exposedByName = useMemo(() => new Map(defs.map(d => [d.name, d])), [defs]);
   const q = filter.trim().toLowerCase();
   const shown = q ? catalog.filter(o => o.name.toLowerCase().includes(q)) : catalog;
+
+  // One entry per group, in catalog order, with what the header needs. The
+  // first is always what's exposed, in definition order — the order the
+  // details panel shows them in — so it reads as the widget's own list
+  // rather than something to hunt for.
+  const groups = useMemo(() => {
+    const byName = new Map();
+    const catalogByName = new Map(catalog.map(o => [o.name, o]));
+    const matches = option => !q || option.name.toLowerCase().includes(q);
+
+    const exposedOptions = defs
+      .map(def => catalogByName.get(def.name) || { name: def.name, type: def.type, group: 'Exposed', source: 'exposed' })
+      .filter(matches);
+    if (exposedOptions.length) {
+      byName.set(EXPOSED_GROUP, { name: EXPOSED_GROUP, options: exposedOptions, exposed: exposedOptions.length, pinned: true });
+    }
+
+    shown.forEach(option => {
+      if (!byName.has(option.group)) byName.set(option.group, { name: option.group, options: [], exposed: 0 });
+      const group = byName.get(option.group);
+      group.options.push(option);
+      if (exposedByName.has(option.name)) group.exposed += 1;
+    });
+    return [...byName.values()];
+  }, [catalog, shown, defs, exposedByName, q]);
+
+  const isOpenGroup = (group) => groupChoices[group.name] ?? (group.pinned || !!q);
+  const toggleGroup = (group) => setGroupChoices(choices => ({ ...choices, [group.name]: !isOpenGroup(group) }));
 
   // Functional updates throughout: DevExtreme editors can report a change
   // from a handler captured a render ago, and applying that to a stale list
@@ -72,12 +116,71 @@ export function WidgetOptionsEditor({ widgetName, defs, onChange, isCustomized, 
     setOpenAdvanced(def.name);
   };
 
-  let lastGroup = null;
+  // One option: the tick and its path, the label the details panel will
+  // use, its type, the control it's edited with (disabled until it's
+  // exposed, showing what the widget defaults to), and the ⋯.
+  const renderOption = (option, groupName) => {
+    const def = exposedByName.get(option.name);
+    // An exposed option shows the type it's exposed as, which can differ
+    // from what the catalog suggests (a string exposed as an enum).
+    const type = def ? def.type : option.type;
+    const guessed = !def && option.guessed;
+    const isOpen = openAdvanced === option.name;
+    // Unexposed rows still draw a control, so the column lines up: the
+    // definition this option WOULD get, disabled.
+    const shownDef = def || defFromOption(option);
+
+    return (
+      <Fragment key={`${groupName}:${option.name}`}>
+        <div className={`widgets-option-row${def ? ' widgets-option-row--exposed' : ''}${isOpen ? ' widgets-option-row--open' : ''}`}>
+          <label className="widgets-option" title={TYPE_BADGE_TITLES[type] || option.name}>
+            <input type="checkbox" checked={!!def} onChange={e => toggle(option, e.target.checked)} />
+            <code>{option.name}</code>
+          </label>
+          <span className="widgets-option-label" title={`Shown in the details panel as “${shownDef.label}” — change it under ⋯`}>
+            {shownDef.label}
+          </span>
+          <span
+            className={`widgets-type-badge widgets-type-badge--${type}${guessed ? ' widgets-type-badge--guessed' : ''}`}
+            title={guessed ? 'Guessed from the name — the fallback list has no value to read a type from' : `Edited as ${type}`}
+          >
+            {type === 'unknown' ? 'type?' : type}{guessed ? '?' : ''}
+          </span>
+          <div className="widgets-option-default" title={def ? 'The value a newly placed widget starts with' : 'Tick to expose this option and set its value'}>
+            <WidgetPropertyField
+              def={shownDef}
+              value={shownDef.default}
+              disabled={!def}
+              onChange={v => update(option.name, d => ({ ...d, default: v }))}
+            />
+          </div>
+          {def ? (
+            <button
+              className={`widgets-more${isOpen ? ' widgets-more--open' : ''}`}
+              title={isOpen ? 'Hide label, type and binding' : 'Label, type, group, binding'}
+              onClick={() => setOpenAdvanced(isOpen ? null : option.name)}
+            >⋯</button>
+          ) : <span className="widgets-more-spacer" />}
+        </div>
+        {def && isOpen && (
+          <OptionAdvancedFields
+            def={def}
+            onUpdate={fn => update(def.name, fn)}
+            onSetType={next => { if (next !== def.type) update(def.name, d => changeDefType(d, next)); }}
+            onSetField={(key, value) => update(def.name, d => setDefField(d, key, value))}
+            onSetChoices={options => update(def.name, d => setDefChoices(d, options))}
+            onHide={() => toggle(option, false)}
+          />
+        )}
+      </Fragment>
+    );
+  };
+
   return (
     <div className="widgets-options">
       <div className="widgets-panel-head">
         <span className="widgets-panel-title">{widgetName}</span>
-        <span className="widgets-panel-sub">
+        <span className="widgets-panel-sub" title={optionsFile.meta ? `Options generated from DevExtreme ${optionsFile.meta.devextremeVersion} on ${optionsFile.meta.generatedAt}` : undefined}>
           {exposedByName.size} of {catalog.length} exposed{isDirty ? ' · unsaved' : ''}
         </span>
         <button className="focus-mode-btn" onClick={onReset} disabled={!isCustomized} title="Drop your changes to this widget and go back to the shipped list">
@@ -85,78 +188,37 @@ export function WidgetOptionsEditor({ widgetName, defs, onChange, isCustomized, 
         </button>
       </div>
       <input className="details-input widgets-filter" placeholder="Filter options… (e.g. title)" value={filter} onChange={e => setFilter(e.target.value)} />
-      {!hasConfigCatalog(widgetName) && (
-        <div className="widgets-note">
-          There’s no configuration on file for {widgetName} yet, so only what it already exposes is listed. Add others by path below.
+      {optionsFile.status === 'loading' && <div className="widgets-note">Loading the option list…</div>}
+      {optionsFile.status === 'failed' && (
+        <div className="widgets-note widgets-note--warn">
+          Couldn’t load <code>data/widget-options.json</code>, so this is the older, thinner list read from the app’s own widget configuration
+          {hasConfigCatalog(widgetName) ? '' : `, which has nothing for ${widgetName}`}. Everything still works — types may be guessed, and
+          anything missing can be added by path below.
         </div>
       )}
 
       <div className="widgets-options-list">
-        {shown.map(option => {
-          const def = exposedByName.get(option.name);
-          const rows = [];
-          if (option.group !== lastGroup) {
-            rows.push(<div className="widgets-options-group" key={`g-${option.group}`}>{option.group}</div>);
-            lastGroup = option.group;
-          }
-          // An exposed option shows the type it's exposed as, which can
-          // differ from what the configuration suggests (a string exposed
-          // as an enum).
-          const type = def ? def.type : option.type;
-          const guessed = !def && option.guessed;
-          const isOpen = openAdvanced === option.name;
-
-          // Unexposed rows still draw a control, so the column lines up:
-          // the definition this option WOULD get, disabled.
-          const shownDef = def || defFromOption(option);
-
-          rows.push(
-            <div className={`widgets-option-row${def ? ' widgets-option-row--exposed' : ''}${isOpen ? ' widgets-option-row--open' : ''}`} key={option.name}>
-              <label className="widgets-option" title={TYPE_BADGE_TITLES[type] || option.name}>
-                <input type="checkbox" checked={!!def} onChange={e => toggle(option, e.target.checked)} />
-                <code>{option.name}</code>
-              </label>
-              <span className="widgets-option-label" title={`Shown in the details panel as “${shownDef.label}” — change it under ⋯`}>
-                {shownDef.label}
-              </span>
-              <span
-                className={`widgets-type-badge widgets-type-badge--${type}${guessed ? ' widgets-type-badge--guessed' : ''}`}
-                title={guessed ? 'Guessed from the name — the configuration has no value to read a type from' : `Edited as ${type}`}
+        {groups.map(group => {
+          const open = isOpenGroup(group);
+          return (
+            <div className={`widgets-group${group.pinned ? ' widgets-group--pinned' : ''}`} key={group.name}>
+              <button
+                className={`widgets-options-group${open ? ' widgets-options-group--open' : ''}`}
+                onClick={() => toggleGroup(group)}
+                title={group.pinned
+                  ? 'What this widget exposes, in the order the details panel shows it'
+                  : (open ? `Hide ${group.name}` : `Show ${group.options.length} ${group.name} options`)}
               >
-                {type === 'unknown' ? 'type?' : type}{guessed ? '?' : ''}
-              </span>
-              <div className="widgets-option-default" title={def ? 'The value a newly placed widget starts with' : 'Tick to expose this option and set its value'}>
-                <WidgetPropertyField
-                  def={shownDef}
-                  value={shownDef.default}
-                  disabled={!def}
-                  onChange={v => update(option.name, d => ({ ...d, default: v }))}
-                />
-              </div>
-              {def ? (
-                <button
-                  className={`widgets-more${isOpen ? ' widgets-more--open' : ''}`}
-                  title={isOpen ? 'Hide label, type and binding' : 'Label, type, group, binding'}
-                  onClick={() => setOpenAdvanced(isOpen ? null : option.name)}
-                >⋯</button>
-              ) : <span className="widgets-more-spacer" />}
+                <span className="widgets-group-caret">{open ? '▾' : '▸'}</span>
+                <span className="widgets-group-name">{group.name}</span>
+                <span className="widgets-group-count">
+                  {!group.pinned && group.exposed > 0 && <span className="widgets-group-exposed">{group.exposed} exposed</span>}
+                  {group.options.length}
+                </span>
+              </button>
+              {open && group.options.map(option => renderOption(option, group.name))}
             </div>
           );
-
-          if (def && isOpen) {
-            rows.push(
-              <OptionAdvancedFields
-                key={`${option.name}-advanced`}
-                def={def}
-                onUpdate={fn => update(def.name, fn)}
-                onSetType={type2 => { if (type2 !== def.type) update(def.name, d => changeDefType(d, type2)); }}
-                onSetField={(key, value) => update(def.name, d => setDefField(d, key, value))}
-                onSetChoices={options => update(def.name, d => setDefChoices(d, options))}
-                onHide={() => toggle(option, false)}
-              />
-            );
-          }
-          return rows;
         })}
         {shown.length === 0 && <div className="widgets-note">No options match “{filter}”.</div>}
       </div>

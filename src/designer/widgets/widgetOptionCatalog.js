@@ -1,26 +1,30 @@
 // designer/widgets/widgetOptionCatalog.js
-// Everything a widget COULD expose — the Widgets area's "Available options"
-// list — and how a newly exposed option starts out.
+// Everything a widget COULD expose — the Widgets area's option list — and
+// how a newly exposed option starts out.
 //
-// Today the source is widgetConfigs.js (each widget's full DevExtreme
-// configuration, flattened into dot paths), plus whatever the widget
-// already exposes. That file has gaps: it covers 40 of the 75 widgets,
-// charts and gauges are shallow, and many values are null so their type
-// can't be read. Where the value doesn't say, the type is guessed from the
-// option's name and flagged (`guessed`), and an option can always be added
-// by typing its path. A catalog generated from DevExtreme's own typings is
-// the planned replacement; it only needs to produce the same entries.
+// The list comes from public/data/widget-options.json, generated from
+// DevExtreme's own declarations (scripts/generateWidgetOptions.js): all 75
+// widgets, real types, and an enum's actual choices. Defaults are merged
+// into it from widgetConfigs.js where that file has them.
 //
-// An option: { name, type, value, group, source, guessed? }
-//   type    one of WIDGET_PROPERTY_TYPES, or 'unknown' (no value and no
-//           name hint). An option whose value is a list or an object (a
-//           grid's columns, a gauge's ranges) comes back as 'json' and is
-//           edited as raw JSON — there's no form for those.
-//   value   the configuration's default, when it has a real one
+// If the file can't be loaded, the area falls back to flattening
+// widgetConfigs.js in the browser, which is how this worked before the
+// file existed: 40 of the 75 widgets, shallow for charts and gauges, and
+// many values null, so types are guessed from the option's name and
+// flagged (`guessed`). Either way an option can be added by typing its
+// path, so nothing is unreachable.
+//
+// An option: { name, type, value, choices, group, source, guessed? }
+//   type    one of WIDGET_PROPERTY_TYPES, or 'unknown' (fallback only: no
+//           value and no name hint). An option holding a list or an object
+//           (a grid's columns, a gauge's ranges) is 'json' and is edited as
+//           raw JSON — there's no form for those.
+//   value   the default the widget starts with, where it's known
+//   choices an enum's values, from the declarations
 //   group   for the list: the first path segment, or 'General'
 //           (optionNaming.groupForOption — the details panel groups by the
 //           same thing)
-//   source  'config' | 'exposed'
+//   source  'catalog' | 'config' | 'exposed'
 
 import WIDGET_CONFIGS from '../../widgetConfigs';
 import { labelForOption, groupForOption } from './optionNaming';
@@ -74,15 +78,32 @@ function flatten(config, prefix, out) {
   return out;
 }
 
+// Whether the fallback has anything for this widget — only meaningful
+// when the generated file didn't load.
 export function hasConfigCatalog(widgetName) {
   return !!WIDGET_CONFIGS[widgetName];
 }
 
-// The available options for one widget: its configuration's, plus any
-// exposed property the configuration doesn't list (so everything exposed
-// always has a row to untick). Sorted by group, 'General' first, then name.
-export function getWidgetOptionCatalog(widgetName, exposedDefs = []) {
-  const options = WIDGET_CONFIGS[widgetName] ? flatten(WIDGET_CONFIGS[widgetName], '', []) : [];
+// One generated entry ({ n, t, o?, d? }) as an option.
+function fromGenerated(entry) {
+  const option = { name: entry.n, type: entry.t, group: groupForOption(entry.n), source: 'catalog' };
+  if (entry.o) option.choices = entry.o;
+  if (entry.d !== undefined) option.value = entry.d;
+  // The generated file types an enum by its choices; with none it's text.
+  if (option.type === 'enum' && !option.choices) option.type = 'string';
+  return option;
+}
+
+// The available options for one widget: the generated list when it loaded
+// (`generated` is the file's `widgets` map, or null), else the flattened
+// configuration — plus any exposed property neither knows about, so
+// everything exposed always has a row to untick. Sorted by group, 'General'
+// first, then name.
+export function getWidgetOptionCatalog(widgetName, exposedDefs = [], generated = null) {
+  const fromFile = generated?.[widgetName];
+  const options = fromFile
+    ? fromFile.map(fromGenerated)
+    : (WIDGET_CONFIGS[widgetName] ? flatten(WIDGET_CONFIGS[widgetName], '', []) : []);
   const known = new Set(options.map(o => o.name));
   exposedDefs.forEach(def => {
     if (known.has(def.name)) return;
@@ -111,7 +132,8 @@ export function defaultForType(type, options) {
 export function defFromOption(option) {
   const type = option.type === 'unknown' ? 'string' : option.type;
   const def = { name: option.name, label: labelForOption(option.name), type };
-  const fallback = defaultForType(type);
+  if (type === 'enum' && option.choices) def.options = option.choices;
+  const fallback = defaultForType(type, def.options);
   const value = option.value !== undefined ? option.value : fallback;
   if (value !== undefined) def.default = value;
   return def;
