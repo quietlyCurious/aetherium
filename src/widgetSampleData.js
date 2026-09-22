@@ -1,6 +1,6 @@
 // Widget sample data for live previews.
 // To swap in your own data later, simply replace the arrays/objects below.
-// Each key matches the widget name in DX_WIDGET_DATA / WIDGET_PROPERTIES.
+// Each key matches the widget name in DX_WIDGET_DATA (widgetData.js) / WIDGET_PROPERTIES (widgetProperties.js).
 
 const WIDGET_SAMPLE_DATA = {
 

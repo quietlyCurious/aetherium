@@ -55,7 +55,7 @@ import ThemeWorkspace from './ThemeWorkspace';
 import OperatorWorkspace from './operator/OperatorWorkspace';
 import { ScreensWorkspace } from './designer/screens/ScreensWorkspace';
 import { useScreenEditor } from './designer/screens/useScreenEditor';
-import { WidgetsWorkspace } from './designer/WidgetsWorkspace';
+import { WidgetsWorkspace } from './designer/widgets/WidgetsWorkspace';
 import { ScriptsWorkspace } from './designer/ScriptsWorkspace';
 import { APP_AREAS, WORKSPACES, findArea, railGroupsFor } from './shell/appAreas';
 import { AreaRail } from './shell/AreaRail';
@@ -97,8 +97,8 @@ function AetheriumEditor() {
   // ── Moving between areas ─────────────────────────────────────────────────
   // Only the area being left is asked (its handle's confirmLeave — see
   // areaHandles below):
-  //  - Data Sources, Entities, Queries, Asset Sets: confirm; leaving drops the unsaved
-  //    edits, since their editor unmounts.
+  //  - Data Sources, Entities, Queries, Asset Sets, Widgets: confirm; leaving drops the
+  //    unsaved edits, since their editor unmounts.
   //  - Visualization: the Configurator's Save/Discard dialog. Always goes
   //    ahead.
   //  - Screens: nothing to ask. The canvas lives here in App, so unsaved
@@ -193,6 +193,7 @@ function AetheriumEditor() {
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
   const assetSetsWorkspaceRef = React.useRef(null);
+  const widgetsWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
   // Whether the open area has unsaved changes — every area with something
   // to save publishes here. Drives the Save button's amber marker.
@@ -222,6 +223,7 @@ function AetheriumEditor() {
     entities: entitiesWorkspaceRef,
     queries: queriesWorkspaceRef,
     assetsets: assetSetsWorkspaceRef,
+    widgets: widgetsWorkspaceRef,
     operator: operatorWorkspaceRef,
   };
   const confirmLeaveCurrentArea = async () => (await areaHandles[currentView]?.current?.confirmLeave?.()) ?? true;
@@ -501,7 +503,7 @@ function AetheriumEditor() {
         )}
         <div className="app-area-content">
         {currentView === 'widgets' ? (
-          <WidgetsWorkspace />
+          <WidgetsWorkspace ref={widgetsWorkspaceRef} />
 
         ) : currentView === 'theme' ? (
           <ThemeWorkspace />

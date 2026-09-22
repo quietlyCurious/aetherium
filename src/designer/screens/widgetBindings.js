@@ -26,7 +26,7 @@
 //   assetId      — the screen's self (see screenAsset.jsx), or null
 
 import { evaluateExpression } from '../../expressionEval';
-import { WIDGET_PROPERTIES } from '../../widgetData';
+import { getWidgetPropertyDefs } from '../widgets/widgetPropertyDefs';
 import { resolveAssetSeries, resolveAssetValue } from '../../model/assetPaths';
 
 export const LEAVE_STATIC = Symbol('leave static value');
@@ -120,7 +120,7 @@ export function assetBindingProblem(binding, assetId, isCollectionProp = false) 
 
 // Whether any of a widget's asset bindings can't resolve for this asset.
 export function hasBrokenAssetBinding(bindings, widgetName, assetId) {
-  const propDefs = WIDGET_PROPERTIES[widgetName] || [];
+  const propDefs = getWidgetPropertyDefs(widgetName);
   return Object.entries(bindings || {}).some(([propName, b]) => {
     if (b?.type !== 'asset') return false;
     const isCollection = propDefs.find(p => p.name === propName)?.type === 'data';
@@ -165,7 +165,7 @@ export function expandDotPaths(flatProps) {
 // with no resolver is ignored.
 export function resolveWidgetProps(widgetProps, bindings, widgetName, context = {}) {
   const resolved = { ...(widgetProps || {}) };
-  const propDefs = WIDGET_PROPERTIES[widgetName] || [];
+  const propDefs = getWidgetPropertyDefs(widgetName);
   Object.entries(bindings || {}).forEach(([propName, binding]) => {
     // Own keys only, so a stray type like 'constructor' can't reach an
     // inherited Object method.

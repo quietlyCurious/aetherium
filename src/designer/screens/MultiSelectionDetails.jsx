@@ -10,9 +10,9 @@
 //               name), when the selection is all widgets
 // Moved out of App.js unchanged.
 
-import React from 'react';
 import { findContainerById } from '../../containerTree';
-import { WIDGET_PROPERTIES } from '../../widgetData';
+import { getWidgetPropertyDefs } from '../widgets/widgetPropertyDefs';
+import { WidgetPropertyGrid } from '../widgets/WidgetPropertyField';
 import { sharedTextField as ti, selectField as sb, overflowField, OverflowWarning } from './detailsFields';
 
 export function MultiSelectionDetails({ editor }) {
@@ -47,7 +47,7 @@ export function MultiSelectionDetails({ editor }) {
   const sharedPropDefs = (() => {
     if (!allWidgets) return [];
     const propMaps = selected.map(c => {
-      const defs = WIDGET_PROPERTIES[c.widgetName] || [];
+      const defs = getWidgetPropertyDefs(c.widgetName);
       return new Map(defs.map(p => [p.name, p]));
     });
     if (propMaps.length === 0) return [];
@@ -164,27 +164,20 @@ export function MultiSelectionDetails({ editor }) {
 
       {sharedPropDefs.length > 0 && (
         <div className="details-section">
-          <div className="details-grid">
-            <span className="details-section-title">{sharedWidgetName ? `${sharedWidgetName} Properties` : 'Shared Widget Properties'}</span>
-            {sharedPropDefs.map(p => {
+          <WidgetPropertyGrid
+            title={sharedWidgetName ? `${sharedWidgetName} Properties` : 'Shared Widget Properties'}
+            defs={sharedPropDefs}
+            renderControl={(p) => {
+              // Blank when the selected widgets disagree (sharedTextField).
               const sharedVal = shared(c => c.widgetProps?.[p.name]);
-              return (
-                <React.Fragment key={p.name}>
-                  <span className="details-grid-label">{p.label}</span>
-                  <div className="details-grid-control">
-                    {p.type === 'bool' && sb(
-                      [{ v: true, l: 'true' }, { v: false, l: 'false' }],
-                      sharedVal,
-                      v => updateAllWidgetProps({ [p.name]: v }),
-                    )}
-                    {p.type === 'enum' && sb(p.options, sharedVal, v => updateAllWidgetProps({ [p.name]: v }))}
-                    {p.type === 'string' && ti(sharedVal, '—', v => updateAllWidgetProps({ [p.name]: v }))}
-                    {p.type === 'number' && ti(sharedVal, '—', v => updateAllWidgetProps({ [p.name]: v }), 'number')}
-                  </div>
-                </React.Fragment>
-              );
-            })}
-          </div>
+              const set = v => updateAllWidgetProps({ [p.name]: v });
+              if (p.type === 'bool') return sb([{ v: true, l: 'true' }, { v: false, l: 'false' }], sharedVal, set);
+              if (p.type === 'enum') return sb(p.options, sharedVal, set);
+              if (p.type === 'number') return ti(sharedVal, '—', set, 'number');
+              if (p.type === 'string' || p.type === 'color') return ti(sharedVal, '—', set);
+              return null; // 'data' — bind-only, and bindings are per widget
+            }}
+          />
         </div>
       )}
     </div>

@@ -147,9 +147,10 @@ either mode without extra work.
 ## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries, Asset Sets)
 
 Not refactored the way the Operator side was — it isn't seven comparable
-areas. Screens is the big one (its own folder, below); Theme, Widgets and
-Scripts are small; Data Sources, Entities, Queries and Asset Sets are "a
-list of definitions plus an editor".
+areas. Screens is the big one (its own folder, below); Widgets has its
+own folder too (below); Theme and Scripts are small; Data Sources,
+Entities, Queries and Asset Sets are "a list of definitions plus an
+editor".
 
 Those four share `src/designer/DefinitionWorkspace.jsx`: it owns
 selection, the confirm-before-losing-edits prompt, and publishing the open
@@ -193,6 +194,32 @@ Save/Discard dialog, and Screens asks nothing, because its canvas lives in
 App and is still there when you come back. Every area with something to
 save publishes its unsaved state to `unsavedChangesStore`, which lights the
 Save button's amber dot.
+
+**Widgets** (`src/designer/widgets/`) decides which of each widget's
+DevExtreme options the Screens designer exposes. The shipped lists are
+`src/widgetProperties.js` (split out of `widgetData.js`, which now holds
+only the catalog). **Nothing reads that file directly**: every reader —
+`ContainerDetails`, `MultiSelectionDetails`, `makeWidgetContainer`,
+`widgetBindings`, the binding popover — goes through
+`widgetPropertyDefs.js` (`getWidgetPropertyDefs`,
+`useWidgetPropertyOverrides`), which layers the Widgets area's saved
+edits on top. A widget with saved edits uses its saved list in full
+(not a diff), stored per browser by `widgetPropertyOverridesStorage.js`.
+The area's Export writes every list back out as a complete
+`widgetProperties.js` (`widgetPropertiesSource.js`, in a .zip via
+`zipFile.js`, or to the clipboard); commit it and any saved list that now
+matches is dropped on the next load. The committed file is itself
+exporter output, and a test checks they stay byte-identical — if you
+hand-edit `widgetProperties.js`, keep the exporter's layout or that test
+fails. "Available options" come from flattening `widgetConfigs.js`
+(`widgetOptionCatalog.js`), which only covers 40 of the 75 widgets and
+often has null defaults (types then guessed from the name and flagged);
+options can also be added by path. A definition is `{ name, label, type,
+options?, default, bindable?, group? }`; `type` gained `color`, and
+`group` puts a heading in the details panel (ungrouped first, as before).
+`WidgetPropertyField` / `WidgetPropertyGrid` draw a widget's properties
+for both the Screens details panel and the area's preview, so the preview
+is the real panel.
 
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
@@ -335,8 +362,12 @@ class names match, as of phase 5: `op-property-tile-*`,
   Launch, Save), navigation between areas, and the shared data
   definitions (data sources, entities, queries). Every area is its own
   workspace component; `src/shell/appAreas.js` lists them.
-- `src/designer/WidgetsWorkspace.jsx`, `ScriptsWorkspace.jsx` — the two
-  small designer areas (a widget catalog browser; a placeholder).
+- `src/designer/widgets/` — the Widgets area (see "The designer half"):
+  `WidgetsWorkspace`, `WidgetOptionsPanel`, `ExposedPropertiesEditor`,
+  `WidgetPropertiesPreview`, `WidgetsExport`, the shared
+  `WidgetPropertyField`, and the `widgetPropertyDefs` store every widget
+  property lookup goes through.
+- `src/designer/ScriptsWorkspace.jsx` — the Scripts area (a placeholder).
 - **Explanations and detectors** (`INDUSTRY_PACK_SPEC.md` §14): a pack
   can ship `explanations.json`, written by its own `explain.py` from
   detectors built on the shared toolkit in `ModelAndData/tools/detectors/`.

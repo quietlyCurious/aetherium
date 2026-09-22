@@ -1,0 +1,10 @@
+/* designer/widgets/widgetPropertyField.css — WidgetPropertyField and
+   WidgetPropertyGrid (class prefix widget-prop-), used by the Screens details
+   panel and the Widgets area's preview. */
+
+.widget-prop-color-swatch {
+  width: 24px; height: 22px; padding: 0 1px; flex-shrink: 0;
+  border: 1px solid #d1d1d1; border-radius: 3px; background: #fff; cursor: pointer;
+}
+.details-section-title.widget-prop-group-title { margin-top: 10px; color: #777; }
+

@@ -21,7 +21,7 @@ import {
   extractFromTree, addChildToTree, findContainerById, isLockedOrAncestorLocked,
   updateLayoutInTree, updateSlotInTree, updateCoordInTree, updateContainerInTree,
 } from '../../containerTree';
-import { WIDGET_PROPERTIES } from '../../widgetData';
+import { defaultPropsFor } from '../widgets/widgetPropertyDefs';
 import { buildDefaultCells } from '../../GridEditor';
 
 // ── Aspect ratio ────────────────────────────────────────────────────────────
@@ -195,8 +195,7 @@ export function applyStyle(tree, targetId, paintbrush) {
 
 // A new widget container with every property at its default.
 export function makeWidgetContainer(parentId, widgetName) {
-  const defaultProps = {};
-  (WIDGET_PROPERTIES[widgetName] || []).forEach(p => { defaultProps[p.name] = p.default; });
+  const defaultProps = defaultPropsFor(widgetName);
   return {
     ...makeContainer(parentId, widgetName),
     isWidget: true,

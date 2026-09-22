@@ -375,7 +375,7 @@
           <g font-size="12" fill="currentColor">
             <text x="538" y="144"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">OperatorWorkspace</tspan><tspan opacity="0.7"> · persona 'configurator'</tspan></text>
             <text x="538" y="176"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">ScreensWorkspace</tspan><tspan opacity="0.7"> · state: useScreenEditor, held by App</tspan></text>
-            <text x="538" y="204"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">WidgetsWorkspace</tspan><tspan opacity="0.7"> · widget catalog browser</tspan></text>
+            <text x="538" y="204"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">WidgetsWorkspace</tspan><tspan opacity="0.7"> · which options each widget exposes</tspan></text>
             <text x="538" y="232"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">ThemeWorkspace</tspan><tspan opacity="0.7"> · base theme gallery</tspan></text>
             <text x="538" y="278" font-family="IBM Plex Mono, monospace" font-size="11.5">DataSourcesWorkspace</text>
             <text x="538" y="306" font-family="IBM Plex Mono, monospace" font-size="11.5">EntitiesWorkspace</text>
@@ -399,7 +399,8 @@
             <tr><td>Operator Experience</td><td class="mono">operator/OperatorWorkspace</td><td>hidden</td><td>Save / Discard dialog if an editor is open (never in practice here)</td></tr>
             <tr><td>Visualization</td><td class="mono">operator/OperatorWorkspace</td><td>the open editor's template</td><td>Save / Discard dialog, then goes</td></tr>
             <tr><td>Screens</td><td class="mono">designer/screens/ScreensWorkspace</td><td>the open screen</td><td>goes; the canvas and its unsaved edits wait in App</td></tr>
-            <tr><td>Widgets · Theme · Scripts</td><td class="mono">designer/WidgetsWorkspace · ThemeWorkspace · designer/ScriptsWorkspace</td><td>disabled</td><td>goes</td></tr>
+            <tr><td>Widgets</td><td class="mono">designer/widgets/WidgetsWorkspace</td><td>the open widget's exposed properties</td><td>confirm; leaving drops unsaved edits</td></tr>
+            <tr><td>Theme · Scripts</td><td class="mono">ThemeWorkspace · designer/ScriptsWorkspace</td><td>disabled</td><td>goes</td></tr>
             <tr><td>Data Sources · Entities · Queries · Asset Sets</td><td class="mono">DataSourcesWorkspace · EntitiesWorkspace · QueriesWorkspace · designer/assetSets/AssetSetsWorkspace</td><td>the open definition</td><td>confirm; leaving drops unsaved edits</td></tr>
           </tbody>
         </table>
@@ -1200,7 +1201,14 @@
             <tr><td class="mono">assetSets/RuleEditor.jsx</td><td class="num">169</td><td>A rule's form, in the order it applies: where to look, types, attention, conditions, best / worst N</td></tr>
             <tr><td class="mono">assetSets/AssetSetPreview.jsx</td><td class="num">118</td><td>What a set resolves to now: count, how the rule narrowed it, a count by type, the assets with the values it filters and ranks by</td></tr>
             <tr><td class="mono">assetSets/assetSetOptions.js</td><td class="num">27</td><td>The editor's asset and type choice lists, cached per model</td></tr>
-            <tr><td class="mono">WidgetsWorkspace.jsx</td><td class="num">75</td><td>The Widgets area: the widget catalog browser</td></tr>
+            <tr><td class="mono">widgets/WidgetsWorkspace.jsx</td><td class="num">171</td><td>The Widgets area: widget list (flags, edited marks, Export), the open widget's draft, Save / leave checks</td></tr>
+            <tr><td class="mono">widgets/WidgetOptionsPanel.jsx</td><td class="num">97</td><td>Available options: tick to expose, filter, add by path</td></tr>
+            <tr><td class="mono">widgets/ExposedPropertiesEditor.jsx</td><td class="num">185</td><td>The exposed list: label, type, choices, default, group, bindable; drag to reorder</td></tr>
+            <tr><td class="mono">widgets/WidgetPropertiesPreview.jsx</td><td class="num">62</td><td>The widget and its details panel, from the draft, with try-out values</td></tr>
+            <tr><td class="mono">widgets/WidgetPropertyField.jsx</td><td class="num">74</td><td>One property's input by type, and the grouped grid — shared with the Screens details panel</td></tr>
+            <tr><td class="mono">widgets/widgetPropertyDefs.js</td><td class="num">152</td><td>The store every widget property lookup goes through: shipped lists plus saved edits</td></tr>
+            <tr><td class="mono">widgets/widgetOptionCatalog.js</td><td class="num">148</td><td>Everything a widget could expose (flattened widgetConfigs), and a new option's starting definition</td></tr>
+            <tr><td class="mono">widgets/widgetPropertiesSource.js · WidgetsExport.jsx · zipFile.js</td><td class="num">93 · 50 · 101</td><td>Export: every list written as widgetProperties.js, as a .zip or to the clipboard</td></tr>
             <tr><td class="mono">ScriptsWorkspace.jsx</td><td class="num">18</td><td>The Scripts area (placeholder)</td></tr>
           </tbody>
         </table>
@@ -1212,7 +1220,7 @@
           <thead><tr><th>Group</th><th>Files</th></tr></thead>
           <tbody>
             <tr><td>Screens building blocks</td><td><span class="mono">ContainerCard</span> (677), <span class="mono">containerModel</span>, <span class="mono">containerTree</span>, <span class="mono">containerStyles</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetBindingPopover</span>, <span class="mono">InputBindingPopover</span>, <span class="mono">QueryInstanceDetailsPanel</span>, <span class="mono">Wizard</span> (694), <span class="mono">RuntimeView</span>, <span class="mono">pagesStorage</span></td></tr>
-            <tr><td>Widget catalog</td><td><span class="mono">widgetData</span> (673), <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetSampleData</span>, <span class="mono">WidgetPreview</span>, <span class="mono">WidgetConfigPanel</span></td></tr>
+            <tr><td>Widget catalog</td><td><span class="mono">widgetData</span> (the catalog), <span class="mono">widgetProperties</span> (the shipped exposed-property lists — read only through designer/widgets/widgetPropertyDefs), <span class="mono">widgetPropertyOverridesStorage</span>, <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetSampleData</span>, <span class="mono">WidgetPreview</span></td></tr>
             <tr><td>Theme</td><td><span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span></td></tr>
             <tr><td>Data definitions</td><td><span class="mono">DataSourcesWorkspace</span> (736), <span class="mono">QueriesWorkspace</span> (729), <span class="mono">EntitiesWorkspace</span>, <span class="mono">dataModel</span> (538), <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span></td></tr>
             <tr><td>Shared components</td><td><span class="mono">DataListGrid</span> (passes a row click on once), <span class="mono">HierarchyTree</span></td></tr>

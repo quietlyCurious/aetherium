@@ -21,7 +21,8 @@ import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import { DEFAULT_LAYOUT, DEFAULT_SLOT, DEFAULT_COORD, ROOT_CONTAINER_ID, BASE_TIER_ID, toHtmlId } from '../../containerModel';
 import { flattenContainers, findContainerById } from '../../containerTree';
 import { getTierById } from '../../breakpointConfig';
-import { WIDGET_PROPERTIES } from '../../widgetData';
+import { getWidgetPropertyDefs, useWidgetPropertyOverrides } from '../widgets/widgetPropertyDefs';
+import { WidgetPropertyField, WidgetPropertyGrid } from '../widgets/WidgetPropertyField';
 import { evaluateExpression } from '../../expressionEval';
 import { buildDefaultCells, migrateGridCells } from '../../GridEditor';
 import { textField as ti, selectField as sb, overflowField, OverflowWarning } from './detailsFields';
@@ -98,64 +99,49 @@ function describeBinding(binding, editor, queries, self, isCollection) {
 
 function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) {
   const { selectedContainerId, bindingPopoverProp } = editor;
-  const propDefs = WIDGET_PROPERTIES[container.widgetName];
+  const propDefs = getWidgetPropertyDefs(container.widgetName);
   const props = container.widgetProps || {};
   const bindings = container.bindings || {};
   const setProp = (name, value) => editor.updateWidgetProps(selectedContainerId, { [name]: value });
+  const renderControl = (p) => {
+    const binding = bindings[p.name];
+    const isBound = !!binding;
+    const isOpen = bindingPopoverProp?.containerId === selectedContainerId && bindingPopoverProp?.propName === p.name;
+    const { text: bindingDisplayText, title: bindingTitle, isErr } = describeBinding(binding, editor, queries, self, p.type === 'data');
+    return (
+      <div style={{ display: 'flex', gap: 3, alignItems: 'center', width: '100%', minWidth: 0 }}>
+        {isBound ? (
+          <div
+            className={`binding-value-display${isErr ? ' binding-value-display--error' : ''}`}
+            title={bindingTitle}
+            style={{ flex: 1, minWidth: 0 }}
+          >
+            ⚡ {bindingDisplayText}
+          </div>
+        ) : (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <WidgetPropertyField def={p} value={props[p.name]} onChange={(value) => setProp(p.name, value)} />
+          </div>
+        )}
+        {p.bindable !== false && (
+          <button
+            className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
+            title={isBound ? `Edit binding: ${bindingTitle}` : 'Bind this property'}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isOpen) { editor.setBindingPopoverProp(null); return; }
+              const rect = e.currentTarget.getBoundingClientRect();
+              editor.setBindingPopoverProp({ containerId: selectedContainerId, propName: p.name, x: rect.left, y: rect.top });
+            }}
+          >⚡</button>
+        )}
+      </div>
+    );
+  };
   return (
     <div className={`details-tab-content${lockedClass}`}>
       <div className="details-section">
-        <div className="details-grid">
-          <span className="details-section-title">{container.widgetName}</span>
-          {propDefs.map(p => {
-            const binding = bindings[p.name];
-            const isBound = !!binding;
-            const isOpen = bindingPopoverProp?.containerId === selectedContainerId && bindingPopoverProp?.propName === p.name;
-            const { text: bindingDisplayText, title: bindingTitle, isErr } = describeBinding(binding, editor, queries, self, p.type === 'data');
-            return (
-              <React.Fragment key={p.name}>
-                <span className="details-grid-label">{p.label}</span>
-                <div className="details-grid-control">
-                  <div style={{ display: 'flex', gap: 3, alignItems: 'center', width: '100%', minWidth: 0 }}>
-                    {isBound ? (
-                      <div
-                        className={`binding-value-display${isErr ? ' binding-value-display--error' : ''}`}
-                        title={bindingTitle}
-                        style={{ flex: 1, minWidth: 0 }}
-                      >
-                        ⚡ {bindingDisplayText}
-                      </div>
-                    ) : (
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        {p.type === 'bool' && <SelectBox dataSource={[{v:true,l:'true'},{v:false,l:'false'}]} displayExpr="l" valueExpr="v" value={props[p.name] ?? p.default} onValueChanged={(e) => setProp(p.name, e.value)} stylingMode="outlined" width="100%" height={24} />}
-                        {p.type === 'enum' && <SelectBox dataSource={p.options} value={props[p.name] ?? p.default} onValueChanged={(e) => setProp(p.name, e.value)} stylingMode="outlined" width="100%" height={24} />}
-                        {p.type === 'string' && <input className="details-input" style={{ width: '100%' }} value={props[p.name] ?? p.default} onChange={(e) => setProp(p.name, e.target.value)} />}
-                        {p.type === 'number' && <input className="details-input" style={{ width: '100%' }} type="number" value={props[p.name] ?? p.default} onChange={(e) => setProp(p.name, parseFloat(e.target.value) || 0)} />}
-                        {p.type === 'data' && (
-                          <span style={{ fontSize: 10, color: '#aaa', fontStyle: 'italic' }}>
-                            Bind to set — no static value for a collection
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {p.bindable !== false && (
-                      <button
-                        className={`binding-icon-btn${isBound ? ' binding-icon-btn--active' : ''}`}
-                        title={isBound ? `Edit binding: ${bindingTitle}` : 'Bind this property'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isOpen) { editor.setBindingPopoverProp(null); return; }
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          editor.setBindingPopoverProp({ containerId: selectedContainerId, propName: p.name, x: rect.left, y: rect.top });
-                        }}
-                      >⚡</button>
-                    )}
-                  </div>
-                </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
+        <WidgetPropertyGrid title={container.widgetName} defs={propDefs} renderControl={renderControl} />
       </div>
     </div>
   );
@@ -507,6 +493,7 @@ function GeneralTab({ editor, self, container, title, parentContainer, isBase, t
 }
 
 export function ContainerDetails({ editor, queries, self }) {
+  useWidgetPropertyOverrides(); // re-render if the Widgets area saves a change
   const { containers, selectedContainerId, activeTierId } = editor;
   const flat = flattenContainers(containers);
   const found = flat.find(c => c.id === selectedContainerId);
@@ -530,7 +517,7 @@ export function ContainerDetails({ editor, queries, self }) {
     ? findContainerById(containers, container.parentId)
     : null;
   const lockedClass = editor.isSelectedLocked ? ' details-locked' : '';
-  const widgetPropDefs = container.isWidget && container.widgetName ? WIDGET_PROPERTIES[container.widgetName] : null;
+  const widgetPropDefs = container.isWidget && container.widgetName ? getWidgetPropertyDefs(container.widgetName) : null;
 
   return (
     <div key={selectedContainerId} style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

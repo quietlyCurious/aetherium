@@ -71,7 +71,10 @@ export const APP_AREAS = [
     usesModel: true, showsLaunch: true,
     save: { title: ({ hasUnsavedChanges, activePageId }) => hasUnsavedChanges ? UNSAVED : (activePageId ? 'Save this screen' : 'Save as a new screen') },
   },
-  { id: 'widgets', workspace: 'configurator', railGroup: 'design', view: 'widgets', label: 'Widgets', Icon: WidgetsRailIcon, save: null },
+  {
+    id: 'widgets', workspace: 'configurator', railGroup: 'design', view: 'widgets', label: 'Widgets', Icon: WidgetsRailIcon,
+    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : "Save this widget's exposed properties" },
+  },
   { id: 'theme',   workspace: 'configurator', railGroup: 'design', view: 'theme',   label: 'Theme',   Icon: ThemeRailIcon,   save: null },
 
   {

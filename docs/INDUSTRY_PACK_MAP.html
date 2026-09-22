@@ -286,7 +286,7 @@
       <div class="glance" role="list">
         <div role="listitem"><strong>8</strong><span>industry models in <code>models.json</code></span></div>
         <div role="listitem"><strong>8 + 1</strong><span>files per pack (plus optional <code>explanations.json</code>)</span></div>
-        <div role="listitem"><strong>5</strong><span>packs with a committed <code>generate.py</code></span></div>
+        <div role="listitem"><strong>8</strong><span>packs with a committed <code>generate.py</code> (all of them)</span></div>
         <div role="listitem"><strong>54</strong><span>detectors across the five generated packs</span></div>
         <div role="listitem"><strong>4</strong><span>runtime modules that load and read a pack</span></div>
         <div role="listitem"><strong>0</strong><span>model names hardcoded in the Operator code</span></div>
@@ -398,12 +398,12 @@
       <h2>Where the files live</h2>
 <pre class="tree">INDUSTRY_PACK_SPEC.md            <span class="c">the contract: research → design → files → checks (§0–§14)</span>
 ModelAndData/
-  industries/&lt;model&gt;/            <span class="c">one folder per generated pack (wind, ccgt, pipeline, pharma, grid)</span>
+  industries/&lt;model&gt;/            <span class="c">one folder per pack (all eight)</span>
     RESEARCH.md                  <span class="c">process, hierarchy, KPIs, failure modes, sources</span>
     SCENARIOS.md                 <span class="c">each attention item's story, timing and data footprint</span>
     generate.py                  <span class="c">writes the 8 runtime files; fixed seed, standard library only</span>
-    explain.py                   <span class="c">detectors → explanations.json            (all five)</span>
-    robustness.py                <span class="c">detectors vs. regenerated data            (all five)</span>
+    explain.py                   <span class="c">detectors → explanations.json            (wind, ccgt, pipeline, pharma, grid)</span>
+    robustness.py                <span class="c">detectors vs. regenerated data            (same five)</span>
     explanations_preview.html    <span class="c">standalone review page for the explanations</span>
   tools/
     validate_industry_pack.py    <span class="c">checks one pack, or every pack with --all</span>
@@ -551,7 +551,7 @@ src/
         </div>
         <div class="note">
           <h4>Coverage today</h4>
-          <p>Wind 9, ccgt 11, pipeline 11, pharma 11 and grid 12 detectors, one per attention item, spanning archetypes 03–14. The three converted packs use the plain AI tab.</p>
+          <p>Wind 9, ccgt 11, pipeline 11, pharma 11 and grid 12 detectors, one per attention item, spanning archetypes 03–14. Refinery, water and wastewater use the plain AI tab for now.</p>
           <p class="where">public/data/{wind,ccgt,pipeline,pharma,grid}/explanations.json</p>
         </div>
       </div>
@@ -564,9 +564,9 @@ src/
         <table>
           <thead><tr><th>Model</th><th>Levels (unit level <u>underlined</u>)</th><th class="num">Assets</th><th class="num">Items</th><th class="num">Size</th><th>Source</th></tr></thead>
           <tbody>
-            <tr><td class="mono">refinery</td><td>refinery · <u>line</u> · station</td><td class="num">80</td><td class="num">13 / 14</td><td class="num">437 KB</td><td>converted</td></tr>
-            <tr><td class="mono">water</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">7 / 9</td><td class="num">351 KB</td><td>converted</td></tr>
-            <tr><td class="mono">wastewater</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">5 / 5</td><td class="num">330 KB</td><td>converted</td></tr>
+            <tr><td class="mono">refinery</td><td>refinery · <u>line</u> · station</td><td class="num">80</td><td class="num">13 / 14</td><td class="num">445 KB</td><td>generate.py <span class="chip flag">fictional process</span></td></tr>
+            <tr><td class="mono">water</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">7 / 9</td><td class="num">353 KB</td><td>generate.py</td></tr>
+            <tr><td class="mono">wastewater</td><td>plant · <u>train</u> · stage · equipment</td><td class="num">127</td><td class="num">5 / 5</td><td class="num">333 KB</td><td>generate.py</td></tr>
             <tr><td class="mono">wind</td><td>site · circuit · <u>turbine</u> · subsystem · component</td><td class="num">328</td><td class="num">9 / 12</td><td class="num">622 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
             <tr><td class="mono">ccgt</td><td>site · area · <u>unit</u> · system · equipment · component</td><td class="num">129</td><td class="num">11 / 14</td><td class="num">422 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
             <tr><td class="mono">pipeline</td><td>system · district · <u>facility</u> · equipment · component</td><td class="num">111</td><td class="num">11 / 14</td><td class="num">439 KB</td><td>generate.py <span class="chip save">detectors</span></td></tr>
@@ -575,7 +575,7 @@ src/
           </tbody>
         </table>
       </div>
-      <p style="font-size:13px;color:var(--muted)">Items = attention / work. Size includes <code>explanations.json</code> where present. "Converted" packs were produced once by <code>convert_legacy_to_generic.py</code> and have no generator.</p>
+      <p style="font-size:13px;color:var(--muted)">Items = attention / work. Size includes <code>explanations.json</code> where present. Refinery, water and wastewater were first converted by <code>convert_legacy_to_generic.py</code>, then given generators that keep every id, key and item the same. Refinery's process is invented (a hackathon), so its RESEARCH.md documents the fiction rather than citing sources.</p>
     </section>
 
     <section id="rules">
@@ -635,9 +635,9 @@ python3 ModelAndData/tools/validate_industry_pack.py --all</pre>
     <section id="open">
       <h2>Still open</h2>
       <ul class="tight">
-        <li><strong>Detectors for the converted packs</strong> (refinery, water, wastewater). They have no generator, so there is no way to test a detector on regenerated data; each would need one first.</li>
+        <li><strong>Detectors for refinery, water and wastewater.</strong> Their generators are in place, so detectors can now be written and robustness-tested like the other five.</li>
         <li><strong>Derivations in the UI.</strong> Rollup rules are loaded and validated but not yet shown (for example, "OEE = mean of the lines").</li>
-        <li><strong>Converted-pack warnings.</strong> Refinery types with more than 8 properties; scenario-coverage gaps in water and wastewater; SIT09/SIT11 evidence timing versus their narratives.</li>
+        <li><strong>Original-pack warnings.</strong> Refinery types with more than 8 properties; scenario-coverage gaps in water and wastewater. Documented in each SCENARIOS.md; clearing them would change types or stories.</li>
       </ul>
     </section>
   </main>

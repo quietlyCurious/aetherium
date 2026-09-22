@@ -1,0 +1,101 @@
+/* designer/widgets/widgets.css — the Widgets area (class prefix widgets-).
+   Reuses the app's details-grid / details-input / focus-mode-btn /
+   binding-icon-btn looks; the shared property field's own rules are in
+   widgetPropertyField.css. */
+
+/* ── Panels ── */
+.widgets-panel { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.widgets-panel > * { min-height: 0; }
+.widgets-empty { padding: 16px; }
+.widgets-panel-head {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 8px 12px; border-bottom: 1px solid #e0e0e0; background: #fafafa;
+}
+.widgets-panel-title { font-size: 12px; font-weight: 600; color: #333; }
+.widgets-panel-sub { font-size: 11px; color: #888; margin-right: auto; }
+.widgets-note { font-size: 11px; color: #888; padding: 8px 12px; line-height: 1.45; }
+.widgets-footnote { font-size: 10.5px; color: #999; padding: 6px 12px; border-top: 1px solid #eee; flex-shrink: 0; line-height: 1.4; }
+
+/* ── Widget list ── */
+.widgets-list-panel { display: flex; flex-direction: column; overflow: hidden; }
+.widgets-list-panel .panel-label { padding: 8px 12px 0; }
+.widgets-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 12px 6px; font-size: 10.5px; color: #888; }
+.widgets-legend > span { display: inline-flex; align-items: center; gap: 4px; }
+.widgets-list-tree { flex: 1; min-height: 0; overflow: hidden; }
+.widgets-list-item { display: flex; align-items: center; gap: 6px; width: 100%; }
+.widgets-list-item .tree-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.widgets-flag { width: 7px; height: 7px; border-radius: 50%; background: #c25b00; flex-shrink: 0; display: inline-block; }
+.widgets-flag--none { background: transparent; border: 1px dashed #aaa; box-sizing: border-box; }
+.widgets-edited { color: #0078d4; font-size: 11px; }
+.widgets-count { font-size: 10.5px; color: #999; min-width: 14px; text-align: right; }
+.widgets-export { border-top: 1px solid #e0e0e0; padding: 8px 12px; flex-shrink: 0; background: #fafafa; }
+.widgets-export-summary { font-size: 11px; color: #777; margin-bottom: 6px; }
+.widgets-export-buttons { display: flex; gap: 6px; }
+.widgets-export-buttons .focus-mode-btn:disabled,
+.widgets-panel .focus-mode-btn:disabled { opacity: .45; cursor: default; border-color: #d1d1d1; color: #555; }
+
+/* ── Available options ── */
+.widgets-options { display: flex; flex-direction: column; height: 100%; }
+.widgets-filter { margin: 8px 12px; width: auto !important; flex-shrink: 0; }
+.widgets-options-list { flex: 1; min-height: 0; overflow: auto; padding-bottom: 6px; }
+.widgets-options-group {
+  font-size: 11px; font-weight: 600; color: #555; padding: 5px 12px 3px;
+  background: #fafafa; border-top: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 1;
+}
+.widgets-option { display: flex; align-items: center; gap: 6px; padding: 3px 12px 3px 18px; font-size: 11.5px; cursor: pointer; }
+.widgets-option:hover { background: #f5f9fd; }
+.widgets-option code { font-family: Consolas, 'Courier New', monospace; font-size: 11px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.widgets-option--disabled { cursor: default; }
+.widgets-option--disabled code { color: #aaa; }
+.widgets-type-badge {
+  margin-left: auto; flex-shrink: 0; font-size: 10px; color: #888;
+  border: 1px solid #e0e0e0; border-radius: 8px; padding: 0 6px; line-height: 15px;
+}
+.widgets-type-badge--guessed,
+.widgets-type-badge--unknown { color: #a14d00; border-color: #f3c99a; background: #fff4e5; }
+.widgets-type-badge--complex { color: #aaa; }
+.widgets-add-path { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid #eee; flex-shrink: 0; }
+.widgets-add-path .details-input { flex: 1; min-width: 0; }
+.widgets-path-problem { font-size: 10.5px; color: #c50f1f; padding: 0 12px 8px; }
+
+/* ── Exposed properties ── */
+.widgets-exposed { display: flex; flex-direction: column; height: 100%; }
+.widgets-exposed-scroll { flex: 1; min-height: 0; overflow: auto; }
+.widgets-exposed-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px; }
+.widgets-exposed-table th {
+  position: sticky; top: 0; z-index: 1; background: #fff; text-align: left;
+  font-weight: 600; color: #888; padding: 5px 4px; border-bottom: 1px solid #e0e0e0;
+}
+.widgets-exposed-table th:nth-child(1) { width: 18px; }
+.widgets-exposed-table th:nth-child(2) { width: 21%; }
+.widgets-exposed-table th:nth-child(3) { width: 20%; }
+.widgets-exposed-table th:nth-child(4) { width: 82px; }
+.widgets-exposed-table th:nth-child(6) { width: 13%; }
+.widgets-exposed-table th:nth-child(7) { width: 26px; text-align: center; }
+.widgets-exposed-table th:nth-child(8) { width: 22px; }
+.widgets-exposed-table td { padding: 3px 4px; border-bottom: 1px solid #f2f2f2; vertical-align: middle; }
+.widgets-exposed-table .details-input { width: 100%; box-sizing: border-box; padding: 2px 5px; font-size: 11px; }
+.widgets-exposed-table .dx-texteditor-input { font-size: 11px !important; padding: 2px 6px !important; min-height: unset !important; }
+.widgets-exposed-drop td { box-shadow: inset 0 2px 0 #0078d4; }
+.widgets-grip-cell { padding-left: 6px !important; }
+.widgets-grip { cursor: grab; color: #bbb; letter-spacing: -2px; user-select: none; }
+.widgets-grip:hover { color: #0078d4; }
+.widgets-option-name code { font-family: Consolas, 'Courier New', monospace; font-size: 10.5px; color: #777; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widgets-default-cell { min-width: 0; }
+.widgets-center { text-align: center; }
+.widgets-remove { border: none; background: none; color: #aaa; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; }
+.widgets-remove:hover { color: #c50f1f; }
+.widgets-choices-row td { border-bottom: 1px solid #f2f2f2; padding-top: 0; }
+.widgets-choices { display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: #888; padding-left: 2px; }
+.widgets-choices .details-input { flex: 1; }
+
+/* ── Preview ── */
+.widgets-preview { display: flex; flex-direction: column; height: 100%; overflow: auto; }
+.widgets-preview .widgets-panel-head .widgets-panel-title { margin-right: auto; }
+.widgets-preview-widget {
+  height: 200px; flex-shrink: 0; margin: 10px 12px 4px; padding: 6px;
+  border: 1px solid #e0e0e0; border-radius: 4px; display: flex; overflow: hidden;
+}
+.widgets-preview-details { padding: 0 12px 12px; }
+.widgets-preview-caption { font-size: 10.5px; color: #999; font-style: italic; margin: 8px 0 0; }
+.widgets-preview-details .binding-icon-btn:disabled { cursor: default; }
