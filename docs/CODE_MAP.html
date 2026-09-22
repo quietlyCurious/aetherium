@@ -273,7 +273,7 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ 440ae89</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ 10974cf</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the whole app is put together: the two workspaces and their areas, which file owns what, how a setting or a model's data travels to a box on screen, how the Screens editor is split, and the handful of patterns everything leans on.</p>
       <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 48 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 22 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 605. Every industry model now uses the one generic data format.</p>
@@ -900,7 +900,7 @@
           </tbody>
         </table>
       </div>
-      <p><strong>Explanations</strong> (spec §14) are the "why" behind an attention item: the checks a detector ran, reference examples with this case overlaid, what was ruled out, confidence and what to do. <code>getAttentionItemExplanation(item)</code> returns one when the pack has it, and Investigate's AI tab then shows <code>ExplanationView</code> (charts drawn by <code>ExplanationChart</code>); otherwise it shows <code>AiInterpretationView</code>. Wind, Combined Cycle and Gas Pipeline have explanations today.</p>
+      <p><strong>Explanations</strong> (spec §14) are the "why" behind an attention item: the checks a detector ran, reference examples with this case overlaid, what was ruled out, confidence and what to do. <code>getAttentionItemExplanation(item)</code> returns one when the pack has it, and Investigate's AI tab then shows <code>ExplanationView</code> (charts drawn by <code>ExplanationChart</code>); otherwise it shows <code>AiInterpretationView</code>. Wind, Combined Cycle, Gas Pipeline, Biologics and Transmission Grid have explanations today; refinery, water and wastewater show the plain AI tab.</p>
     </section>
 
     <section id="screens">
@@ -1214,12 +1214,13 @@
             <tr><td class="mono">wind</td><td>Wind</td><td class="mono">industries/wind/generate.py</td><td><span class="chip now">yes</span></td></tr>
             <tr><td class="mono">ccgt</td><td>Combined Cycle</td><td class="mono">industries/ccgt/generate.py</td><td><span class="chip now">yes</span></td></tr>
             <tr><td class="mono">pipeline</td><td>Gas Pipeline</td><td class="mono">industries/pipeline/generate.py</td><td><span class="chip now">yes</span></td></tr>
-            <tr><td class="mono">pharma</td><td>Biologics (mAb)</td><td class="mono">industries/pharma/generate.py</td><td>&mdash;</td></tr>
-            <tr><td class="mono">grid</td><td>Transmission Grid</td><td class="mono">industries/grid/generate.py</td><td>&mdash;</td></tr>
+            <tr><td class="mono">pharma</td><td>Biologics (mAb)</td><td class="mono">industries/pharma/generate.py</td><td><span class="chip now">yes</span></td></tr>
+            <tr><td class="mono">grid</td><td>Transmission Grid</td><td class="mono">industries/grid/generate.py</td><td><span class="chip now">yes</span></td></tr>
           </tbody>
         </table>
       </div>
       <ul class="tight">
+        <li><span class="mono">docs/INDUSTRY_PACK_MAP.html</span>: the same kind of map for the industry-pack side: generators, detectors and tools, the pack files, the registry, and the runtime modules that read them.</li>
         <li><span class="mono">INDUSTRY_PACK_SPEC.md</span>: how to build a pack, from research and scenarios to the 8 file contracts (§6), budgets, validation, registration and detectors (§14).</li>
         <li><span class="mono">ModelAndData/industries/&lt;id&gt;/</span>: <span class="mono">RESEARCH.md</span>, <span class="mono">SCENARIOS.md</span> and <span class="mono">generate.py</span> for each generated pack; <span class="mono">explain.py</span>, <span class="mono">robustness.py</span> and an <span class="mono">explanations_preview.html</span> where it has detectors.</li>
         <li><span class="mono">ModelAndData/tools/</span>: <span class="mono">validate_industry_pack.py</span> (one pack, or <span class="mono">--all</span>); <span class="mono">detectors/</span>, the shared detector toolkit (<span class="mono">blocks</span>, <span class="mono">build</span>, <span class="mono">pack</span>, and <span class="mono">preview.py &lt;model&gt;</span> for a standalone review page); <span class="mono">convert_legacy_to_generic.py</span>, the one-off converter kept as a record.</li>

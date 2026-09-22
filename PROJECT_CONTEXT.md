@@ -30,10 +30,10 @@ folder and commit/push yourself. Claude doesn't commit or push.
 Aetherium is a React + DevExtreme 25.x app with two main halves:
 
 - **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
-  Entities, Queries) — the original app, reachable again from the
-  title-bar menu (the title reads "Aetherium ▾" there, and the model
-  switcher hides, since models only drive the Operator side). Active work
-  is on the half below.
+  Entities, Queries, Scripts) — the original app, now areas on the
+  Configuration Experience's left rail, alongside Visualization (see "The
+  designer half"). The model switcher stays visible there but is dimmed,
+  since models only drive the Operator side and Visualization so far.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
   concept: a thin `OperatorWorkspace.jsx` shell plus 48 modules and 7
   stylesheets, all under `src/operator/`. This is where essentially all recent work has
@@ -46,7 +46,7 @@ Eight simulated industry models exist — **refinery**, **water**,
 **pharma** and **grid** — each with its own real asset hierarchy and
 generated telemetry, loaded at runtime from `public/data/<model>/*.json`
 rather than hardcoded. A model switcher in the title bar (next to the
-Operator/Configurator experience switcher) picks which one is active.
+workspace menu) picks which one is active.
 The list of models, and which files each one loads, comes from
 `public/data/models.json`, so adding an industry is a data-only change
 (see `INDUSTRY_PACK_SPEC.md`).
