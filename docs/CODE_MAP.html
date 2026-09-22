@@ -276,17 +276,17 @@
       <div class="eyebrow">quietlyCurious/aetherium · main @ 10974cf</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the whole app is put together: the two workspaces and their areas, which file owns what, how a setting or a model's data travels to a box on screen, how the Screens editor is split, and the handful of patterns everything leans on.</p>
-      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 29 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 630. Every industry model now uses the one generic data format.</p>
+      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 57 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 634. Every industry model now uses the one generic data format.</p>
     </header>
 
     <section id="glance">
       <h2>At a glance</h2>
       <p>The app has two workspaces, picked from the title-bar menu. The <strong>Operator Experience</strong> is the next-gen HMI for someone running the plant. The <strong>Configuration Experience</strong> is where things get set up: <em>Visualization</em> (how each asset type and asset displays), the page builder (<em>Screens</em>, <em>Widgets</em>, <em>Theme</em>) and the data definitions (<em>Data Sources</em>, <em>Entities</em>, <em>Queries</em>, <em>Asset Sets</em>, <em>Scripts</em>).</p>
       <div class="glance" role="list">
-        <div role="listitem"><strong>630</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
+        <div role="listitem"><strong>634</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
         <div role="listitem"><strong>1,213</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
         <div role="listitem"><strong>45+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
-        <div role="listitem"><strong>29</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
+        <div role="listitem"><strong>57</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
         <div role="listitem"><strong>8</strong><span>industry models, one generic data format</span></div>
         <div role="listitem"><strong>23</strong><span>model-data variables, all written in <code>modelData.js</code></span></div>
       </div>
@@ -425,7 +425,7 @@
           <text x="24" y="90" font-size="12" fill="currentColor" opacity="0.75">title bar · persona switch</text>
           <text x="24" y="108" font-size="12" fill="currentColor" opacity="0.75">model switch · Save button</text>
           <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">which area is showing</text>
-          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">630 lines</text>
+          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">634 lines</text>
 
           <!-- OperatorWorkspace -->
           <rect x="310" y="40" width="200" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -909,7 +909,7 @@
 
     <section id="screens">
       <h2>Screens: the editor and the renderer</h2>
-      <p>The Screens area builds pages from containers and DevExtreme widgets, and binds widget properties to expressions or to queries. It's split three ways: <strong>state</strong> (a hook App holds), <strong>edits</strong> (plain functions), and <strong>drawing</strong> (the workspace and its panels). A saved page renders read-only through the same <code>ContainerCard</code> the canvas uses, so a screen looks the same wherever it shows.</p>
+      <p>The Screens area builds pages from containers and DevExtreme widgets, and binds widget properties to expressions, to queries, or to the asset the screen is about. It's split three ways: <strong>state</strong> (a hook App holds), <strong>edits</strong> (plain functions), and <strong>drawing</strong> (the workspace and its panels). A saved page renders read-only through the same <code>ContainerCard</code> the canvas uses, so a screen looks the same wherever it shows.</p>
 
       <figure>
         <div class="fig-scroll">
@@ -991,7 +991,8 @@
 
       <ul class="tight">
         <li><strong>A page</strong> is <span class="mono">{ id, name, folderId, containers, breakpointOverrides, … }</span> in localStorage <span class="mono">aetherium_pages</span>. Containers nest; a grid container's cells each hold one cell container. Each container carries a <span class="mono">slot</span> (flex placement and box model), a <span class="mono">coord</span> (for coordinate layouts), per-tier <span class="mono">breakpointOverrides</span>, and a widget's <span class="mono">widgetProps</span> and <span class="mono">bindings</span>.</li>
-        <li><strong>A binding</strong> is <span class="mono">{ type: 'expression', expression }</span> or <span class="mono">{ type: 'query', queryInstanceId, outputField | outputFields, transform }</span>. Adding a kind of binding (say, a property of the asset a screen is showing) is one entry in <span class="mono">BINDING_RESOLVERS</span>.</li>
+        <li><strong>A binding</strong> is <span class="mono">{ type: 'expression', expression }</span> or <span class="mono">{ type: 'query', queryInstanceId, outputField | outputFields, transform }</span> or <span class="mono">{ type: 'asset', path, property }</span>. Each type is one entry in <span class="mono">BINDING_RESOLVERS</span>.</li>
+        <li><strong>A screen about a type</strong> has <span class="mono">context: { modelId, typeId }</span> on its root container (set any time from the Page's General details, "About"). It's drawn for one asset of that type at a time, its <em>self</em>: "Preview as" on the canvas toolbar, <span class="mono">?runtime=&lt;page&gt;&amp;asset=&lt;id&gt;</span> for Launch. An asset binding's <span class="mono">path</span> goes by type (<span class="mono">['drivetrain', 'gearbox']</span>, <span class="mono">'..'</span> for the parent), so one screen works for every asset of the type (<span class="mono">model/assetPaths.js</span>). Changing the type checks the page's asset bindings first and never removes them; ones that don't resolve show a red <span class="mono">⚡!</span> badge until fixed.</li>
         <li><strong>Query instances</strong> put a query on a page (<span class="mono">aetherium_query_instances</span>). Their ids restart at 1 per page, so every lookup is scoped to the page (plus app-scoped instances).</li>
         <li><strong>Locks:</strong> a locked container, or anything under one, can't be edited, moved, deleted, painted or pasted into. The checks (<span class="mono">LOCK GUARD</span>) live in <span class="mono">useScreenEditor</span>, not in the edit functions.</li>
       </ul>
@@ -1073,6 +1074,11 @@
           <p><code>widgetBindings.js</code> turns a widget's static props plus its bindings into what it renders, with one entry per binding type in <code>BINDING_RESOLVERS</code>. The canvas and the runtime both go through it, so they can't disagree.</p>
           <p class="where">designer/screens/widgetBindings.js · ContainerCard</p>
         </div>
+        <div class="card">
+          <h4>Self travels in context</h4>
+          <p>The asset a screen shows reaches <code>ContainerCard</code> through a React context (<code>ScreenAssetProvider</code> / <code>useScreenAsset</code>), not props, so it doesn't thread through every level of nesting. The canvas and <code>ScreenView</code> provide it; a repeater will wrap each item in its own, making that item <em>self</em> inside it.</p>
+          <p class="where">designer/screens/screenAsset.jsx · ContainerCard</p>
+        </div>
         <div class="note">
           <h4>Shortcuts belong to their area</h4>
           <p>The canvas's Ctrl/Cmd+C and V listen only while Screens is open, and never while you're typing in a field. A document-wide listener with <code>preventDefault</code> once broke paste in every text field in the app.</p>
@@ -1091,12 +1097,12 @@
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">App.js</td><td class="num">630</td><td>Title bar (workspace menu, model switcher, Launch, Save), navigation and its one leave check, the Configuration rail, the shared data definitions, and the Screens editor's state</td></tr>
-            <tr><td class="mono">shell/appAreas.js</td><td class="num">107</td><td>The two workspaces and every area: label, rail group, icon, Save wording, whether it uses the model or shows Launch</td></tr>
+            <tr><td class="mono">App.js</td><td class="num">634</td><td>Title bar (workspace menu, model switcher, Launch, Save), navigation and its one leave check, the Configuration rail, the shared data definitions, and the Screens editor's state</td></tr>
+            <tr><td class="mono">shell/appAreas.js</td><td class="num">110</td><td>The two workspaces and every area: label, rail group, icon, Save wording, whether it uses the model or shows Launch</td></tr>
             <tr><td class="mono">shell/AreaRail.jsx</td><td class="num">59</td><td>The left rail, in groups; both workspaces use it</td></tr>
-            <tr><td class="mono">shell/areaIcons.jsx</td><td class="num">41</td><td>Rail icons for the page-builder and data areas</td></tr>
+            <tr><td class="mono">shell/areaIcons.jsx</td><td class="num">45</td><td>Rail icons for the page-builder and data areas</td></tr>
             <tr><td class="mono">shell/appRail.css</td><td class="num">154</td><td>Rail styles (<span class="mono">app-rail-*</span>), shared with the Operator's right rail</td></tr>
-            <tr><td class="mono">App.css + App.*.css</td><td class="num">1,844</td><td>Title bar and chrome (<span class="mono">App.css</span>), plus locked, snap, bindings, data, details-radius, license-banner and thin-scrollbar sheets</td></tr>
+            <tr><td class="mono">App.css + App.*.css</td><td class="num">1,872</td><td>Title bar and chrome (<span class="mono">App.css</span>), plus locked, snap, bindings, data, details-radius, license-banner and thin-scrollbar sheets</td></tr>
             <tr><td class="mono">unsavedChangesStore.js</td><td class="num">120</td><td>The one "unsaved changes" flag every area publishes to, and <span class="mono">useUnsavedTracker</span></td></tr>
           </tbody>
         </table>
@@ -1111,8 +1117,11 @@
             <tr><td class="mono">modelData.js</td><td class="num">232</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
             <tr><td class="mono">assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset and explanation</td></tr>
             <tr><td class="mono">assetSets.js</td><td class="num">296</td><td>Asset sets: the kinds, <span class="mono">resolveAssetSet</span> (picked or rule → ordered asset ids, plus the narrowing steps), and helpers for the editor</td></tr>
-            <tr><td class="mono">assetSets.test.js</td><td class="num">120</td><td>12 tests of the resolver against the real wind pack (<span class="mono">npx react-scripts test --watchAll=false src/model</span>)</td></tr>
-            <tr><td class="mono">useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; used by <span class="mono">OperatorWorkspace</span>, <span class="mono">ScreensWorkspace</span> and <span class="mono">AssetSetsWorkspace</span>, and skips the fetch when that model is already active</td></tr>
+            <tr><td class="mono">assetSets.test.js</td><td class="num">107</td><td>12 tests of the resolver against the real wind pack (<span class="mono">npx react-scripts test --watchAll=false src/model</span>)</td></tr>
+            <tr><td class="mono">assetPaths.js</td><td class="num">185</td><td>Paths from an asset by type (<span class="mono">['drivetrain', 'gearbox']</span>, <span class="mono">'..'</span>): following one, a value or history at the end of it, what's reachable from a type, checking a binding against a type</td></tr>
+            <tr><td class="mono">assetPaths.test.js</td><td class="num">75</td><td>Paths against the wind pack</td></tr>
+            <tr><td class="mono">loadPackForTests.js</td><td class="num">28</td><td>Loads a real pack into modelData for tests (Node only)</td></tr>
+            <tr><td class="mono">useLoadedModel.js</td><td class="num">88</td><td>Fetches the title bar's model and makes it active; used by <span class="mono">OperatorWorkspace</span>, <span class="mono">ScreensWorkspace</span> and <span class="mono">AssetSetsWorkspace</span>, and skips the fetch when that model is already active</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td class="num">95</td><td>Reads and checks <span class="mono">models.json</span>; each model's file list</td></tr>
           </tbody>
         </table>
@@ -1159,7 +1168,7 @@
             <tr><td class="mono">operatorViews/InvestigateStatCards.jsx</td><td class="num">62</td><td>Confidence / Risk / Outcome cards, shared by both AI-tab views</td></tr>
             <tr><td class="mono">operatorViews/AiInterpretationView.jsx</td><td class="num">53</td><td>AI tab without an explanation: observed / derived / inferred, next steps</td></tr>
             <tr><td class="mono">operatorViews/explanation/ExplanationView.jsx</td><td class="num">240</td><td>AI tab with a detector-built explanation: what we see, checks, reference examples, ruled out, confidence, what to do</td></tr>
-            <tr><td class="mono">operatorViews/explanation/ExplanationChart.jsx</td><td class="num">299</td><td>The one SVG renderer for explanation charts, check sparklines and legends</td></tr>
+            <tr><td class="mono">operatorViews/explanation/ExplanationChart.jsx</td><td class="num">311</td><td>The one SVG renderer for explanation charts, check sparklines and legends</td></tr>
             <tr><td class="mono">operatorViews/evidenceWidgets.jsx</td><td class="num">119</td><td>Comparison chart, evidence table, vertical timeline</td></tr>
             <tr><td class="mono">operatorViews/workItems.js</td><td class="num">97</td><td>Work vocabulary and the schedule-margin maths</td></tr>
             <tr><td class="mono">operatorViews/WorkListPanel.jsx</td><td class="num">123</td><td>The Work list and its cards</td></tr>
@@ -1179,28 +1188,31 @@
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">screens/useScreenEditor.js</td><td class="num">593</td><td>All Screens state and actions, and the lock rules; App calls it</td></tr>
-            <tr><td class="mono">screens/screenEdits.js</td><td class="num">475</td><td>The container-tree edits as plain functions</td></tr>
-            <tr><td class="mono">screens/screenEdits.test.js</td><td class="num">139</td><td>14 tests and 1 todo (<span class="mono">npx react-scripts test --watchAll=false src/designer/screens</span>)</td></tr>
+            <tr><td class="mono">screens/useScreenEditor.js</td><td class="num">610</td><td>All Screens state and actions, and the lock rules; App calls it</td></tr>
+            <tr><td class="mono">screens/screenEdits.js</td><td class="num">489</td><td>The container-tree edits as plain functions</td></tr>
+            <tr><td class="mono">screens/screenEdits.test.js</td><td class="num">166</td><td>14 tests and 1 todo (<span class="mono">npx react-scripts test --watchAll=false src/designer/screens</span>)</td></tr>
             <tr><td class="mono">screens/usePageQueryInstances.js</td><td class="num">109</td><td>The query instances on pages, scoped to the open page</td></tr>
-            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">217</td><td>The three panels (loading the title bar's model for them), the create wizard, the binding popovers, the canvas shortcuts</td></tr>
-            <tr><td class="mono">screens/ScreensLeftPanel.jsx</td><td class="num">345</td><td>Screens, Visuals, Data (the loaded model, or queries), Page Visuals and Page Data tabs</td></tr>
-            <tr><td class="mono">screens/ScreenCanvas.jsx</td><td class="num">238</td><td>The canvas toolbar and the page being edited</td></tr>
+            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">221</td><td>The three panels (loading the title bar's model for them), the create wizard, the binding popovers, the canvas shortcuts</td></tr>
+            <tr><td class="mono">screens/ScreensLeftPanel.jsx</td><td class="num">415</td><td>Screens, Visuals, Data (the loaded model, or queries), Page Visuals and Page Data tabs</td></tr>
+            <tr><td class="mono">screens/ScreenCanvas.jsx</td><td class="num">276</td><td>The canvas toolbar (including what the screen is about and "Preview as") and the page being edited</td></tr>
             <tr><td class="mono">screens/ScreenDetailsPanel.jsx</td><td class="num">78</td><td>The right panel: picks the details for what's selected</td></tr>
-            <tr><td class="mono">screens/ContainerDetails.jsx</td><td class="num">522</td><td>One selection: widget, Layout, Slot, Box and General tabs</td></tr>
-            <tr><td class="mono">screens/MultiSelectionDetails.jsx</td><td class="num">192</td><td>Several selected: the settings they share</td></tr>
+            <tr><td class="mono">screens/ContainerDetails.jsx</td><td class="num">568</td><td>One selection: widget, Layout, Slot, Box and General tabs</td></tr>
+            <tr><td class="mono">screens/MultiSelectionDetails.jsx</td><td class="num">185</td><td>Several selected: the settings they share</td></tr>
             <tr><td class="mono">screens/detailsFields.jsx</td><td class="num">69</td><td>The details panel's inputs</td></tr>
-            <tr><td class="mono">screens/ScreenView.jsx</td><td class="num">54</td><td>A saved page, read-only</td></tr>
+            <tr><td class="mono">screens/ScreenView.jsx</td><td class="num">60</td><td>A saved page, read-only, optionally for one asset (its self)</td></tr>
             <tr><td class="mono">screens/usePageQueryResults.js</td><td class="num">68</td><td>Runs a page's query instances and keeps the results fresh</td></tr>
-            <tr><td class="mono">screens/widgetBindings.js</td><td class="num">137</td><td>Static props + bindings &rarr; the props a widget renders with</td></tr>
+            <tr><td class="mono">screens/widgetBindings.js</td><td class="num">203</td><td>Static props + bindings &rarr; the props a widget renders with</td></tr>
+            <tr><td class="mono">screens/widgetBindings.test.js</td><td class="num">47</td><td>Asset bindings and Chart series, against the wind pack</td></tr>
+            <tr><td class="mono">screens/screenAsset.jsx</td><td class="num">119</td><td>A screen about a type: the page context, <span class="mono">ScreenAssetProvider</span>/<span class="mono">useScreenAsset</span> (self), checking bindings against a type, and <span class="mono">screenSelfOf</span> (what the editor shows and does about self)</td></tr>
             <tr><td class="mono">DefinitionWorkspace.jsx</td><td class="num">145</td><td>The list + editor shell behind Data Sources, Entities, Queries and Asset Sets</td></tr>
             <tr><td class="mono">useDefinitionDraft.js</td><td class="num">38</td><td>Draft, dirty check and save for a simple form editor</td></tr>
             <tr><td class="mono">useStoredDefinitions.js</td><td class="num">43</td><td>A definition list held in state and saved on every change (add / update / remove); App holds asset sets with it</td></tr>
+            <tr><td class="mono">modelOptions.js</td><td class="num">28</td><td>The loaded model's assets (with paths) and types as choice lists, cached per model; Asset Sets and Screens</td></tr>
+            <tr><td class="mono">AssetPicker.jsx</td><td class="num">37</td><td>One asset of the loaded model, searchable by name or path, optionally narrowed (e.g. to one type); tells a user's pick from a fallback</td></tr>
             <tr><td class="mono">assetSets/AssetSetsWorkspace.jsx</td><td class="num">71</td><td>The Asset Sets area: loads the model, lists that model's sets (name, size, what it resolves to)</td></tr>
             <tr><td class="mono">assetSets/AssetSetEditor.jsx</td><td class="num">139</td><td>One set: name, kind (Picked / Rule / Query), the picked-assets tree, and the preview beside it</td></tr>
-            <tr><td class="mono">assetSets/RuleEditor.jsx</td><td class="num">169</td><td>A rule's form, in the order it applies: where to look, types, attention, conditions, best / worst N</td></tr>
+            <tr><td class="mono">assetSets/RuleEditor.jsx</td><td class="num">151</td><td>A rule's form, in the order it applies: where to look, types, attention, conditions, best / worst N</td></tr>
             <tr><td class="mono">assetSets/AssetSetPreview.jsx</td><td class="num">118</td><td>What a set resolves to now: count, how the rule narrowed it, a count by type, the assets with the values it filters and ranks by</td></tr>
-            <tr><td class="mono">assetSets/assetSetOptions.js</td><td class="num">27</td><td>The editor's asset and type choice lists, cached per model</td></tr>
             <tr><td class="mono">widgets/WidgetsWorkspace.jsx</td><td class="num">169</td><td>The Widgets area: widget list (flags, edited marks, Export), the open widget's draft, Save / leave checks</td></tr>
             <tr><td class="mono">widgets/WidgetOptionsEditor.jsx</td><td class="num">242</td><td>The options list: tick to expose, the default value on the row, the rest behind ⋯, add by path</td></tr>
             <tr><td class="mono">widgets/OptionAdvancedFields.jsx · ChoicesField.jsx</td><td class="num">52 · 31</td><td>One option's label, type, choices, group and bindable</td></tr>
@@ -1282,6 +1294,7 @@
             <tr><td>Models</td><td>Refinery, water and wastewater converted to the generic format; the legacy formats, the Issue Map and Line Detail removed</td></tr>
             <tr><td>Designer model</td><td>Screens (Data tab, Create wizard) reads the loaded model; the loader became <span class="mono">useLoadedModel</span>, and the model files moved from <span class="mono">operator/model/</span> to <span class="mono">src/model/</span>. <span class="mono">assetData.js</span> and the unused <span class="mono">NavRail.jsx</span> removed</td></tr>
             <tr><td>Asset Sets</td><td>A new Data area for named asset sets (picked or rule, with an optional start asset), resolved in <span class="mono">model/assetSets.js</span>. Also: switching model asks the open area to confirm like navigating does; <span class="mono">DataListGrid</span> keys computed columns by caption (fixed a React key warning)</td></tr>
+            <tr><td>Type screens</td><td>A screen can be about a type (root <span class="mono">context</span>), drawn for one asset at a time; <span class="mono">asset</span> bindings follow paths by type (<span class="mono">model/assetPaths.js</span>); self reaches <span class="mono">ContainerCard</span> through context. Fixed: a Chart bound to real rows drew nothing (empty series template, no default series); widget search now expands its results</td></tr>
           </tbody>
         </table>
       </div>
