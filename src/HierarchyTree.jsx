@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 
 import { TreeView } from 'devextreme-react';
 
-function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', displayExpr = 'name', itemRender, selectedId, onSelect, onItemDblClick }) {
+// `expandAll`: open every node whenever the data changes — for a filtered
+// tree, whose matches can sit several levels down under collapsed parents.
+function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', displayExpr = 'name', itemRender, selectedId, onSelect, onItemDblClick, expandAll = false }) {
   const [internalSelectedId, setInternalSelectedId] = useState(selectedId ?? null);
   const treeRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (expandAll) treeRef.current?.instance?.()?.expandAll();
+  }, [expandAll, dataSource]);
 
   React.useEffect(() => {
     if (selectedId !== undefined) {

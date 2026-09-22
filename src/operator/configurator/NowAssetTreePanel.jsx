@@ -29,7 +29,7 @@ const TYPE_LIST_COLUMNS = [
 ];
 
 // Left panel for the new Now work area — the real asset hierarchy
-// (ASSET_DATA), not a separate operator-only copy of it, via the same
+// (CURRENT_ASSET_DATA), via the same
 // HierarchyTree component the Data tab already uses elsewhere in the app.
 export const NowAssetTreePanel = forwardRef(function NowAssetTreePanel({ selectedThing, onSelectThing, typeList, tabIndex, onTabIndexChange }, ref) {
   const typesGridRef = useRef(null);

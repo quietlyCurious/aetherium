@@ -32,8 +32,8 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
 - **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
   Entities, Queries, Scripts) — the original app, now areas on the
   Configuration Experience's left rail, alongside Visualization (see "The
-  designer half"). The model switcher stays visible there but is dimmed,
-  since models only drive the Operator side and Visualization so far.
+  designer half"). The model switcher applies in Visualization and
+  Screens, and is dimmed in the other areas, which don't use a model yet.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
   concept: a thin `OperatorWorkspace.jsx` shell plus 48 modules and 7
   stylesheets, all under `src/operator/`. This is where essentially all recent work has
@@ -58,8 +58,10 @@ layouts and were converted in Sept 2026 (spec §12); the old formats,
 their id-conversion rules and the refinery-only Issue Map and Line
 Detail are gone. Everything in `src/operator/` reads from whichever
 model's data is currently loaded, never from a specific model by name.
-The one exception is the designer side (Screens Model tab, Wizard),
-which still reads the refinery hierarchy from `src/assetData.js`.
+So does the designer's Screens area (its Data tab's Model view and the
+Create wizard): `src/operator/model/useLoadedModel.js` fetches and
+activates the title bar's model for whichever area needs it, and skips
+the fetch when that model is already active.
 
 ## The two personas, and what each one is for
 
@@ -165,7 +167,7 @@ stays put while you move between them; the Operator's is drawn inside
 OperatorWorkspace, which owns its counts. The Configuration Experience
 reopens on the area you last used in it. Clicking Visualization again
 hides its list panel (OperatorWorkspace's `toggleListPanel`). The model
-switcher is dimmed outside Visualization and the Operator, and Launch only
+switcher is dimmed outside Visualization, Screens and the Operator, and Launch only
 shows in Screens. Every area gives App the same handle — `save()` and
 `confirmLeave()` (true, or a promise of true, to go ahead) — and
 navigating asks only the area being left: the definition areas confirm
@@ -232,7 +234,9 @@ state vs. drawing:
   arranges the panels into slots. Everything it renders sits beside it.
 - `src/operator/model/` — the active model's data (`modelData.js`: the
   module-level variables and the loader that writes them; nothing else
-  assigns them) and read-only questions about it (`assetQueries.js`).
+  assigns them), read-only questions about it (`assetQueries.js`), and
+  `useLoadedModel.js`, the hook that fetches a model and makes it active
+  (used by OperatorWorkspace and ScreensWorkspace).
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
@@ -344,9 +348,6 @@ class names match, as of phase 5: `op-property-tile-*`,
   of that property's series in `asset-telemetry.json` — load-bearing for
   the Investigate panel's time-track scrubber, which pulls real
   historical readings from that series rather than faking movement.
-  `src/assetData.js` is a designer-only copy of the refinery hierarchy
-  (same ids as `refinery/assets.json`), pending the designer's move onto
-  the loaded model.
 - `TODO.md` — deliberately deferred/hidden features, each commented out
   in place with a note on why and how to restore it. Check this before
   assuming something unfinished was simply forgotten.

@@ -1,10 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Button, SelectBox, Splitter, TabPanel } from 'devextreme-react';
-import { Item as SplitterItem } from 'devextreme-react/splitter';
-import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
-import { TreeView } from 'devextreme-react';
-import { ASSET_DATA, TAGS_BY_LEVEL, ASSET_MAP, buildDescendantTree, buildSelectedAssetTree } from './assetData';
-import HierarchyTree from './HierarchyTree';
+import { SelectBox, TreeView } from 'devextreme-react';
+import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, PROPERTY_CATEGORIES, PROPERTY_LABELS } from './operator/model/modelData';
+import { getAssetProperties, HMI_CATEGORY_ORDER } from './operator/model/assetQueries';
 
 const STEPS = [
   { title: 'Select Asset' },
@@ -14,23 +11,59 @@ const STEPS = [
 ];
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// The loaded model, as the wizard sees it
+// ─────────────────────────────────────────────────────────────────────────────
+// Everything here reads whichever industry model is active (modelData.js,
+// loaded by ScreensWorkspace through useLoadedModel) — the wizard used to
+// read a fixed copy of the refinery hierarchy (assetData.js).
+//
+// A "tag" is one of an asset's properties: its key (tagName), display name
+// (label) and category (tagDomain), from the model's properties.json. An
+// asset's tags are the properties it has values for.
 
-function WidgetTreeItemTemplate(item, onDblClick) {
-  const isWidget = item.assetLevel === 'widget';
-  return (
-    <div
-      className={`tree-item${isWidget ? ' tree-item--widget' : ''}`}
-      draggable={isWidget}
-      onDoubleClick={isWidget && onDblClick ? (e) => { e.stopPropagation(); onDblClick(item); } : undefined}
-      onDragStart={isWidget ? (e) => {
-        e.dataTransfer.setData('dx-widget-name', item.name);
-        e.dataTransfer.setData('dx-widget-id', item.id);
-        e.dataTransfer.effectAllowed = 'copy';
-      } : undefined}
-    >
-      <span className="tree-item-name">{item.name}</span>
-    </div>
-  );
+const UNCATEGORIZED = 'Uncategorized';
+
+function tagsForAsset(assetId) {
+  return Object.keys(getAssetProperties(assetId) || {}).map(key => ({
+    tagName: key,
+    label: PROPERTY_LABELS[key] || key,
+    tagDomain: PROPERTY_CATEGORIES[key] || UNCATEGORIZED,
+  }));
+}
+
+// Every tag any of these assets has, first-seen order. Instances of one
+// type share their keys, so for a type this is its instances' tags.
+function tagsForAssets(assets) {
+  const seen = new Map();
+  assets.forEach(a => tagsForAsset(a.id).forEach(t => { if (!seen.has(t.tagName)) seen.set(t.tagName, t); }));
+  return [...seen.values()];
+}
+
+// The category filter's choices: the model's own categories, in the
+// Operator side's category order, then any others alphabetically.
+function modelTagDomains() {
+  const present = new Set(Object.values(PROPERTY_CATEGORIES));
+  const ordered = HMI_CATEGORY_ORDER.filter(c => present.has(c));
+  const rest = [...present].filter(c => !HMI_CATEGORY_ORDER.includes(c)).sort((a, b) => a.localeCompare(b));
+  return ['all', ...ordered, ...rest];
+}
+
+// A minimal tree of the selected assets plus the ancestors that connect
+// them (flagged isPlaceholder), in the model's own order.
+function buildSelectedAssetTree(selectedAssets) {
+  const selectedIds = new Set(selectedAssets.map(a => a.id));
+  const includedIds = new Set();
+  selectedAssets.forEach(asset => {
+    let current = CURRENT_ASSET_MAP[asset.id];
+    while (current && !includedIds.has(current.id)) {
+      includedIds.add(current.id);
+      current = current.parentId ? CURRENT_ASSET_MAP[current.parentId] : null;
+    }
+  });
+  return CURRENT_ASSET_DATA
+    .filter(a => includedIds.has(a.id))
+    .map(a => ({ ...a, nodeType: 'asset', isPlaceholder: !selectedIds.has(a.id) }));
 }
 
 function AssetTreeItemTemplate(item) {
@@ -52,12 +85,12 @@ function AssetTreeItemTemplate(item) {
 
 function getAncestorBreadcrumb(assetId) {
   const crumbs = [];
-  let current = ASSET_MAP[assetId];
+  let current = CURRENT_ASSET_MAP[assetId];
   // Walk up but exclude the asset itself — we want the path to the parent
-  current = current?.parentId ? ASSET_MAP[current.parentId] : null;
+  current = current?.parentId ? CURRENT_ASSET_MAP[current.parentId] : null;
   while (current) {
     crumbs.unshift(current.name);
-    current = current.parentId ? ASSET_MAP[current.parentId] : null;
+    current = current.parentId ? CURRENT_ASSET_MAP[current.parentId] : null;
   }
   return crumbs;
 }
@@ -69,7 +102,7 @@ function StepSelectAsset({ selectedAssetIds, onAssetsSelected }) {
     const item = e.itemData;
     if (!item) return;
     if (e.node.selected) {
-      const asset = ASSET_MAP[item.id];
+      const asset = CURRENT_ASSET_MAP[item.id];
       if (asset) onAssetsSelected([...selectedAssetIds.filter(a => a.id !== asset.id), asset]);
     } else {
       onAssetsSelected(selectedAssetIds.filter(a => a.id !== item.id));
@@ -83,7 +116,7 @@ function StepSelectAsset({ selectedAssetIds, onAssetsSelected }) {
           <p className="step-instructions">Select one or more assets.</p>
           <div className="treeview-container">
             <TreeView
-              dataSource={ASSET_DATA}
+              dataSource={CURRENT_ASSET_DATA}
               dataStructure="plain"
               keyExpr="id"
               parentIdExpr="parentId"
@@ -145,19 +178,7 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
   const [focusedAssetId, setFocusedAssetId] = useState(null);
   const [domainFilter, setDomainFilter] = useState('all');
 
-  const TAG_DOMAINS = [
-    'all',
-    'common',
-    'production',
-    'derived metrics',
-    'operations / control',
-    'flow / wip',
-    'quality',
-    'events / losses',
-    'stability',
-    'risk / delivery',
-    'diagnostics / accuracy',
-  ];
+  const TAG_DOMAINS = useMemo(() => modelTagDomains(), []);
 
   const toggleTag = (item) => {
     setSelectedTags(prev => {
@@ -169,23 +190,23 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
 
   const treeData = groupBy === 'asset'
     ? buildSelectedAssetTree(selectedAssets || [])
-    : ASSET_DATA;
+    : CURRENT_ASSET_DATA;
 
   // Unique types from selected assets
   const uniqueTypes = [...new Set((selectedAssets || []).map(a => a.assetType))].sort();
   const [focusedType, setFocusedType] = useState(null);
 
-  const focusedAsset = focusedAssetId ? ASSET_MAP[focusedAssetId] : null;
+  const focusedAsset = focusedAssetId ? CURRENT_ASSET_MAP[focusedAssetId] : null;
 
-  // In type mode, derive the asset level from any asset matching the focused type
+  // In type mode, the selected assets of the focused type
   const focusedTypeAssets = focusedType
     ? (selectedAssets || []).filter(a => a.assetType === focusedType)
     : [];
-  const focusedTypeLevel = focusedTypeAssets.length > 0 ? focusedTypeAssets[0].assetLevel : null;
 
   // Tags shown in center depend on mode
-  const centerAssetLevel = groupBy === 'type' ? focusedTypeLevel : focusedAsset?.assetLevel;
-  const allFocusedTags = centerAssetLevel ? (TAGS_BY_LEVEL[centerAssetLevel] || []) : [];
+  const allFocusedTags = groupBy === 'type'
+    ? tagsForAssets(focusedTypeAssets)
+    : (focusedAsset ? tagsForAsset(focusedAsset.id) : []);
   const focusedTags = domainFilter === 'all'
     ? allFocusedTags
     : allFocusedTags.filter(t => t.tagDomain === domainFilter);
@@ -207,9 +228,8 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
           if (!result.find(t => t.id === tagId)) {
             result.push({
               id: tagId,
-              name: tag.tagName,
+              name: tag.label,
               tagDomain: tag.tagDomain,
-              tagCategory: tag.tagCategory,
               nodeType: 'tag',
             });
           }
@@ -327,7 +347,7 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
               onItemSelectionChanged={(e) => {
                 const selected = e.component.getSelectedNodes();
                 const id = selected.length > 0 ? selected[0].key : null;
-                const asset = id ? ASSET_MAP[id] : null;
+                const asset = id ? CURRENT_ASSET_MAP[id] : null;
                 if (asset && !asset.isPlaceholder) setFocusedAssetId(id);
               }}
             />
@@ -358,9 +378,8 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
                 ? () => toggleTagForType(tag)
                 : () => toggleTag({
                     id: `${focusedAssetId}__tag__${tag.tagName}`,
-                    name: tag.tagName,
+                    name: tag.label,
                     tagDomain: tag.tagDomain,
-                    tagCategory: tag.tagCategory,
                     nodeType: 'tag',
                   });
 
@@ -377,7 +396,7 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
                     onChange={() => {}}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <span className="selected-tag-name">{tag.tagName}</span>
+                  <span className="selected-tag-name">{tag.label}</span>
                   <span className="tree-item-badge tree-item-badge--tag">{tag.tagDomain.toLowerCase()}</span>
                 </div>
               );
@@ -405,7 +424,7 @@ function StepDataSelection({ selectedAssetId, onAssetSelected, selectedAssets, s
             selectedTags.map(tag => {
               const assetId = tag.id.split('__tag__')[0];
               const crumbs = getAncestorBreadcrumb(assetId);
-              const asset = ASSET_MAP[assetId];
+              const asset = CURRENT_ASSET_MAP[assetId];
               const fullCrumbs = asset ? [...crumbs, asset.name] : crumbs;
               return (
                 <div key={tag.id} className="selected-tag-item selected-asset-item">
@@ -443,7 +462,7 @@ function StepGrouping({ selectedTags, selectedAssets }) {
     const map = {};
     selectedTags.forEach(tag => {
       const assetId = tag.id.split('__tag__')[0];
-      const asset = ASSET_MAP[assetId];
+      const asset = CURRENT_ASSET_MAP[assetId];
       if (!asset) return;
       if (!map[assetId]) map[assetId] = { asset, tags: [] };
       map[assetId].tags.push(tag);
@@ -505,7 +524,7 @@ function StepGrouping({ selectedTags, selectedAssets }) {
 
   const renderTagPill = (tag, draggable = false) => {
     const assetId = tag.id.split('__tag__')[0];
-    const asset = ASSET_MAP[assetId];
+    const asset = CURRENT_ASSET_MAP[assetId];
     return (
       <div
         key={tag.id}
@@ -653,7 +672,7 @@ function WizardContent({ currentStep, selectedAssetIds, onAssetsSelected, select
       {currentStep === 1 && (
         <StepDataSelection
           selectedAssetId={selectedAssetIds[0]?.id || null}
-          onAssetSelected={(id) => onAssetsSelected(id ? [ASSET_MAP[id]] : [])}
+          onAssetSelected={(id) => onAssetsSelected(id ? [CURRENT_ASSET_MAP[id]] : [])}
           selectedAssets={selectedAssetIds}
           selectedTags={selectedTags}
           onTagsChanged={onTagsChanged}

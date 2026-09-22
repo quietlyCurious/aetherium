@@ -10,6 +10,9 @@
 // `editor` is useScreenEditor's result: App owns it (so the canvas
 // survives leaving the area), this draws it. `queries` are the Queries
 // area's definitions, which the Data tab offers and bindings name.
+// `selectedModel` is the title bar's industry model: this area loads it
+// (the same way the Operator side does) for the Data tab's Model view and
+// the Create wizard, which read whichever model is active.
 
 import { useEffect, useRef, useState } from 'react';
 import { Popup, Splitter } from 'devextreme-react';
@@ -24,6 +27,7 @@ import { WIDGET_PROPERTIES } from '../../widgetData';
 import { ScreensLeftPanel } from './ScreensLeftPanel';
 import { ScreenCanvas } from './ScreenCanvas';
 import { ScreenDetailsPanel } from './ScreenDetailsPanel';
+import { useLoadedModel } from '../../operator/model/useLoadedModel';
 
 // Ctrl/Cmd+C and Ctrl/Cmd+V copy and paste the selected container; Esc
 // puts the paintbrush down and clears snap guides.
@@ -88,7 +92,7 @@ function useCreateWizard() {
   };
 }
 
-function CreateWizardPopup({ wizard }) {
+function CreateWizardPopup({ wizard, model }) {
   return (
     <Popup
       visible={wizard.visible}
@@ -99,15 +103,20 @@ function CreateWizardPopup({ wizard }) {
       showCloseButton={false}
       hideOnOutsideClick={false}
       dragEnabled={false}
-      contentRender={() => (
+      contentRender={() => (!model.loaded ? (
+        <p className="step-instructions">
+          {model.error ? `Couldn't load the model (${model.error}).` : 'Loading model…'}
+        </p>
+      ) : (
         <WizardContent
+          key={model.modelId}
           currentStep={wizard.currentStep}
           selectedAssetIds={wizard.selectedAssetIds}
           onAssetsSelected={wizard.setSelectedAssetIds}
           selectedTags={wizard.selectedTags}
           onTagsChanged={wizard.setSelectedTags}
         />
-      )}
+      ))}
     >
       <ToolbarItem
         widget="dxButton"
@@ -182,7 +191,8 @@ function InputBindingEditor({ editor }) {
   );
 }
 
-export function ScreensWorkspace({ editor, queries }) {
+export function ScreensWorkspace({ editor, queries, selectedModel }) {
+  const model = useLoadedModel(selectedModel);
   useCanvasShortcuts(editor);
   usePublishUnsaved(editor.isDirty);
   const wizard = useCreateWizard();
@@ -190,7 +200,7 @@ export function ScreensWorkspace({ editor, queries }) {
     <>
       <Splitter orientation="horizontal" style={{ height: '100%' }}>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreensLeftPanel editor={editor} queries={queries} />
+          <ScreensLeftPanel editor={editor} queries={queries} model={model} />
         </SplitterItem>
         <SplitterItem resizable={true}>
           <ScreenCanvas editor={editor} />
@@ -199,7 +209,7 @@ export function ScreensWorkspace({ editor, queries }) {
           <ScreenDetailsPanel editor={editor} queries={queries} onOpenWizard={wizard.open} />
         </SplitterItem>
       </Splitter>
-      <CreateWizardPopup wizard={wizard} />
+      <CreateWizardPopup wizard={wizard} model={model} />
       <WidgetBindingEditor editor={editor} queries={queries} />
       <InputBindingEditor editor={editor} />
     </>

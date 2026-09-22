@@ -284,7 +284,7 @@
       <p>The app has two workspaces, picked from the title-bar menu. The <strong>Operator Experience</strong> is the next-gen HMI for someone running the plant. The <strong>Configuration Experience</strong> is where things get set up: <em>Visualization</em> (how each asset type and asset displays), the page builder (<em>Screens</em>, <em>Widgets</em>, <em>Theme</em>) and the data definitions (<em>Data Sources</em>, <em>Entities</em>, <em>Queries</em>, <em>Scripts</em>).</p>
       <div class="glance" role="list">
         <div role="listitem"><strong>605</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
-        <div role="listitem"><strong>1,247</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
+        <div role="listitem"><strong>1,213</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
         <div role="listitem"><strong>48+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>22</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
         <div role="listitem"><strong>8</strong><span>industry models, one generic data format</span></div>
@@ -401,12 +401,12 @@
           </tbody>
         </table>
       </div>
-      <p>Every area gives <code>App</code> the same handle: <code>save()</code> for the title-bar Save, and <code>confirmLeave()</code> (true, or a promise of true, to go ahead). Only the area being left is asked. Launch shows only in Screens; the model switcher is dimmed outside Visualization and the Operator, since nothing else reads the model yet. The Configuration Experience reopens on the area you last used.</p>
+      <p>Every area gives <code>App</code> the same handle: <code>save()</code> for the title-bar Save, and <code>confirmLeave()</code> (true, or a promise of true, to go ahead). Only the area being left is asked. Launch shows only in Screens; the model switcher applies in the Operator, Visualization and Screens (whose Data tab and Create wizard show the loaded model), and is dimmed elsewhere. The Configuration Experience reopens on the area you last used.</p>
     </section>
 
 <section id="shape">
       <h2>The Operator side: how it's wired</h2>
-      <p>Both the Operator Experience and Visualization are one component, <code>OperatorWorkspace</code>, told apart by <code>operatorPersona</code>. It loads the chosen model's data, then hands off to <code>OperatorWorkspaceInner</code>, where all of the interface's state lives. <code>App.js</code> talks to it through a ref: <code>save()</code>, <code>confirmLeave()</code>, <code>resolveUnsavedChanges()</code> and <code>toggleListPanel()</code>.</p>
+      <p>Both the Operator Experience and Visualization are one component, <code>OperatorWorkspace</code>, told apart by <code>operatorPersona</code>. It waits for the chosen model's data (<code>model/useLoadedModel</code>, which Screens uses too), then hands off to <code>OperatorWorkspaceInner</code>, where all of the interface's state lives. <code>App.js</code> talks to it through a ref: <code>save()</code>, <code>confirmLeave()</code>, <code>resolveUnsavedChanges()</code> and <code>toggleListPanel()</code>.</p>
 
       <figure>
         <div class="fig-scroll">
@@ -828,7 +828,7 @@
             <text x="192" y="90" opacity="0.75">default + optional files</text>
 
             <rect x="390" y="30" width="190" height="80" rx="6" fill="none" stroke="currentColor" stroke-width="1.3"/>
-            <text x="402" y="52" font-weight="600">OperatorWorkspace</text>
+            <text x="402" y="52" font-weight="600">useLoadedModel</text>
             <text x="402" y="72" opacity="0.75">fetches each role's file;</text>
             <text x="402" y="90" opacity="0.75">optional ones may be absent</text>
 
@@ -1103,8 +1103,9 @@
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">OperatorWorkspace.jsx</td><td class="num">1,247</td><td>The outer component (fetch the model, show errors, key the inner one) and <span class="mono">OperatorWorkspaceInner</span>: all state and handlers, and the slot layout</td></tr>
+            <tr><td class="mono">OperatorWorkspace.jsx</td><td class="num">1,213</td><td>The outer component (wait for the model, show errors, key the inner one) and <span class="mono">OperatorWorkspaceInner</span>: all state and handlers, and the slot layout</td></tr>
             <tr><td class="mono">model/modelData.js</td><td class="num">231</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
+            <tr><td class="mono">model/useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; shared by <span class="mono">OperatorWorkspace</span> and Screens, and skips the fetch when that model is already active</td></tr>
             <tr><td class="mono">model/assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset and explanation</td></tr>
             <tr><td class="mono">settings/propertyDisplay.js</td><td class="num">64</td><td>View modes, per-property visual resolution and merging, the Show (visibility) cycle</td></tr>
             <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
@@ -1165,8 +1166,8 @@
             <tr><td class="mono">screens/screenEdits.js</td><td class="num">475</td><td>The container-tree edits as plain functions</td></tr>
             <tr><td class="mono">screens/screenEdits.test.js</td><td class="num">139</td><td>14 tests and 1 todo (<span class="mono">npx react-scripts test --watchAll=false src/designer/screens</span>)</td></tr>
             <tr><td class="mono">screens/usePageQueryInstances.js</td><td class="num">109</td><td>The query instances on pages, scoped to the open page</td></tr>
-            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">207</td><td>The three panels, the create wizard, the binding popovers, the canvas shortcuts</td></tr>
-            <tr><td class="mono">screens/ScreensLeftPanel.jsx</td><td class="num">299</td><td>Screens, Visuals, Data, Page Visuals and Page Data tabs</td></tr>
+            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">217</td><td>The three panels (loading the title bar's model for them), the create wizard, the binding popovers, the canvas shortcuts</td></tr>
+            <tr><td class="mono">screens/ScreensLeftPanel.jsx</td><td class="num">345</td><td>Screens, Visuals, Data (the loaded model, or queries), Page Visuals and Page Data tabs</td></tr>
             <tr><td class="mono">screens/ScreenCanvas.jsx</td><td class="num">238</td><td>The canvas toolbar and the page being edited</td></tr>
             <tr><td class="mono">screens/ScreenDetailsPanel.jsx</td><td class="num">78</td><td>The right panel: picks the details for what's selected</td></tr>
             <tr><td class="mono">screens/ContainerDetails.jsx</td><td class="num">522</td><td>One selection: widget, Layout, Slot, Box and General tabs</td></tr>
@@ -1188,13 +1189,12 @@
         <table>
           <thead><tr><th>Group</th><th>Files</th></tr></thead>
           <tbody>
-            <tr><td>Screens building blocks</td><td><span class="mono">ContainerCard</span> (677), <span class="mono">containerModel</span>, <span class="mono">containerTree</span>, <span class="mono">containerStyles</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetBindingPopover</span>, <span class="mono">InputBindingPopover</span>, <span class="mono">QueryInstanceDetailsPanel</span>, <span class="mono">Wizard</span> (675), <span class="mono">RuntimeView</span>, <span class="mono">pagesStorage</span></td></tr>
+            <tr><td>Screens building blocks</td><td><span class="mono">ContainerCard</span> (677), <span class="mono">containerModel</span>, <span class="mono">containerTree</span>, <span class="mono">containerStyles</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetBindingPopover</span>, <span class="mono">InputBindingPopover</span>, <span class="mono">QueryInstanceDetailsPanel</span>, <span class="mono">Wizard</span> (694), <span class="mono">RuntimeView</span>, <span class="mono">pagesStorage</span></td></tr>
             <tr><td>Widget catalog</td><td><span class="mono">widgetData</span> (673), <span class="mono">widgetConfigs</span> (1,770 lines of widget schemas), <span class="mono">widgetSampleData</span>, <span class="mono">WidgetPreview</span>, <span class="mono">WidgetConfigPanel</span></td></tr>
             <tr><td>Theme</td><td><span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span></td></tr>
             <tr><td>Data definitions</td><td><span class="mono">DataSourcesWorkspace</span> (736), <span class="mono">QueriesWorkspace</span> (729), <span class="mono">EntitiesWorkspace</span>, <span class="mono">dataModel</span> (538), <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span></td></tr>
             <tr><td>Shared components</td><td><span class="mono">DataListGrid</span> (passes a row click on once), <span class="mono">HierarchyTree</span></td></tr>
             <tr><td>Storage</td><td>20 <span class="mono">*Storage.js</span> files, each a load/save pair for one localStorage key. 15 hold Operator and Visualization settings (type and asset templates, visibility, order, the last selection and navigation); the rest hold pages, query instances, entities, data sources and queries.</td></tr>
-            <tr><td>Designer-only model copy</td><td><span class="mono">assetData.js</span>: the refinery hierarchy for the Screens Data tab and the Wizard (same ids as <span class="mono">refinery/assets.json</span>)</td></tr>
             <tr><td>Kept for later</td><td><span class="mono">dev_extreme_asset_screen_wizard.jsx</span> (not imported; leave it in place)</td></tr>
           </tbody>
         </table>
@@ -1275,11 +1275,6 @@
           <h4>A leftover file</h4>
           <p><code>operator/chrome/NavRail.jsx</code> is still in the repo, but nothing imports it since the rail moved to <code>shell/AreaRail.jsx</code>. Safe to delete.</p>
           <p class="where">operator/chrome/NavRail.jsx</p>
-        </div>
-        <div class="note">
-          <h4>Designer still reads refinery</h4>
-          <p>The Screens Data tab and the Wizard read <code>assetData.js</code>, a copy of the refinery hierarchy, rather than the loaded model. Screens bound to asset properties would start by moving them onto <code>modelData</code>.</p>
-          <p class="where">assetData.js · ScreensLeftPanel · Wizard</p>
         </div>
         <div class="note">
           <h4>Screens gaps</h4>

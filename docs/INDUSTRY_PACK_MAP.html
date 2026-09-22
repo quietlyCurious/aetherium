@@ -420,9 +420,10 @@ src/
   modelRegistry.js               <span class="c">reads models.json; default file names; optional roles</span>
   operator/model/modelData.js    <span class="c">the loaded model as live module variables; the only writer</span>
   operator/model/assetQueries.js <span class="c">every read-only question the views ask about the model</span>
-  operator/OperatorWorkspace.jsx <span class="c">the loader effect: fetch → activateLoadedModel → remount</span>
+  operator/model/useLoadedModel.js <span class="c">fetch → activateLoadedModel; used by OperatorWorkspace and Screens</span>
+  operator/OperatorWorkspace.jsx <span class="c">waits for the model, then keys (remounts) the inner workspace</span>
   operator/operatorViews/explanation/  <span class="c">ExplanationView + ExplanationChart (the AI tab's "why")</span>
-  assetData.js                   <span class="c">designer only (Screens Model tab, Wizard); not part of this area</span></pre>
+</pre>
     </section>
 
     <section id="files">
@@ -634,7 +635,6 @@ python3 ModelAndData/tools/validate_industry_pack.py --all</pre>
     <section id="open">
       <h2>Still open</h2>
       <ul class="tight">
-        <li><strong>Designer on the loaded model.</strong> The Screens Model tab and Wizard still read <code>src/assetData.js</code> (same ids as <code>refinery/assets.json</code>). Moving them onto <code>modelData.js</code> would retire that file.</li>
         <li><strong>Detectors for the converted packs</strong> (refinery, water, wastewater). They have no generator, so there is no way to test a detector on regenerated data; each would need one first.</li>
         <li><strong>Derivations in the UI.</strong> Rollup rules are loaded and validated but not yet shown (for example, "OEE = mean of the lines").</li>
         <li><strong>Converted-pack warnings.</strong> Refinery types with more than 8 properties; scenario-coverage gaps in water and wastewater; SIT09/SIT11 evidence timing versus their narratives.</li>

@@ -679,10 +679,9 @@ refinery-only Issue Map and Line Detail panels were removed along with
 the legacy formats (§12); a Now-strip tile opens its unit in the Assets
 area for every model.
 
-The **designer** (the Screens Model tab and the Wizard) still reads the
-refinery hierarchy from `src/assetData.js`, whose ids match
-`public/data/refinery/assets.json`. Moving it onto the loaded model is
-open (§11).
+The **designer** reads the loaded model too: the Screens Data tab's Model
+view shows its hierarchy, and the Create wizard offers its assets and
+their properties (label and category from `properties.json`).
 
 ---
 
@@ -720,8 +719,6 @@ Built (Sept 2026):
 
 Still open:
 
-- Moving the designer (Screens Model tab, Wizard) off `src/assetData.js`
-  onto the loaded model, then deleting that file.
 - The converted packs' remaining validator warnings (refinery types with
   more than 8 properties, and scenario-coverage gaps in water and
   wastewater), and aligning a few refinery evidence times (SIT09, SIT11)
@@ -738,7 +735,7 @@ Still open:
 ## 12. The original packs' conversion (record)
 
 Refinery, water and wastewater were built before this spec in two older
-layouts: `shape: "refinery"` (hierarchy in `src/assetData.js`) and
+layouts: `shape: "refinery"` (hierarchy in `src/assetData.js`, since removed) and
 `shape: "four-level"` (hierarchy in `water-asset-data.json`), each about
 20 files with per-level telemetry and "station" ids derived from asset ids
 by string rules (spec v1, commit `8515fdd`). They were converted once, in

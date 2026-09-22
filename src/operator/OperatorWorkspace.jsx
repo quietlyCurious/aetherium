@@ -1,6 +1,7 @@
 // operator/OperatorWorkspace.jsx — the Operator/Configurator shell
 //
-// What's left here after the refactor: loading a model's data, and
+// What's left here after the refactor: waiting for the model's data
+// (model/useLoadedModel, shared with Screens), and
 // OperatorWorkspaceInner, which owns every piece of state the interface
 // shares and arranges the panels into slots. Everything it renders lives
 // beside it in ./ — see docs/CODE_MAP.html for how the pieces fit.
@@ -27,7 +28,7 @@ import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from '../typeDispl
 import { loadRelatedAssetsTemplates, saveRelatedAssetsTemplates } from '../relatedAssetsTemplatesStorage';
 import { loadAllAssetsTemplate, saveAllAssetsTemplate } from '../allAssetsTemplateStorage';
 import { loadNowSelection, saveNowSelection } from '../nowSelectionStorage';
-import { loadModelRegistry, getModelDataFiles } from '../modelRegistry';
+import { useLoadedModel } from './model/useLoadedModel';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from '../typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from '../typeRelatedAssetConfigsStorage';
 import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from '../assetDisplayTemplatesStorage';
@@ -40,7 +41,7 @@ import { loadTypeRelatedAssetOrders, saveTypeRelatedAssetOrders } from '../typeR
 import { loadAssetRelatedAssetOrders, saveAssetRelatedAssetOrders } from '../assetRelatedAssetOrderStorage';
 import notify from 'devextreme/ui/notify';
 import { assetTypeIdOf, buildTypeList, getAssetPathLabel, deslugifyType } from './model/assetQueries';
-import { activateLoadedModel, ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from './model/modelData';
+import { ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from './model/modelData';
 import { normalizedLayout, UNDO_TOAST_MS, computeAssetCustomizations, assetCustomizationStore, EMPTY_CUSTOMIZATIONS } from './settings/customizations';
 import { displayOrderStore, EMPTY_DISPLAY_ORDERS } from './settings/displayOrder';
 import { PROPERTY_VIEW_MODE_DEFAULT, KPI_VIEW_MODE_ITEMS } from './settings/propertyDisplay';
@@ -73,7 +74,9 @@ import { WorkListPanel } from './operatorViews/WorkListPanel';
 const NEW_ATTENTION_THRESHOLD_MINUTES = 30;
 
 const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel = 'refinery', operatorPersona = 'operator', onSaveAvailabilityChange, onListPanelHiddenChange, initialDeepLink, onNavigate, onNavigateToConfig }, ref) {
-  const [dataState, setDataState] = useState({ loaded: false, error: null, loadedModel: null });
+  // Fetching and activating the model is shared with the Screens area
+  // (model/useLoadedModel).
+  const dataState = useLoadedModel(selectedModel);
   // Holds whatever "save the current thing" function the deepest-nested
   // relevant component last registered (currently: NowTypeMainPreview's type
   // display template save) — a ref rather than state since updating it
@@ -101,43 +104,6 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
     },
   }), []);
 
-  useEffect(() => {
-    let cancelled = false;
-    setDataState({ loaded: false, error: null, loadedModel: null });
-    let files = [];
-    let model = null;
-    loadModelRegistry()
-      .then(models => {
-        model = models.find(m => m.id === selectedModel);
-        if (!model) throw new Error(`model "${selectedModel}" is not listed in /data/models.json`);
-        files = getModelDataFiles(model);
-        return Promise.all(
-          files.map(([, url, optional]) =>
-            fetch(url).then(r => {
-              if (!r.ok) {
-                if (optional) return null;
-                throw new Error(`${url} — ${r.status}`);
-              }
-              // A dev server answers a missing file with index.html (200),
-              // so an optional file that isn't JSON counts as absent too.
-              return optional ? r.json().catch(() => null) : r.json();
-            }, err => {
-              if (optional) return null;
-              throw err;
-            })
-          )
-        );
-      })
-      .then(results => {
-        if (cancelled) return;
-        activateLoadedModel(model, files, results);
-        setDataState({ loaded: true, error: null, loadedModel: selectedModel });
-      })
-      .catch(err => {
-        if (!cancelled) setDataState({ loaded: false, error: err.message, loadedModel: null });
-      });
-    return () => { cancelled = true; };
-  }, [selectedModel]);
 
   if (dataState.error) {
     return (
@@ -146,7 +112,7 @@ const OperatorWorkspace = forwardRef(function OperatorWorkspace({ selectedModel 
       </div>
     );
   }
-  if (!dataState.loaded || dataState.loadedModel !== selectedModel) {
+  if (!dataState.loaded) {
     return <div className="op-workspace-loading">Loading operator data…</div>;
   }
 

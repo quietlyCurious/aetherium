@@ -346,9 +346,9 @@ function AetheriumEditor() {
             </div>
           )}
         </div>
-        {/* The industry model drives the Operator and Visualization. The
-            other areas don't use it yet, so there it's shown dimmed and
-            can't be opened. */}
+        {/* The industry model drives the Operator, Visualization and
+            Screens (its Data tab and Create wizard). The other areas don't
+            use it yet, so there it's shown dimmed and can't be opened. */}
         {(() => {
           const modelApplies = !!currentArea?.usesModel;
           return (
@@ -540,7 +540,7 @@ function AetheriumEditor() {
 
 
         ) : (
-          <ScreensWorkspace editor={screens} queries={queries} />
+          <ScreensWorkspace editor={screens} queries={queries} selectedModel={selectedModel} />
         )}
         </div>
         </div>

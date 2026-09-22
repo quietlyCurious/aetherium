@@ -2,23 +2,26 @@
 // The Screens editor's left panel, one tab per thing you pick from:
 //   Screens       the saved screens and their folders (ScreensPanel)
 //   Visuals       widgets to add — drag onto the canvas, or double-click
-//   Data          the asset model, or the queries you can add to this page
+//   Data          the loaded model's assets, or the queries you can add
+//                 to this page
 //   Page Visuals  the open page's container tree (PageVisualsTree)
 //   Page Data     the query instances on this page
-// Moved out of App.js unchanged.
+// Moved out of App.js unchanged. `model` is useLoadedModel's state for the
+// model picked in the title bar.
 
+import { useMemo } from 'react';
 import { SelectBox, TabPanel } from 'devextreme-react';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import notify from 'devextreme/ui/notify';
 import ScreensPanel from '../../ScreensPanel';
 import HierarchyTree from '../../HierarchyTree';
 import PageVisualsTabWrapper from '../../PageVisualsTree';
-import { ASSET_DATA } from '../../assetData';
+import { CURRENT_ASSET_DATA } from '../../operator/model/modelData';
 import { DX_WIDGET_DATA } from '../../widgetData';
 import { findContainerById } from '../../containerTree';
 
-// Sorts a flat parentId-based hierarchy (categories + items, the shape both
-// DX_WIDGET_DATA and ASSET_DATA use) alphabetically by name WITHIN each
+// Sorts a flat, two-level parentId-based hierarchy (categories + items, the
+// shape DX_WIDGET_DATA uses) alphabetically by name WITHIN each
 // category — categories keep their order. HierarchyTree keeps array order
 // for siblings, so reordering the flat array is enough.
 // With searchText, keeps only matching items plus their categories, and
@@ -40,6 +43,53 @@ function sortAndFilterHierarchy(flatData, searchText) {
   const neededCategoryIds = new Set(matchingItems.map(item => item.parentId));
   const matchingCategories = sorted.filter(item => item.parentId === null && neededCategoryIds.has(item.id));
   return [...matchingCategories, ...matchingItems];
+}
+
+// The loaded model's asset hierarchy, any depth, for the Data tab's Model
+// view. Keeps the model's own order (the order the Operator side and
+// Visualization show) rather than sorting, since siblings are often in
+// process order (Intake before Output). With searchText, keeps the matching
+// assets plus the ancestors that lead to them.
+function filterAssetTree(assets, searchText) {
+  const query = (searchText || '').trim().toLowerCase();
+  if (!query) return assets;
+  const byId = new Map(assets.map(a => [a.id, a]));
+  const keep = new Set();
+  assets.forEach(a => {
+    if (!(a.name || '').toLowerCase().includes(query)) return;
+    let current = a;
+    while (current && !keep.has(current.id)) {
+      keep.add(current.id);
+      current = current.parentId != null ? byId.get(current.parentId) : null;
+    }
+  });
+  return assets.filter(a => keep.has(a.id));
+}
+
+// The Model view: the active model's hierarchy once it's loaded (see
+// useLoadedModel in ScreensWorkspace), a note until then.
+function ModelTree({ model, searchText }) {
+  const dataSource = useMemo(
+    () => (model.loaded ? filterAssetTree(CURRENT_ASSET_DATA, searchText) : []),
+    // CURRENT_ASSET_DATA is a module variable that changes with the model,
+    // so the model id stands in for it here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [model.loaded, model.modelId, searchText],
+  );
+  if (model.error) return <p style={emptyNote}>Couldn't load the model ({model.error}).</p>;
+  if (!model.loaded) return <p style={emptyNote}>Loading model…</p>;
+  if (dataSource.length === 0) return <p style={emptyNote}>No assets match "{searchText}".</p>;
+  return (
+    // Keyed by model so switching models starts the tree fresh (expanded,
+    // nothing selected) rather than carrying the old one's state.
+    <HierarchyTree
+      key={model.modelId}
+      dataSource={dataSource}
+      displayExpr="name"
+      itemRender={AssetTreeItemTemplate}
+      expandAll={!!(searchText || '').trim()}
+    />
+  );
 }
 
 // Widgets are draggable onto the canvas (ContainerCard reads
@@ -187,7 +237,7 @@ function PageQueryInstanceList({ editor, queries }) {
   });
 }
 
-export function ScreensLeftPanel({ editor, queries }) {
+export function ScreensLeftPanel({ editor, queries, model }) {
   const { containers, selectedContainerId } = editor;
   return (
     <div className="app-panel">
@@ -261,11 +311,7 @@ export function ScreensLeftPanel({ editor, queries }) {
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
               {editor.dataTabMode === 'model' ? (
-                <HierarchyTree
-                  dataSource={sortAndFilterHierarchy(ASSET_DATA, editor.dataTabSearch)}
-                  displayExpr="name"
-                  itemRender={AssetTreeItemTemplate}
-                />
+                <ModelTree model={model} searchText={editor.dataTabSearch} />
               ) : (
                 <QueriesToAdd editor={editor} queries={queries} />
               )}
