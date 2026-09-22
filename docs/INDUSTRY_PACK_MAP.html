@@ -299,7 +299,7 @@
 
       <figure>
         <div class="fig-scroll">
-        <svg viewBox="0 0 980 520" role="img" aria-label="Authoring: RESEARCH.md and SCENARIOS.md inform generate.py, which writes the 8 pack files. explain.py reads those files through detectors/pack.py and writes explanations.json; robustness.py reruns generate.py with other seeds. validate_industry_pack.py checks the pack. models.json registers it. At runtime modelRegistry.js reads models.json, OperatorWorkspace fetches the files, activateLoadedModel fills modelData.js, and assetQueries.js answers the views.">
+        <svg viewBox="0 0 980 520" role="img" aria-label="Authoring: RESEARCH.md and SCENARIOS.md inform generate.py, which writes the 8 pack files. explain.py reads those files through detectors/pack.py and writes explanations.json; robustness.py reruns generate.py with other seeds. validate_industry_pack.py checks the pack. models.json registers it. At runtime modelRegistry.js reads models.json, useLoadedModel fetches the files, activateLoadedModel fills modelData.js, and assetQueries.js answers the views.">
           <defs>
             <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
           </defs>
@@ -356,7 +356,7 @@
             <text x="34" y="434" opacity="0.7" font-size="12">list + file URLs</text>
 
             <rect x="240" y="390" width="250" height="60" rx="5" fill="none" stroke="currentColor"/>
-            <text x="254" y="414" font-weight="600">OperatorWorkspace (loader)</text>
+            <text x="254" y="414" font-weight="600">useLoadedModel (loader)</text>
             <text x="254" y="434" opacity="0.7" font-size="12">fetch all → activateLoadedModel</text>
 
             <rect x="530" y="390" width="200" height="60" rx="5" fill="none" style="stroke:var(--accent)" stroke-width="1.5"/>
@@ -417,10 +417,10 @@ public/data/
   models.json                    <span class="c">the registry: every model, its levels, its unit level</span>
   &lt;model&gt;/                       <span class="c">8 files (+ explanations.json), one folder per model</span>
 src/
-  modelRegistry.js               <span class="c">reads models.json; default file names; optional roles</span>
-  operator/model/modelData.js    <span class="c">the loaded model as live module variables; the only writer</span>
-  operator/model/assetQueries.js <span class="c">every read-only question the views ask about the model</span>
-  operator/model/useLoadedModel.js <span class="c">fetch → activateLoadedModel; used by OperatorWorkspace and Screens</span>
+  model/modelRegistry.js         <span class="c">reads models.json; default file names; optional roles</span>
+  model/modelData.js             <span class="c">the loaded model as live module variables; the only writer</span>
+  model/assetQueries.js          <span class="c">every read-only question the views ask about the model</span>
+  model/useLoadedModel.js        <span class="c">fetch → activateLoadedModel; used by OperatorWorkspace and Screens</span>
   operator/OperatorWorkspace.jsx <span class="c">waits for the model, then keys (remounts) the inner workspace</span>
   operator/operatorViews/explanation/  <span class="c">ExplanationView + ExplanationChart (the AI tab's "why")</span>
 </pre>
@@ -450,7 +450,7 @@ src/
 
     <section id="registry">
       <h2>The registry</h2>
-      <p><code>public/data/models.json</code> is the one list of models. Both the title-bar model switcher (<code>App.js</code>) and the workspace loader read it through <code>modelRegistry.js</code>, which fetches it once per page load and shares the promise.</p>
+      <p><code>public/data/models.json</code> is the one list of models. Both the title-bar model switcher (<code>App.js</code>) and the loader (<code>model/useLoadedModel.js</code>) read it through <code>model/modelRegistry.js</code>, which fetches it once per page load and shares the promise.</p>
 <pre class="tree">{
   "id": "wind",                               <span class="c">folder name, switcher id, key for saved state</span>
   "label": "Wind",                            <span class="c">what the switcher shows</span>
@@ -475,16 +475,16 @@ src/
       <h2>Loading a model</h2>
       <p>Switching models is a full reload of the workspace, never an in-place update. That keeps the whole area simple: nothing has to subscribe to model changes.</p>
       <ol class="tight">
-        <li><strong>Pick.</strong> The switcher sets <code>selectedModel</code>; <code>OperatorWorkspace</code>'s loader effect runs.</li>
+        <li><strong>Pick.</strong> The switcher sets <code>selectedModel</code>; <code>useLoadedModel</code> runs in whichever area is open (<code>OperatorWorkspace</code> or <code>ScreensWorkspace</code>). A model that's already active isn't fetched again.</li>
         <li><strong>Fetch.</strong> It looks the model up in the registry and fetches every file in parallel. Required files fail the load with a visible message; optional ones become <code>null</code> (a dev server's HTML fallback counts as missing too).</li>
         <li><strong>Activate.</strong> <code>activateLoadedModel(model, files, results)</code> resets <em>every</em> model variable, then maps each role to its variable (<code>ROLE_TO_VARIABLE</code>), splits <code>properties.json</code> into its lookups, builds the Now-strip tiles from the unit-level assets, parses work-item dates, and applies the pack's own timeline.</li>
-        <li><strong>Remount.</strong> <code>OperatorWorkspaceInner</code> remounts keyed by model, so every view starts fresh against the new data.</li>
+        <li><strong>Remount.</strong> <code>OperatorWorkspaceInner</code> remounts keyed by model, so every view starts fresh against the new data; in Screens, the Data tab's tree and the Create wizard are keyed by model the same way.</li>
       </ol>
       <div class="notes">
         <div class="note">
           <h4>One writer, many readers</h4>
           <p>The model lives in 23 <code>export let</code> variables in <code>modelData.js</code>. ES modules make those live, read-only bindings everywhere else, so only <code>modelData.js</code> can assign them and no view passes model data around as props.</p>
-          <p class="where">operator/model/modelData.js</p>
+          <p class="where">model/modelData.js</p>
         </div>
         <div class="note">
           <h4>Each pack brings its own clock</h4>

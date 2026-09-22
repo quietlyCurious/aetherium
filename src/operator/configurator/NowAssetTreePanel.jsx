@@ -9,7 +9,7 @@ import { TabPanel } from 'devextreme-react';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import DataListGrid from '../../DataListGrid';
 import HierarchyTree from '../../HierarchyTree';
-import { CURRENT_ASSET_DATA } from '../model/modelData';
+import { CURRENT_ASSET_DATA } from '../../model/modelData';
 import { AssetCustomizedDot, TypeCustomizedCount } from './customizationControls';
 
 const TYPE_LIST_COLUMNS = [

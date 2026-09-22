@@ -9,8 +9,8 @@ import { useState, useEffect } from 'react';
 import { Popover } from 'devextreme-react/popover';
 import { CheckBox } from 'devextreme-react/check-box';
 import Button from 'devextreme-react/button';
-import { deslugifyType, assetTypeIdOf, getAssetPathLabel } from '../model/assetQueries';
-import { CURRENT_ASSET_MAP, CURRENT_ASSET_DATA } from '../model/modelData';
+import { deslugifyType, assetTypeIdOf, getAssetPathLabel } from '../../model/assetQueries';
+import { CURRENT_ASSET_MAP, CURRENT_ASSET_DATA } from '../../model/modelData';
 import { useAssetCustomizations } from '../settings/customizations';
 
 // Filled blue dot — the same "set on this asset" mark the Details panel's

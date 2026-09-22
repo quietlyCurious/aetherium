@@ -1,15 +1,16 @@
-// operator/model/modelData.js
+// model/modelData.js
 // The active industry model's data, as module-level variables (live ES
 // bindings), plus everything that writes them: the loader helper that
-// OperatorWorkspace calls after fetching a model's JSON files
-// (activateLoadedModel), and the timeline those files define.
+// useLoadedModel calls after fetching a model's JSON files
+// (activateLoadedModel), and the timeline those files define. Read by the
+// Operator side, Visualization and the Screens area alike.
 //
 // Every model is a generic pack (INDUSTRY_PACK_SPEC.md §6): data keyed by
 // real asset id, any hierarchy depth, its own timeline. Everything else
 // only READS these — an import of a `let` from here always sees its current
 // value, but can't assign it. That's deliberate: all writes stay in this
-// one file. Switching models remounts the workspace, so nothing needs to
-// subscribe to changes here.
+// one file. Nothing subscribes to changes here: switching models remounts
+// the Operator workspace, and Screens keys its model views by model id.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // The hierarchy

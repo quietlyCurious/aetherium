@@ -276,7 +276,7 @@
       <div class="eyebrow">quietlyCurious/aetherium · main @ 10974cf</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the whole app is put together: the two workspaces and their areas, which file owns what, how a setting or a model's data travels to a box on screen, how the Screens editor is split, and the handful of patterns everything leans on.</p>
-      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 48 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 22 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 605. Every industry model now uses the one generic data format.</p>
+      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 22 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 605. Every industry model now uses the one generic data format.</p>
     </header>
 
     <section id="glance">
@@ -285,7 +285,7 @@
       <div class="glance" role="list">
         <div role="listitem"><strong>605</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
         <div role="listitem"><strong>1,213</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
-        <div role="listitem"><strong>48+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
+        <div role="listitem"><strong>45+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
         <div role="listitem"><strong>22</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
         <div role="listitem"><strong>8</strong><span>industry models, one generic data format</span></div>
         <div role="listitem"><strong>23</strong><span>model-data variables, all written in <code>modelData.js</code></span></div>
@@ -506,7 +506,7 @@
 
       <p>Two things in this picture are unusual and worth knowing before reading code:</p>
       <ul class="tight">
-        <li><strong>The loaded model lives in module-level variables, not in React state.</strong> They're in <code>operator/model/modelData.js</code>, and only that file writes them: the loader calls <code>activateLoadedModel()</code>, then remounts <code>OperatorWorkspaceInner</code> (its React <code>key</code> is model + persona). Everything else imports and reads them, which is why switching models always starts the interface fresh.</li>
+        <li><strong>The loaded model lives in module-level variables, not in React state.</strong> They're in <code>model/modelData.js</code>, and only that file writes them: the loader calls <code>activateLoadedModel()</code>, then remounts <code>OperatorWorkspaceInner</code> (its React <code>key</code> is model + persona). Everything else imports and reads them, which is why switching models always starts the interface fresh.</li>
         <li><strong>Deep components get shared data from three small stores</strong> rather than props passed down every layer. They're covered under <a href="#mechanisms">Patterns to know</a>.</li>
       </ul>
     </section>
@@ -811,7 +811,7 @@
 
       <figure>
         <div class="fig-scroll">
-        <svg viewBox="0 0 980 300" role="img" aria-label="models.json is read by modelRegistry.js, which gives each model its files; OperatorWorkspace fetches them and calls activateLoadedModel in modelData.js, which fills 23 module variables; assetQueries.js and the components read those. Below, the authoring side: generate.py writes the pack's files, validate_industry_pack.py checks them, and explain.py with the detectors toolkit writes explanations.json.">
+        <svg viewBox="0 0 980 300" role="img" aria-label="models.json is read by modelRegistry.js, which gives each model its files; useLoadedModel fetches them and calls activateLoadedModel in modelData.js, which fills 23 module variables; assetQueries.js and the components read those. Below, the authoring side: generate.py writes the pack's files, validate_industry_pack.py checks them, and explain.py with the detectors toolkit writes explanations.json.">
           <defs>
             <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
           </defs>
@@ -1006,7 +1006,7 @@
         <div class="note">
           <h4>Model data in module globals</h4>
           <p>23 <code>let</code> variables (asset hierarchy, telemetry, labels, ranges…) in <code>modelData.js</code>, written only there and read everywhere else as live imports. Nothing passes model data as props. Every model is a generic pack keyed by real asset id, so <code>assetQueries.js</code> has one lookup path (<span class="mono">getAssetProperties</span>, <span class="mono">getAssetPropertySeries</span>, <span class="mono">assetTypeIdOf</span>) and no id conversions.</p>
-          <p class="where">operator/model/modelData.js · operator/model/assetQueries.js</p>
+          <p class="where">model/modelData.js · model/assetQueries.js</p>
         </div>
         <div class="note">
           <h4>Three shared stores</h4>
@@ -1093,6 +1093,19 @@
             <tr><td class="mono">shell/appRail.css</td><td class="num">154</td><td>Rail styles (<span class="mono">app-rail-*</span>), shared with the Operator's right rail</td></tr>
             <tr><td class="mono">App.css + App.*.css</td><td class="num">1,844</td><td>Title bar and chrome (<span class="mono">App.css</span>), plus locked, snap, bindings, data, details-radius, license-banner and thin-scrollbar sheets</td></tr>
             <tr><td class="mono">unsavedChangesStore.js</td><td class="num">120</td><td>The one "unsaved changes" flag every area publishes to, and <span class="mono">useUnsavedTracker</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>The loaded model: <span class="mono">src/model/</span></h3>
+      <p>The active industry model, read by the Operator side, Visualization and Screens alike. <span class="mono">modelData.js</span> is the only file that writes it.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">modelData.js</td><td class="num">232</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
+            <tr><td class="mono">assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset and explanation</td></tr>
+            <tr><td class="mono">useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; used by <span class="mono">OperatorWorkspace</span> and <span class="mono">ScreensWorkspace</span>, and skips the fetch when that model is already active</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td class="num">95</td><td>Reads and checks <span class="mono">models.json</span>; each model's file list</td></tr>
           </tbody>
         </table>
@@ -1104,9 +1117,6 @@
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
             <tr><td class="mono">OperatorWorkspace.jsx</td><td class="num">1,213</td><td>The outer component (wait for the model, show errors, key the inner one) and <span class="mono">OperatorWorkspaceInner</span>: all state and handlers, and the slot layout</td></tr>
-            <tr><td class="mono">model/modelData.js</td><td class="num">231</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
-            <tr><td class="mono">model/useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; shared by <span class="mono">OperatorWorkspace</span> and Screens, and skips the fetch when that model is already active</td></tr>
-            <tr><td class="mono">model/assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset and explanation</td></tr>
             <tr><td class="mono">settings/propertyDisplay.js</td><td class="num">64</td><td>View modes, per-property visual resolution and merging, the Show (visibility) cycle</td></tr>
             <tr><td class="mono">settings/displayOrder.js</td><td class="num">80</td><td>Default and saved orders, and the display-order store</td></tr>
             <tr><td class="mono">settings/customizations.js</td><td class="num">175</td><td>"Differs from type" detection and the customization store</td></tr>
@@ -1246,6 +1256,7 @@
             <tr><td>Designer 4a</td><td>One list of areas and one area handle; Widgets and Scripts as workspaces. Changed: leaving Screens no longer prompts</td></tr>
             <tr><td>Designer 4b</td><td>The area rail and the two workspaces</td></tr>
             <tr><td>Models</td><td>Refinery, water and wastewater converted to the generic format; the legacy formats, the Issue Map and Line Detail removed</td></tr>
+            <tr><td>Designer model</td><td>Screens (Data tab, Create wizard) reads the loaded model; the loader became <span class="mono">useLoadedModel</span>, and the model files moved from <span class="mono">operator/model/</span> to <span class="mono">src/model/</span>. <span class="mono">assetData.js</span> and the unused <span class="mono">NavRail.jsx</span> removed</td></tr>
           </tbody>
         </table>
       </div>
@@ -1271,11 +1282,6 @@
       <h2>Loose ends</h2>
       <p>Known, deliberately left for later, and worth knowing before you trip over them.</p>
       <div class="notes">
-        <div class="note">
-          <h4>A leftover file</h4>
-          <p><code>operator/chrome/NavRail.jsx</code> is still in the repo, but nothing imports it since the rail moved to <code>shell/AreaRail.jsx</code>. Safe to delete.</p>
-          <p class="where">operator/chrome/NavRail.jsx</p>
-        </div>
         <div class="note">
           <h4>Screens gaps</h4>
           <p>Picking an aspect ratio doesn't resize a flex item until its width changes. Widget property edits in a breakpoint tier change the base value (<code>updateWidgetPropsForTier</code> exists, unwired). The single-item panel rounds decimals; the multi-select one doesn't.</p>

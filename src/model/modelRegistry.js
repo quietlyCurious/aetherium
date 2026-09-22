@@ -1,7 +1,7 @@
-// modelRegistry.js
+// model/modelRegistry.js
 // Reads public/data/models.json — the one list of every simulated industry
 // model the app knows about (refinery, water, wind, …). Both the title-bar
-// model switcher (App.js) and OperatorWorkspace's data loader read from
+// model switcher (App.js) and the data loader (useLoadedModel) read from
 // here, so adding an industry pack is a data-only change: drop its folder
 // into public/data/<id>/ and add one entry to models.json.
 // See INDUSTRY_PACK_SPEC.md §6 and §9.
@@ -61,7 +61,7 @@ function normalizeEntry(entry) {
 }
 
 // Fetched once per page load and shared by every caller — App.js and
-// OperatorWorkspace both ask for it on mount, and a model switch never
+// useLoadedModel both ask for it, and a model switch never
 // needs a re-fetch since the list itself doesn't change at runtime.
 // A failed fetch clears the cache so a later call can retry.
 export function loadModelRegistry() {

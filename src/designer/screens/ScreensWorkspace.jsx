@@ -27,7 +27,7 @@ import { WIDGET_PROPERTIES } from '../../widgetData';
 import { ScreensLeftPanel } from './ScreensLeftPanel';
 import { ScreenCanvas } from './ScreenCanvas';
 import { ScreenDetailsPanel } from './ScreenDetailsPanel';
-import { useLoadedModel } from '../../operator/model/useLoadedModel';
+import { useLoadedModel } from '../../model/useLoadedModel';
 
 // Ctrl/Cmd+C and Ctrl/Cmd+V copy and paste the selected container; Esc
 // puts the paintbrush down and clears snap guides.

@@ -2,8 +2,8 @@
 // The right-hand panel's container: Details (NowTypeDetailsList), Chat
 // (ContactsPanel) or AI (AiChatPanel), chosen by the right rail.
 
-import { assetTypeIdOf, getAssetProperties } from '../model/assetQueries';
-import { CURRENT_ASSET_MAP } from '../model/modelData';
+import { assetTypeIdOf, getAssetProperties } from '../../model/assetQueries';
+import { CURRENT_ASSET_MAP } from '../../model/modelData';
 import { AiChatPanel } from './AiChatPanel';
 import { ContactsPanel } from './ContactsPanel';
 import { NowTypeDetailsList } from '../configurator/NowTypeDetailsList';

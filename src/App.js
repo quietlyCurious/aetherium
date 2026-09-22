@@ -46,7 +46,7 @@ import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadOperatorNavigation, saveOperatorNavigation } from './operatorNavigationStorage';
-import { loadModelRegistry } from './modelRegistry';
+import { loadModelRegistry } from './model/modelRegistry';
 import ThemeWorkspace from './ThemeWorkspace';
 import OperatorWorkspace from './operator/OperatorWorkspace';
 import { ScreensWorkspace } from './designer/screens/ScreensWorkspace';

@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
-import { ATTENTION_ITEMS } from '../model/modelData';
+import { ATTENTION_ITEMS } from '../../model/modelData';
 import { AiPill } from '../badges';
 import { ATTENTION_STATE_COLORS, ATTENTION_STATE_LABELS, ATTENTION_STATE_ORDER, SEVERITY_COLORS, SEVERITY_LABELS, SEVERITY_ORDER } from './statusVocabulary';
 

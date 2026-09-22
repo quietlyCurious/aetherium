@@ -16,7 +16,7 @@ import notify from 'devextreme/ui/notify';
 import ScreensPanel from '../../ScreensPanel';
 import HierarchyTree from '../../HierarchyTree';
 import PageVisualsTabWrapper from '../../PageVisualsTree';
-import { CURRENT_ASSET_DATA } from '../../operator/model/modelData';
+import { CURRENT_ASSET_DATA } from '../../model/modelData';
 import { DX_WIDGET_DATA } from '../../widgetData';
 import { findContainerById } from '../../containerTree';
 

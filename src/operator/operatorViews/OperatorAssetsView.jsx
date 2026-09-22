@@ -5,8 +5,8 @@
 
 import ButtonGroup from 'devextreme-react/button-group';
 import HierarchyTree from '../../HierarchyTree';
-import { deslugifyType, getAssetDisplayLabel } from '../model/assetQueries';
-import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../model/modelData';
+import { deslugifyType, getAssetDisplayLabel } from '../../model/assetQueries';
+import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../../model/modelData';
 import { ReadOnlyRelatedAssetsView, ReadOnlyAllAssetsView } from '../relatedAssets/ReadOnlyViews';
 import { AssetCard } from '../relatedAssets/AssetCard';
 import { NowAssetTreeItemTemplate } from '../configurator/NowAssetTreePanel';

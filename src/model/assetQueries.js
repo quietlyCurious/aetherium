@@ -1,4 +1,4 @@
-// operator/model/assetQueries.js
+// model/assetQueries.js
 // Read-only questions about the active model's data: an asset's current
 // property values and series, its type id and display labels, its related
 // assets, and how an attention item maps onto an asset. Every lookup is by

@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 import { NowStatusIcon } from '../icons';
-import { UNIT_OPERATING_CONTEXT, UNIT_STATUS_TILES } from '../model/modelData';
+import { UNIT_OPERATING_CONTEXT, UNIT_STATUS_TILES } from '../../model/modelData';
 import { OPERATING_MODE_COLORS, STATE_COLORS, STATE_LABELS } from './statusVocabulary';
 
 function formatStatusDuration(minutes) {

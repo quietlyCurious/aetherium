@@ -13,8 +13,8 @@ import ButtonGroup, { Item as ButtonGroupItem } from 'devextreme-react/button-gr
 import Button from 'devextreme-react/button';
 import { Slider, Label as SliderLabel } from 'devextreme-react/slider';
 import { IconButtonGroupItem } from '../icons';
-import { HMI_CATEGORY_ORDER, getAssetPropertySeries, sliceSeriesToRange } from '../model/assetQueries';
-import { PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
+import { HMI_CATEGORY_ORDER, getAssetPropertySeries, sliceSeriesToRange } from '../../model/assetQueries';
+import { PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../../model/modelData';
 import { applySavedOrder } from '../settings/displayOrder';
 import { resolvePropertyViewMode, KPI_VIEW_MODE_ITEMS } from '../settings/propertyDisplay';
 import { PropertyTileCanvas } from './PropertyTileCanvas';

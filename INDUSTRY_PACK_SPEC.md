@@ -689,7 +689,7 @@ their properties (label and category from `properties.json`).
 
 Built (Sept 2026):
 
-1. **Registry** (`modelRegistry.js`): `levels` and `unitLevel` checked
+1. **Registry** (`model/modelRegistry.js`): `levels` and `unitLevel` checked
    on load, the §6 default filenames, and optional roles
    (`explanations`) that may be missing without failing the model.
 2. **Loader** (`OperatorWorkspace.jsx`): loads the 8 files, and splits

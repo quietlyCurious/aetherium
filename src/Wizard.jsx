@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { SelectBox, TreeView } from 'devextreme-react';
-import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, PROPERTY_CATEGORIES, PROPERTY_LABELS } from './operator/model/modelData';
-import { getAssetProperties, HMI_CATEGORY_ORDER } from './operator/model/assetQueries';
+import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, PROPERTY_CATEGORIES, PROPERTY_LABELS } from './model/modelData';
+import { getAssetProperties, HMI_CATEGORY_ORDER } from './model/assetQueries';
 
 const STEPS = [
   { title: 'Select Asset' },

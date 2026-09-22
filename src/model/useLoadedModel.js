@@ -1,4 +1,4 @@
-// operator/model/useLoadedModel.js
+// model/useLoadedModel.js
 // Makes a model the active one, for whichever area needs it: the Operator
 // Experience and Visualization (OperatorWorkspace), and the Screens area
 // (its Data tab's Model view and the Create wizard). Lived inside
@@ -17,7 +17,7 @@
 // memo dependency, since nothing subscribes to modelData itself.
 
 import { useEffect, useState } from 'react';
-import { loadModelRegistry, getModelDataFiles } from '../../modelRegistry';
+import { loadModelRegistry, getModelDataFiles } from './modelRegistry';
 import { activateLoadedModel, CURRENT_MODEL } from './modelData';
 
 // Fetches every file a model lists. An optional file that's missing (or,

@@ -10,7 +10,7 @@
 // "always". assetId is optional — without one, no asset-level entry can
 // match, which is exactly the type-level behaviour.
 
-import { getRelatedAssetsForType } from '../model/assetQueries';
+import { getRelatedAssetsForType } from '../../model/assetQueries';
 import { sortRowsByOrder } from '../settings/displayOrder';
 
 export function buildRelatedAssetRows({ typeId, assetId, typeList, typeRelatedAssetConfigs, assetRelatedAssetConfigs, order }) {

@@ -8,7 +8,7 @@ import { useUnsavedTracker } from '../../unsavedChangesStore';
 import Button from 'devextreme-react/button';
 import HierarchyTree from '../../HierarchyTree';
 import { VisibilityStateIcon } from '../icons';
-import { CURRENT_ASSET_DATA } from '../model/modelData';
+import { CURRENT_ASSET_DATA } from '../../model/modelData';
 import { AssetDiagramView } from '../relatedAssets/AssetDiagramView';
 import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
 import { useDiagramSettings, DiagramLayoutControls, DiagramSpacingControls } from './diagramSettings';

@@ -4,8 +4,8 @@
 // store the workspace publishes the four order maps through.
 
 import { useSyncExternalStore } from 'react';
-import { HMI_CATEGORY_ORDER } from '../model/assetQueries';
-import { PROPERTY_CATEGORIES } from '../model/modelData';
+import { HMI_CATEGORY_ORDER } from '../../model/assetQueries';
+import { PROPERTY_CATEGORIES } from '../../model/modelData';
 
 // ─── Display order: properties and related assets ──────────────────────
 //

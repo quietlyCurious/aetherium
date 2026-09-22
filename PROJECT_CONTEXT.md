@@ -35,7 +35,7 @@ Aetherium is a React + DevExtreme 25.x app with two main halves:
   designer half"). The model switcher applies in Visualization and
   Screens, and is dimmed in the other areas, which don't use a model yet.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
-  concept: a thin `OperatorWorkspace.jsx` shell plus 48 modules and 7
+  concept: a thin `OperatorWorkspace.jsx` shell plus 45 modules and 7
   stylesheets, all under `src/operator/`. This is where essentially all recent work has
   happened, and is very likely where new work will continue. It was split
   out of one very large file in phases (see `docs/CODE_MAP.html`, the
@@ -59,7 +59,7 @@ their id-conversion rules and the refinery-only Issue Map and Line
 Detail are gone. Everything in `src/operator/` reads from whichever
 model's data is currently loaded, never from a specific model by name.
 So does the designer's Screens area (its Data tab's Model view and the
-Create wizard): `src/operator/model/useLoadedModel.js` fetches and
+Create wizard): `src/model/useLoadedModel.js` fetches and
 activates the title bar's model for whichever area needs it, and skips
 the fetch when that model is already active.
 
@@ -232,11 +232,13 @@ state vs. drawing:
 - `src/operator/OperatorWorkspace.jsx` — the shell: loading a model's
   data, and `OperatorWorkspaceInner`, which owns the shared state and
   arranges the panels into slots. Everything it renders sits beside it.
-- `src/operator/model/` — the active model's data (`modelData.js`: the
-  module-level variables and the loader that writes them; nothing else
-  assigns them), read-only questions about it (`assetQueries.js`), and
-  `useLoadedModel.js`, the hook that fetches a model and makes it active
-  (used by OperatorWorkspace and ScreensWorkspace).
+- `src/model/` — the active model, shared by the Operator side,
+  Visualization and Screens: its data (`modelData.js`: the module-level
+  variables and the loader that writes them; nothing else assigns them),
+  read-only questions about it (`assetQueries.js`), `useLoadedModel.js`
+  (the hook that fetches a model and makes it active, used by
+  OperatorWorkspace and ScreensWorkspace), and `modelRegistry.js` (reads
+  `models.json`).
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
@@ -308,7 +310,7 @@ class names match, as of phase 5: `op-property-tile-*`,
   back to the plain AI tab.
   `ModelAndData/tools/detectors/preview.py <model>` renders a pack's
   explanations as a standalone HTML page for reviewing content.
-- `public/data/models.json` + `src/modelRegistry.js` — the registry of
+- `public/data/models.json` + `src/model/modelRegistry.js` — the registry of
   industry models (id, label, levels, unitLevel, optional file roles), read by both
   the model switcher and `OperatorWorkspace`'s loader. A new industry pack
   is one entry here plus its `public/data/<id>/` folder, with no code

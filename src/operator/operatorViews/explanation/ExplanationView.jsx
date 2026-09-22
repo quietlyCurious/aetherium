@@ -13,7 +13,7 @@
 // Every section is optional except the conclusion and the checks, so a
 // compliance item (nothing to rule out) renders without gaps.
 
-import { CURRENT_TIMESTAMPS } from '../../model/modelData';
+import { CURRENT_TIMESTAMPS } from '../../../model/modelData';
 import { InvestigateStatCards } from '../InvestigateStatCards';
 import { ChartLegend, ExplanationChart, ExplanationSpark } from './ExplanationChart';
 

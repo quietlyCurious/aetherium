@@ -6,8 +6,8 @@
 // tree dots, type counts, title chip and checklists to read.
 
 import { useSyncExternalStore } from 'react';
-import { assetTypeIdOf, getRelatedAssetsForType } from '../model/assetQueries';
-import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP } from '../model/modelData';
+import { assetTypeIdOf, getRelatedAssetsForType } from '../../model/assetQueries';
+import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP } from '../../model/modelData';
 import { applySavedOrder, categoryOrderedPropertyKeys } from './displayOrder';
 import { KPI_VIEW_MODE_ITEMS, VISIBILITY_LABEL } from './propertyDisplay';
 

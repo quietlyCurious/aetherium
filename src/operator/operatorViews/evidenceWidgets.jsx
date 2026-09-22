@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react';
 import { Chart, CommonSeriesSettings, Series, Point, Aggregation, ArgumentAxis, Grid as ChartGrid, ValueAxis, Legend as ChartLegend, Tooltip as ChartTooltip, Export as ChartExport } from 'devextreme-react/chart';
 import RangeSelector, { Size as RsSize, Chart as RsChart, ValueAxis as RsValueAxis, Series as RsSeries, Aggregation as RsAggregation, Scale as RsScale, Behavior as RsBehavior } from 'devextreme-react/range-selector';
-import { minutesToShiftDate, timeStrToMinutes, CURRENT_TIMESTAMPS } from '../model/modelData';
+import { minutesToShiftDate, timeStrToMinutes, CURRENT_TIMESTAMPS } from '../../model/modelData';
 
 // fullSeries: the item's primary-property series, one value per
 // CURRENT_TIMESTAMPS entry — the whole-timeline trend, opening zoomed to

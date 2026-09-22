@@ -5,8 +5,8 @@
 // saved template changes, so editors always start from saved state.
 
 import { useState } from 'react';
-import { assetTypeIdOf, getAssetProperties } from '../model/assetQueries';
-import { CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../model/modelData';
+import { assetTypeIdOf, getAssetProperties } from '../../model/assetQueries';
+import { CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../../model/modelData';
 import { NowTypeMainPreview } from './NowTypeMainPreview';
 
 // Center preview for the Now area's own Assets tab, mirroring the type

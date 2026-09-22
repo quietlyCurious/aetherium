@@ -28,7 +28,7 @@ import { loadTypeDisplayTemplates, saveTypeDisplayTemplates } from '../typeDispl
 import { loadRelatedAssetsTemplates, saveRelatedAssetsTemplates } from '../relatedAssetsTemplatesStorage';
 import { loadAllAssetsTemplate, saveAllAssetsTemplate } from '../allAssetsTemplateStorage';
 import { loadNowSelection, saveNowSelection } from '../nowSelectionStorage';
-import { useLoadedModel } from './model/useLoadedModel';
+import { useLoadedModel } from '../model/useLoadedModel';
 import { loadTypePropertyConfigs, saveTypePropertyConfigs } from '../typePropertyConfigsStorage';
 import { loadTypeRelatedAssetConfigs, saveTypeRelatedAssetConfigs } from '../typeRelatedAssetConfigsStorage';
 import { loadAssetDisplayTemplates, saveAssetDisplayTemplates } from '../assetDisplayTemplatesStorage';
@@ -40,8 +40,8 @@ import { loadAssetPropertyOrders, saveAssetPropertyOrders } from '../assetProper
 import { loadTypeRelatedAssetOrders, saveTypeRelatedAssetOrders } from '../typeRelatedAssetOrderStorage';
 import { loadAssetRelatedAssetOrders, saveAssetRelatedAssetOrders } from '../assetRelatedAssetOrderStorage';
 import notify from 'devextreme/ui/notify';
-import { assetTypeIdOf, buildTypeList, getAssetPathLabel, deslugifyType } from './model/assetQueries';
-import { ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from './model/modelData';
+import { assetTypeIdOf, buildTypeList, getAssetPathLabel, deslugifyType } from '../model/assetQueries';
+import { ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from '../model/modelData';
 import { normalizedLayout, UNDO_TOAST_MS, computeAssetCustomizations, assetCustomizationStore, EMPTY_CUSTOMIZATIONS } from './settings/customizations';
 import { displayOrderStore, EMPTY_DISPLAY_ORDERS } from './settings/displayOrder';
 import { PROPERTY_VIEW_MODE_DEFAULT, KPI_VIEW_MODE_ITEMS } from './settings/propertyDisplay';

@@ -11,7 +11,7 @@ import notify from 'devextreme/ui/notify';
 import Button from 'devextreme-react/button';
 import { useInternalNode, getStraightPath, getSmoothStepPath, getBezierPath, BaseEdge, Handle, ReactFlowProvider, useNodesState, useEdgesState, useNodesInitialized, useReactFlow, MarkerType, ReactFlow, Background, Panel } from '@xyflow/react';
 import { IconButtonGroupItem } from '../icons';
-import { getAllAssetRelationshipsForModel, CONTAINMENT_EDGE_STYLE } from '../model/assetQueries';
+import { getAllAssetRelationshipsForModel, CONTAINMENT_EDGE_STYLE } from '../../model/assetQueries';
 import { alignSelectedNodes, distributeSelectedNodes, getFloatingEdgeParams } from '../canvas/canvasGeometry';
 import { AssetCard } from './AssetCard';
 import { RELATED_ASSETS_DIAGRAM_ALGORITHM_OPTIONS, getElkLayoutedElements } from './elkLayout';

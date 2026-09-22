@@ -4,7 +4,7 @@
 // much slack is left before an item is late) and its formatting, plus the
 // group/sort helpers behind the list's controls.
 
-import { WORK_NOW_REFERENCE } from '../model/modelData';
+import { WORK_NOW_REFERENCE } from '../../model/modelData';
 
 const WORK_PRIORITY_ORDER = { urgent: 0, important: 1, routine: 2 };
 

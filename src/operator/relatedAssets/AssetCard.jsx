@@ -11,8 +11,8 @@
 
 import { createContext, useContext } from 'react';
 import { GearIcon } from '../icons';
-import { getAssetProperties, getAssetPropertySeries, getPropertyVisibilityForType, sliceSeriesToRange } from '../model/assetQueries';
-import { PROPERTY_RANGES, PROPERTY_LABELS, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../model/modelData';
+import { getAssetProperties, getAssetPropertySeries, getPropertyVisibilityForType, sliceSeriesToRange } from '../../model/assetQueries';
+import { PROPERTY_RANGES, PROPERTY_LABELS, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../../model/modelData';
 import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
 import { mergePropertyViewModes, resolvePropertyViewMode } from '../settings/propertyDisplay';
 import { PropertyTile } from '../properties/PropertyTile';
