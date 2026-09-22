@@ -38,7 +38,7 @@ import {
   makeWidgetContainer, dropIntoGridCell, applyLayoutUpdate, mergeCellContainers,
   updateSlotForTier, updateWidgetPropsForTier, updateCoordKeepingRatio,
   setAspectRatio, toggleHiddenForTier, clearTierOverrides, toggleLock,
-  setBinding, clearBinding, pickUpStyle, applyStyle,
+  setBinding, clearBinding, pickUpStyle, applyStyle, setPageContext,
 } from './screenEdits';
 import { usePageQueryInstances } from './usePageQueryInstances';
 
@@ -101,6 +101,15 @@ export function useScreenEditor({ queries }) {
   const [detailsTabIndex, setDetailsTabIndex] = useState(0);
   const [bindingPopoverProp, setBindingPopoverProp] = useState(null); // { containerId, propName, x, y }
   const [inputBindingPopover, setInputBindingPopover] = useState(null); // { instanceId, fieldName, x, y }
+
+  // ── What the screen is about ─────────────────────────────────────────────
+  // The asset "Preview as" shows, per screen ('new' for an unsaved canvas).
+  // Not saved with the page: it's a design-time choice, like the device
+  // preview. screenSelfOf (screenAsset.jsx) falls back to the first asset
+  // of the type when none is chosen or the choice no longer fits.
+  const [previewAssetByPage, setPreviewAssetByPage] = useState({});
+  const chosenPreviewAssetId = previewAssetByPage[activePageId ?? 'new'] ?? null;
+  const choosePreviewAsset = (assetId) => setPreviewAssetByPage(prev => ({ ...prev, [activePageId ?? 'new']: assetId }));
 
   const instances = usePageQueryInstances(activePageId, queries);
 
@@ -529,6 +538,12 @@ export function useScreenEditor({ queries }) {
   };
 
   // Root only; root is not lockable, so no guard needed.
+  // { modelId, typeId }, or null for a plain page. The Page details ask
+  // first when bindings would stop resolving (screenSelfOf.changeType).
+  const setPageContextType = (context) => {
+    setContainers(prev => setPageContext(prev, context));
+  };
+
   const updatePageType = (id, pageType) => {
     setContainers(prev => updatePageTypeInTree(prev, id, pageType));
   };
@@ -576,6 +591,8 @@ export function useScreenEditor({ queries }) {
     updateWidgetProps, setWidgetBinding, clearWidgetBinding,
     updateLayout, mergeGridCells, updateSlot, updateCoord, setContainerAspectRatio,
     toggleVisibility, clearBreakpointOverrides, updatePageType,
+    // what the screen is about
+    setPageContextType, chosenPreviewAssetId, choosePreviewAsset,
     // canvas tools
     focusMode, setFocusMode, showGap, setShowGap, coordMode, setCoordMode,
     snapEnabled, setSnapEnabled, snapSize, setSnapSize, snapGuides, setSnapGuides,

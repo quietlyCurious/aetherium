@@ -13,42 +13,48 @@
 // Pass the page's `containers` and the data its bindings read — typically
 // straight from usePageQueryResults. Without `queryResults`, query-bound
 // properties keep their static values, the way the canvas shows them at
-// design time.
+// design time. `assetId` is the asset a screen about a type shows (its
+// "self"); its asset bindings resolve against it.
 
 import ContainerCard from '../../ContainerCard';
 import { BASE_TIER_ID } from '../../containerModel';
+import { ScreenAssetProvider } from './screenAsset';
 
 const NOOP = () => {};
 
-export function ScreenView({ containers, queryResults = null, queries = null }) {
-  return (containers || []).map(c => (
-    <ContainerCard
-      key={c.id}
-      container={c}
-      containers={containers}
-      selectedIds={[]}
-      onSelect={NOOP}
-      onDelete={NOOP}
-      onDragStart={NOOP}
-      onDragOver={NOOP}
-      onDrop={NOOP}
-      onWidgetDrop={NOOP}
-      onUpdateLayout={NOOP}
-      onUpdateSlot={NOOP}
-      onUpdateCoord={NOOP}
-      onGridCellDrop={NOOP}
-      onSetSelectedGridCell={NOOP}
-      onMergeCellContainers={NOOP}
-      selectedGridCell={null}
-      dragState={{}}
-      draggingId={null}
-      isDragging={false}
-      coordMode="reposition"
-      activeTierId={BASE_TIER_ID}
-      snapEnabled={false}
-      queryResults={queryResults}
-      queries={queries}
-      interactive={false}
-    />
-  ));
+export function ScreenView({ containers, queryResults = null, queries = null, assetId = null }) {
+  return (
+    <ScreenAssetProvider assetId={assetId}>
+      {(containers || []).map(c => (
+        <ContainerCard
+          key={c.id}
+          container={c}
+          containers={containers}
+          selectedIds={[]}
+          onSelect={NOOP}
+          onDelete={NOOP}
+          onDragStart={NOOP}
+          onDragOver={NOOP}
+          onDrop={NOOP}
+          onWidgetDrop={NOOP}
+          onUpdateLayout={NOOP}
+          onUpdateSlot={NOOP}
+          onUpdateCoord={NOOP}
+          onGridCellDrop={NOOP}
+          onSetSelectedGridCell={NOOP}
+          onMergeCellContainers={NOOP}
+          selectedGridCell={null}
+          dragState={{}}
+          draggingId={null}
+          isDragging={false}
+          coordMode="reposition"
+          activeTierId={BASE_TIER_ID}
+          snapEnabled={false}
+          queryResults={queryResults}
+          queries={queries}
+          interactive={false}
+        />
+      ))}
+    </ScreenAssetProvider>
+  );
 }

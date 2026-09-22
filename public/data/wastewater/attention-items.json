@@ -16,14 +16,14 @@
    "inferred": "A partially fouled blower filter was restricting air flow — confirmed on inspection and cleared.",
    "recommendation": "Clear the blower intake filter and confirm air flow recovers; monitor DO closely for the next two hours.",
    "evidence": [
-    2.3,
-    1.9,
-    1.5,
-    1.1,
-    0.8,
-    0.6,
-    1.8,
-    2.2
+    2.292,
+    1.894,
+    1.484,
+    1.097,
+    0.798,
+    0.592,
+    1.817,
+    2.208
    ],
    "evidencePoints": [
     {
@@ -111,14 +111,14 @@
    "inferred": "Early-stage filamentous bulking is the leading theory, consistent with the gradual, biology-driven pattern — not yet confirmed by a microscopic exam.",
    "recommendation": "Pull a mixed liquor sample for microscopic exam; consider a small RAS rate increase if SVI continues climbing past 150.",
    "evidence": [
-    95,
-    103,
-    112,
-    121,
-    130,
-    136,
-    140,
-    142
+    94.858,
+    103.068,
+    111.789,
+    121.13,
+    130.215,
+    136.233,
+    140.051,
+    142.147
    ],
    "evidencePoints": [
     {
@@ -198,14 +198,14 @@
    "inferred": "Mechanical overload during peak flow — confirmed by inspection, restarted without further damage.",
    "recommendation": "Log for the peak-flow maintenance review; inspect drive chain tension before the next peak flow period.",
    "evidence": [
-    61,
-    58,
-    52,
-    45,
-    38,
-    52,
-    59,
-    61
+    61.132,
+    58.048,
+    51.923,
+    45.116,
+    37.978,
+    51.922,
+    58.985,
+    60.795
    ],
    "evidencePoints": [
     {
@@ -293,13 +293,13 @@
    "inferred": "RAS setpoint was not updated when incoming load shifted earlier in the shift — corrected manually.",
    "recommendation": "Adjust RAS rate to track incoming load more responsively; review the auto-adjustment logic if available.",
    "evidence": [
-    0.28,
+    0.278,
     0.3,
     0.32,
-    0.34,
+    0.341,
     0.35,
     0.31,
-    0.28
+    0.279
    ],
    "evidencePoints": [
     {
@@ -381,22 +381,22 @@
    "inferred": "Likely tied to a slightly higher influent load this shift — nothing has been confirmed as a fault.",
    "recommendation": "Confirm final effluent sample before end of shift and ensure the DMR is filed within the 24-hour window regardless of outcome.",
    "evidence": [
-    10,
-    11,
-    13,
-    14,
-    15,
-    13
+    12.149,
+    12.498,
+    13.345,
+    14.159,
+    14.848,
+    12.293
    ],
    "evidencePoints": [
     {
      "time": "13:10",
-     "value": "10",
+     "value": "12",
      "label": "Baseline"
     },
     {
      "time": "13:25",
-     "value": "11",
+     "value": "12",
      "label": ""
     },
     {

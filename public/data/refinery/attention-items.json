@@ -62,39 +62,39 @@
    "inferred": "A sluggish regulating element — confirmed by inspection, which found the regulator responding slower than spec.",
    "recommendation": "Inspect and adjust the regulating element before the drift compounds further.",
    "evidence": [
-    120.6,
-    119.28,
-    118.31,
-    115.43,
-    112.72,
-    110.93,
-    118.18,
-    120.33
+    120.443,
+    118.971,
+    118.537,
+    115.965,
+    112.512,
+    110.9,
+    118.341,
+    120.464
    ],
    "evidencePoints": [
     {
      "time": "08:20",
-     "value": "120.6/min",
+     "value": "120.4/min",
      "label": ""
     },
     {
      "time": "08:35",
-     "value": "119.3/min",
+     "value": "119.0/min",
      "label": ""
     },
     {
      "time": "08:45",
-     "value": "118.3/min",
+     "value": "118.5/min",
      "label": "Drift begins"
     },
     {
      "time": "09:00",
-     "value": "115.4/min",
+     "value": "116.0/min",
      "label": ""
     },
     {
      "time": "09:10",
-     "value": "112.7/min",
+     "value": "112.5/min",
      "label": ""
     },
     {
@@ -104,12 +104,12 @@
     },
     {
      "time": "09:35",
-     "value": "118.2/min",
+     "value": "118.3/min",
      "label": "Adjusted, recovering"
     },
     {
      "time": "09:50",
-     "value": "120.3/min",
+     "value": "120.5/min",
      "label": "Back to baseline"
     }
    ],
@@ -162,14 +162,14 @@
    "inferred": "Downstream Output capacity restriction — confirmed by inspection and cleared.",
    "recommendation": "Inspect Output capacity; once cleared, briefly pace upstream to help the buffer normalize faster.",
    "evidence": [
-    42.59,
-    44.5,
-    53.03,
-    62.3,
-    70.12,
-    70.66,
-    54.66,
-    43
+    42.6,
+    44.468,
+    52.824,
+    62.523,
+    70.253,
+    70.946,
+    54.976,
+    42.844
    ],
    "evidencePoints": [
     {
@@ -184,32 +184,32 @@
     },
     {
      "time": "09:30",
-     "value": "53.0%",
+     "value": "52.8%",
      "label": ""
     },
     {
      "time": "09:40",
-     "value": "62.3%",
+     "value": "62.5%",
      "label": ""
     },
     {
      "time": "09:55",
-     "value": "70.1%",
+     "value": "70.3%",
      "label": "Near peak"
     },
     {
      "time": "10:10",
-     "value": "70.7%",
+     "value": "70.9%",
      "label": "Restriction cleared"
     },
     {
      "time": "10:25",
-     "value": "54.7%",
+     "value": "55.0%",
      "label": "Draining"
     },
     {
      "time": "10:40",
-     "value": "43.0%",
+     "value": "42.8%",
      "label": "Back to normal"
     }
    ],
@@ -258,11 +258,11 @@
    "recommendation": "Planned drive inspection already underway — do not defer past this cycle.",
    "evidence": [
     2.47,
-    2.7,
-    3.08,
-    3.31,
-    3.92,
-    4.11,
+    2.647,
+    3.072,
+    3.322,
+    3.858,
+    4.112,
     4.38
    ],
    "evidencePoints": [
@@ -273,7 +273,7 @@
     },
     {
      "time": "09:40",
-     "value": "2.7 mm/s",
+     "value": "2.6 mm/s",
      "label": ""
     },
     {
@@ -345,34 +345,34 @@
    "inferred": "Measurement/transmitter instability, not a real pressure event — confirmed by reseating the connection.",
    "recommendation": "Validate the instrument against the local gauge before trusting the transmitter reading again.",
    "evidence": [
-    80.58,
-    79.62,
-    79.32,
-    85.61,
-    95.14,
-    80.26,
-    80.32,
-    79.58
+    80.359,
+    80.396,
+    80.031,
+    85.657,
+    95.1,
+    79.835,
+    79.685,
+    79.336
    ],
    "evidencePoints": [
     {
      "time": "09:10",
-     "value": "80.6 psi",
+     "value": "80.4 psi",
      "label": "Baseline"
     },
     {
      "time": "09:20",
-     "value": "79.6 psi",
+     "value": "80.4 psi",
      "label": ""
     },
     {
      "time": "09:30",
-     "value": "79.3 psi",
+     "value": "80.0 psi",
      "label": ""
     },
     {
      "time": "09:45",
-     "value": "85.6 psi",
+     "value": "85.7 psi",
      "label": "Signal noise begins"
     },
     {
@@ -382,17 +382,17 @@
     },
     {
      "time": "10:05",
-     "value": "80.3 psi",
+     "value": "79.8 psi",
      "label": "Reseated"
     },
     {
      "time": "10:15",
-     "value": "80.3 psi",
+     "value": "79.7 psi",
      "label": ""
     },
     {
      "time": "10:30",
-     "value": "79.6 psi",
+     "value": "79.3 psi",
      "label": "Steady"
     }
    ],
@@ -446,13 +446,13 @@
    "recommendation": "Correct the upstream Refinement condition rather than adjusting Inspection settings.",
    "evidence": [
     1.87,
-    1.8,
-    3.46,
-    5.33,
-    6.64,
-    5.24,
-    2.01,
-    1.73
+    1.819,
+    3.476,
+    5.323,
+    6.62,
+    5.241,
+    2.017,
+    1.764
    ],
    "evidencePoints": [
     {
@@ -492,7 +492,7 @@
     },
     {
      "time": "11:20",
-     "value": "1.7%",
+     "value": "1.8%",
      "label": "Back to baseline"
     }
    ],
@@ -549,14 +549,14 @@
    "inferred": "Power Charge demand exceeded sustainable downstream capacity — the \"good\" number was hiding a real cost.",
    "recommendation": "Reduce the aggressive upstream pacing rather than chasing the headline rate.",
    "evidence": [
-    122.7,
-    124.94,
-    124.38,
-    123.85,
-    125.13,
-    121.31,
-    122.29,
-    120.55
+    122.722,
+    124.58,
+    124.384,
+    123.746,
+    125.1,
+    120.993,
+    122.446,
+    120.6
    ],
    "evidencePoints": [
     {
@@ -566,7 +566,7 @@
     },
     {
      "time": "10:15",
-     "value": "124.9/min",
+     "value": "124.6/min",
      "label": ""
     },
     {
@@ -576,7 +576,7 @@
     },
     {
      "time": "10:45",
-     "value": "123.9/min",
+     "value": "123.7/min",
      "label": ""
     },
     {
@@ -586,12 +586,12 @@
     },
     {
      "time": "11:15",
-     "value": "121.3/min",
+     "value": "121.0/min",
      "label": "Effective output diverging"
     },
     {
      "time": "11:30",
-     "value": "122.3/min",
+     "value": "122.4/min",
      "label": ""
     },
     {
@@ -643,44 +643,44 @@
    "inferred": "A power-delivery fault at Power Charge was the cascade origin — confirmed and repaired.",
    "recommendation": "Reduce demand immediately to stop propagation, then repair the source fault directly.",
    "evidence": [
-    125,
-    17.75,
-    125,
-    125,
-    118,
-    118,
-    118,
-    118
+    125.224,
+    125.111,
+    17.854,
+    123.667,
+    117.786,
+    118.053,
+    118.03,
+    117.885
    ],
    "evidencePoints": [
     {
      "time": "11:35",
-     "value": "125.0/min",
+     "value": "125.2/min",
      "label": "Baseline"
     },
     {
      "time": "11:40",
-     "value": "17.8/min",
-     "label": "Power fault — first interruption"
-    },
-    {
-     "time": "11:45",
-     "value": "125.0/min",
-     "label": "Brief recovery"
-    },
-    {
-     "time": "11:50",
-     "value": "125.0/min",
+     "value": "125.1/min",
      "label": ""
     },
     {
+     "time": "11:45",
+     "value": "17.9/min",
+     "label": "Power fault — first interruption"
+    },
+    {
+     "time": "11:50",
+     "value": "123.7/min",
+     "label": "Brief recovery"
+    },
+    {
      "time": "11:55",
-     "value": "118.0/min",
+     "value": "117.8/min",
      "label": "Reduced demand"
     },
     {
      "time": "12:00",
-     "value": "118.0/min",
+     "value": "118.1/min",
      "label": ""
     },
     {
@@ -690,7 +690,7 @@
     },
     {
      "time": "12:10",
-     "value": "118.0/min",
+     "value": "117.9/min",
      "label": "Stabilized"
     }
    ],
@@ -744,24 +744,24 @@
    "inferred": "Control response too aggressive for current process dynamics — confirmed, not a sensor issue.",
    "recommendation": "Stop repeated manual correction and return to the validated stabilization setting.",
    "evidence": [
-    50.17,
-    51.92,
-    43.81,
-    56.55,
-    47.16,
-    50.5,
-    49.99,
-    50.08
+    50.256,
+    52.074,
+    43.8,
+    56.6,
+    47.291,
+    50.488,
+    49.98,
+    49.961
    ],
    "evidencePoints": [
     {
      "time": "12:30",
-     "value": "50.2%",
+     "value": "50.3%",
      "label": "Baseline"
     },
     {
      "time": "12:35",
-     "value": "51.9%",
+     "value": "52.1%",
      "label": ""
     },
     {
@@ -776,7 +776,7 @@
     },
     {
      "time": "12:55",
-     "value": "47.2%",
+     "value": "47.3%",
      "label": "Manual correction"
     },
     {
@@ -791,7 +791,7 @@
     },
     {
      "time": "13:10",
-     "value": "50.1%",
+     "value": "50.0%",
      "label": "Stabilized"
     }
    ],
@@ -850,19 +850,19 @@
    "inferred": "Physical Transfer obstruction — confirmed visually, cleared by validated procedure.",
    "recommendation": "Controlled hold, confirm the obstruction, then use the validated block-clearing procedure — do not attempt to force flow.",
    "evidence": [
-    125.1,
-    0,
-    0,
-    0,
-    0,
-    59.16,
-    103.65,
-    124.79
+    119.739,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    35.717,
+    102.79,
+    120.439
    ],
    "evidencePoints": [
     {
      "time": "13:15",
-     "value": "125.1/min",
+     "value": "119.7/min",
      "label": "Baseline"
     },
     {
@@ -887,18 +887,18 @@
     },
     {
      "time": "13:40",
-     "value": "0.0/min",
-     "label": ""
-    },
-    {
-     "time": "13:45",
-     "value": "59.2/min",
+     "value": "35.7/min",
      "label": "Clearing"
     },
     {
-     "time": "13:50",
-     "value": "103.7/min",
+     "time": "13:45",
+     "value": "102.8/min",
      "label": "Recovering"
+    },
+    {
+     "time": "13:50",
+     "value": "120.4/min",
+     "label": "Back to baseline"
     }
    ],
    "relatedOccurrences": [],
@@ -957,36 +957,36 @@
    "inferred": "Unstable high-demand operating region is the leading theory; progressive component degradation is possible but less supported so far.",
    "recommendation": "Inspect during the next planned pause; current pattern doesn't justify an immediate stop, but recurrence is increasing.",
    "evidence": [
-    125.83,
-    125.4,
-    12.62,
-    125.32,
-    124.43
+    124.928,
+    126.023,
+    100.886,
+    124.656,
+    124.656
    ],
    "evidencePoints": [
     {
      "time": "13:10",
-     "value": "125.8/min",
+     "value": "124.9/min",
      "label": "Baseline"
     },
     {
      "time": "13:25",
-     "value": "125.4/min",
+     "value": "126.0/min",
      "label": ""
     },
     {
      "time": "13:45",
-     "value": "12.6/min",
+     "value": "100.9/min",
      "label": "Interruption"
     },
     {
      "time": "14:00",
-     "value": "125.3/min",
+     "value": "124.7/min",
      "label": "Recovered"
     },
     {
      "time": "14:05",
-     "value": "124.43/min",
+     "value": "124.7/min",
      "label": "Current"
     }
    ],
@@ -1027,13 +1027,13 @@
    "recommendation": "Apply a small validated Refinement adjustment before the margin narrows further; coordinate with Quality.",
    "evidence": [
     99.28,
-    99.18,
-    99,
-    98.84,
+    99.174,
+    99.02,
+    98.875,
     98.65,
-    98.89,
-    99.26,
-    99.28
+    98.899,
+    99.288,
+    99.266
    ],
    "evidencePoints": [
     {
@@ -1043,17 +1043,17 @@
     },
     {
      "time": "12:15",
-     "value": "99.18%",
+     "value": "99.17%",
      "label": ""
     },
     {
      "time": "12:30",
-     "value": "99.00%",
+     "value": "99.02%",
      "label": ""
     },
     {
      "time": "12:50",
-     "value": "98.84%",
+     "value": "98.88%",
      "label": "Margin narrowing"
     },
     {
@@ -1063,17 +1063,17 @@
     },
     {
      "time": "13:20",
-     "value": "98.89%",
+     "value": "98.90%",
      "label": "Adjusted"
     },
     {
      "time": "13:35",
-     "value": "99.26%",
+     "value": "99.29%",
      "label": "Recovering"
     },
     {
      "time": "13:50",
-     "value": "99.28%",
+     "value": "99.27%",
      "label": "Back to baseline"
     }
    ],

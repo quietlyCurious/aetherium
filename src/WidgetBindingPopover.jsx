@@ -15,16 +15,105 @@
 // choice at all — it's silently wrapped as a one-item list downstream. Both
 // directions mean "gracefully handle the shape mismatch" rather than forcing
 // the two fix-paths (scalar vs collection) to stay fully separate.
+//
+// Asset mode (screens that are about a type): pick where from — self, an
+// ancestor, or a component reached by type (model/assetPaths.js
+// reachableFrom) — then one of its properties. Stored as { type: 'asset',
+// path, property }, so it follows the path again from whichever asset the
+// screen shows. `self` is screenSelfOf's answer for the open screen.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
 import { evaluateExpression } from './expressionEval';
 import { inferResultCardinality, RESULT_CARDINALITIES } from './dataModel';
+import { reachableFrom, resolveAssetValue, resolveAssetSeries, PATH_ERRORS, pathKey } from './model/assetPaths';
+import { CURRENT_ASSET_MAP, PROPERTY_UNITS } from './model/modelData';
+
+// The Asset mode's body: where from, which property, and what it gives for
+// the asset being previewed.
+function AssetBindingFields({ binding, self, wantsCollection, onSave }) {
+  const nodes = useMemo(() => (self?.status === 'ok' ? reachableFrom(self.typeId) : []), [self?.status, self?.typeId]);
+  // Built once per type: a new list on every render makes the dropdown
+  // reload mid-click and drop the choice.
+  const fromOptions = useMemo(() => nodes.map(n => ({
+    value: n.key,
+    // Ancestors say what they are; a component's name already is its type.
+    label: `${'\u00a0\u00a0'.repeat(n.depth)}${n.label}${n.label === 'parent' ? ` · ${n.typeLabel}` : ''}`,
+    partial: n.reach.ok < n.reach.of ? `${n.reach.ok} of ${n.reach.of}` : null,
+  })), [nodes]);
+  const current = binding?.type === 'asset' ? binding : null;
+  const [fromKey, setFromKey] = useState(current ? pathKey(current.path || []) : 'self');
+
+  if (!self || self.status === 'none') {
+    return (
+      <div className="binding-hint">
+        This screen isn't about an asset yet. Select the Page and choose what it's <b>About</b> in its General details, then bind to that asset's properties here.
+      </div>
+    );
+  }
+  if (self.status !== 'ok') {
+    return <div className="binding-hint">This screen is about a type that isn't in the loaded model.</div>;
+  }
+
+  const node = nodes.find(n => n.key === fromKey) || nodes[0];
+  const property = current && pathKey(current.path || []) === node?.key ? current.property : null;
+
+  let preview = null;
+  if (property && self.assetId) {
+    const assetName = CURRENT_ASSET_MAP[self.assetId]?.name;
+    if (wantsCollection) {
+      const r = resolveAssetSeries(self.assetId, node.path, property);
+      preview = r.error ? { err: PATH_ERRORS[r.error] } : { text: `${r.rows.length} rows (timestamp, value) on ${assetName}` };
+    } else {
+      const r = resolveAssetValue(self.assetId, node.path, property);
+      preview = r.error ? { err: PATH_ERRORS[r.error] } : { text: `${r.value}${PROPERTY_UNITS[property] ? ` ${PROPERTY_UNITS[property]}` : ''} on ${assetName}` };
+    }
+  }
+
+  return (
+    <>
+      <div className="binding-type-label">From</div>
+      <SelectBox
+        dataSource={fromOptions}
+        valueExpr="value"
+        displayExpr="label"
+        value={node?.key}
+        itemRender={o => <span style={{ whiteSpace: 'pre' }}>{o.label}{o.partial && <span style={{ color: '#b7791f' }}>{`  (only ${o.partial})`}</span>}</span>}
+        onValueChanged={e => setFromKey(e.value)}
+        stylingMode="outlined"
+        width="100%"
+        height={26}
+      />
+      <div className="binding-type-label" style={{ marginTop: 6 }}>Property</div>
+      <SelectBox
+        dataSource={node?.properties || []}
+        valueExpr="key"
+        displayExpr="label"
+        value={property}
+        placeholder="Select a property…"
+        searchEnabled
+        onValueChanged={e => e.value && onSave({ type: 'asset', path: node.path, property: e.value })}
+        stylingMode="outlined"
+        width="100%"
+        height={26}
+      />
+      {wantsCollection && <div className="binding-hint">A list property gets the property's history: one row per timestamp, with <b>timestamp</b> and <b>value</b>.</div>}
+      {preview && (
+        <div className={`binding-preview${preview.err ? ' binding-preview-error' : ''}`}>
+          <span style={{ color: '#aaa', marginRight: 4 }}>→</span>
+          <strong>{preview.err || preview.text}</strong>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function WidgetBindingPopover({
-  propLabel, propType, binding, x, y, pageQueryInstances, queries, onSave, onClear, onClose,
+  propLabel, propType, binding, x, y, pageQueryInstances, queries, self, onSave, onClear, onClose,
 }) {
-  const [mode, setMode] = useState(binding?.type || 'expression'); // 'expression' | 'query'
+  // A new binding on a screen about a type starts in Asset mode.
+  const initialMode = () => binding?.type || (self?.status === 'ok' ? 'asset' : 'expression');
+  const [mode, setMode] = useState(initialMode); // 'expression' | 'query' | 'asset'
   const [rawText, setRawText] = useState(binding?.type === 'expression' ? (binding.expression ?? '') : '');
   const [pendingInstanceId, setPendingInstanceId] = useState(binding?.type === 'query' ? binding.queryInstanceId : null);
   const existingPickRow = binding?.type === 'query' ? binding.transform?.find(t => t.type === 'pickRow') : null;
@@ -34,7 +123,7 @@ export default function WidgetBindingPopover({
   );
 
   useEffect(() => {
-    setMode(binding?.type || 'expression');
+    setMode(initialMode());
     setRawText(binding?.type === 'expression' ? (binding.expression ?? '') : '');
     setPendingInstanceId(binding?.type === 'query' ? binding.queryInstanceId : null);
     setRowMode(existingPickRow?.mode || 'last');
@@ -43,7 +132,7 @@ export default function WidgetBindingPopover({
   }, [propLabel]);
 
   const popLeft = Math.max(8, x - 252);
-  const popTop = Math.min(y, window.innerHeight - 210);
+  const popTop = Math.min(y, window.innerHeight - 300);
 
   // ── Expression mode ────────────────────────────────────────────────────
   const rawResult = evaluateExpression(rawText);
@@ -148,7 +237,7 @@ export default function WidgetBindingPopover({
         </div>
 
         <div style={{ display: 'flex', gap: 4, padding: '8px 10px 0' }}>
-          {[{ key: 'expression', label: 'Expression' }, { key: 'query', label: 'Query' }].map(opt => (
+          {[{ key: 'expression', label: 'Expression' }, { key: 'query', label: 'Query' }, { key: 'asset', label: 'Asset' }].map(opt => (
             <button
               key={opt.key}
               onClick={() => setMode(opt.key)}
@@ -166,7 +255,11 @@ export default function WidgetBindingPopover({
           ))}
         </div>
 
-        {mode === 'expression' ? (
+        {mode === 'asset' ? (
+          <div className="binding-popover-body">
+            <AssetBindingFields binding={binding} self={self} wantsCollection={propType === 'data'} onSave={onSave} />
+          </div>
+        ) : mode === 'expression' ? (
           <div className="binding-popover-body">
             <div className="binding-type-label">Value or Expression</div>
             <input

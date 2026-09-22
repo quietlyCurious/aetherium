@@ -413,7 +413,9 @@ function AetheriumEditor() {
                 window.alert('Save this screen first, then Launch will open its runtime view in a new tab.');
                 return;
               }
-              const url = `${window.location.origin}${window.location.pathname}?runtime=${screens.activePageId}`;
+              // A screen about a type opens on the asset "Preview as" shows.
+              const asset = screens.chosenPreviewAssetId ? `&asset=${encodeURIComponent(screens.chosenPreviewAssetId)}` : '';
+              const url = `${window.location.origin}${window.location.pathname}?runtime=${screens.activePageId}${asset}`;
               window.open(url, '_blank');
             }}
             title={screens.activePageId ? 'Open a chrome-free runtime view of this screen in a new tab' : 'Save this screen first'}

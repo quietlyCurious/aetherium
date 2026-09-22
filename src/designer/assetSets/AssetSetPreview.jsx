@@ -10,8 +10,8 @@
 import { CURRENT_ASSET_MAP, PROPERTY_DECIMALS, PROPERTY_UNITS } from '../../model/modelData';
 import { assetTypeIdOf, getAssetPathLabel } from '../../model/assetQueries';
 import { isCompleteCondition, needsStart, propertyLabel, propertyValue, resolveAssetSet } from '../../model/assetSets';
-import { AssetPicker } from './RuleEditor';
-import { typeNameOf } from './assetSetOptions';
+import { AssetPicker } from '../AssetPicker';
+import { typeNameOf } from '../modelOptions';
 
 const MAX_ROWS = 200;
 

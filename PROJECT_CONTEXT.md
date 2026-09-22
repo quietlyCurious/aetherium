@@ -199,16 +199,35 @@ Showing a saved screen is split out of the editor into
 today, an asset visualization later:
 - `widgetBindings.js` — turns a widget's static props plus its bindings
   into the props it renders with. One resolver per binding type
-  (`expression`, `query`) in `BINDING_RESOLVERS`; a new kind of binding
-  (e.g. a value from the asset being shown) is one more entry.
-  `ContainerCard` calls it, so the canvas and the runtime resolve
-  identically.
+  (`expression`, `query`, `asset`) in `BINDING_RESOLVERS`; a new kind of
+  binding is one more entry. `ContainerCard` calls it, so the canvas and
+  the runtime resolve identically. It also gives a Chart with real rows a
+  default series (DevExtreme draws nothing from `commonSeriesSettings`
+  alone) and drops an empty series template.
 - `usePageQueryResults(pageId)` — runs a page's query instances (plus
   app-scoped ones) on mount and every `POLL_INTERVAL_MS`.
 - `ScreenView` — renders a page's containers read-only through
-  `ContainerCard`, supplying all its editing callbacks as no-ops.
+  `ContainerCard`, supplying all its editing callbacks as no-ops, and
+  optionally for one asset (`assetId`, its self).
 `RuntimeView.jsx` is now just `loadPage` + the hook + `ScreenView` inside
-the title bar.
+the title bar (plus loading the model for a screen about a type).
+
+**Screens about a type** (`designer/screens/screenAsset.jsx`,
+`model/assetPaths.js`): a page's root container can carry
+`context: { modelId, typeId }`, set any time from the Page's General
+details ("About"). Such a screen is drawn for one asset of the type at a
+time — its *self*: "Preview as" on the canvas toolbar, `&asset=<id>` on
+the Launch URL. Widgets bind to it with ⚡ → Asset:
+`{ type: 'asset', path, property }`, where the path goes by type
+(`['drivetrain', 'gearbox']`, `'..'` for the parent), so one screen works
+for every asset of the type. A list property (a Chart's data) gets the
+property's history as `{ timestamp, value }` rows. The Data tab's "This
+asset" view shows everything reachable from self with its values.
+Changing the type checks the page's asset bindings first and never
+removes them; ones that don't resolve keep the widget's static value and
+show a red ⚡! badge. Self reaches `ContainerCard` through a React context
+(`ScreenAssetProvider` / `useScreenAsset`), not props — which is also how
+a repeater will hand each item its own self.
 
 The Screens *editor* lives in the same folder, split the same way as
 state vs. drawing:
@@ -255,8 +274,10 @@ state vs. drawing:
   assigns them), read-only questions about it (`assetQueries.js`),
   `useLoadedModel.js` (the hook that fetches a model and makes it active,
   used by OperatorWorkspace, ScreensWorkspace and AssetSetsWorkspace),
-  `modelRegistry.js` (reads `models.json`), and `assetSets.js` (resolving
-  asset sets, with its tests beside it).
+  `modelRegistry.js` (reads `models.json`), `assetSets.js` (resolving
+  asset sets) and `assetPaths.js` (paths from an asset by type, for
+  screens about a type), with tests beside them that load a real pack
+  through `loadPackForTests.js`.
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
@@ -356,8 +377,9 @@ class names match, as of phase 5: `op-property-tile-*`,
   that prompts ask twice.
 - `src/designer/` — pieces shared by the designer areas:
   `DefinitionWorkspace` (the list + editor shell behind Data Sources,
-  Entities, Queries and Asset Sets), `useDefinitionDraft` and
-  `useStoredDefinitions`; `screens/` holds the Screens area — the editor
+  Entities, Queries and Asset Sets), `useDefinitionDraft`,
+  `useStoredDefinitions`, and the model pickers `AssetPicker` and
+  `modelOptions` (used by Asset Sets and Screens); `screens/` holds the Screens area — the editor
   (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`) and the read-only
   renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`);
   `assetSets/` holds the Asset Sets area (workspace, editor, rule form,

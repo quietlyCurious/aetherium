@@ -5,8 +5,10 @@ import { findContainerById } from '../../containerTree';
 import {
   moveContainerOnCanvas, moveContainerInTree, applyLayoutUpdate, dropIntoGridCell,
   mergeCellContainers, setAspectRatio, updateSlotForTier, applyStyle, pickUpStyle,
-  resetPropertiesForParent, makeWidgetContainer, setBinding, clearBinding,
+  resetPropertiesForParent, makeWidgetContainer, setBinding, clearBinding, setPageContext,
 } from './screenEdits';
+import { pageContextOf, assetBindingsOf, checkPageBindingsForType } from './screenAsset';
+import { loadPackForTests } from '../../model/loadPackForTests';
 
 // root ─ a ─ a1
 //      └ b
@@ -135,5 +137,30 @@ describe('sizing and style', () => {
     expect(findContainerById(t, 'w').bindings.value.expression).toBe('6 * 7');
     t = clearBinding(t, 'w', 'value');
     expect(findContainerById(t, 'w').bindings).toEqual({});
+  });
+});
+
+describe('what a page is about', () => {
+  beforeAll(() => loadPackForTests('wind'));
+  const GEARED = 'TYPE_turbine_wtg_geared';
+  const DIRECT = 'TYPE_turbine_wtg_direct_drive';
+
+  test('set, change and clear the context; bindings are left alone', () => {
+    let t = setBinding(sampleTree(), 'w', 'value', { type: 'asset', path: ['drivetrain', 'gearbox'], property: 'gearbox_oil_temp_c' });
+    expect(pageContextOf(t)).toBeNull();
+    t = setPageContext(t, { modelId: 'wind', typeId: GEARED });
+    expect(pageContextOf(t)).toEqual({ modelId: 'wind', typeId: GEARED });
+    t = setPageContext(t, null);
+    expect(pageContextOf(t)).toBeNull();
+    expect(assetBindingsOf(t)).toHaveLength(1);
+  });
+
+  test('checking the page\'s asset bindings against a type', () => {
+    let t = setBinding(sampleTree(), 'w', 'value', { type: 'asset', path: ['drivetrain', 'gearbox'], property: 'gearbox_oil_temp_c' });
+    t = setBinding(t, 'w', 'min', { type: 'asset', path: [], property: 'active_power_kw' });
+    expect(checkPageBindingsForType(t, GEARED)).toMatchObject({ total: 2, broken: [], partial: [] });
+    const onDirect = checkPageBindingsForType(t, DIRECT);
+    expect(onDirect.broken.map(b => b.propName)).toEqual(['value']);
+    expect(checkPageBindingsForType(t, null).broken).toHaveLength(2);
   });
 });

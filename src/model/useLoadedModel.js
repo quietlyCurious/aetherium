@@ -15,6 +15,8 @@
 // `loaded` is true once `selectedModel` is the active model. `modelId` is
 // the model that's loaded (null until then) — use it as a React key or a
 // memo dependency, since nothing subscribes to modelData itself.
+// `selectedModel` may be null (nothing needed — e.g. a runtime view of a
+// plain screen): then nothing loads and `loaded` stays false.
 
 import { useEffect, useState } from 'react';
 import { loadModelRegistry, getModelDataFiles } from './modelRegistry';
@@ -40,7 +42,7 @@ function fetchModelFiles(files) {
 }
 
 function stateFor(modelId) {
-  return CURRENT_MODEL === modelId
+  return modelId != null && CURRENT_MODEL === modelId
     ? { loaded: true, error: null, modelId }
     : { loaded: false, error: null, modelId: null };
 }
@@ -49,6 +51,10 @@ export function useLoadedModel(selectedModel) {
   const [state, setState] = useState(() => stateFor(selectedModel));
 
   useEffect(() => {
+    if (selectedModel == null) {
+      setState(prev => (prev.loaded || prev.error ? { loaded: false, error: null, modelId: null } : prev));
+      return undefined;
+    }
     if (CURRENT_MODEL === selectedModel) {
       setState(prev => (prev.loaded && prev.modelId === selectedModel ? prev : stateFor(selectedModel)));
       return undefined;

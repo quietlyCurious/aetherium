@@ -55,9 +55,9 @@ top of `RESEARCH.md`, and carry on.
 It's the folder name, the `models.json` id, and the key used by
 `nowSelectionStorage`.
 
-Commit the generator. The three original packs (refinery, water,
-wastewater) have none; they were converted once from hand-built data
-(§12) and can't be regenerated. Don't repeat that.
+Commit the generator. Every pack has one, including the three original
+packs (refinery, water, wastewater), which got theirs after the
+conversion (§12) so they can be regenerated and robustness-tested too.
 
 **Worked example:** `ModelAndData/industries/wind/` (Boreas Ridge) is
 the first generic pack. It has all three documents plus a generator
@@ -716,19 +716,22 @@ Built (Sept 2026):
 11. **Original packs converted** (§12): refinery, water and wastewater
     are generic packs; the legacy files, loader branches, id-conversion
     helpers, Issue Map and Line Detail are gone.
+12. **Generators for the original packs** (§12): each now has
+    `generate.py`, `RESEARCH.md` and `SCENARIOS.md` like the newer packs.
 
 Still open:
 
-- The converted packs' remaining validator warnings (refinery types with
+- The original packs' remaining validator warnings (refinery types with
   more than 8 properties, and scenario-coverage gaps in water and
-  wastewater), and aligning a few refinery evidence times (SIT09, SIT11)
-  with their narratives.
+  wastewater). Clearing them means changing types or adding items, which
+  would break saved settings or the stories, so they're documented in
+  each pack's SCENARIOS.md instead.
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
 - `explanations.json` (§14) exists for all five generated packs (wind,
-  ccgt, pipeline, pharma, grid). The three converted packs (refinery,
-  water, wastewater) keep the plain AI tab; they have no generator, so
-  `robustness.py` couldn't test detectors for them.
+  ccgt, pipeline, pharma, grid). Refinery, water and wastewater keep the
+  plain AI tab until they get detectors; their generators now make
+  `robustness.py` possible for them.
 
 ---
 
@@ -771,6 +774,21 @@ What it changed:
   "Meridian & Confluence" items point at the Meridian plant.
 - Missing ranges were derived from the data; every property declares
   `decimals`.
+
+**Generators (Sept 2026).** After the conversion, each of the three got
+a `generate.py` that rebuilds its 8 files from scenario constants and
+seeded noise, keeping every asset id, type, level, property key,
+relationship, unit status and work item byte-identical, and every
+attention item's text, times and notes. Only the numbers moved: baselines
+are fresh AR(1) noise (no more flat instrument tags), each story is
+written into the data so any number an item quotes stays true for any
+seed, and three ranges widened to fit (`throughput_per_min`,
+`unit_filter_run_volume_gal_sf`, the aeration `blower_air_flow_scfm`).
+Refinery's process is fictional by design (a hackathon, so nobody could
+lean on industry knowledge); its RESEARCH.md documents the invented
+process instead of citing sources. Refinery's line KPIs now satisfy
+their declared formulas at every point, and SIT09/SIT11 evidence times
+line up with their narratives.
 
 The converter is kept for the record and as a template; there is nothing
 left to convert.

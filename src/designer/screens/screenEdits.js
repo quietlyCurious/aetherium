@@ -141,6 +141,21 @@ export function clearBinding(tree, id, propName) {
   });
 }
 
+// ── Page context ────────────────────────────────────────────────────────────
+// What the page is about: { modelId, typeId } on the root container, or
+// null to make it a plain page again. Bindings are left alone either way —
+// ones that no longer resolve show as broken until fixed or cleared.
+
+export function setPageContext(tree, context) {
+  return updateContainerInTree(tree, ROOT_CONTAINER_ID, c => {
+    if (!context) {
+      const { context: _removed, ...rest } = c;
+      return rest;
+    }
+    return { ...c, context };
+  });
+}
+
 // ── Paintbrush ──────────────────────────────────────────────────────────────
 
 // What the paintbrush carries: sizing and box model, widget props (applied

@@ -58,7 +58,7 @@ function SelectedQueryInstanceDetails({ editor, queries }) {
   );
 }
 
-export function ScreenDetailsPanel({ editor, queries, onOpenWizard }) {
+export function ScreenDetailsPanel({ editor, queries, self, onOpenWizard }) {
   const { selectedContainerId, selectedContainerIds, selectedQueryInstanceId } = editor;
   return (
     <div className="app-panel details-panel aetherium-canvas-scroll">
@@ -72,7 +72,7 @@ export function ScreenDetailsPanel({ editor, queries, onOpenWizard }) {
 
       {selectedContainerIds.length > 1 && <MultiSelectionDetails editor={editor} />}
 
-      {selectedContainerIds.length <= 1 && selectedContainerId && <ContainerDetails editor={editor} queries={queries} />}
+      {selectedContainerIds.length <= 1 && selectedContainerId && <ContainerDetails editor={editor} queries={queries} self={self} />}
     </div>
   );
 }

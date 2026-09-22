@@ -25,6 +25,11 @@ import { WIDGET_PROPERTIES } from '../../widgetData';
 import { evaluateExpression } from '../../expressionEval';
 import { buildDefaultCells, migrateGridCells } from '../../GridEditor';
 import { textField as ti, selectField as sb, overflowField, OverflowWarning } from './detailsFields';
+import { describeAssetBinding, PATH_ERRORS } from '../../model/assetPaths';
+import { CURRENT_ASSET_MAP } from '../../model/modelData';
+import { assetBindingProblem } from './widgetBindings';
+import { assetBindingsOf } from './screenAsset';
+import { typeOptions } from '../modelOptions';
 
 // Float w/h ratios. null = Free (no constraint).
 const ASPECT_RATIO_PRESETS = [
@@ -43,8 +48,22 @@ const ASPECT_RATIO_PRESETS = [
 const CUSTOM_RATIO_SENTINEL = -1;
 
 // What a binding shows in place of the static input. A query binding
-// names its instance and fields; an expression shows its current value.
-function describeBinding(binding, editor, queries) {
+// names its instance and fields; an expression shows its current value; an
+// asset binding shows its path and what it resolves to for the asset the
+// screen is previewing (or why it can't).
+function describeBinding(binding, editor, queries, self, isCollection) {
+  if (binding?.type === 'asset') {
+    const where = describeAssetBinding(binding);
+    if (!self?.assetId) {
+      return { text: where, title: `Asset: ${where}\nThis screen isn't showing an asset — set what it's about in the Page details.`, isErr: true };
+    }
+    const assetName = CURRENT_ASSET_MAP[self.assetId]?.name || self.assetId;
+    const problem = assetBindingProblem(binding, self.assetId, isCollection);
+    if (problem) {
+      return { text: `${where} — ${PATH_ERRORS[problem]}`, title: `Asset: ${where}\nOn ${assetName}: ${PATH_ERRORS[problem]}.`, isErr: true };
+    }
+    return { text: where, title: `Asset: ${where}\nResolves on ${assetName}.`, isErr: false };
+  }
   if (binding?.type === 'query') {
     const boundInst = editor.findQueryInstance(binding.queryInstanceId);
     const boundQuery = boundInst ? queries.find(qq => qq.id === boundInst.queryId) : null;
@@ -77,7 +96,7 @@ function describeBinding(binding, editor, queries) {
   return { text: '', title: '', isErr: false };
 }
 
-function WidgetPropertiesTab({ editor, queries, container, lockedClass }) {
+function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) {
   const { selectedContainerId, bindingPopoverProp } = editor;
   const propDefs = WIDGET_PROPERTIES[container.widgetName];
   const props = container.widgetProps || {};
@@ -92,7 +111,7 @@ function WidgetPropertiesTab({ editor, queries, container, lockedClass }) {
             const binding = bindings[p.name];
             const isBound = !!binding;
             const isOpen = bindingPopoverProp?.containerId === selectedContainerId && bindingPopoverProp?.propName === p.name;
-            const { text: bindingDisplayText, title: bindingTitle, isErr } = describeBinding(binding, editor, queries);
+            const { text: bindingDisplayText, title: bindingTitle, isErr } = describeBinding(binding, editor, queries, self, p.type === 'data');
             return (
               <React.Fragment key={p.name}>
                 <span className="details-grid-label">{p.label}</span>
@@ -372,7 +391,46 @@ function BoxTab({ editor, slot, lockedClass }) {
   );
 }
 
-function GeneralTab({ editor, container, title, parentContainer, isBase, tier, isHidden, hasOverrides, lockedClass }) {
+// What the page is about: none (a plain page) or a type from the loaded
+// model. Changing it checks the page's asset bindings first (see
+// screenSelfOf.changeType).
+function PageAboutField({ self, containers }) {
+  const NONE = '__none__';
+  const bindingCount = assetBindingsOf(containers).length;
+  const options = [{ id: NONE, name: 'Nothing (a plain page)', level: '' }, ...typeOptions()];
+  const known = self.status === 'ok' || self.status === 'none';
+  // Bumped when a change is cancelled, so the box shows the old type again.
+  const [revision, setRevision] = React.useState(0);
+  return (<>
+    <span className="details-grid-label">About</span>
+    <div className="details-grid-control" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 3 }}>
+      <SelectBox
+        key={revision}
+        dataSource={options}
+        valueExpr="id"
+        displayExpr="name"
+        value={known ? (self.typeId || NONE) : null}
+        placeholder={known ? '' : (self.status === 'otherModel' ? `A type in “${self.context?.modelId}”` : 'A type this model doesn’t have')}
+        searchEnabled
+        itemRender={t => <span>{t.name}{t.level && <span style={{ color: '#999' }}> · {t.level}</span>}</span>}
+        onValueChanged={e => {
+          if (!e.value) return;
+          if (!self.changeType(e.value === NONE ? null : e.value)) setRevision(n => n + 1);
+        }}
+        stylingMode="outlined"
+        width="100%"
+        height={24}
+      />
+      <span style={{ fontSize: 10, color: '#888', lineHeight: 1.4 }}>
+        {self.typeId
+          ? `Bind widgets to this ${self.typeLabel || 'asset'}'s properties with ⚡ → Asset.${bindingCount ? ` ${bindingCount} asset binding${bindingCount === 1 ? '' : 's'} on this page.` : ''}`
+          : 'Make this a screen about one type of asset, drawn for any asset of that type.'}
+      </span>
+    </div>
+  </>);
+}
+
+function GeneralTab({ editor, self, container, title, parentContainer, isBase, tier, isHidden, hasOverrides, lockedClass }) {
   const id = editor.selectedContainerId;
   return (
     <div className="details-tab-content">
@@ -440,6 +498,7 @@ function GeneralTab({ editor, container, title, parentContainer, isBase, tier, i
             <span className="details-section-title">Page</span>
             <span className="details-grid-label">Type</span>
             <div className="details-grid-control">{sb(['fit','fixed','vertical fixed','horizontal fixed'], container.pageType || 'fit', v => editor.updatePageType(id, v))}</div>
+            <PageAboutField self={self} containers={editor.containers} />
           </div>
         </div>
       )}
@@ -447,7 +506,7 @@ function GeneralTab({ editor, container, title, parentContainer, isBase, tier, i
   );
 }
 
-export function ContainerDetails({ editor, queries }) {
+export function ContainerDetails({ editor, queries, self }) {
   const { containers, selectedContainerId, activeTierId } = editor;
   const flat = flattenContainers(containers);
   const found = flat.find(c => c.id === selectedContainerId);
@@ -484,7 +543,7 @@ export function ContainerDetails({ editor, queries }) {
       >
         {widgetPropDefs && widgetPropDefs.length > 0 && (
           <TabPanelItem title={container.widgetName}>
-            <WidgetPropertiesTab editor={editor} queries={queries} container={container} lockedClass={lockedClass} />
+            <WidgetPropertiesTab editor={editor} queries={queries} self={self} container={container} lockedClass={lockedClass} />
           </TabPanelItem>
         )}
 
@@ -512,7 +571,7 @@ export function ContainerDetails({ editor, queries }) {
         {/* General — always last */}
         <TabPanelItem title="General">
           <GeneralTab
-            editor={editor} container={container} title={found.title} parentContainer={parentContainer}
+            editor={editor} self={self} container={container} title={found.title} parentContainer={parentContainer}
             isBase={isBase} tier={tier} isHidden={isHidden} hasOverrides={hasOverrides} lockedClass={lockedClass}
           />
         </TabPanelItem>

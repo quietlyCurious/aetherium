@@ -14,7 +14,8 @@ import {
   ATTENTION_FILTERS, CONDITION_OPS, DEPTHS, RANK_MODES, START_MODES,
   propertiesOf, ruleCandidates,
 } from '../../model/assetSets';
-import { assetOptions, typeOptions } from './assetSetOptions';
+import { typeOptions } from '../modelOptions';
+import { AssetPicker } from '../AssetPicker';
 
 const box = { stylingMode: 'outlined', height: 26, width: '100%' };
 
@@ -36,25 +37,6 @@ function Section({ step, title, children }) {
       <div className="asset-set-section-title"><span className="asset-set-step">{step}</span>{title}</div>
       <div className="asset-set-form">{children}</div>
     </div>
-  );
-}
-
-// An asset picker that searches by name or full path.
-export function AssetPicker({ value, onChange, placeholder = 'Choose an asset…' }) {
-  return (
-    <SelectBox
-      {...box}
-      dataSource={assetOptions()}
-      valueExpr="id"
-      displayExpr="path"
-      value={value || null}
-      placeholder={placeholder}
-      searchEnabled
-      searchExpr={['name', 'path']}
-      searchMode="contains"
-      showClearButton
-      onValueChanged={e => onChange(e.value)}
-    />
   );
 }
 

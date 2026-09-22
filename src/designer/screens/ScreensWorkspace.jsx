@@ -11,8 +11,9 @@
 // survives leaving the area), this draws it. `queries` are the Queries
 // area's definitions, which the Data tab offers and bindings name.
 // `selectedModel` is the title bar's industry model: this area loads it
-// (the same way the Operator side does) for the Data tab's Model view and
-// the Create wizard, which read whichever model is active.
+// (the same way the Operator side does) for the Data tab's Model view, the
+// Create wizard, and screens that are about a type (their asset bindings
+// and "Preview as" — see screenAsset.jsx).
 
 import { useEffect, useRef, useState } from 'react';
 import { Popup, Splitter } from 'devextreme-react';
@@ -28,6 +29,7 @@ import { ScreensLeftPanel } from './ScreensLeftPanel';
 import { ScreenCanvas } from './ScreenCanvas';
 import { ScreenDetailsPanel } from './ScreenDetailsPanel';
 import { useLoadedModel } from '../../model/useLoadedModel';
+import { screenSelfOf } from './screenAsset';
 
 // Ctrl/Cmd+C and Ctrl/Cmd+V copy and paste the selected container; Esc
 // puts the paintbrush down and clears snap guides.
@@ -149,7 +151,7 @@ function CreateWizardPopup({ wizard, model }) {
 
 // Binding a widget property: an expression, or a query instance on this
 // page.
-function WidgetBindingEditor({ editor, queries }) {
+function WidgetBindingEditor({ editor, queries, self }) {
   const target = editor.bindingPopoverProp;
   if (!target) return null;
   const container = findContainerById(editor.containers, target.containerId);
@@ -165,6 +167,7 @@ function WidgetBindingEditor({ editor, queries }) {
       y={target.y}
       pageQueryInstances={editor.pageQueryInstances}
       queries={queries}
+      self={self}
       onSave={(b) => editor.setWidgetBinding(target.containerId, target.propName, b)}
       onClear={() => editor.clearWidgetBinding(target.containerId, target.propName)}
       onClose={() => editor.setBindingPopoverProp(null)}
@@ -193,6 +196,7 @@ function InputBindingEditor({ editor }) {
 
 export function ScreensWorkspace({ editor, queries, selectedModel }) {
   const model = useLoadedModel(selectedModel);
+  const self = screenSelfOf(editor, model);
   useCanvasShortcuts(editor);
   usePublishUnsaved(editor.isDirty);
   const wizard = useCreateWizard();
@@ -200,17 +204,17 @@ export function ScreensWorkspace({ editor, queries, selectedModel }) {
     <>
       <Splitter orientation="horizontal" style={{ height: '100%' }}>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreensLeftPanel editor={editor} queries={queries} model={model} />
+          <ScreensLeftPanel editor={editor} queries={queries} model={model} self={self} />
         </SplitterItem>
         <SplitterItem resizable={true}>
-          <ScreenCanvas editor={editor} />
+          <ScreenCanvas editor={editor} self={self} />
         </SplitterItem>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreenDetailsPanel editor={editor} queries={queries} onOpenWizard={wizard.open} />
+          <ScreenDetailsPanel editor={editor} queries={queries} self={self} onOpenWizard={wizard.open} />
         </SplitterItem>
       </Splitter>
       <CreateWizardPopup wizard={wizard} model={model} />
-      <WidgetBindingEditor editor={editor} queries={queries} />
+      <WidgetBindingEditor editor={editor} queries={queries} self={self} />
       <InputBindingEditor editor={editor} />
     </>
   );

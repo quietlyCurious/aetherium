@@ -2,12 +2,14 @@
 // The Screens editor's left panel, one tab per thing you pick from:
 //   Screens       the saved screens and their folders (ScreensPanel)
 //   Visuals       widgets to add — drag onto the canvas, or double-click
-//   Data          the loaded model's assets, or the queries you can add
-//                 to this page
+//   Data          the loaded model's assets, what's reachable from the
+//                 asset a screen is about (This asset), or the queries you
+//                 can add to this page
 //   Page Visuals  the open page's container tree (PageVisualsTree)
 //   Page Data     the query instances on this page
 // Moved out of App.js unchanged. `model` is useLoadedModel's state for the
-// model picked in the title bar.
+// model picked in the title bar; `self` is screenSelfOf's answer for the
+// open screen.
 
 import { useMemo } from 'react';
 import { SelectBox, TabPanel } from 'devextreme-react';
@@ -16,7 +18,8 @@ import notify from 'devextreme/ui/notify';
 import ScreensPanel from '../../ScreensPanel';
 import HierarchyTree from '../../HierarchyTree';
 import PageVisualsTabWrapper from '../../PageVisualsTree';
-import { CURRENT_ASSET_DATA } from '../../model/modelData';
+import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, PROPERTY_DECIMALS, PROPERTY_UNITS } from '../../model/modelData';
+import { reachableFrom, resolveAssetValue, pathKey } from '../../model/assetPaths';
 import { DX_WIDGET_DATA } from '../../widgetData';
 import { findContainerById } from '../../containerTree';
 
@@ -89,6 +92,66 @@ function ModelTree({ model, searchText }) {
       itemRender={AssetTreeItemTemplate}
       expandAll={!!(searchText || '').trim()}
     />
+  );
+}
+
+// This asset: everything a screen about a type can bind to, as a tree —
+// self, its ancestors, its components — with each property's value for the
+// asset "Preview as" is showing. Bind a widget property to any of them with
+// ⚡ → Asset.
+function formatPropertyValue(key, value) {
+  if (typeof value !== 'number') return value == null ? '—' : String(value);
+  const d = PROPERTY_DECIMALS[key] ?? 1;
+  return `${value.toLocaleString(undefined, { minimumFractionDigits: d, maximumFractionDigits: d })}${PROPERTY_UNITS[key] ? ` ${PROPERTY_UNITS[key]}` : ''}`;
+}
+
+function SelfTreeItem(item) {
+  if (item.kind === 'property') {
+    return (
+      <div className="tree-item self-tree-property">
+        <span className="tree-item-name">{item.name}</span>
+        <span className={`self-tree-value${item.missing ? ' self-tree-value--missing' : ''}`}>{item.value}</span>
+      </div>
+    );
+  }
+  return (
+    <div className="tree-item">
+      <span className="tree-item-name" style={{ fontWeight: 600 }}>{item.name}</span>
+      {item.typeLabel && <span className="tree-item-badge">{item.typeLabel}</span>}
+      {item.partial && <span className="tree-item-badge self-tree-partial" title="Not every asset of this type has one">{item.partial}</span>}
+    </div>
+  );
+}
+
+function SelfTree({ self, searchText }) {
+  const items = useMemo(() => {
+    if (self.status !== 'ok') return [];
+    const list = [];
+    reachableFrom(self.typeId).forEach(node => {
+      list.push({
+        id: node.key,
+        parentId: node.path.length ? pathKey(node.path.slice(0, -1)) : null,
+        name: node.key === 'self' ? `self · ${CURRENT_ASSET_MAP[self.assetId]?.name ?? ''}` : node.label,
+        // Ancestors say what they are; a component's name already is its type.
+        typeLabel: node.key === 'self' || node.label === 'parent' ? node.typeLabel : null,
+        partial: node.reach.ok < node.reach.of ? `${node.reach.ok} of ${node.reach.of}` : null,
+      });
+      node.properties.forEach(p => {
+        const r = resolveAssetValue(self.assetId, node.path, p.key);
+        list.push({
+          id: `${node.key}#${p.key}`, parentId: node.key, kind: 'property', name: p.label,
+          value: r.error ? 'not on this one' : formatPropertyValue(p.key, r.value), missing: !!r.error,
+        });
+      });
+    });
+    return filterAssetTree(list, searchText);
+  }, [self.status, self.typeId, self.assetId, searchText]);
+  if (self.status !== 'ok') return <p style={emptyNote}>This screen isn't about an asset. Choose what it's <b>About</b> in the Page's General details.</p>;
+  return (
+    <>
+      <p className="self-tree-hint">Bind a widget property to any of these with ⚡ → Asset.</p>
+      <HierarchyTree key={`${self.typeId}/${self.assetId}`} dataSource={items} displayExpr="name" itemRender={SelfTreeItem} expandAll />
+    </>
   );
 }
 
@@ -237,7 +300,14 @@ function PageQueryInstanceList({ editor, queries }) {
   });
 }
 
-export function ScreensLeftPanel({ editor, queries, model }) {
+export function ScreensLeftPanel({ editor, queries, model, self }) {
+  // "This asset" is offered only while the screen is about one.
+  const dataModes = [
+    ...(self.status === 'ok' ? [{ value: 'self', label: 'This asset' }] : []),
+    { value: 'queries', label: 'Queries' },
+    { value: 'model', label: 'Model' },
+  ];
+  const dataMode = editor.dataTabMode === 'self' && self.status !== 'ok' ? 'model' : editor.dataTabMode;
   const { containers, selectedContainerId } = editor;
   return (
     <div className="app-panel">
@@ -277,6 +347,7 @@ export function ScreensLeftPanel({ editor, queries, model }) {
             <div style={{ flex: 1, overflow: 'auto' }}>
               <HierarchyTree
                 dataSource={sortAndFilterHierarchy(DX_WIDGET_DATA, editor.visualsSearch)}
+                expandAll={!!editor.visualsSearch.trim()}
                 displayExpr="name"
                 itemRender={(item) => WidgetTreeItemTemplate(item, (item) => editor.addWidgetToSelection(item.name))}
               />
@@ -287,13 +358,10 @@ export function ScreensLeftPanel({ editor, queries, model }) {
           <div className="left-panel-tab-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ padding: '0 12px 8px', flexShrink: 0 }}>
               <SelectBox
-                dataSource={[
-                  { value: 'queries', label: 'Queries' },
-                  { value: 'model',   label: 'Model' },
-                ]}
+                dataSource={dataModes}
                 valueExpr="value"
                 displayExpr="label"
-                value={editor.dataTabMode}
+                value={dataMode}
                 onValueChanged={e => editor.setDataTabMode(e.value)}
                 stylingMode="outlined"
                 width="100%"
@@ -306,11 +374,13 @@ export function ScreensLeftPanel({ editor, queries, model }) {
                 style={{ width: '100%' }}
                 value={editor.dataTabSearch}
                 onChange={(e) => editor.setDataTabSearch(e.target.value)}
-                placeholder={editor.dataTabMode === 'model' ? 'Search model…' : 'Search queries…'}
+                placeholder={dataMode === 'model' ? 'Search model…' : dataMode === 'self' ? 'Search properties…' : 'Search queries…'}
               />
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
-              {editor.dataTabMode === 'model' ? (
+              {dataMode === 'self' ? (
+                <SelfTree self={self} searchText={editor.dataTabSearch} />
+              ) : dataMode === 'model' ? (
                 <ModelTree model={model} searchText={editor.dataTabSearch} />
               ) : (
                 <QueriesToAdd editor={editor} queries={queries} />

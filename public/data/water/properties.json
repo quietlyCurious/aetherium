@@ -677,7 +677,7 @@
    "category": "Flow / WIP",
    "tier": "P3",
    "range": [
-    7000,
+    4000,
     11500
    ],
    "decimals": 1
@@ -766,7 +766,19 @@
    "assetType": "train",
    "property": "line_oee",
    "fn": "formula",
-   "note": "line_availability × line_performance × line_quality_factor (legacy line model)"
+   "note": "line_availability × (line_throughput ÷ line_target_rate) × line_quality_factor ÷ 100"
+  },
+  {
+   "assetType": "filtration",
+   "property": "backwash_frequency_per_week",
+   "fn": "formula",
+   "note": "168 ÷ filter_run_time_hrs (projected run length → backwashes per week)"
+  },
+  {
+   "assetType": "disinfection",
+   "property": "ct_value_actual",
+   "fn": "formula",
+   "note": "chlorine_residual_mg_l × contact_time_min × k, k a per-train constant (inactivation credit scaling)"
   }
  ],
  "typeLabels": {}

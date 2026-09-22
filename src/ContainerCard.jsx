@@ -5,7 +5,8 @@ import { buildDefaultCells } from './GridEditor';
 import { isLockedOrAncestorLocked, findContainerById } from './containerTree';
 import GridEditor from './GridEditor';
 import WidgetPreview from './WidgetPreview';
-import { resolveWidgetProps } from './designer/screens/widgetBindings';
+import { resolveWidgetProps, hasBrokenAssetBinding } from './designer/screens/widgetBindings';
+import { useScreenAsset } from './designer/screens/screenAsset';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
   const isActive = dragState.beforeId === beforeId && dragState.overParentId === parentId;
@@ -158,6 +159,13 @@ function ContainerCard({
   const hasBoundProperties = container.isWidget
     && !!container.bindings
     && Object.keys(container.bindings).length > 0;
+
+  // The asset the enclosing screen is showing ("self"), for asset bindings.
+  // It comes from context (ScreenAssetProvider), not props, so a repeater
+  // can give each item its own.
+  const screenAssetId = useScreenAsset();
+  const hasBrokenBinding = hasBoundProperties
+    && hasBrokenAssetBinding(container.bindings, container.widgetName || container.title, screenAssetId);
 
   const isHiddenAtTier = activeTierId && activeTierId !== BASE_TIER_ID
     && (container.breakpointOverrides?.[activeTierId]?.hidden ?? false);
@@ -586,7 +594,7 @@ function ContainerCard({
             ) : (
               <WidgetPreview
                 widgetName={container.widgetName || container.title}
-                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries })}
+                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries, assetId: screenAssetId })}
               />
             )}
           </div>
@@ -668,7 +676,9 @@ function ContainerCard({
         </>
       )}
       {hasBoundProperties && interactive && (
-        <div className="binding-badge" title="Has bound properties">⚡</div>
+        hasBrokenBinding
+          ? <div className="binding-badge binding-badge--broken" title="A property is bound to something this asset doesn't have — see the widget's details">⚡!</div>
+          : <div className="binding-badge" title="Has bound properties">⚡</div>
       )}
     </div>
   );

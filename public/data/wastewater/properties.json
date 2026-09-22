@@ -50,8 +50,8 @@
    "category": "Condition",
    "tier": "P2",
    "range": [
-    3500,
-    4900
+    2500,
+    5000
    ],
    "decimals": 1
   },
@@ -700,8 +700,64 @@
    "assetType": "train",
    "property": "line_oee",
    "fn": "formula",
-   "note": "line_availability × line_performance × line_quality_factor (legacy line model)"
+   "note": "line_availability × line_performance × line_quality_factor (legacy line model); line_performance (not stored) = 97.7 % treatment performance less process penalties, see generate.py"
+  },
+  {
+   "assetType": "train",
+   "property": "line_availability",
+   "fn": "formula",
+   "note": "98.8 % less penalties for blower air shortfall and a stopped primary sludge collector (generate.py CONDITION_TERMS)"
+  },
+  {
+   "assetType": "train",
+   "property": "line_quality_factor",
+   "fn": "formula",
+   "note": "98.7 % less penalties for low DO, high F:M, lost primary TSS removal, high SVI and high fecal coliform risk in the train"
+  },
+  {
+   "assetType": "train",
+   "property": "system_health_index",
+   "fn": "formula",
+   "note": "95.4 % less condition penalties from the train's stages and equipment (generate.py CONDITION_TERMS)"
+  },
+  {
+   "assetType": "train",
+   "property": "total_wip",
+   "fn": "formula",
+   "note": "volume in process: Σ basin level_pct / 100 × nominal basin volume (primary 7.0, aeration 18.0, secondary 7.5, contact 1.2)"
+  },
+  {
+   "assetType": "train",
+   "property": "instability_index",
+   "fn": "formula",
+   "note": "0.12 × preliminary influent_flow_variability + 0.05 × primary surge_control_index + 4.4"
+  },
+  {
+   "assetType": "train",
+   "property": "flow_efficiency",
+   "fn": "formula",
+   "note": "effluent / influent flow × 100 (the rest leaves as wasted primary and secondary sludge)"
+  },
+  {
+   "assetType": "train",
+   "property": "line_throughput",
+   "fn": "formula",
+   "note": "treated flow in MGD: 5.66 × the train's influent flow factor (the influent pump follows the same factor)"
+  },
+  {
+   "assetType": "disinfection",
+   "property": "ct_value_actual",
+   "fn": "formula",
+   "note": "2.84 × chlorine_residual_mg_l × chlorine contact basin residence_time_min"
+  },
+  {
+   "assetType": "aeration",
+   "property": "food_to_microorganism_ratio",
+   "fn": "formula",
+   "note": "organic load ÷ (MLSS × aeration volume), scaled to 0.286 at design load and 2,800 mg/L MLSS"
   }
  ],
- "typeLabels": {}
+ "typeLabels": {
+  "ras_pump": "RAS Pump"
+ }
 }

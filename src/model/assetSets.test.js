@@ -3,24 +3,11 @@
 // way the app loads it (activateLoadedModel).
 //   npx react-scripts test --watchAll=false src/model
 
-import fs from 'fs';
-import path from 'path';
-import { activateLoadedModel, ASSET_VALUES, CURRENT_ASSET_MAP } from './modelData';
+import { ASSET_VALUES, CURRENT_ASSET_MAP } from './modelData';
 import { resolveAssetSet, describeAssetSet, suggestStart, propertiesOf, ruleCandidates, DEFAULT_RULE } from './assetSets';
+import { loadPackForTests } from './loadPackForTests';
 
-const DATA = path.join(__dirname, '../../public/data');
-
-beforeAll(() => {
-  const model = JSON.parse(fs.readFileSync(path.join(DATA, 'models.json'), 'utf8')).find(m => m.id === 'wind');
-  const roles = {
-    assets: 'assets.json', assetRelationships: 'asset-relationships.json', properties: 'properties.json',
-    assetValues: 'asset-values.json', assetTelemetry: 'asset-telemetry.json', unitStatus: 'unit-status.json',
-    attentionItems: 'attention-items.json', workItems: 'work-items.json', explanations: 'explanations.json',
-  };
-  const files = Object.entries(roles);
-  const results = files.map(([, file]) => JSON.parse(fs.readFileSync(path.join(DATA, 'wind', file), 'utf8')));
-  activateLoadedModel(model, files, results);
-});
+beforeAll(() => loadPackForTests('wind'));
 
 const rule = (over) => ({ kind: 'rule', rule: { ...DEFAULT_RULE, ...over } });
 const GEARED = 'TYPE_turbine_wtg_geared';

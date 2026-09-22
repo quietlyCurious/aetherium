@@ -3,17 +3,52 @@
 // edited inside the device preview frame. The page renders through
 // ContainerCard with every editing callback live — the editing twin of
 // ScreenView, which renders the same containers read-only.
-// Moved out of App.js unchanged.
+//
+// A screen that's about a type shows one asset of it at a time: the
+// toolbar's "Preview as" picks which, and the page renders inside a
+// ScreenAssetProvider so its asset bindings resolve against that asset.
+// `self` is screenSelfOf's answer for the open screen.
 
 import { Button } from 'devextreme-react';
 import ContainerCard from '../../ContainerCard';
 import DevicePicker from '../../DevicePicker';
 import { ROOT_CONTAINER_ID } from '../../containerModel';
 import { findContainerById } from '../../containerTree';
+import { AssetPicker } from '../AssetPicker';
+import { ScreenAssetProvider } from './screenAsset';
+
+// What the screen is about, and which asset it's showing. Nothing for a
+// plain page.
+function ScreenSelfControls({ self }) {
+  if (self.status === 'none' || self.status === 'loading') return null;
+  if (self.status !== 'ok') {
+    const why = self.status === 'otherModel'
+      ? `This screen is about a type in the “${self.context.modelId}” model. Switch to that model to preview it.`
+      : 'This screen is about a type this model doesn’t have.';
+    return <span className="screen-self-warning" title={why}>⚠ {why}</span>;
+  }
+  return (
+    <div className="screen-self-controls">
+      <span className="screen-self-label" title="What this screen is about — change it in the Page details">
+        <span className="screen-self-kicker">About</span> {self.typeLabel}
+      </span>
+      <span className="screen-self-kicker">Preview as</span>
+      <AssetPicker
+        value={self.assetId}
+        assetIds={self.assetIds}
+        // Only a real choice counts: when the type changes, the box moves to
+        // the fallback asset by itself, and that shouldn't replace the choice.
+        onChange={(id, { byUser }) => { if (id && byUser) self.chooseAsset(id); }}
+        clearable={false}
+        width={230}
+      />
+    </div>
+  );
+}
 
 // Buttons that act on the selection only appear while something is
 // selected; the device picker and snap settings are always there.
-function ScreenCanvasToolbar({ editor }) {
+function ScreenCanvasToolbar({ editor, self }) {
   const {
     containers, selectedContainerId, isSelectedLocked, paintbrush, clipboard,
     focusMode, showGap, coordMode, snapEnabled, snapSize,
@@ -32,6 +67,7 @@ function ScreenCanvasToolbar({ editor }) {
         onToggle={() => editor.setDevicePickerOpen(o => !o)}
       />
       <div style={{ width: 1, height: 20, background: '#e0e0e0', margin: '0 4px', flexShrink: 0 }} />
+      <ScreenSelfControls self={self} />
       {/* Snap toggle + threshold input — always visible, canvas-level settings */}
       <button
         className={`focus-mode-btn${snapEnabled ? ' focus-mode-btn--active' : ''}`}
@@ -165,11 +201,11 @@ function ScreenCanvasToolbar({ editor }) {
   );
 }
 
-export function ScreenCanvas({ editor }) {
+export function ScreenCanvas({ editor, self }) {
   const { containers, previewWidth, previewHeight, paintbrush } = editor;
   return (
     <div className="app-panel app-panel--center">
-      <ScreenCanvasToolbar editor={editor} />
+      <ScreenCanvasToolbar editor={editor} self={self} />
       <div
         className="center-content"
         onClick={editor.clearCanvasSelection}
@@ -199,6 +235,7 @@ export function ScreenCanvas({ editor }) {
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); editor.endDrag(); }}
             >
+              <ScreenAssetProvider assetId={self.assetId}>
               {containers.map(c => (
                 <ContainerCard
                   key={c.id}
@@ -229,6 +266,7 @@ export function ScreenCanvas({ editor }) {
                   onSnapGuideChange={editor.setSnapGuides}
                 />
               ))}
+              </ScreenAssetProvider>
             </div>
           </div>
         </div>

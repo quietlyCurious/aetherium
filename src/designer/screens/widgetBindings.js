@@ -7,18 +7,27 @@
 // A binding is `{ type, ... }` per widget property. Each type has one
 // resolver in BINDING_RESOLVERS below; a resolver either returns the value
 // to use, or LEAVE_STATIC to keep the widget's own static value (still
-// loading, errored, no data). Supporting a new kind of binding — say, a
-// value taken from the asset a screen is currently showing — is one more
-// entry there plus whatever it needs in `context`.
+// loading, errored, no data). A new kind of binding is one more entry
+// there plus whatever it needs in `context`.
+//
+// Binding types:
+//   expression  { expression } — evaluated client-side
+//   query       { queryInstanceId, outputField | outputFields, transform }
+//   asset       { path, property } — a property of the asset the screen is
+//               showing ("self"), or of one reached from it by a path (see
+//               model/assetPaths.js). A collection property gets the
+//               property's history as [{ timestamp, value }] rows.
 //
 // `context` carries the data the resolvers read:
 //   queryResults — { [queryInstanceId]: { status, data, error } }, from
 //                  running the screen's query instances (see
 //                  usePageQueryResults)
 //   queries      — the query definitions, for resolvers that need them
+//   assetId      — the screen's self (see screenAsset.jsx), or null
 
 import { evaluateExpression } from '../../expressionEval';
 import { WIDGET_PROPERTIES } from '../../widgetData';
+import { resolveAssetSeries, resolveAssetValue } from '../../model/assetPaths';
 
 export const LEAVE_STATIC = Symbol('leave static value');
 
@@ -84,7 +93,40 @@ export const BINDING_RESOLVERS = {
     const value = resolveQueryBindingValue(binding, context.queryResults, propDef?.type === 'data');
     return value === undefined ? LEAVE_STATIC : value;
   },
+
+  // A property of self, or of an asset a path reaches from it. With no
+  // self (a plain page, or no asset chosen) or a path that doesn't resolve,
+  // the widget keeps its static value — the details panel and the canvas
+  // badge say why.
+  asset: (binding, { propDef, context }) => {
+    if (!context.assetId) return LEAVE_STATIC;
+    const result = propDef?.type === 'data'
+      ? resolveAssetSeries(context.assetId, binding.path || [], binding.property)
+      : resolveAssetValue(context.assetId, binding.path || [], binding.property);
+    if (result.error) return LEAVE_STATIC;
+    return propDef?.type === 'data' ? result.rows : result.value;
+  },
 };
+
+// Why an asset binding can't resolve for this asset (a PATH_ERRORS key),
+// or null when it does. For the canvas badge and the details panel.
+export function assetBindingProblem(binding, assetId, isCollectionProp = false) {
+  if (!assetId) return 'noAsset';
+  const result = isCollectionProp
+    ? resolveAssetSeries(assetId, binding.path || [], binding.property)
+    : resolveAssetValue(assetId, binding.path || [], binding.property);
+  return result.error || null;
+}
+
+// Whether any of a widget's asset bindings can't resolve for this asset.
+export function hasBrokenAssetBinding(bindings, widgetName, assetId) {
+  const propDefs = WIDGET_PROPERTIES[widgetName] || [];
+  return Object.entries(bindings || {}).some(([propName, b]) => {
+    if (b?.type !== 'asset') return false;
+    const isCollection = propDefs.find(p => p.name === propName)?.type === 'data';
+    return !!assetBindingProblem(b, assetId, isCollection);
+  });
+}
 
 // Converts flat dot-notation keys ("pager.visible": true) into properly
 // nested objects ({ pager: { visible: true } }) — DevExtreme's React
@@ -133,5 +175,29 @@ export function resolveWidgetProps(widgetProps, bindings, widgetName, context = 
     const value = resolve(binding, { propDef, context });
     if (value !== LEAVE_STATIC) resolved[propName] = value;
   });
-  return expandDotPaths(resolved);
+  return normalizeChartSeries(expandDotPaths(resolved), widgetName);
+}
+
+// Two Chart settings that stopped a Chart bound to real rows drawing
+// anything:
+//  - "Series Group Field" defaults to empty, which still produces
+//    seriesTemplate: { nameField: '' } — DevExtreme then builds series from
+//    a grouping column that doesn't exist. An empty template means none.
+//  - With no template, DevExtreme doesn't make a series from
+//    commonSeriesSettings alone; it needs a `series` entry. The sample data
+//    brings its own, so placeholders looked fine. A Chart with real rows and
+//    neither gets one series, drawn with commonSeriesSettings (argument and
+//    value fields, type).
+function normalizeChartSeries(props, widgetName) {
+  if (widgetName !== 'Chart') return props;
+  let next = props;
+  if (next.seriesTemplate && !next.seriesTemplate.nameField) {
+    const { seriesTemplate: _empty, ...rest } = next;
+    next = rest;
+  }
+  const hasRows = Array.isArray(next.dataSource) && next.dataSource.length > 0;
+  if (hasRows && !next.series && !next.seriesTemplate) {
+    next = { ...next, series: [{ name: next.commonSeriesSettings?.valueField || 'value' }] };
+  }
+  return next;
 }
