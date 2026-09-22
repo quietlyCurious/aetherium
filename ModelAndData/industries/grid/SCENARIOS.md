@@ -408,6 +408,188 @@ falls back to a neutral tile.
 
 ---
 
+## Detectors and explanations (spec §14)
+
+`explain.py` runs twelve detectors, one per failure mode, on every asset each
+applies to, and writes `public/data/grid/explanations.json`. Each one reads
+only the runtime files, never this sheet, `generate.py`'s constants or the
+attention items' text. Most "expected" values here are an asset's **own**
+first hour (bushings, DGA, tap changers, THD) or the **network around it**:
+the SCADA bus voltage and the buses one circuit away (CVT), every bus's sag
+in the same scan (voltage sag), measured MW on the parallel paths (lockout,
+exposure). The hot-spot detector uses physics instead: a thermal model from
+load² through a fast and a slow lag plus ambient, fitted on the other ten
+transformers, which predicts every transformer within ±2.3 °C today.
+Topology comes from `asset-relationships.json`: circuits are the
+transmission, subtransmission and supply edges between the two line bays,
+and the voltage-sag detector traces its cause along the electrical layers
+(supply, subtransmission, transformation, station_bus, reactive_support).
+
+| Item | Detector | Ran on | Fired on | Raised at | Confidence |
+|---|---|---|---|---|---|
+| GSIT01 | `grid.bushing_pf_rise` | 11 bushing sets | Aldergate T1 bushings | 10:45 | medium |
+| GSIT02 | `grid.dga_thermal_gassing` | 11 DGA monitors | Kessler T2 | 11:20 | medium |
+| GSIT03 | `grid.cvt_ratio_drift` | 34 CVTs | Larkspur 138 kV bus CVT | 10:50 | medium |
+| GSIT04 | `grid.oltc_hunting` | 11 tap changers | Wyndham T1 | 10:35 | high |
+| GSIT05 | `grid.line_lockout` | 46 line bays | Orrin–Larkspur 138 kV, both ends | 10:25 | high |
+| GSIT06 | `grid.post_contingency_exposure` | 13 substations | Larkspur (and Wyndham, grouped) | 10:45 | high |
+| GSIT07 | `grid.voltage_sag_upstream` | 22 bus sections | Dunmore 69 kV bus (root cause: Wyndham capacitor bank) | 10:00 | high |
+| GSIT08 | `grid.recurring_momentaries` | 61 breakers | Wexford–Tilbury 69 kV breaker | 10:05 | high |
+| GSIT09 | `grid.transformer_hot_spot` | 11 transformers | Kessler T1 | 12:45 | high |
+| GSIT10 | `grid.reactive_reserve_low` | 4 bulk substations | Thorne (root cause: Wyndham capacitor bank) | 11:45 | medium |
+| GSIT11 | `grid.voltage_thd_drift` | 22 bus sections | Colvin 69 kV bus | 12:40 | medium |
+| GSIT12 | `grid.clearance_at_risk` | 3 districts | Harrow District | 10:35 | n/a |
+
+**Extra detections, all covered by an item through `Detector.group`:**
+
+- `grid.line_lockout` fires at both ends of Orrin–Larkspur 138 kV; the group
+  key is the circuit, so GSIT05 (filed at Orrin) covers the Larkspur end.
+- `grid.post_contingency_exposure` also fires on **Wyndham** at 12:50: the
+  Wyndham end of the Wyndham–Larkspur 138 kV path reaches 95 % on the same
+  lost circuit (98.7 % at 14:05). The group key is the lost circuit, so
+  GSIT06 covers it, lists it under `grouped`, and says so in its impact
+  text. This is the "one circuit, two districts" case described under
+  GSIT06 above.
+
+No detector fired anywhere else. Healthy assets stay well clear: the other
+bushing sets within ±0.014 points of their baselines, the other DGA rates
+at 0.96–1.10× their first hour, every other CVT within 0.46 % of its
+partner, the other tap changers under 2× (Aldergate T1, which doubles, is
+used as the "parallel regulator" evidence for GSIT04), and Tilbury's THD
+rise (+0.45 points) is below the 0.6-point level.
+
+**Confidence against the items.** Nine match. Three differ, and the runner
+warns about them:
+
+- GSIT01 and GSIT03 compute **medium** against the items' **high**. Both
+  have a second, independent quantity agreeing (bushing capacitance; CVT
+  stack capacitance), but §14.5 reserves high for a confirmation, and
+  neither has one yet: the Doble test (`wk-g08`) is open, and blocking the
+  CVT (`wk-g10`) contained the risk without testing the diagnosis.
+- GSIT12 computes **n/a** (a planning deadline, like ccgt's CEMS item)
+  against the item's **high**.
+
+Confirmation comes from the work list or the maintenance log, never
+from telemetry alone, and is used only for confidence: a completed settings
+change on the tap changer (GSIT04), the tie switching visible in the flows
+(GSIT06), a two-step tap raise in one scan (GSIT07), the patrol entry in
+the maintenance log (GSIT08, the same pattern as pipeline's inspection
+records), and the two Kessler banks' loads converging (GSIT09). GSIT12 reads
+the work list to find the planned clearance (a planned, open work item whose
+title names a clearance or outage).
+
+**Robustness.** `robustness.py 10` regenerates the pack with 10 other seeds
+(it substitutes the `SEED` line and the output folder in a temporary copy of
+`generate.py`, which always writes to `public/data/grid/`). Every item was
+found on all 10, with no extra detections and the same confidence each time.
+Raise times move with the noise: GSIT02 11:05–11:50, GSIT11 12:40–13:30,
+GSIT06 10:40–10:50, GSIT09 12:30–12:55, GSIT07 10:00–10:10, the rest within
+10 minutes. On a 20-seed run GSIT09 was missed once: on that seed Kessler
+T1 peaks at 106.0 °C and is above 105 °C for only 5 minutes.
+
+The seeds change more than noise here: the base load level moves with the
+seed, so Larkspur's peak exposure ranges 99–105 %, and the Dunmore sag
+bottoms out anywhere from 0.937 to 0.950 pu. Three detectors were written to
+survive that honestly. The exposure detector judges against the 95 %
+advisory level and reports the 100 % crossing separately, the sag detector
+uses a 3-scan median (a bus sitting exactly on 0.950 pu is at the floor),
+and the hot spot's sustain time is 10 minutes (it is a thermally smoothed
+signal with no scan-to-scan noise).
+
+**Detection floors** (fault size varied in a temporary copy of
+`generate.py`, 5 seeds each):
+
+- Bushing (`S01_PF`, 0.34 → 0.93 % in the pack): found every time at 0.60 %,
+  3 in 5 at 0.55 %, never at 0.50 %. Below that, the rise is under
+  0.05 points/h, too slow to raise by "now".
+- DGA (`S02_RATE`, 2.1 → 9.4 ppm/day): every time at 6.0, 2 in 5 at 5.0,
+  never at 4.5. It needs 2× the first hour's rate held for an hour.
+- CVT (`S03_DEV`, 6.15 %): every time down to 2.2 %. The alert is 2 %, so
+  it raises well before the 5 % relay alarm.
+- Tap changer (`S04_OPS`, 58/day): every time at 26/day, never at 22/day
+  (the alert is 25/day or 3× baseline).
+- Hot spot (`S09_IMBALANCE_MVA`, 27 MVA): 3 in 5 at 22 MVA, 1 in 5 at 18,
+  never at 14. Below about 25 MVA the peak doesn't hold above 105 °C for
+  10 minutes.
+- THD (`S11_THD`, 1.05 → 2.12 %): every time at 1.90 %, 1 in 5 at 1.75 %,
+  never at 1.60 %.
+- The event detectors (lockout, momentaries, sag, exposure, reserve,
+  clearance) are floors by definition: a circuit dead for 10 minutes after
+  a reclose; three successful recloses in 4 hours; a 0.03 pu one-scan step
+  held under 0.95 pu for 15 minutes; a 20-point jump to at least 95 %; a
+  reserve under half the 120 MVAr target for 15 minutes; a district at 95 %
+  or more once a planned clearance is within 3 hours.
+
+**Timing differences with the item narratives.** Worth aligning the text in
+`generate.py` the next time it is regenerated:
+
+- GSIT01: the monitor's first-stage alert is 09:30. The detector sees the
+  rise from 09:45 and raises at 10:45, once +0.10 points has held 30 minutes.
+- GSIT02: the advisory is 08:10. The detector's baseline is the first hour,
+  which already contains 50 minutes of the rise, so it dates the onset to
+  about 09:15 and raises at 11:20 (2× baseline for an hour).
+- GSIT03: raised at 10:50 at 2 %, 45 minutes **before** the 5 % relay alarm.
+- GSIT07: the sag starts 09:40; the detector raises at 10:00, when the
+  3-scan median has been under the floor for 15 minutes.
+- GSIT09: the item's alert is 12:35; the detector raises at 12:45.
+- GSIT10: the item says the reserve fell below the 120 MVAr target at 11:40.
+  In the data Thorne is under 120 MVAr from 09:40 (the capacitor bank step).
+  The detector raises at 11:45, after 15 minutes under **half** the target
+  (see below).
+- GSIT11: the advisory is 09:05; the detector raises at 12:40, when the rise
+  has passed 0.6 points and held for an hour.
+- GSIT12: the item starts at 13:40. The detector raises at 10:35: the
+  clearance's planned start (13:00) was within 3 hours and Harrow was already
+  past 95 %. It could have been deferred three hours earlier.
+- The tie closing is logged at 11:20 (`wk-g13`); its flow first shows in the
+  11:25 scan, so the explanations say 11:25.
+
+**Judgement calls.**
+
+- GSIT10's alert is **half** the 120 MVAr operating target (60 MVAr).
+  Wyndham's reserve is also under 120 MVAr (about 110 MVAr) all afternoon
+  and doesn't raise. The explanation shows Wyndham's drop as corroboration
+  instead. The target is this utility's own, not a standard (RESEARCH §6).
+- GSIT11's limit is 2.5 %, from RESEARCH.md (IEEE 519's 69–161 kV class).
+  IEEE 519 puts a bus at exactly 69 kV in its 5 % class, so the explanation
+  calls 2.5 % the conservative reading.
+- GSIT04's "parallel regulator" is found by timing: another tap changer
+  whose rate rose within 20 minutes of this one. No relationship edge links
+  Wyndham T1 and Aldergate T1.
+- GSIT12 doesn't recompute the "118 % with T1 out" study or the 4 h against
+  3 h 55 min window. Neither is in the published data, and the explanation
+  says so. The clearance package work item (`wk-g07`) is due at 16:00.
+
+**Data quirks found while building them.**
+
+- GSIT02: the monitor's rate reads 9 ppm/day, but TDCG itself rose 148 ppm
+  in 6 hours, about 580 ppm/day. The two can't both be right. The explanation
+  says so, and points at the lab resample as what settles it, instead of
+  quoting only the reassuring number.
+- No CVT's secondary voltage reflects real bus voltage changes (the 09:40
+  sag and the 10:15 fault dip are absent from every `cvt_secondary_v`). The
+  CVT detector therefore compares against the bus voltage in SCADA and the
+  neighbouring buses, not against the other CVTs' outputs.
+- GSIT04: `tap_position` swings up to four steps between 5-minute scans,
+  while `oltc_ops_total` gains only 8 operations in three hours of hunting.
+  The explanation quotes both without equating tap reversals with
+  operations.
+- Several receiving-end line bays read a constant flow at the property's
+  range floor (−80 MW on 138 kV receiving ends, −200 MW on 345 kV ones,
+  −30 MW at Pell's Bexhill bay): the flows look clipped by the property range.
+  No detector's required check depends on them.
+
+**Limits.** These are reference detectors. Thresholds come from RESEARCH.md
+(bushing power factor 0.5/1.0/2.0 %, the 30 ppm/day DGA action level, the
+0.05 pu redundant-measurement alarm, 4–8 tap operations a day, the 0.95 pu
+pre-contingency floor, 95/100 % post-contingency bands, 105/110 °C hot
+spot, IEEE 519 THD) and were checked against this simulated data. Own-baseline
+detectors learn "normal" from the first hour of the window, so a fault
+already present at 08:00 would be hidden (GSIT02 shows the cost). The
+exposure and clearance detectors trust the contingency study's numbers as
+published. On a real network they are a starting point, to be tuned on the
+utility's own history.
+
 ## Validator warnings and why they stand
 
 `python3 ModelAndData/tools/validate_industry_pack.py grid` reports

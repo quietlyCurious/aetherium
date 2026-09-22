@@ -728,9 +728,10 @@ Still open:
   with their narratives.
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
-- `explanations.json` (§14) exists for wind, ccgt and pipeline, not yet
-  pharma or grid. Those two keep the plain AI tab until they get
-  detectors.
+- `explanations.json` (§14) exists for all five generated packs (wind,
+  ccgt, pipeline, pharma, grid). The three converted packs (refinery,
+  water, wastewater) keep the plain AI tab; they have no generator, so
+  `robustness.py` couldn't test detectors for them.
 
 ---
 

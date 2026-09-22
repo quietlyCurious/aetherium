@@ -187,7 +187,10 @@
         "label": "Control Module"
       }
     ],
-    "unitLevel": "unit"
+    "unitLevel": "unit",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "grid",
@@ -218,6 +221,9 @@
         "label": "Component"
       }
     ],
-    "unitLevel": "substation"
+    "unitLevel": "substation",
+    "files": {
+      "explanations": "explanations.json"
+    }
   }
 ]

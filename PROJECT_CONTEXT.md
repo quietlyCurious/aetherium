@@ -299,8 +299,9 @@ class names match, as of phase 5: `op-property-tile-*`,
   and each pack has a `robustness.py` that re-checks them on regenerated
   data. The file is an optional role: a pack lists it under `"files"` in
   `models.json`, the loader reads it into `EXPLANATIONS`, and
-  `getAttentionItemExplanation(item)` returns it. Wind, ccgt and pipeline
-  have explanations; the other packs fall back to the plain AI tab.
+  `getAttentionItemExplanation(item)` returns it. Wind, ccgt, pipeline,
+  pharma and grid have explanations; refinery, water and wastewater fall
+  back to the plain AI tab.
   `ModelAndData/tools/detectors/preview.py <model>` renders a pack's
   explanations as a standalone HTML page for reviewing content.
 - `public/data/models.json` + `src/modelRegistry.js` — the registry of

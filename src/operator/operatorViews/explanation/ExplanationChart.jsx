@@ -63,6 +63,18 @@ function niceTicks(lo, hi, count) {
   return out;
 }
 
+// Fewest decimals that tell adjacent ticks apart (0.025 → 3), so narrow
+// axes such as per-unit voltage (0.95–1.05 pu) don't all read "1.0".
+function tickDecimals(ticks) {
+  if (ticks.length < 2) return 0;
+  const step = Math.abs(ticks[1] - ticks[0]);
+  for (let d = 0; d < 4; d++) {
+    const scaled = step * Math.pow(10, d);
+    if (Math.abs(scaled - Math.round(scaled)) < 1e-6) return d;
+  }
+  return 4;
+}
+
 function indexTicks(i0, i1, count) {
   const out = [];
   const step = Math.max(1, Math.round((i1 - i0) / count));
@@ -133,7 +145,7 @@ export function ExplanationChart({ spec, timestamps, height = 220, compact = fal
   const ys = v => m.t + (1 - (clampY(v) - y0) / (y1 - y0)) * (H - m.t - m.b);
 
   const yTicks = niceTicks(y0, y1, compact ? 3 : 5);
-  const yDec = yTicks.length > 1 && yTicks[1] - yTicks[0] < 1 ? 1 : 0;
+  const yDec = tickDecimals(yTicks);
   const xTicks = axis.relative
     ? niceTicks(axis.values[i0], axis.values[i1], compact ? 3 : 6)
         .map(v => axis.values.findIndex(u => Math.abs(u - v) < 1e-6)).filter(i => i >= 0)
