@@ -12,14 +12,18 @@
 // the planned replacement; it only needs to produce the same entries.
 //
 // An option: { name, type, value, group, source, guessed? }
-//   type    one of WIDGET_PROPERTY_TYPES, 'complex' (arrays of objects,
-//           functions, empty objects — needs its own editor, can't be
-//           exposed yet) or 'unknown' (no value and no name hint)
+//   type    one of WIDGET_PROPERTY_TYPES, or 'unknown' (no value and no
+//           name hint). An option whose value is a list or an object (a
+//           grid's columns, a gauge's ranges) comes back as 'json' and is
+//           edited as raw JSON — there's no form for those.
 //   value   the configuration's default, when it has a real one
 //   group   for the list: the first path segment, or 'General'
+//           (optionNaming.groupForOption — the details panel groups by the
+//           same thing)
 //   source  'config' | 'exposed'
 
 import WIDGET_CONFIGS from '../../widgetConfigs';
+import { labelForOption, groupForOption } from './optionNaming';
 
 // Options that hold the widget's rows/items — collections, bind-only.
 const DATA_OPTION_NAMES = new Set(['dataSource', 'items', 'formData']);
@@ -49,14 +53,7 @@ export function inferOptionType(name, value) {
   if (typeof value === 'boolean') return { type: 'bool' };
   if (typeof value === 'number') return { type: 'number' };
   if (typeof value === 'string') return { type: HEX.test(value) || /color$/i.test(last) ? 'color' : 'string' };
-  return { type: 'complex' };
-}
-
-function groupOf(name) {
-  const dot = name.indexOf('.');
-  if (dot < 0) return 'General';
-  const first = name.slice(0, dot);
-  return first.charAt(0).toUpperCase() + first.slice(1);
+  return { type: 'json' };
 }
 
 function flatten(config, prefix, out) {
@@ -69,8 +66,8 @@ function flatten(config, prefix, out) {
       return;
     }
     const { type, guessed } = inferOptionType(name, value);
-    const option = { name, type, group: groupOf(name), source: 'config' };
-    if (value !== null && value !== undefined && type !== 'complex') option.value = value;
+    const option = { name, type, group: groupForOption(name), source: 'config' };
+    if (value !== null && value !== undefined) option.value = value;
     if (guessed) option.guessed = true;
     out.push(option);
   });
@@ -89,7 +86,7 @@ export function getWidgetOptionCatalog(widgetName, exposedDefs = []) {
   const known = new Set(options.map(o => o.name));
   exposedDefs.forEach(def => {
     if (known.has(def.name)) return;
-    options.push({ name: def.name, type: def.type, group: groupOf(def.name), source: 'exposed' });
+    options.push({ name: def.name, type: def.type, group: groupForOption(def.name), source: 'exposed' });
   });
   return options.sort((a, b) => (
     (a.group === 'General' ? -1 : 0) - (b.group === 'General' ? -1 : 0)
@@ -98,33 +95,9 @@ export function getWidgetOptionCatalog(widgetName, exposedDefs = []) {
   ));
 }
 
-export function canExpose(option) {
-  return option.type !== 'complex';
-}
-
 // ── A newly exposed option's definition ────────────────────────────────────
 
-function humanize(word) {
-  return word
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/^./, c => c.toUpperCase());
-}
-
-// Last segments too generic to be a label on their own: 'title.text' reads
-// as "Title", 'tooltip.enabled' as "Tooltip Enabled".
-const GENERIC_LAST = new Set(['text', 'visible', 'enabled', 'color', 'width', 'mode', 'position', 'format']);
-
-export function labelForOption(name) {
-  const parts = name.split('.');
-  const last = parts[parts.length - 1];
-  if (parts.length > 1 && GENERIC_LAST.has(last)) {
-    const parent = humanize(parts[parts.length - 2]);
-    return last === 'text' ? parent : `${parent} ${humanize(last)}`;
-  }
-  return humanize(last);
-}
-
-const DEFAULT_BY_TYPE = { string: '', number: 0, bool: false, color: '', data: [], enum: undefined };
+const DEFAULT_BY_TYPE = { string: '', number: 0, bool: false, color: '', data: [], enum: undefined, json: undefined };
 
 export function defaultForType(type, options) {
   if (type === 'enum') return options?.[0];
@@ -132,9 +105,11 @@ export function defaultForType(type, options) {
 }
 
 // The definition a ticked option starts with. 'unknown' starts as a
-// string — the type column is right there to change it.
+// string — the type is under the row's ⋯ to change. Label and group are
+// left off: both are derived from the path (optionNaming), and storing
+// them would only pin down what's already right.
 export function defFromOption(option) {
-  const type = option.type === 'unknown' || option.type === 'complex' ? 'string' : option.type;
+  const type = option.type === 'unknown' ? 'string' : option.type;
   const def = { name: option.name, label: labelForOption(option.name), type };
   const fallback = defaultForType(type);
   const value = option.value !== undefined ? option.value : fallback;

@@ -12,8 +12,9 @@
 // A property: { name, label, type, options?, default, bindable?, group? }
 //   name      the DevExtreme option; dot paths ('title.text') are expanded
 //             into nested objects when the widget renders
-//   type      bool | number | string | enum | color | data
-//             ('data' is a collection — bind-only, no static editor)
+//   type      bool | number | string | enum | color | json | data
+//             ('json' is a list or object, edited as raw JSON; 'data' is a
+//             collection — bind-only, no static editor)
 //   options   the choices, for enum
 //   bindable  false for options that name a column rather than hold a
 //             value (argumentField, keyExpr…), so they can't be bound

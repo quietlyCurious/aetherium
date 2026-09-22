@@ -215,11 +215,29 @@ fails. "Available options" come from flattening `widgetConfigs.js`
 (`widgetOptionCatalog.js`), which only covers 40 of the 75 widgets and
 often has null defaults (types then guessed from the name and flagged);
 options can also be added by path. A definition is `{ name, label, type,
-options?, default, bindable?, group? }`; `type` gained `color`, and
-`group` puts a heading in the details panel (ungrouped first, as before).
+options?, default, bindable?, group? }`; `type` gained `color` and `json`
+(a list or object — a grid's `columns`, a gauge's `rangeContainer.ranges`
+— edited as raw JSON in `JsonField`, committed only when it parses), and a
+`group` is a heading in the details panel. Groups are derived, not stored:
+a property with no `group` of its own is grouped by the first part of its
+path (`optionNaming.groupOfDef`), so the details panel's headings match
+the Widgets area's option list — for the shipped lists too — and a group
+appears only when something in it is exposed.
 `WidgetPropertyField` / `WidgetPropertyGrid` draw a widget's properties
 for both the Screens details panel and the area's preview, so the preview
-is the real panel.
+is the real panel. The area is two panels: the options list
+(`WidgetOptionsEditor`), where a row is ticked to expose it and carries
+the default value a new widget starts with, with label/type/choices/group/
+bindable behind its ⋯ (`OptionAdvancedFields`); and the preview. Every
+row draws the same columns whether or not it's exposed — path, the label
+the details panel will use (read-only; it's changed under ⋯), type, the
+control it's edited with (disabled until ticked, showing what the widget
+defaults to today), and the ⋯ — so everything lines up down the list. Exposing
+appends to the end of the list and nothing else moves — the list's order
+is what the details panel shows, so a different order is a change to the
+committed `widgetProperties.js`, not something the area does. The edits
+themselves are plain functions on the list in `widgetPropertyEdits.js`
+(the same split Screens has between `screenEdits.js` and its components).
 
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
@@ -363,10 +381,11 @@ class names match, as of phase 5: `op-property-tile-*`,
   definitions (data sources, entities, queries). Every area is its own
   workspace component; `src/shell/appAreas.js` lists them.
 - `src/designer/widgets/` — the Widgets area (see "The designer half"):
-  `WidgetsWorkspace`, `WidgetOptionsPanel`, `ExposedPropertiesEditor`,
-  `WidgetPropertiesPreview`, `WidgetsExport`, the shared
-  `WidgetPropertyField`, and the `widgetPropertyDefs` store every widget
-  property lookup goes through.
+  `WidgetsWorkspace`, `WidgetOptionsEditor` (+ `OptionAdvancedFields`,
+  `ChoicesField`, `JsonField`), `WidgetPropertiesPreview`, `WidgetsExport`,
+  `optionNaming` (the label and group a path implies),
+  `widgetPropertyEdits`, the shared `WidgetPropertyField`, and the
+  `widgetPropertyDefs` store every widget property lookup goes through.
 - `src/designer/ScriptsWorkspace.jsx` — the Scripts area (a placeholder).
 - **Explanations and detectors** (`INDUSTRY_PACK_SPEC.md` §14): a pack
   can ship `explanations.json`, written by its own `explain.py` from

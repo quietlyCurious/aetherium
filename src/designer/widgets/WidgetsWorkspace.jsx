@@ -6,8 +6,8 @@
 //   left     the widget list; a flag on widgets with nothing that names
 //            what they show (no title/label), a pencil on edited ones,
 //            and Export
-//   options  everything the widget could expose (WidgetOptionsPanel)
-//   exposed  what it does expose, editable (ExposedPropertiesEditor)
+//   options  everything the widget could expose, with a tick and a default
+//            value per option and the rest behind ⋯ (WidgetOptionsEditor)
 //   preview  the widget itself plus its details panel, drawn by the same
 //            components the Screens editor uses (WidgetPropertiesPreview)
 //
@@ -27,8 +27,7 @@ import {
   getWidgetPropertyDefs, getShippedWidgetPropertyDefs, isWidgetCustomized,
   saveWidgetPropertyDefs, resetWidgetPropertyDefs, sameDefs, useWidgetPropertyOverrides,
 } from './widgetPropertyDefs';
-import { WidgetOptionsPanel } from './WidgetOptionsPanel';
-import { ExposedPropertiesEditor } from './ExposedPropertiesEditor';
+import { WidgetOptionsEditor } from './WidgetOptionsEditor';
 import { WidgetPropertiesPreview } from './WidgetPropertiesPreview';
 import { WidgetsExportButtons } from './WidgetsExport';
 import './widgets.css';
@@ -68,6 +67,9 @@ function WidgetListItem({ item }) {
 export const WidgetsWorkspace = forwardRef(function WidgetsWorkspace(_props, ref) {
   const overrides = useWidgetPropertyOverrides();
   const [selectedId, setSelectedId] = useState(null);
+  // Bumped when a click on the tree doesn't become a selection, to put the
+  // tree's own highlight back on the widget that's actually open.
+  const [reselectKey, setReselectKey] = useState(0);
   const selectedName = WIDGETS.find(w => w.id === selectedId)?.name || null;
 
   // The open widget's draft, re-seeded whenever the selection or its saved
@@ -102,8 +104,8 @@ export const WidgetsWorkspace = forwardRef(function WidgetsWorkspace(_props, ref
   const handleSelect = (id) => {
     if (id === selectedId) return;
     const item = DX_WIDGET_DATA.find(w => w.id === id);
-    if (item?.assetLevel !== 'widget') return;
-    if (!confirmDiscardIfDirty()) return;
+    const rejected = item?.assetLevel !== 'widget' || !confirmDiscardIfDirty();
+    if (rejected) { setReselectKey(k => k + 1); return; }
     setSelectedId(id);
   };
 
@@ -131,6 +133,8 @@ export const WidgetsWorkspace = forwardRef(function WidgetsWorkspace(_props, ref
               itemRender={(item) => <WidgetListItem item={item} />}
               selectedId={selectedId}
               onSelect={handleSelect}
+              scrollToSelected={false}
+              reselectKey={reselectKey}
               expandAll
             />
           </div>
@@ -138,30 +142,24 @@ export const WidgetsWorkspace = forwardRef(function WidgetsWorkspace(_props, ref
         </div>
       </SplitterItem>
 
-      <SplitterItem size="26%" minSize="200px" resizable={true}>
+      <SplitterItem resizable={true} minSize="320px">
         <div className="app-panel widgets-panel">
           {selectedName
-            ? <WidgetOptionsPanel widgetName={selectedName} defs={draft} onChange={setDraft} />
+            ? (
+              <WidgetOptionsEditor
+                widgetName={selectedName}
+                defs={draft}
+                onChange={setDraft}
+                isCustomized={isWidgetCustomized(selectedName) || !sameDefs(draft, getShippedWidgetPropertyDefs(selectedName))}
+                isDirty={isDirty}
+                onReset={handleReset}
+              />
+            )
             : <p className="step-instructions widgets-empty">Select a widget to choose which of its options the designer exposes.</p>}
         </div>
       </SplitterItem>
 
-      <SplitterItem resizable={true} minSize="320px">
-        <div className="app-panel widgets-panel">
-          {selectedName && (
-            <ExposedPropertiesEditor
-              widgetName={selectedName}
-              defs={draft}
-              onChange={setDraft}
-              isCustomized={isWidgetCustomized(selectedName) || !sameDefs(draft, getShippedWidgetPropertyDefs(selectedName))}
-              isDirty={isDirty}
-              onReset={handleReset}
-            />
-          )}
-        </div>
-      </SplitterItem>
-
-      <SplitterItem size="300px" minSize="220px" resizable={true}>
+      <SplitterItem size="340px" minSize="240px" resizable={true}>
         <div className="app-panel widgets-panel">
           {selectedName && <WidgetPropertiesPreview widgetName={selectedName} defs={draft} />}
         </div>

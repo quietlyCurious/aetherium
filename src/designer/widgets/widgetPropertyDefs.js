@@ -22,8 +22,9 @@ import { useSyncExternalStore } from 'react';
 import { WIDGET_PROPERTIES } from '../../widgetProperties';
 import { loadWidgetPropertyOverrides, saveWidgetPropertyOverrides } from '../../widgetPropertyOverridesStorage';
 import { stableStringify } from '../../unsavedChangesStore';
+import { groupOfDef } from './optionNaming';
 
-export const WIDGET_PROPERTY_TYPES = ['string', 'number', 'bool', 'enum', 'color', 'data'];
+export const WIDGET_PROPERTY_TYPES = ['string', 'number', 'bool', 'enum', 'color', 'json', 'data'];
 
 const NO_DEFS = [];
 
@@ -124,17 +125,21 @@ export function useWidgetPropertyOverrides() {
   return useSyncExternalStore(widgetPropertyDefsStore.subscribe, widgetPropertyDefsStore.getSnapshot);
 }
 
-// The details panel's sections: properties with no group first, under no
-// heading (every shipped list today), then each group in first-seen order.
+// The details panel's sections. A property's group is its own when it has
+// one, and otherwise the first part of its path (optionNaming) — so the
+// details panel groups the same way the Widgets area's options list does,
+// including for the shipped lists, which carry no groups of their own. A
+// group appears only if something in it is exposed; groups come in the
+// order the list first reaches them.
 export function groupWidgetPropertyDefs(defs) {
   const groups = [];
   const byName = new Map();
   (defs || NO_DEFS).forEach(def => {
-    const key = def.group || '';
+    const key = groupOfDef(def);
     if (!byName.has(key)) {
       const group = { group: key, defs: [] };
       byName.set(key, group);
-      if (key) groups.push(group); else groups.unshift(group);
+      groups.push(group);
     }
     byName.get(key).defs.push(def);
   });

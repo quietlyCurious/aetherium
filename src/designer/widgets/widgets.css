@@ -22,6 +22,17 @@
 .widgets-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 12px 6px; font-size: 10.5px; color: #888; }
 .widgets-legend > span { display: inline-flex; align-items: center; gap: 4px; }
 .widgets-list-tree { flex: 1; min-height: 0; overflow: hidden; }
+/* App.css forces every tree row's background transparent; the widget list
+   is a picker, so its selected row needs to look picked. DevExtreme puts
+   dx-state-selected on the NODE, not on the item inside it. */
+.widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item,
+.widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item.dx-state-hover,
+.widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item.dx-state-focused {
+  background-color: #e6f1fb !important;
+  box-shadow: inset 2px 0 0 #0078d4;
+}
+.widgets-list-tree .dx-treeview-node.dx-state-selected .tree-item-name { color: #0078d4; font-weight: 600; }
+.widgets-list-tree .dx-treeview-item.dx-state-hover { background-color: #f5f9fd !important; }
 .widgets-list-item { display: flex; align-items: center; gap: 6px; width: 100%; }
 .widgets-list-item .tree-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .widgets-flag { width: 7px; height: 7px; border-radius: 50%; background: #c25b00; flex-shrink: 0; display: inline-block; }
@@ -34,7 +45,7 @@
 .widgets-export-buttons .focus-mode-btn:disabled,
 .widgets-panel .focus-mode-btn:disabled { opacity: .45; cursor: default; border-color: #d1d1d1; color: #555; }
 
-/* ── Available options ── */
+/* ── Options (the main panel) ── */
 .widgets-options { display: flex; flex-direction: column; height: 100%; }
 .widgets-filter { margin: 8px 12px; width: auto !important; flex-shrink: 0; }
 .widgets-options-list { flex: 1; min-height: 0; overflow: auto; padding-bottom: 6px; }
@@ -42,52 +53,69 @@
   font-size: 11px; font-weight: 600; color: #555; padding: 5px 12px 3px;
   background: #fafafa; border-top: 1px solid #f0f0f0; position: sticky; top: 0; z-index: 1;
 }
-.widgets-option { display: flex; align-items: center; gap: 6px; padding: 3px 12px 3px 18px; font-size: 11.5px; cursor: pointer; }
-.widgets-option:hover { background: #f5f9fd; }
-.widgets-option code { font-family: Consolas, 'Courier New', monospace; font-size: 11px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.widgets-option--disabled { cursor: default; }
-.widgets-option--disabled code { color: #aaa; }
+
+/* One option per row, in columns that line up down the list: the tick and
+   its path, the type, the control it's edited with, and the ⋯. A row that
+   isn't exposed draws the same control, disabled, so the column doesn't
+   break — the value in it is what the widget defaults to today. */
+.widgets-option-row {
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 54px 180px 24px;
+  align-items: center; gap: 8px; padding: 2px 10px 2px 0;
+}
+.widgets-option-row--exposed { background: #fbfdff; }
+.widgets-option-row--open { background: #f2f8fd; }
+.widgets-option-row:hover { background: #f5f9fd; }
+.widgets-option { display: flex; align-items: center; gap: 6px; padding: 3px 0 3px 18px; font-size: 11.5px; cursor: pointer; min-width: 0; }
+.widgets-option code { font-family: Consolas, 'Courier New', monospace; font-size: 11px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widgets-option-label { font-size: 11px; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option-label { color: #aaa; }
+.widgets-option-default { min-width: 0; }
+.widgets-option-default .details-input { padding: 2px 5px; font-size: 11px; }
+.widgets-option-default .dx-texteditor-input { font-size: 11px !important; padding: 2px 6px !important; min-height: unset !important; }
+.widgets-option-default .widget-prop-bind-only { font-size: 10px; }
+.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option code { color: #777; }
+/* A disabled control should read as "this isn't yours to set yet" rather
+   than as an empty field. */
+.widgets-option-default input:disabled,
+.widgets-option-default textarea:disabled { background: #f6f6f6; color: #9a9a9a; cursor: default; }
+.widgets-option-default input[type="color"]:disabled { opacity: .5; }
+.widgets-more { border: 1px solid transparent; background: none; color: #999; cursor: pointer; border-radius: 3px; padding: 0 4px; line-height: 18px; }
+.widgets-more:hover { border-color: #d1d1d1; color: #0078d4; }
+.widgets-more--open { border-color: #0078d4; color: #0078d4; }
+.widgets-more-spacer { display: block; }
+
 .widgets-type-badge {
-  margin-left: auto; flex-shrink: 0; font-size: 10px; color: #888;
+  justify-self: start; font-size: 10px; color: #888;
   border: 1px solid #e0e0e0; border-radius: 8px; padding: 0 6px; line-height: 15px;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .widgets-type-badge--guessed,
 .widgets-type-badge--unknown { color: #a14d00; border-color: #f3c99a; background: #fff4e5; }
-.widgets-type-badge--complex { color: #aaa; }
+.widgets-type-badge--data { color: #6b46a8; border-color: #ddd0ef; background: #f6f1fc; }
+.widgets-type-badge--json { color: #1c6b52; border-color: #c6e4d9; background: #eff9f5; }
+
+/* JSON values: monospace, and marked while the text doesn't parse. */
+.widgets-json { font-family: Consolas, 'Courier New', monospace; font-size: 10.5px; width: 100%; box-sizing: border-box; resize: vertical; }
+.widgets-json--error { border-color: #c50f1f !important; background: #fff5f5; }
+
+/* The ⋯ block, under its row. */
+.widgets-advanced {
+  display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
+  padding: 8px 12px 10px 36px; background: #f2f8fd; border-bottom: 1px solid #e3eef8;
+}
+.widgets-advanced-field { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #777; }
+.widgets-advanced-field > span { white-space: nowrap; }
+.widgets-advanced-field .details-input { width: 130px; padding: 2px 5px; font-size: 11px; }
+.widgets-advanced-field--wide .details-input { width: 210px; }
+.widgets-advanced-field--json { align-items: flex-start; flex-basis: 100%; }
+.widgets-advanced-field--json .widgets-json { width: 100%; }
+.widgets-advanced-field--check { gap: 4px; }
+.widgets-advanced-hide { margin-left: auto; font-size: 11px !important; padding: 2px 8px !important; }
+.widgets-advanced-hide:hover { border-color: #c50f1f; color: #c50f1f; }
+
 .widgets-add-path { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid #eee; flex-shrink: 0; }
 .widgets-add-path .details-input { flex: 1; min-width: 0; }
 .widgets-path-problem { font-size: 10.5px; color: #c50f1f; padding: 0 12px 8px; }
-
-/* ── Exposed properties ── */
-.widgets-exposed { display: flex; flex-direction: column; height: 100%; }
-.widgets-exposed-scroll { flex: 1; min-height: 0; overflow: auto; }
-.widgets-exposed-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px; }
-.widgets-exposed-table th {
-  position: sticky; top: 0; z-index: 1; background: #fff; text-align: left;
-  font-weight: 600; color: #888; padding: 5px 4px; border-bottom: 1px solid #e0e0e0;
-}
-.widgets-exposed-table th:nth-child(1) { width: 18px; }
-.widgets-exposed-table th:nth-child(2) { width: 21%; }
-.widgets-exposed-table th:nth-child(3) { width: 20%; }
-.widgets-exposed-table th:nth-child(4) { width: 82px; }
-.widgets-exposed-table th:nth-child(6) { width: 13%; }
-.widgets-exposed-table th:nth-child(7) { width: 26px; text-align: center; }
-.widgets-exposed-table th:nth-child(8) { width: 22px; }
-.widgets-exposed-table td { padding: 3px 4px; border-bottom: 1px solid #f2f2f2; vertical-align: middle; }
-.widgets-exposed-table .details-input { width: 100%; box-sizing: border-box; padding: 2px 5px; font-size: 11px; }
-.widgets-exposed-table .dx-texteditor-input { font-size: 11px !important; padding: 2px 6px !important; min-height: unset !important; }
-.widgets-exposed-drop td { box-shadow: inset 0 2px 0 #0078d4; }
-.widgets-grip-cell { padding-left: 6px !important; }
-.widgets-grip { cursor: grab; color: #bbb; letter-spacing: -2px; user-select: none; }
-.widgets-grip:hover { color: #0078d4; }
-.widgets-option-name code { font-family: Consolas, 'Courier New', monospace; font-size: 10.5px; color: #777; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.widgets-default-cell { min-width: 0; }
-.widgets-center { text-align: center; }
-.widgets-remove { border: none; background: none; color: #aaa; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 4px; }
-.widgets-remove:hover { color: #c50f1f; }
-.widgets-choices-row td { border-bottom: 1px solid #f2f2f2; padding-top: 0; }
-.widgets-choices { display: flex; align-items: center; gap: 8px; font-size: 10.5px; color: #888; padding-left: 2px; }
-.widgets-choices .details-input { flex: 1; }
 
 /* ── Preview ── */
 .widgets-preview { display: flex; flex-direction: column; height: 100%; overflow: auto; }

@@ -53,12 +53,18 @@ describe('widget property defs store', () => {
     expect(s.getWidgetPropertyDefs('Switch')).toEqual([{ name: 'value', label: 'value', type: 'string' }]);
   });
 
-  test('groups: ungrouped first, then in first-seen order', () => {
+  test('groups: a definition\'s own, else the first part of its path', () => {
     const s = freshStore();
     const groups = s.groupWidgetPropertyDefs([
-      { name: 'a', group: 'Scale' }, { name: 'b' }, { name: 'c', group: 'Range' }, { name: 'd', group: 'Scale' },
+      { name: 'scale.startValue' }, { name: 'value' }, { name: 'rangeContainer.width', group: 'Ring' }, { name: 'scale.endValue' },
     ]);
-    expect(groups.map(g => [g.group, g.defs.map(d => d.name)])).toEqual([['', ['b']], ['Scale', ['a', 'd']], ['Range', ['c']]]);
+    expect(groups.map(g => [g.group, g.defs.map(d => d.name)])).toEqual([
+      ['Scale', ['scale.startValue', 'scale.endValue']],
+      ['General', ['value']],
+      ['Ring', ['rangeContainer.width']],
+    ]);
+    // A group with nothing exposed never appears.
+    expect(s.groupWidgetPropertyDefs([{ name: 'value' }]).map(g => g.group)).toEqual(['General']);
   });
 
   test('a new widget starts with every default, leaving undefined ones unset', () => {

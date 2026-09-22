@@ -4,7 +4,17 @@ import { TreeView } from 'devextreme-react';
 
 // `expandAll`: open every node whenever the data changes — for a filtered
 // tree, whose matches can sit several levels down under collapsed parents.
-function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', displayExpr = 'name', itemRender, selectedId, onSelect, onItemDblClick, expandAll = false }) {
+// `scrollToSelected`: scroll the selected item into view when selectedId
+//   changes. On by default, since a selection made from outside the tree
+//   (a Now-strip tile, a deep link) can point somewhere not currently
+//   visible. Turn it off where the selection is always made IN the tree,
+//   which is already visible — scrolling then just moves the list under
+//   the pointer for no reason.
+// `reselectKey`: bump it to re-apply selectedId to the tree after a click
+//   the caller didn't accept (a category, or a discard prompt answered
+//   "cancel"). DevExtreme has already moved its own selection by then, and
+//   selectedId hasn't changed, so nothing else would put it back.
+function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', displayExpr = 'name', itemRender, selectedId, onSelect, onItemDblClick, expandAll = false, scrollToSelected = true, reselectKey = 0 }) {
   const [internalSelectedId, setInternalSelectedId] = useState(selectedId ?? null);
   const treeRef = React.useRef(null);
 
@@ -33,11 +43,11 @@ function HierarchyTree({ dataSource, keyExpr = 'id', parentIdExpr = 'parentId', 
             ancestors.forEach(key => instance.expandItem(key));
           }
           instance.selectItem(selectedId);
-          instance.scrollToItem?.(selectedId);
+          if (scrollToSelected) instance.scrollToItem?.(selectedId);
         }
       }
     }
-  }, [selectedId]);
+  }, [selectedId, reselectKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const effectiveOnSelect = (id) => {
     setInternalSelectedId(id);

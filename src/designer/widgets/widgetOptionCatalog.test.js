@@ -1,4 +1,4 @@
-import { getWidgetOptionCatalog, inferOptionType, labelForOption, defFromOption, isValidOptionPath, canExpose } from './widgetOptionCatalog';
+import { getWidgetOptionCatalog, inferOptionType, defFromOption, isValidOptionPath } from './widgetOptionCatalog';
 import { getShippedWidgetPropertyDefs } from './widgetPropertyDefs';
 
 describe('widget option catalog', () => {
@@ -14,10 +14,13 @@ describe('widget option catalog', () => {
     expect(inferOptionType('foo.bar', null)).toEqual({ type: 'unknown' });
   });
 
-  test('arrays and empty objects are complex and cannot be exposed', () => {
+  test('arrays and empty objects are exposed as JSON, keeping their value', () => {
     const ranges = getWidgetOptionCatalog('CircularGauge').find(o => o.name === 'rangeContainer.ranges');
-    expect(ranges.type).toBe('complex');
-    expect(canExpose(ranges)).toBe(false);
+    expect(ranges).toMatchObject({ type: 'json', value: [] });
+    expect(defFromOption(ranges)).toEqual({ name: 'rangeContainer.ranges', label: 'Ranges', type: 'json', default: [] });
+    expect(inferOptionType('scale.label', {}).type).toBe('json');
+    // No value to read means no default at all, rather than a made-up one.
+    expect('default' in defFromOption({ name: 'x.y', type: 'json' })).toBe(false);
   });
 
   test('collections are data, colours are colour', () => {
@@ -33,12 +36,6 @@ describe('widget option catalog', () => {
 
   test('General sorts first', () => {
     expect(getWidgetOptionCatalog('CircularGauge')[0].group).toBe('General');
-  });
-
-  test('labels read naturally', () => {
-    expect(labelForOption('title.text')).toBe('Title');
-    expect(labelForOption('tooltip.enabled')).toBe('Tooltip Enabled');
-    expect(labelForOption('scale.tickInterval')).toBe('Tick Interval');
   });
 
   test('a new definition takes the configured default, else one for its type', () => {
