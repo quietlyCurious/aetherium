@@ -276,17 +276,17 @@
       <div class="eyebrow">quietlyCurious/aetherium · main @ 10974cf</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the whole app is put together: the two workspaces and their areas, which file owns what, how a setting or a model's data travels to a box on screen, how the Screens editor is split, and the handful of patterns everything leans on.</p>
-      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 22 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 605. Every industry model now uses the one generic data format.</p>
+      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 29 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 630. Every industry model now uses the one generic data format.</p>
     </header>
 
     <section id="glance">
       <h2>At a glance</h2>
-      <p>The app has two workspaces, picked from the title-bar menu. The <strong>Operator Experience</strong> is the next-gen HMI for someone running the plant. The <strong>Configuration Experience</strong> is where things get set up: <em>Visualization</em> (how each asset type and asset displays), the page builder (<em>Screens</em>, <em>Widgets</em>, <em>Theme</em>) and the data definitions (<em>Data Sources</em>, <em>Entities</em>, <em>Queries</em>, <em>Scripts</em>).</p>
+      <p>The app has two workspaces, picked from the title-bar menu. The <strong>Operator Experience</strong> is the next-gen HMI for someone running the plant. The <strong>Configuration Experience</strong> is where things get set up: <em>Visualization</em> (how each asset type and asset displays), the page builder (<em>Screens</em>, <em>Widgets</em>, <em>Theme</em>) and the data definitions (<em>Data Sources</em>, <em>Entities</em>, <em>Queries</em>, <em>Asset Sets</em>, <em>Scripts</em>).</p>
       <div class="glance" role="list">
-        <div role="listitem"><strong>605</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
+        <div role="listitem"><strong>630</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
         <div role="listitem"><strong>1,213</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
         <div role="listitem"><strong>45+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
-        <div role="listitem"><strong>22</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
+        <div role="listitem"><strong>29</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
         <div role="listitem"><strong>8</strong><span>industry models, one generic data format</span></div>
         <div role="listitem"><strong>23</strong><span>model-data variables, all written in <code>modelData.js</code></span></div>
       </div>
@@ -298,7 +298,7 @@
 
       <figure>
         <div class="fig-scroll">
-        <svg viewBox="0 0 980 430" role="img" aria-label="The app shell: a title bar across the top from App.js; below it, the Operator Experience, which is OperatorWorkspace with its own rail and Now strip, and the Configuration Experience, whose rail is drawn by App and lists Visualization, Screens, Widgets and Theme under Design and Data Sources, Entities, Queries and Scripts under Data, each mapped to the component that renders it.">
+        <svg viewBox="0 0 980 452" role="img" aria-label="The app shell: a title bar across the top from App.js; below it, the Operator Experience, which is OperatorWorkspace with its own rail and Now strip, and the Configuration Experience, whose rail is drawn by App and lists Visualization, Screens, Widgets and Theme under Design and Data Sources, Entities, Queries, Asset Sets and Scripts under Data, each mapped to the component that renders it.">
           <defs>
             <marker id="a0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
           </defs>
@@ -317,7 +317,7 @@
           </g>
 
           <!-- Operator Experience -->
-          <rect x="10" y="66" width="300" height="350" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="10" y="66" width="300" height="378" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
           <text x="24" y="90" font-size="14" font-weight="600" fill="currentColor">Operator Experience</text>
           <rect x="24" y="102" width="272" height="26" rx="4" fill="currentColor" opacity="0.1"/>
           <text x="34" y="119" font-size="12" fill="currentColor">NowStrip · one tile per unit</text>
@@ -341,10 +341,10 @@
           <text x="24" y="370" font-size="12" fill="currentColor" opacity="0.8">to save in the Operator view.</text>
 
           <!-- Configuration Experience -->
-          <rect x="330" y="66" width="640" height="350" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="330" y="66" width="640" height="378" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
           <text x="344" y="90" font-size="14" font-weight="600" fill="currentColor">Configuration Experience</text>
           <text x="956" y="90" font-size="11" text-anchor="end" fill="currentColor" opacity="0.65">rail: shell/AreaRail, drawn by App</text>
-          <rect x="344" y="102" width="166" height="300" rx="5" fill="currentColor" opacity="0.05"/>
+          <rect x="344" y="102" width="166" height="328" rx="5" fill="currentColor" opacity="0.05"/>
           <g font-size="10" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">
             <text x="356" y="120">DESIGN</text>
             <text x="356" y="254">DATA</text>
@@ -358,7 +358,8 @@
             <text x="362" y="278">Data Sources</text>
             <text x="362" y="306">Entities</text>
             <text x="362" y="334">Queries</text>
-            <text x="362" y="362">Scripts</text>
+            <text x="362" y="362">Asset Sets</text>
+            <text x="362" y="390">Scripts</text>
           </g>
           <g stroke="currentColor" stroke-width="1" fill="none" opacity="0.55">
             <line x1="504" y1="140" x2="530" y2="140" marker-end="url(#a0)"/>
@@ -369,6 +370,7 @@
             <line x1="504" y1="302" x2="530" y2="302" marker-end="url(#a0)"/>
             <line x1="504" y1="330" x2="530" y2="330" marker-end="url(#a0)"/>
             <line x1="504" y1="358" x2="530" y2="358" marker-end="url(#a0)"/>
+            <line x1="504" y1="386" x2="530" y2="386" marker-end="url(#a0)"/>
           </g>
           <g font-size="12" fill="currentColor">
             <text x="538" y="144"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">OperatorWorkspace</tspan><tspan opacity="0.7"> · persona 'configurator'</tspan></text>
@@ -378,12 +380,13 @@
             <text x="538" y="278" font-family="IBM Plex Mono, monospace" font-size="11.5">DataSourcesWorkspace</text>
             <text x="538" y="306" font-family="IBM Plex Mono, monospace" font-size="11.5">EntitiesWorkspace</text>
             <text x="538" y="334" font-family="IBM Plex Mono, monospace" font-size="11.5">QueriesWorkspace</text>
-            <text x="538" y="362"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">ScriptsWorkspace</tspan><tspan opacity="0.7"> · placeholder</tspan></text>
+            <text x="538" y="362"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">AssetSetsWorkspace</tspan></text>
+            <text x="538" y="390"><tspan font-family="IBM Plex Mono, monospace" font-size="11.5">ScriptsWorkspace</tspan><tspan opacity="0.7"> · placeholder</tspan></text>
           </g>
-          <path d="M710 268 h10 v70 h-10" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
-          <text x="728" y="298" font-size="12" fill="currentColor" opacity="0.8">all three on</text>
-          <text x="728" y="315" font-size="11.5" font-family="IBM Plex Mono, monospace" fill="currentColor">DefinitionWorkspace</text>
-          <text x="344" y="396" font-size="11" fill="currentColor" opacity="0.65">Collapsed: a divider between groups. Expanded (›): group names. Visualization again: hide its list.</text>
+          <path d="M740 268 h10 v98 h-10" fill="none" stroke="currentColor" stroke-width="1" opacity="0.6"/>
+          <text x="758" y="312" font-size="12" fill="currentColor" opacity="0.8">all four on</text>
+          <text x="758" y="329" font-size="11.5" font-family="IBM Plex Mono, monospace" fill="currentColor">DefinitionWorkspace</text>
+          <text x="344" y="424" font-size="11" fill="currentColor" opacity="0.65">Collapsed: a divider between groups. Expanded (›): group names. Visualization again: hide its list.</text>
         </svg>
         </div>
         <figcaption>The Configuration rail sits outside the areas, so it stays put while you move between them. Visualization and the Operator Experience are the same component with a different persona; switching between them remounts its inner half.</figcaption>
@@ -397,11 +400,11 @@
             <tr><td>Visualization</td><td class="mono">operator/OperatorWorkspace</td><td>the open editor's template</td><td>Save / Discard dialog, then goes</td></tr>
             <tr><td>Screens</td><td class="mono">designer/screens/ScreensWorkspace</td><td>the open screen</td><td>goes; the canvas and its unsaved edits wait in App</td></tr>
             <tr><td>Widgets · Theme · Scripts</td><td class="mono">designer/WidgetsWorkspace · ThemeWorkspace · designer/ScriptsWorkspace</td><td>disabled</td><td>goes</td></tr>
-            <tr><td>Data Sources · Entities · Queries</td><td class="mono">DataSourcesWorkspace · EntitiesWorkspace · QueriesWorkspace</td><td>the open definition</td><td>confirm; leaving drops unsaved edits</td></tr>
+            <tr><td>Data Sources · Entities · Queries · Asset Sets</td><td class="mono">DataSourcesWorkspace · EntitiesWorkspace · QueriesWorkspace · designer/assetSets/AssetSetsWorkspace</td><td>the open definition</td><td>confirm; leaving drops unsaved edits</td></tr>
           </tbody>
         </table>
       </div>
-      <p>Every area gives <code>App</code> the same handle: <code>save()</code> for the title-bar Save, and <code>confirmLeave()</code> (true, or a promise of true, to go ahead). Only the area being left is asked. Launch shows only in Screens; the model switcher applies in the Operator, Visualization and Screens (whose Data tab and Create wizard show the loaded model), and is dimmed elsewhere. The Configuration Experience reopens on the area you last used.</p>
+      <p>Every area gives <code>App</code> the same handle: <code>save()</code> for the title-bar Save, and <code>confirmLeave()</code> (true, or a promise of true, to go ahead). Only the area being left is asked. Launch shows only in Screens; the model switcher applies in the Operator, Visualization, Screens (whose Data tab and Create wizard show the loaded model) and Asset Sets, and is dimmed elsewhere. Switching model asks the open area the same leave question as navigating away. The Configuration Experience reopens on the area you last used.</p>
     </section>
 
 <section id="shape">
@@ -421,7 +424,7 @@
           <text x="24" y="90" font-size="12" fill="currentColor" opacity="0.75">title bar · persona switch</text>
           <text x="24" y="108" font-size="12" fill="currentColor" opacity="0.75">model switch · Save button</text>
           <text x="24" y="126" font-size="12" fill="currentColor" opacity="0.75">which area is showing</text>
-          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">605 lines</text>
+          <text x="24" y="154" font-size="11" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity="0.6">630 lines</text>
 
           <!-- OperatorWorkspace -->
           <rect x="310" y="40" width="200" height="130" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -995,7 +998,8 @@
 
     <section id="definitions">
       <h2>The data areas</h2>
-      <p>Data Sources, Entities and Queries are each a list of definitions plus an editor, and share one shell, <code>designer/DefinitionWorkspace</code>. It owns selection, the confirm-before-losing-edits prompt, and publishing the open editor's unsaved state. Each area supplies its nouns, its list columns and its editor; an editor exposes <code>isDirty()</code> and <code>save()</code> on its ref, and <code>useDefinitionDraft</code> does both for a simple form. The definitions themselves live in <code>App</code> (data sources, entities, queries), because Screens reads the queries too.</p>
+      <p>Data Sources, Entities, Queries and Asset Sets are each a list of definitions plus an editor, and share one shell, <code>designer/DefinitionWorkspace</code>. It owns selection, the confirm-before-losing-edits prompt, and publishing the open editor's unsaved state. Each area supplies its nouns, its list columns and its editor; an editor exposes <code>isDirty()</code> and <code>save()</code> on its ref, and <code>useDefinitionDraft</code> does both for a simple form. The definitions themselves live in <code>App</code> (data sources, entities, queries, asset sets), because Screens reads the queries too, and will read asset sets.</p>
+      <p><strong>Asset sets</strong> (<code>model/assetSets.js</code>) are named ways of producing a list of asset ids from the loaded model: <em>picked</em> (a hand-chosen list), <em>rule</em> (where to look, types, attention, property conditions, and optionally the lowest or highest N by a property) or <em>query</em> (not built yet). A rule can look under a <em>start</em> asset it's given when it's used, the way a query takes inputs: "Turbines of a feeder" is one definition, and a feeder screen would pass its own feeder. Unlike the other definitions, a set belongs to one model (<code>modelId</code>); the area loads the title bar's model and lists that model's sets. <code>resolveAssetSet(set, { start })</code> returns the ids plus the steps that narrowed them, which the editor's preview shows. Nothing uses a set yet: the planned repeater widget will take one and draw a screen per asset.</p>
       <p>Queries run in <code>queryExecution.js</code> (REST calls resolved by <code>restResolver.js</code>, OpHub flows discovered by <code>ophubFlowDiscovery.js</code>); expressions in <code>expressionEval.js</code>.</p>
     </section>
 
@@ -1086,8 +1090,8 @@
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">App.js</td><td class="num">605</td><td>Title bar (workspace menu, model switcher, Launch, Save), navigation and its one leave check, the Configuration rail, the shared data definitions, and the Screens editor's state</td></tr>
-            <tr><td class="mono">shell/appAreas.js</td><td class="num">102</td><td>The two workspaces and every area: label, rail group, icon, Save wording, whether it uses the model or shows Launch</td></tr>
+            <tr><td class="mono">App.js</td><td class="num">630</td><td>Title bar (workspace menu, model switcher, Launch, Save), navigation and its one leave check, the Configuration rail, the shared data definitions, and the Screens editor's state</td></tr>
+            <tr><td class="mono">shell/appAreas.js</td><td class="num">107</td><td>The two workspaces and every area: label, rail group, icon, Save wording, whether it uses the model or shows Launch</td></tr>
             <tr><td class="mono">shell/AreaRail.jsx</td><td class="num">59</td><td>The left rail, in groups; both workspaces use it</td></tr>
             <tr><td class="mono">shell/areaIcons.jsx</td><td class="num">41</td><td>Rail icons for the page-builder and data areas</td></tr>
             <tr><td class="mono">shell/appRail.css</td><td class="num">154</td><td>Rail styles (<span class="mono">app-rail-*</span>), shared with the Operator's right rail</td></tr>
@@ -1098,14 +1102,16 @@
       </div>
 
       <h3>The loaded model: <span class="mono">src/model/</span></h3>
-      <p>The active industry model, read by the Operator side, Visualization and Screens alike. <span class="mono">modelData.js</span> is the only file that writes it.</p>
+      <p>The active industry model, read by the Operator side, Visualization, Screens and Asset Sets alike. <span class="mono">modelData.js</span> is the only file that writes it.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
             <tr><td class="mono">modelData.js</td><td class="num">232</td><td>The 23 model-data variables, the model's timeline, and <span class="mono">activateLoadedModel</span>, the one loader that writes them</td></tr>
             <tr><td class="mono">assetQueries.js</td><td class="num">343</td><td>Read-only questions about the model: an asset's properties and series, type ids and labels, related assets, attention item &rarr; asset and explanation</td></tr>
-            <tr><td class="mono">useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; used by <span class="mono">OperatorWorkspace</span> and <span class="mono">ScreensWorkspace</span>, and skips the fetch when that model is already active</td></tr>
+            <tr><td class="mono">assetSets.js</td><td class="num">296</td><td>Asset sets: the kinds, <span class="mono">resolveAssetSet</span> (picked or rule → ordered asset ids, plus the narrowing steps), and helpers for the editor</td></tr>
+            <tr><td class="mono">assetSets.test.js</td><td class="num">120</td><td>12 tests of the resolver against the real wind pack (<span class="mono">npx react-scripts test --watchAll=false src/model</span>)</td></tr>
+            <tr><td class="mono">useLoadedModel.js</td><td class="num">82</td><td>Fetches the title bar's model and makes it active; used by <span class="mono">OperatorWorkspace</span>, <span class="mono">ScreensWorkspace</span> and <span class="mono">AssetSetsWorkspace</span>, and skips the fetch when that model is already active</td></tr>
             <tr><td class="mono">modelRegistry.js</td><td class="num">95</td><td>Reads and checks <span class="mono">models.json</span>; each model's file list</td></tr>
           </tbody>
         </table>
@@ -1186,8 +1192,14 @@
             <tr><td class="mono">screens/ScreenView.jsx</td><td class="num">54</td><td>A saved page, read-only</td></tr>
             <tr><td class="mono">screens/usePageQueryResults.js</td><td class="num">68</td><td>Runs a page's query instances and keeps the results fresh</td></tr>
             <tr><td class="mono">screens/widgetBindings.js</td><td class="num">137</td><td>Static props + bindings &rarr; the props a widget renders with</td></tr>
-            <tr><td class="mono">DefinitionWorkspace.jsx</td><td class="num">145</td><td>The list + editor shell behind Data Sources, Entities and Queries</td></tr>
+            <tr><td class="mono">DefinitionWorkspace.jsx</td><td class="num">145</td><td>The list + editor shell behind Data Sources, Entities, Queries and Asset Sets</td></tr>
             <tr><td class="mono">useDefinitionDraft.js</td><td class="num">38</td><td>Draft, dirty check and save for a simple form editor</td></tr>
+            <tr><td class="mono">useStoredDefinitions.js</td><td class="num">43</td><td>A definition list held in state and saved on every change (add / update / remove); App holds asset sets with it</td></tr>
+            <tr><td class="mono">assetSets/AssetSetsWorkspace.jsx</td><td class="num">71</td><td>The Asset Sets area: loads the model, lists that model's sets (name, size, what it resolves to)</td></tr>
+            <tr><td class="mono">assetSets/AssetSetEditor.jsx</td><td class="num">139</td><td>One set: name, kind (Picked / Rule / Query), the picked-assets tree, and the preview beside it</td></tr>
+            <tr><td class="mono">assetSets/RuleEditor.jsx</td><td class="num">169</td><td>A rule's form, in the order it applies: where to look, types, attention, conditions, best / worst N</td></tr>
+            <tr><td class="mono">assetSets/AssetSetPreview.jsx</td><td class="num">118</td><td>What a set resolves to now: count, how the rule narrowed it, a count by type, the assets with the values it filters and ranks by</td></tr>
+            <tr><td class="mono">assetSets/assetSetOptions.js</td><td class="num">27</td><td>The editor's asset and type choice lists, cached per model</td></tr>
             <tr><td class="mono">WidgetsWorkspace.jsx</td><td class="num">75</td><td>The Widgets area: the widget catalog browser</td></tr>
             <tr><td class="mono">ScriptsWorkspace.jsx</td><td class="num">18</td><td>The Scripts area (placeholder)</td></tr>
           </tbody>
@@ -1204,7 +1216,7 @@
             <tr><td>Theme</td><td><span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span></td></tr>
             <tr><td>Data definitions</td><td><span class="mono">DataSourcesWorkspace</span> (736), <span class="mono">QueriesWorkspace</span> (729), <span class="mono">EntitiesWorkspace</span>, <span class="mono">dataModel</span> (538), <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span></td></tr>
             <tr><td>Shared components</td><td><span class="mono">DataListGrid</span> (passes a row click on once), <span class="mono">HierarchyTree</span></td></tr>
-            <tr><td>Storage</td><td>20 <span class="mono">*Storage.js</span> files, each a load/save pair for one localStorage key. 15 hold Operator and Visualization settings (type and asset templates, visibility, order, the last selection and navigation); the rest hold pages, query instances, entities, data sources and queries.</td></tr>
+            <tr><td>Storage</td><td>21 <span class="mono">*Storage.js</span> files, each a load/save pair for one localStorage key. 15 hold Operator and Visualization settings (type and asset templates, visibility, order, the last selection and navigation); the rest hold pages, query instances, entities, data sources, queries and asset sets.</td></tr>
             <tr><td>Kept for later</td><td><span class="mono">dev_extreme_asset_screen_wizard.jsx</span> (not imported; leave it in place)</td></tr>
           </tbody>
         </table>
@@ -1257,6 +1269,7 @@
             <tr><td>Designer 4b</td><td>The area rail and the two workspaces</td></tr>
             <tr><td>Models</td><td>Refinery, water and wastewater converted to the generic format; the legacy formats, the Issue Map and Line Detail removed</td></tr>
             <tr><td>Designer model</td><td>Screens (Data tab, Create wizard) reads the loaded model; the loader became <span class="mono">useLoadedModel</span>, and the model files moved from <span class="mono">operator/model/</span> to <span class="mono">src/model/</span>. <span class="mono">assetData.js</span> and the unused <span class="mono">NavRail.jsx</span> removed</td></tr>
+            <tr><td>Asset Sets</td><td>A new Data area for named asset sets (picked or rule, with an optional start asset), resolved in <span class="mono">model/assetSets.js</span>. Also: switching model asks the open area to confirm like navigating does; <span class="mono">DataListGrid</span> keys computed columns by caption (fixed a React key warning)</td></tr>
           </tbody>
         </table>
       </div>

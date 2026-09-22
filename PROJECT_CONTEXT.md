@@ -30,10 +30,11 @@ folder and commit/push yourself. Claude doesn't commit or push.
 Aetherium is a React + DevExtreme 25.x app with two main halves:
 
 - **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
-  Entities, Queries, Scripts) — the original app, now areas on the
-  Configuration Experience's left rail, alongside Visualization (see "The
-  designer half"). The model switcher applies in Visualization and
-  Screens, and is dimmed in the other areas, which don't use a model yet.
+  Entities, Queries, Asset Sets, Scripts) — the original app, now areas on
+  the Configuration Experience's left rail, alongside Visualization (see
+  "The designer half"). The model switcher applies in Visualization,
+  Screens and Asset Sets, and is dimmed in the other areas, which don't
+  use a model.
 - **The Operator/Configurator interface** — a next-gen industrial HMI
   concept: a thin `OperatorWorkspace.jsx` shell plus 45 modules and 7
   stylesheets, all under `src/operator/`. This is where essentially all recent work has
@@ -69,7 +70,7 @@ The app has two workspaces, picked from the title-bar menu: the
 **Operator Experience** and the **Configuration Experience**. The
 Configuration Experience's left rail holds Visualization (below), then the
 page-builder areas (Design: Screens, Widgets, Theme) and the data
-definitions (Data: Data Sources, Entities, Queries, Scripts) — see "The
+definitions (Data: Data Sources, Entities, Queries, Asset Sets, Scripts) — see "The
 designer half". `OperatorWorkspace.jsx` renders both the Operator
 Experience and Visualization, differently depending on `operatorPersona`:
 
@@ -143,20 +144,36 @@ side calls `AssetCardsView`/`AssetDiagramView` more directly via
 underneath, so the type/asset fallback above applies identically in
 either mode without extra work.
 
-## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries)
+## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries, Asset Sets)
 
 Not refactored the way the Operator side was — it isn't seven comparable
 areas. Screens is the big one (its own folder, below); Theme, Widgets and
-Scripts are small; Data Sources, Entities and Queries are "a list of
-definitions plus an editor".
+Scripts are small; Data Sources, Entities, Queries and Asset Sets are "a
+list of definitions plus an editor".
 
-Those three now share `src/designer/DefinitionWorkspace.jsx`: it owns
+Those four share `src/designer/DefinitionWorkspace.jsx`: it owns
 selection, the confirm-before-losing-edits prompt, and publishing the open
 editor's dirty state to `unsavedChangesStore` — the same store the
 Configurator uses, which is what puts the amber dot on the title-bar Save.
 Each area supplies its nouns, its list columns and its editor. An editor
 exposes `isDirty()` and `save()` on its ref and reports dirty changes;
 `useDefinitionDraft` does both halves of that for a simple form editor.
+
+**Asset sets** (`src/model/assetSets.js`, area in `src/designer/assetSets/`)
+are named ways of producing a list of asset ids from the loaded model —
+the groundwork for a repeater widget that draws a screen per asset.
+Kinds: *picked* (a hand-chosen list), *rule* (where to look, types,
+attention, property conditions, and optionally the lowest/highest N by a
+property — best/worst performers) and *query* (placeholder, not built).
+A rule can look under a *start* asset given when it's used, the way a
+query takes inputs, so "Turbines of a feeder" is one definition a feeder
+screen would pass itself to. A set belongs to one model (`modelId`); the
+area loads the title bar's model and lists that model's sets.
+`resolveAssetSet(set, { start })` returns the ids plus the narrowing
+steps the editor's preview shows. App holds the list with
+`designer/useStoredDefinitions.js` (the other definition lists still have
+hand-written handlers of the same shape). Switching model asks the open
+area the same leave question as navigating away.
 
 The workspaces and their areas are listed once, in
 `src/shell/appAreas.js`: label, rail group, icon, and what the title-bar
@@ -233,12 +250,13 @@ state vs. drawing:
   data, and `OperatorWorkspaceInner`, which owns the shared state and
   arranges the panels into slots. Everything it renders sits beside it.
 - `src/model/` — the active model, shared by the Operator side,
-  Visualization and Screens: its data (`modelData.js`: the module-level
-  variables and the loader that writes them; nothing else assigns them),
-  read-only questions about it (`assetQueries.js`), `useLoadedModel.js`
-  (the hook that fetches a model and makes it active, used by
-  OperatorWorkspace and ScreensWorkspace), and `modelRegistry.js` (reads
-  `models.json`).
+  Visualization, Screens and Asset Sets: its data (`modelData.js`: the
+  module-level variables and the loader that writes them; nothing else
+  assigns them), read-only questions about it (`assetQueries.js`),
+  `useLoadedModel.js` (the hook that fetches a model and makes it active,
+  used by OperatorWorkspace, ScreensWorkspace and AssetSetsWorkspace),
+  `modelRegistry.js` (reads `models.json`), and `assetSets.js` (resolving
+  asset sets, with its tests beside it).
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
@@ -338,10 +356,12 @@ class names match, as of phase 5: `op-property-tile-*`,
   that prompts ask twice.
 - `src/designer/` — pieces shared by the designer areas:
   `DefinitionWorkspace` (the list + editor shell behind Data Sources,
-  Entities and Queries) and `useDefinitionDraft`; `screens/` holds the
-  Screens area — the editor (`ScreensWorkspace`, `useScreenEditor`,
-  `screenEdits`) and the read-only renderer (`ScreenView`,
-  `usePageQueryResults`, `widgetBindings`).
+  Entities, Queries and Asset Sets), `useDefinitionDraft` and
+  `useStoredDefinitions`; `screens/` holds the Screens area — the editor
+  (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`) and the read-only
+  renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`);
+  `assetSets/` holds the Asset Sets area (workspace, editor, rule form,
+  preview).
 - `public/data/<model>/*.json` — per-model data, 8 files per pack
   (`assets`, `asset-relationships`, `properties`, `asset-values`,
   `asset-telemetry`, `unit-status`, `attention-items`, `work-items`;

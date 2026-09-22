@@ -32,7 +32,7 @@
 import { VisualizationRailIcon } from '../operator/icons';
 import {
   ScreensRailIcon, WidgetsRailIcon, ThemeRailIcon,
-  DataSourcesRailIcon, EntitiesRailIcon, QueriesRailIcon, ScriptsRailIcon,
+  DataSourcesRailIcon, EntitiesRailIcon, QueriesRailIcon, AssetSetsRailIcon, ScriptsRailIcon,
 } from './areaIcons';
 
 const UNSAVED = 'You have unsaved changes — save them';
@@ -85,6 +85,11 @@ export const APP_AREAS = [
   {
     id: 'queries', workspace: 'configurator', railGroup: 'data', view: 'queries', label: 'Queries', Icon: QueriesRailIcon,
     save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this query' },
+  },
+  {
+    id: 'assetsets', workspace: 'configurator', railGroup: 'data', view: 'assetsets', label: 'Asset Sets', Icon: AssetSetsRailIcon,
+    usesModel: true,
+    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this asset set' },
   },
   { id: 'scripts', workspace: 'configurator', railGroup: 'data', view: 'scripts', label: 'Scripts', Icon: ScriptsRailIcon, save: null },
 ];

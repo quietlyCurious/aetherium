@@ -88,9 +88,11 @@ const DataListGrid = React.forwardRef(function DataListGrid({
       <Scrolling mode="virtual" />
       <Paging defaultPageSize={pageSize} />
       {reorderable && dragColumnWidth && <Column type="drag" width={dragColumnWidth} minWidth={dragColumnWidth} />}
-      {columns.map(col => (
+      {columns.map((col, i) => (
         <Column
-          key={col.dataField}
+          // Computed columns (calculateCellValue / cellRender only) have no
+          // dataField, so fall back to the caption for a unique key.
+          key={col.dataField ?? col.caption ?? i}
           dataField={col.dataField}
           caption={col.caption}
           width={col.width}

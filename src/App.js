@@ -3,7 +3,7 @@
 // Save), which area is showing, and the data every designer area shares.
 //
 // Each area draws itself — OperatorWorkspace, ScreensWorkspace, the
-// definition workspaces (Data Sources, Entities, Queries), ThemeWorkspace,
+// definition workspaces (Data Sources, Entities, Queries, Asset Sets), ThemeWorkspace,
 // WidgetsWorkspace, ScriptsWorkspace. The workspaces and their areas —
 // names, rail groups, what Save says — are shell/appAreas.js. What stays
 // here is what spans areas: the title bar (workspace menu, model switcher,
@@ -45,6 +45,10 @@ import { makeNewEntity } from './entityModel';
 import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
+import { loadAssetSets, saveAssetSets } from './assetSetsStorage';
+import AssetSetsWorkspace from './designer/assetSets/AssetSetsWorkspace';
+import { useStoredDefinitions } from './designer/useStoredDefinitions';
+import { makeNewAssetSet } from './model/assetSets';
 import { loadOperatorNavigation, saveOperatorNavigation } from './operatorNavigationStorage';
 import { loadModelRegistry } from './model/modelRegistry';
 import ThemeWorkspace from './ThemeWorkspace';
@@ -58,6 +62,10 @@ import { AreaRail } from './shell/AreaRail';
 import './shell/appRail.css';
 import { generateDataId, DEFAULT_DATA_SOURCE, DEFAULT_QUERY } from './dataModel';
 import { useHasUnsavedChanges } from './unsavedChangesStore';
+
+// A new asset set, for useStoredDefinitions. Module-level so it stays the
+// same function between renders.
+const makeAssetSet = (extra) => makeNewAssetSet({ id: generateDataId(), ...extra });
 
 // Deep-link routing for the two Operator Workspace personas — a plain
 // read-the-path-on-load / replaceState-as-you-navigate scheme, matching
@@ -89,7 +97,7 @@ function AetheriumEditor() {
   // ── Moving between areas ─────────────────────────────────────────────────
   // Only the area being left is asked (its handle's confirmLeave — see
   // areaHandles below):
-  //  - Data Sources, Entities, Queries: confirm; leaving drops the unsaved
+  //  - Data Sources, Entities, Queries, Asset Sets: confirm; leaving drops the unsaved
   //    edits, since their editor unmounts.
   //  - Visualization: the Configurator's Save/Discard dialog. Always goes
   //    ahead.
@@ -184,6 +192,7 @@ function AetheriumEditor() {
   const entitiesWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger entity-data save
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
+  const assetSetsWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
   // Whether the open area has unsaved changes — every area with something
   // to save publishes here. Drives the Save button's amber marker.
@@ -194,6 +203,9 @@ function AetheriumEditor() {
     saveOperatorNavigation({ currentView, operatorPersona, selectedModel });
   }, [currentView, operatorPersona, selectedModel]);
   const [queries,          setQueries]          = useState(() => loadQueries());  // Query definitions
+  // Asset sets: named lists of assets from a model (model/assetSets.js).
+  // Held here with the other definitions so Screens can read them too.
+  const assetSets = useStoredDefinitions({ load: loadAssetSets, save: saveAssetSets, makeNew: makeAssetSet });
 
   // The Screens editor: the saved screens, the page on the canvas and
   // everything done to it (see designer/screens/useScreenEditor).
@@ -209,6 +221,7 @@ function AetheriumEditor() {
     datasources: dataSourcesWorkspaceRef,
     entities: entitiesWorkspaceRef,
     queries: queriesWorkspaceRef,
+    assetsets: assetSetsWorkspaceRef,
     operator: operatorWorkspaceRef,
   };
   const confirmLeaveCurrentArea = async () => (await areaHandles[currentView]?.current?.confirmLeave?.()) ?? true;
@@ -346,9 +359,9 @@ function AetheriumEditor() {
             </div>
           )}
         </div>
-        {/* The industry model drives the Operator, Visualization and
-            Screens (its Data tab and Create wizard). The other areas don't
-            use it yet, so there it's shown dimmed and can't be opened. */}
+        {/* The industry model drives the Operator, Visualization, Screens
+            (its Data tab and Create wizard) and Asset Sets. The other areas
+            don't use it, so there it's shown dimmed and can't be opened. */}
         {(() => {
           const modelApplies = !!currentArea?.usesModel;
           return (
@@ -378,7 +391,9 @@ function AetheriumEditor() {
                     className={`app-titlebar-dropdown-item${selectedModel === m.id ? ' active' : ''}`}
                     onClick={async () => {
                       setModelMenuOpen(false);
-                      if (m.id !== selectedModel) await operatorWorkspaceRef.current?.resolveUnsavedChanges?.();
+                      // Switching model replaces what the open area shows,
+                      // so it gets the same leave check as navigating away.
+                      if (m.id !== selectedModel && !(await confirmLeaveCurrentArea())) return;
                       setSelectedModel(m.id);
                     }}
                   >
@@ -515,6 +530,16 @@ function AetheriumEditor() {
             onAdd={handleAddQuery}
             onUpdate={handleUpdateQuery}
             onDelete={handleDeleteQuery}
+          />
+
+        ) : currentView === 'assetsets' ? (
+          <AssetSetsWorkspace
+            ref={assetSetsWorkspaceRef}
+            assetSets={assetSets.items}
+            selectedModel={selectedModel}
+            onAdd={assetSets.add}
+            onUpdate={assetSets.update}
+            onDelete={assetSets.remove}
           />
 
         ) : currentView === 'scripts' ? (
