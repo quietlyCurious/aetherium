@@ -16,6 +16,7 @@ import { ROOT_CONTAINER_ID } from '../../containerModel';
 import { findContainerById } from '../../containerTree';
 import { AssetPicker } from '../AssetPicker';
 import { ScreenAssetProvider } from './screenAsset';
+import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
 
 // What the screen is about, and which asset it's showing. Nothing for a
 // plain page.
@@ -203,6 +204,16 @@ function ScreenCanvasToolbar({ editor, self }) {
 
 export function ScreenCanvas({ editor, self }) {
   const { containers, previewWidth, previewHeight, paintbrush } = editor;
+  // A Tile or a Card is designed at the size it will be drawn at, so the
+  // canvas frames it rather than letting it fill the window — otherwise
+  // you'd lay out a 220×140 tile in a 1200px space and only find out how
+  // it really looks inside a repeater. A Page fills, as before, and a
+  // chosen device preview wins over both: that's someone asking for a
+  // particular frame on purpose.
+  const sizeId = pageSizeOf(containers);
+  const box = fillsFrame(sizeId) ? null : sizeBox(sizeId);
+  const frameWidth = previewWidth || box?.width || null;
+  const frameHeight = previewHeight || box?.height || null;
   return (
     <div className="app-panel app-panel--center">
       <ScreenCanvasToolbar editor={editor} self={self} />
@@ -216,18 +227,18 @@ export function ScreenCanvas({ editor, self }) {
           width: '100%', height: '100%',
           overflow: 'auto',
           display: 'flex',
-          alignItems: previewWidth ? 'flex-start' : 'stretch',
-          justifyContent: previewWidth ? 'center' : 'stretch',
-          padding: previewWidth ? 24 : 0,
+          alignItems: frameWidth ? 'flex-start' : 'stretch',
+          justifyContent: frameWidth ? 'center' : 'stretch',
+          padding: frameWidth ? 24 : 0,
           boxSizing: 'border-box',
-          background: previewWidth ? '#e8e8e8' : 'transparent',
+          background: frameWidth ? '#e8e8e8' : 'transparent',
         }}>
           <div style={{
-            width: previewWidth ? previewWidth : '100%',
-            height: previewHeight ? previewHeight : '100%',
+            width: frameWidth ? frameWidth : '100%',
+            height: frameHeight ? frameHeight : '100%',
             flexShrink: 0,
             background: '#fff',
-            boxShadow: previewWidth ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
+            boxShadow: frameWidth ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
             overflow: 'hidden',
             position: 'relative',
           }}>

@@ -188,3 +188,80 @@
 .self-tree-value { font-size: 11px; color: #0055aa; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .self-tree-value--missing { color: #b7791f; font-style: italic; }
 .self-tree-partial { background: #fff6e5 !important; color: #9a5b00 !important; }
+
+/* ── Repeaters ────────────────────────────────────────────────────────────── */
+/* A container that draws a screen per asset (designer/screens/screenRepeat). */
+/* Every item gets the box its size defines (designer/screens/screenSizes).
+   A screen smaller than the box — a Tile found where a Card was asked
+   for — is centred in it rather than stretched. */
+.screen-repeat-item {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* A screen whose content runs past its own box still scrolls rather
+     than being silently cut off. */
+  overflow: auto;
+  position: relative;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.screen-repeat-item-inner {
+  flex-shrink: 0;
+  overflow: auto;
+  position: relative;
+}
+
+/* The card Visualization's property config gives an asset whose type has
+   no screen at that size yet (designer/screens/generatedCard). */
+.screen-generated-card {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.screen-generated-card > .op-property-tiles-singlebox { flex: 1; min-height: 0; }
+
+.screen-repeat-note {
+  font-size: 11px;
+  color: #7a6000;
+  background: #fffbe6;
+  border: 1px solid #ffe08a;
+  border-radius: 4px;
+  padding: 6px 9px;
+  margin: 4px;
+  align-self: flex-start;
+}
+
+.screen-repeat-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: #fafafa;
+  color: #888;
+  text-align: center;
+  padding: 8px;
+}
+
+.screen-repeat-placeholder-name { font-size: 12px; font-weight: 600; color: #555; }
+.screen-repeat-placeholder-note { font-size: 10.5px; }
+
+/* The Repeat section's live summary in the details panel. */
+.details-grid-note {
+  grid-column: 1 / -1;
+  font-size: 10.5px;
+  color: #777;
+  line-height: 1.5;
+  padding: 5px 0 2px;
+}
+
+.details-grid-warn { color: #9a5b00; }

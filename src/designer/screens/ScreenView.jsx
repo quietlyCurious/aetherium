@@ -19,6 +19,7 @@
 import ContainerCard from '../../ContainerCard';
 import { BASE_TIER_ID } from '../../containerModel';
 import { ScreenAssetProvider } from './screenAsset';
+import { registerScreenRenderer } from './screenRepeat';
 
 const NOOP = () => {};
 
@@ -58,3 +59,8 @@ export function ScreenView({ containers, queryResults = null, queries = null, as
     </ScreenAssetProvider>
   );
 }
+
+// A repeater draws a screen per asset; this is what it draws them with.
+// Registered rather than imported, to keep ScreenView → ContainerCard →
+// screenRepeat from becoming a circle.
+registerScreenRenderer(ScreenView);

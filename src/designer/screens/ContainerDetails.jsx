@@ -6,8 +6,9 @@
 //   Slot           its size and place inside its parent — flex, or
 //                  coordinate offsets when the parent is a coordinate layout
 //   Box            padding, margin, border, overflow, background, type
-//   General        name, lock, parent; page type for the root; and in a
-//                  breakpoint tier, visibility and clearing its overrides
+//   General        name, lock, parent; for the root its page type, size
+//                  and what it's about; and in a breakpoint tier,
+//                  visibility and clearing its overrides
 // In a breakpoint tier other than the base, Slot shows and edits that
 // tier's overrides (useScreenEditor.updateSlot sends them there).
 //
@@ -27,10 +28,14 @@ import { evaluateExpression } from '../../expressionEval';
 import { buildDefaultCells, migrateGridCells } from '../../GridEditor';
 import { textField as ti, selectField as sb, overflowField, OverflowWarning } from './detailsFields';
 import { describeAssetBinding, PATH_ERRORS } from '../../model/assetPaths';
-import { CURRENT_ASSET_MAP } from '../../model/modelData';
+import { CURRENT_ASSET_MAP, CURRENT_MODEL } from '../../model/modelData';
 import { assetBindingProblem } from './widgetBindings';
 import { assetBindingsOf } from './screenAsset';
 import { typeOptions } from '../modelOptions';
+import { DEFAULT_REPEAT, repeatScreenSummary, resolveRepeat } from './screenRepeat';
+import { DEFAULT_SCREEN_SIZE, describeSize, sizeBox, sizeLabel, sizeOptions } from './screenSizes';
+import { needsStart } from '../../model/assetSets';
+import { AssetPicker } from '../AssetPicker';
 
 // Float w/h ratios. null = Free (no constraint).
 const ASPECT_RATIO_PRESETS = [
@@ -147,7 +152,109 @@ function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) 
   );
 }
 
-function LayoutTab({ editor, layout, lockedClass }) {
+// Makes a container repeat an asset set: a screen per asset it finds
+// (screenRepeat.jsx). Shows what the set resolves to right now and which
+// screen each type gets, so a mixed set is visible without opening items.
+function RepeatSection({ editor, self, assetSets, container }) {
+  const NONE = '__none__';
+  const id = container.id;
+  const repeat = { ...DEFAULT_REPEAT, ...(container.repeat || {}) };
+  const isRepeating = !!container.repeat?.assetSetId;
+  // Only the loaded model's sets: another model's ids mean nothing here.
+  const modelSets = (assetSets || []).filter(s => s.modelId === CURRENT_MODEL);
+  const setOptions = [{ id: NONE, name: "Doesn't repeat" }, ...modelSets.map(s => ({ id: s.id, name: s.name || '(unnamed set)' }))];
+  const chosenSet = modelSets.find(s => s.id === repeat.assetSetId) || null;
+  const update = (changes) => editor.setContainerRepeat(id, { ...repeat, ...changes });
+
+  const { assetIds, total, error } = isRepeating
+    ? resolveRepeat(repeat, { selfAssetId: self.assetId, assetSets })
+    : { assetIds: [], total: 0, error: null };
+  const summary = isRepeating && !error ? repeatScreenSummary(assetIds, repeat, editor.pages) : [];
+  const screenOptions = (editor.pages || []).map(p => ({ id: p.id, name: p.name || '(unnamed screen)' }));
+
+  return (
+    <div className="details-section"><div className="details-grid">
+      <span className="details-section-title">Repeat</span>
+      <span className="details-grid-label">Asset set</span>
+      <div className="details-grid-control">
+        <SelectBox
+          dataSource={setOptions} valueExpr="id" displayExpr="name" searchEnabled
+          value={repeat.assetSetId || NONE}
+          onValueChanged={e => {
+            if (!e.value) return;
+            if (e.value === NONE) editor.setContainerRepeat(id, null);
+            else update({ assetSetId: e.value });
+          }}
+          stylingMode="outlined" width="100%" height={24}
+        />
+      </div>
+      {isRepeating && (<>
+        {chosenSet && needsStart(chosenSet) && (<>
+          <span className="details-grid-label">Starts from</span>
+          <div className="details-grid-control">
+            {sb(['this screen’s asset', 'a specific asset'], repeat.start === 'self' ? 'this screen’s asset' : 'a specific asset',
+              v => update({ start: v === 'this screen’s asset' ? 'self' : { assetId: null } }))}
+          </div>
+          {repeat.start !== 'self' && (<>
+            <span className="details-grid-label">Asset</span>
+            <div className="details-grid-control">
+              <AssetPicker value={repeat.start?.assetId} onChange={assetId => update({ start: { assetId } })} />
+            </div>
+          </>)}
+        </>)}
+        <span className="details-grid-label">Item screen</span>
+        <div className="details-grid-control">
+          {sb(['by type', 'one screen'], repeat.itemScreen?.mode === 'fixed' ? 'one screen' : 'by type',
+            v => update({ itemScreen: { mode: v === 'one screen' ? 'fixed' : 'byType', pageId: repeat.itemScreen?.pageId ?? null } }))}
+        </div>
+        {repeat.itemScreen?.mode === 'fixed' && (<>
+          <span className="details-grid-label">Screen</span>
+          <div className="details-grid-control">
+            <SelectBox
+              dataSource={screenOptions} valueExpr="id" displayExpr="name" searchEnabled
+              value={repeat.itemScreen?.pageId || null} placeholder="Choose a screen…"
+              onValueChanged={e => e.value && update({ itemScreen: { mode: 'fixed', pageId: e.value } })}
+              stylingMode="outlined" width="100%" height={24}
+            />
+          </div>
+        </>)}
+        {repeat.itemScreen?.mode !== 'fixed' && (<>
+          <span className="details-grid-label">Item size</span>
+          <div className="details-grid-control" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 3 }}>
+            <SelectBox
+              dataSource={sizeOptions()} valueExpr="id" displayExpr="name"
+              value={repeat.itemSize || DEFAULT_REPEAT.itemSize}
+              onValueChanged={e => e.value && update({ itemSize: e.value })}
+              stylingMode="outlined" width="100%" height={24}
+            />
+            <span style={{ fontSize: 10, color: '#888' }}>
+              Each type's {sizeLabel(repeat.itemSize || DEFAULT_REPEAT.itemSize)} screen · {sizeBox(repeat.itemSize || DEFAULT_REPEAT.itemSize).width}×{sizeBox(repeat.itemSize || DEFAULT_REPEAT.itemSize).height}
+            </span>
+          </div>
+        </>)}
+        <span className="details-grid-label">At most</span>
+        <div className="details-grid-control">{ti(repeat.max, '24', v => update({ max: Math.max(1, parseInt(v) || DEFAULT_REPEAT.max) }), 'number')}</div>
+        <div className="details-grid-note">
+          {error ? <span className="details-grid-warn">{error}.</span> : (<>
+            <div><b>{total}</b> asset{total === 1 ? '' : 's'}{total > assetIds.length ? `, drawing ${assetIds.length}` : ''}</div>
+            {summary.map(row => (
+              <div key={row.typeLabel}>
+                {row.count} × {row.typeLabel} → {row.screenName
+                  ? <span>{row.screenName}</span>
+                  : row.source === 'generated'
+                    ? <span style={{ color: '#888' }}>a generated card</span>
+                    : <span className="details-grid-warn">nothing to draw</span>}
+              </div>
+            ))}
+            {container.children?.length > 0 && <div className="details-grid-warn">This container's own {container.children.length} child{container.children.length === 1 ? '' : 'ren'} aren't drawn while it repeats.</div>}
+          </>)}
+        </div>
+      </>)}
+    </div></div>
+  );
+}
+
+function LayoutTab({ editor, self, assetSets, container, layout, lockedClass }) {
   const id = editor.selectedContainerId;
   const set = (update) => editor.updateLayout(id, update);
   // Changing the column or row count also remaps the cells, so merged
@@ -158,6 +265,7 @@ function LayoutTab({ editor, layout, lockedClass }) {
   };
   return (
     <div className={`details-tab-content${lockedClass}`}>
+      <RepeatSection editor={editor} self={self} assetSets={assetSets} container={container} />
       <div className="details-section"><div className="details-grid">
         <span className="details-section-title">Layout</span>
         <span className="details-grid-label">Type</span><div className="details-grid-control">{sb(['flex','coordinate','grid'],layout.layoutType,v=>set({layoutType:v}))}</div>
@@ -377,6 +485,26 @@ function BoxTab({ editor, slot, lockedClass }) {
   );
 }
 
+// How big this screen is meant to be (screenSizes.js). It's what a
+// repeater asks for by name — "the Card for this type" — so it matters
+// even for a screen nobody has repeated yet.
+function PageSizeField({ editor, container }) {
+  const size = container.pageSize || DEFAULT_SCREEN_SIZE;
+  return (<>
+    <span className="details-grid-label">Size</span>
+    <div className="details-grid-control" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 3 }}>
+      <SelectBox
+        dataSource={sizeOptions()} valueExpr="id" displayExpr="name"
+        value={size}
+        onValueChanged={e => e.value && editor.setPageSizeId(e.value)}
+        itemRender={s => <span>{s.name}<span style={{ color: '#999' }}> · {s.note}</span></span>}
+        stylingMode="outlined" width="100%" height={24}
+      />
+      <span style={{ fontSize: 10, color: '#888' }}>{describeSize(size)}</span>
+    </div>
+  </>);
+}
+
 // What the page is about: none (a plain page) or a type from the loaded
 // model. Changing it checks the page's asset bindings first (see
 // screenSelfOf.changeType).
@@ -484,6 +612,7 @@ function GeneralTab({ editor, self, container, title, parentContainer, isBase, t
             <span className="details-section-title">Page</span>
             <span className="details-grid-label">Type</span>
             <div className="details-grid-control">{sb(['fit','fixed','vertical fixed','horizontal fixed'], container.pageType || 'fit', v => editor.updatePageType(id, v))}</div>
+            <PageSizeField editor={editor} container={container} />
             <PageAboutField self={self} containers={editor.containers} />
           </div>
         </div>
@@ -492,7 +621,7 @@ function GeneralTab({ editor, self, container, title, parentContainer, isBase, t
   );
 }
 
-export function ContainerDetails({ editor, queries, self }) {
+export function ContainerDetails({ editor, queries, self, assetSets }) {
   useWidgetPropertyOverrides(); // re-render if the Widgets area saves a change
   const { containers, selectedContainerId, activeTierId } = editor;
   const flat = flattenContainers(containers);
@@ -536,7 +665,7 @@ export function ContainerDetails({ editor, queries, self }) {
 
         {!container.isWidget && container.id !== ROOT_CONTAINER_ID && (
           <TabPanelItem title="Layout">
-            <LayoutTab editor={editor} layout={layout} lockedClass={lockedClass} />
+            <LayoutTab editor={editor} self={self} assetSets={assetSets} container={container} layout={layout} lockedClass={lockedClass} />
           </TabPanelItem>
         )}
 

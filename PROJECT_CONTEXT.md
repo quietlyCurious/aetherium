@@ -280,8 +280,53 @@ asset" view shows everything reachable from self with its values.
 Changing the type checks the page's asset bindings first and never
 removes them; ones that don't resolve keep the widget's static value and
 show a red ⚡! badge. Self reaches `ContainerCard` through a React context
-(`ScreenAssetProvider` / `useScreenAsset`), not props — which is also how
-a repeater will hand each item its own self.
+(`ScreenAssetProvider` / `useScreenAsset`), not props.
+
+**Screen sizes** (`designer/screens/screenSizes.js`): every screen is one
+of three fixed sizes — Tile (220×140), Card (360×280) or Page (fills
+whatever room it's given). It's `pageSize` on the root container, set
+from the Page's General details beside About, so it saves and
+dirty-tracks like any other edit; it sits next to the context rather than
+inside it, so clearing what a screen is about doesn't forget how big it
+is. Screens saved before sizes existed are Pages, which is what they
+were. The canvas and the Launch view frame a Tile or a Card at its own
+size (a chosen device preview still wins), and the saved-screens list
+badges anything that isn't a Page, since a type now usually has more than
+one screen. One screen is one size for now: a type's Tile and its Card
+are two saved screens. If that turns out tedious, the breakpoint tiers
+the canvas already has are where a single screen with three layouts would
+go.
+
+**Repeaters** (`designer/screens/screenRepeat.jsx`): a container with
+`repeat: { assetSetId, start, itemScreen, itemSize, max }` draws a screen
+per asset instead of its own children. The assets come from a saved asset
+set; a set that takes a start gets the screen's own asset by default (a
+feeder screen passes its feeder). Each item is wrapped in its own
+`ScreenAssetProvider`, so that asset is *self* inside it. Which screen it
+gets is a lookup by **type and size** — a repeater asks for, say, each
+type's Card — falling back the way Visualization does for a related
+asset's box:
+
+1. the screen about that asset's type at that size;
+2. a card generated from that type's Visualization property config
+   (`designer/screens/generatedCard.jsx`, which wraps the same
+   `operator/relatedAssets/AssetCard.jsx` the Operator's related-asset
+   views draw, titled with the asset's own name);
+3. a placeholder — now only for an id the model doesn't have.
+
+So a mixed set works, and a type nobody has designed for yet shows its
+real values rather than a gap: a screen for a type is an improvement on a
+sensible default, not a prerequisite. Every item gets the box its size
+defines (with one fixed screen for everything, that screen's own size
+decides); a screen smaller than its box is centred, not stretched.
+Nesting stops at `MAX_REPEAT_DEPTH`, and a screen already being drawn
+above can't appear inside itself. The saved screens and asset sets reach
+the repeater through `ScreenDataProvider` (the canvas and RuntimeView
+supply them). Set it up in the Layout tab's Repeat section, which shows
+what the set resolves to and which screen each type gets. `RuntimeView`
+loads the model a screen needs via `modelForScreen` — what it's about,
+or, for a plain screen whose only tie to a model is a repeater, that
+repeater's asset set's model.
 
 The Screens *editor* lives in the same folder, split the same way as
 state vs. drawing:
@@ -439,8 +484,10 @@ class names match, as of phase 5: `op-property-tile-*`,
   Entities, Queries and Asset Sets), `useDefinitionDraft`,
   `useStoredDefinitions`, and the model pickers `AssetPicker` and
   `modelOptions` (used by Asset Sets and Screens); `screens/` holds the Screens area — the editor
-  (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`) and the read-only
-  renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`);
+  (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`), the read-only
+  renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`), and
+  what a screen is about and how big it is (`screenAsset`, `screenSizes`,
+  `screenRepeat`, `generatedCard`);
   `assetSets/` holds the Asset Sets area (workspace, editor, rule form,
   preview).
 - `public/data/<model>/*.json` — per-model data, 8 files per pack

@@ -7,6 +7,7 @@ import GridEditor from './GridEditor';
 import WidgetPreview from './WidgetPreview';
 import { resolveWidgetProps, hasBrokenAssetBinding } from './designer/screens/widgetBindings';
 import { useScreenAsset } from './designer/screens/screenAsset';
+import { RepeatedItems } from './designer/screens/screenRepeat';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
   const isActive = dragState.beforeId === beforeId && dragState.overParentId === parentId;
@@ -480,6 +481,11 @@ function ContainerCard({
         style={{
           ...layoutStyle, ...bodyPaddingStyle,
           minHeight: 0, flex: 1, position: 'relative',
+          // A repeater's items are fixed boxes, so wrapped rows pack at
+          // the top rather than being spread down a tall container —
+          // otherwise five Tiles in a full-height container come out as
+          // one row at the top and one at the bottom.
+          ...(container.repeat?.assetSetId ? { alignContent: 'flex-start' } : null),
           // Overflow read from slot so user-set values (and breakpoint overrides) apply.
           // Falls back to 'auto' to match the historical hardcoded behaviour.
           overflowX: effectiveSlot?.overflowX || 'auto',
@@ -504,7 +510,16 @@ function ContainerCard({
         ))}
 
         {/* ── Main content ───────────────────────────────────────────────── */}
-        {container.layout?.layoutType === 'grid' ? (() => {
+        {/* A repeater draws a screen per asset from its set, instead of
+            its own children (designer/screens/screenRepeat.jsx). */}
+        {container.repeat?.assetSetId ? (
+          <RepeatedItems
+            repeat={container.repeat}
+            selfAssetId={screenAssetId}
+            queryResults={queryResults}
+            queries={queries}
+          />
+        ) : container.layout?.layoutType === 'grid' ? (() => {
           const cols  = container.layout.gridColumns || 2;
           const rows  = container.layout.gridRows    || 2;
           const cells = container.layout.gridCells   || buildDefaultCells(cols, rows);

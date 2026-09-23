@@ -38,7 +38,7 @@ import {
   makeWidgetContainer, dropIntoGridCell, applyLayoutUpdate, mergeCellContainers,
   updateSlotForTier, updateWidgetPropsForTier, updateCoordKeepingRatio,
   setAspectRatio, toggleHiddenForTier, clearTierOverrides, toggleLock,
-  setBinding, clearBinding, pickUpStyle, applyStyle, setPageContext,
+  setBinding, clearBinding, pickUpStyle, applyStyle, setPageContext, setPageSize, setRepeat,
 } from './screenEdits';
 import { usePageQueryInstances } from './usePageQueryInstances';
 
@@ -544,6 +544,19 @@ export function useScreenEditor({ queries }) {
     setContainers(prev => setPageContext(prev, context));
   };
 
+  // How big this screen is meant to be (screenSizes.js). Root only, like
+  // the context above.
+  const setPageSizeId = (size) => {
+    setContainers(prev => setPageSize(prev, size));
+  };
+
+  // Makes a container repeat a saved asset set (screenRepeat.jsx), or
+  // stops it (null).
+  const setContainerRepeat = (id, repeat) => {
+    if (isLocked(id)) return;
+    setContainers(prev => setRepeat(prev, id, repeat));
+  };
+
   const updatePageType = (id, pageType) => {
     setContainers(prev => updatePageTypeInTree(prev, id, pageType));
   };
@@ -592,7 +605,8 @@ export function useScreenEditor({ queries }) {
     updateLayout, mergeGridCells, updateSlot, updateCoord, setContainerAspectRatio,
     toggleVisibility, clearBreakpointOverrides, updatePageType,
     // what the screen is about
-    setPageContextType, chosenPreviewAssetId, choosePreviewAsset,
+    setPageContextType, setPageSizeId, chosenPreviewAssetId, choosePreviewAsset,
+    setContainerRepeat,
     // canvas tools
     focusMode, setFocusMode, showGap, setShowGap, coordMode, setCoordMode,
     snapEnabled, setSnapEnabled, snapSize, setSnapSize, snapGuides, setSnapGuides,

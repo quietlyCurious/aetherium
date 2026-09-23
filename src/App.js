@@ -569,7 +569,7 @@ function AetheriumEditor() {
 
 
         ) : (
-          <ScreensWorkspace editor={screens} queries={queries} selectedModel={selectedModel} />
+          <ScreensWorkspace editor={screens} queries={queries} assetSets={assetSets.items} selectedModel={selectedModel} />
         )}
         </div>
         </div>

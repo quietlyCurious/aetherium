@@ -13,6 +13,7 @@
 // never hidden behind a collapsed folder.
 
 import React, { useState } from 'react';
+import { DEFAULT_SCREEN_SIZE, pageSizeOf, sizeLabel } from './designer/screens/screenSizes';
 
 function sortByName(arr) {
   return [...arr].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -81,6 +82,12 @@ function ScreenRow({ page, isActive, isActiveDirty, indent, onOpen, onDelete, on
       <span style={{ fontSize: 12, color: page.name ? '#222' : '#aaa', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {page.name || '(untitled)'}
       </span>
+      {/* A type usually has more than one screen now — its Card and its
+          Tile — so the size is what tells them apart in the list. Page is
+          the default and goes unmarked. */}
+      {pageSizeOf(page.containers) !== DEFAULT_SCREEN_SIZE && (
+        <span className="tree-item-badge" style={{ flexShrink: 0 }}>{sizeLabel(pageSizeOf(page.containers))}</span>
+      )}
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(page.id); }}
         title="Delete screen"

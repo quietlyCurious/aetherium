@@ -30,6 +30,7 @@ import { ScreenCanvas } from './ScreenCanvas';
 import { ScreenDetailsPanel } from './ScreenDetailsPanel';
 import { useLoadedModel } from '../../model/useLoadedModel';
 import { screenSelfOf } from './screenAsset';
+import { ScreenDataProvider } from './screenRepeat';
 
 // Ctrl/Cmd+C and Ctrl/Cmd+V copy and paste the selected container; Esc
 // puts the paintbrush down and clears snap guides.
@@ -194,14 +195,17 @@ function InputBindingEditor({ editor }) {
   );
 }
 
-export function ScreensWorkspace({ editor, queries, selectedModel }) {
+export function ScreensWorkspace({ editor, queries, assetSets, selectedModel }) {
   const model = useLoadedModel(selectedModel);
   const self = screenSelfOf(editor, model);
   useCanvasShortcuts(editor);
   usePublishUnsaved(editor.isDirty);
   const wizard = useCreateWizard();
   return (
-    <>
+    // A repeater on the canvas needs the saved screens and asset sets, and
+    // the chain of screens already being drawn (this one) to stop a screen
+    // repeating itself.
+    <ScreenDataProvider assetSets={assetSets} pages={editor.pages} chain={editor.activePageId ? [editor.activePageId] : []}>
       <Splitter orientation="horizontal" style={{ height: '100%' }}>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
           <ScreensLeftPanel editor={editor} queries={queries} model={model} self={self} />
@@ -210,12 +214,12 @@ export function ScreensWorkspace({ editor, queries, selectedModel }) {
           <ScreenCanvas editor={editor} self={self} />
         </SplitterItem>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreenDetailsPanel editor={editor} queries={queries} self={self} onOpenWizard={wizard.open} />
+          <ScreenDetailsPanel editor={editor} queries={queries} self={self} assetSets={assetSets} onOpenWizard={wizard.open} />
         </SplitterItem>
       </Splitter>
       <CreateWizardPopup wizard={wizard} model={model} />
       <WidgetBindingEditor editor={editor} queries={queries} self={self} />
       <InputBindingEditor editor={editor} />
-    </>
+    </ScreenDataProvider>
   );
 }

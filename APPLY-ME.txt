@@ -1,0 +1,66 @@
+Screen sizes (and the repeater, in case that zip never got applied)
+==================================================================
+
+This zip is on top of 947bc51 "Exposing additional properties for widgets".
+Unzip it over the repo root — every file here is complete, so it applies
+cleanly whether or not aetherium-repeater.zip was ever applied. Nothing is
+committed or pushed; that's yours.
+
+One deletion the zip can't do for you
+-------------------------------------
+    git rm src/designer/assetSets/assetSetOptions.js
+
+It was replaced by designer/modelOptions.js back in the Asset Sets work and
+nothing imports it any more. Still outstanding from last time.
+
+
+What's new: screen sizes
+------------------------
+Every screen is now one of three fixed sizes, set beside "About" in the
+Page's General details:
+
+    Tile   220 x 140   a number or two, at a glance
+    Card   360 x 280   one asset's summary
+    Page   fills       a whole screen (what every existing screen is)
+
+* The canvas frames a Tile or a Card at its real size while you design it,
+  so you're not laying out a 220-pixel tile in a 1200-pixel space. A device
+  preview still wins if you pick one. Launch frames it the same way.
+* The saved-screens list badges anything that isn't a Page, since a type
+  now usually has more than one screen.
+* One screen is one size for now, as we agreed: a turbine's Tile and its
+  Card are two saved screens. If that gets tedious, the breakpoint tiers
+  the canvas already has are where a single screen with three layouts would
+  go — screenSizes.js stays the vocabulary either way.
+
+A repeater now asks for a size rather than typed-in item dimensions
+------------------------------------------------------------------
+"Item size: Card" means "each type's Card screen", and the item box comes
+from the size. The lookup is type + size, and where nothing is built yet it
+falls back to **the card Visualization already draws for that type** rather
+than a placeholder — the same AssetCard component the Operator's related-
+asset views use, titled with the asset's own name. So a repeater over a
+mixed fleet is useful on the day you build it, and each screen you design
+replaces one default. The details panel says which types are on a generated
+card. A screen smaller than its box is centred, not stretched.
+
+Two things I fixed while I was in there
+---------------------------------------
+* Launching a plain screen whose only content was a repeater showed
+  "That set belongs to the wind model" — the runtime had no page context to
+  tell it which model to load. It now takes the model from the repeater's
+  asset set (modelForScreen).
+* Five tiles in a tall container came out as one row at the top and one at
+  the bottom; wrapped rows now pack at the top.
+
+What I checked
+--------------
+* 55 unit tests pass (src/designer/screens, src/model), including new ones
+  for size lookup, the fixed-screen box, and the runtime model.
+* Driven in a real browser against the wind pack: canvas framed at 220x140
+  and 360x280, a repeater over "worst 5 turbines" drawing 3 geared turbines
+  with their Card screen and 2 direct-drives with generated cards (real
+  values), then the same set at Tile size, then Launch. No console errors.
+* The 88-screenshot regression run (8 models x 11 views) against the
+  previous build: 12 views differ by 1-28 pixels each — sparkline and
+  antialiasing noise, no layout change.

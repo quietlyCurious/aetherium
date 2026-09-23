@@ -141,10 +141,42 @@ export function clearBinding(tree, id, propName) {
   });
 }
 
+// ── Repeat ──────────────────────────────────────────────────────────────────
+// Makes a container a repeater (or stops it being one, with null). Its own
+// children stay put; they just aren't drawn while it repeats.
+
+export function setRepeat(tree, id, repeat) {
+  return updateContainerInTree(tree, id, c => {
+    if (!repeat) {
+      const { repeat: _stopped, ...rest } = c;
+      return rest;
+    }
+    // Becoming a repeater: a default container is a fixed 200×150 box that
+    // doesn't wrap, which clips every item after the first row. Give it
+    // room and let the items flow. Only on the way in, so a container
+    // that's been sized or laid out by hand keeps it.
+    const becoming = !c.repeat;
+    if (!becoming) return { ...c, repeat };
+    return {
+      ...c,
+      repeat,
+      layout: { ...c.layout, flexWrap: 'wrap' },
+      slot: { ...c.slot, width: '100%', height: '', flexGrow: 1, flexShrink: 1, flexBasis: 'auto' },
+    };
+  });
+}
+
 // ── Page context ────────────────────────────────────────────────────────────
 // What the page is about: { modelId, typeId } on the root container, or
 // null to make it a plain page again. Bindings are left alone either way —
 // ones that no longer resolve show as broken until fixed or cleared.
+
+// How big the screen is meant to be: 'tile' | 'card' | 'page'
+// (screenSizes.js). On the root beside pageType rather than inside the
+// context, so clearing what a screen is about doesn't forget its size.
+export function setPageSize(tree, size) {
+  return updateContainerInTree(tree, ROOT_CONTAINER_ID, c => ({ ...c, pageSize: size }));
+}
 
 export function setPageContext(tree, context) {
   return updateContainerInTree(tree, ROOT_CONTAINER_ID, c => {
