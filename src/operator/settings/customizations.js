@@ -9,7 +9,7 @@ import { useSyncExternalStore } from 'react';
 import { assetTypeIdOf, getRelatedAssetsForType } from '../../model/assetQueries';
 import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP } from '../../model/modelData';
 import { applySavedOrder, categoryOrderedPropertyKeys } from './displayOrder';
-import { KPI_VIEW_MODE_ITEMS, VISIBILITY_LABEL } from './propertyDisplay';
+import { VISIBILITY_LABEL, viewModeLabel } from './propertyDisplay';
 
 // ─── Asset customizations: which assets differ from their type ─────────
 //
@@ -168,7 +168,7 @@ export function useAssetCustomizations() {
 function describePropertyDifference(assetId, propertyKey, assetDisplayTemplates, assetPropertyConfigs) {
   const parts = [];
   const visual = assetDisplayTemplates?.[assetId]?.propertyViewModes?.[propertyKey];
-  if (visual) parts.push(`Visual: ${KPI_VIEW_MODE_ITEMS.find(i => i.value === visual)?.text ?? visual}`);
+  if (visual) parts.push(`Visual: ${viewModeLabel(visual)}`);
   const vis = assetPropertyConfigs?.[assetId]?.[propertyKey];
   if (vis) parts.push(`Show: ${VISIBILITY_LABEL[vis] ?? vis}`);
   return parts.join(' · ');

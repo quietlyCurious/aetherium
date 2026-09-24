@@ -5,8 +5,9 @@ import { buildDefaultCells } from './GridEditor';
 import { isLockedOrAncestorLocked, findContainerById } from './containerTree';
 import GridEditor from './GridEditor';
 import WidgetPreview from './WidgetPreview';
-import { resolveWidgetProps, hasBrokenAssetBinding } from './designer/screens/widgetBindings';
+import { resolveWidgetProps, hasBrokenBinding } from './designer/screens/widgetBindings';
 import { useScreenAsset } from './designer/screens/screenAsset';
+import { useScreenProperty } from './designer/screens/screenProperty';
 import { RepeatedItems } from './designer/screens/screenRepeat';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
@@ -165,8 +166,11 @@ function ContainerCard({
   // It comes from context (ScreenAssetProvider), not props, so a repeater
   // can give each item its own.
   const screenAssetId = useScreenAsset();
-  const hasBrokenBinding = hasBoundProperties
-    && hasBrokenAssetBinding(container.bindings, container.widgetName || container.title, screenAssetId);
+  // The property a screen about a property is showing (screenProperty.jsx),
+  // the same way — a property tile gives each screen its own.
+  const screenProperty = useScreenProperty();
+  const bindingBroken = hasBoundProperties
+    && hasBrokenBinding(container.bindings, container.widgetName || container.title, { assetId: screenAssetId, property: screenProperty });
 
   const isHiddenAtTier = activeTierId && activeTierId !== BASE_TIER_ID
     && (container.breakpointOverrides?.[activeTierId]?.hidden ?? false);
@@ -609,7 +613,7 @@ function ContainerCard({
             ) : (
               <WidgetPreview
                 widgetName={container.widgetName || container.title}
-                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries, assetId: screenAssetId })}
+                widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries, assetId: screenAssetId, property: screenProperty })}
               />
             )}
           </div>
@@ -691,8 +695,8 @@ function ContainerCard({
         </>
       )}
       {hasBoundProperties && interactive && (
-        hasBrokenBinding
-          ? <div className="binding-badge binding-badge--broken" title="A property is bound to something this asset doesn't have — see the widget's details">⚡!</div>
+        bindingBroken
+          ? <div className="binding-badge binding-badge--broken" title="A property is bound to something this screen isn't showing — see the widget's details">⚡!</div>
           : <div className="binding-badge" title="Has bound properties">⚡</div>
       )}
     </div>

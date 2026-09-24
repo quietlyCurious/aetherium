@@ -1,8 +1,11 @@
 // operator/settings/propertyDisplay.js
 // Per-property display vocabulary: the view modes a property tile can take
-// (Text / Indicator / Spark / All / None), how a property's own visual
+// (Text / Indicator / Spark / All / None, plus any saved property screen —
+// a custom tile built in the Screens area), how a property's own visual
 // resolves against its template's default, how asset and type visuals
 // merge, and the Show (visibility) cycle used by the Details panel.
+
+import { propertyScreenName, propertyScreens } from '../properties/propertyScreens';
 
 export const KPI_VIEW_MODE_ITEMS = [
   { text: 'None', value: 'none' },
@@ -28,6 +31,39 @@ export const PROPERTY_VIEW_MODE_DEFAULT = 'default';
 export const PROPERTY_VIEW_MODE_UPDATE_TYPE = '__update_type__';
 
 export const PROPERTY_VIEW_MODE_OVERRIDE_ITEMS = KPI_VIEW_MODE_ITEMS.filter(i => i.value !== 'none');
+
+// A saved property screen as a view mode: 'screen:<pageId>'. Offered per
+// property only (the Details panel's Visual column), not as the toolbar
+// default — see operator/properties/propertyScreens.js.
+const SCREEN_VIEW_MODE_PREFIX = 'screen:';
+
+export function screenViewMode(pageId) {
+  return `${SCREEN_VIEW_MODE_PREFIX}${pageId}`;
+}
+
+// The page id a view mode names, or null for a built-in mode.
+export function screenIdOfViewMode(mode) {
+  return typeof mode === 'string' && mode.startsWith(SCREEN_VIEW_MODE_PREFIX) ? mode.slice(SCREEN_VIEW_MODE_PREFIX.length) : null;
+}
+
+// The Visual column's choices for custom tiles, one per saved property
+// screen. The first carries the "Your tiles" heading.
+export function propertyScreenViewModeItems() {
+  return propertyScreens().map((page, i) => ({
+    text: page.name || 'Untitled tile',
+    value: screenViewMode(page.id),
+    custom: true,
+    headingBefore: i === 0 ? 'Your tiles' : null,
+  }));
+}
+
+// What a view mode is called: "Indicator", a custom tile's screen name, or
+// "Missing tile" for one whose screen is gone (it draws as All).
+export function viewModeLabel(mode) {
+  const pageId = screenIdOfViewMode(mode);
+  if (pageId) return propertyScreenName(pageId) ?? 'Missing tile';
+  return KPI_VIEW_MODE_ITEMS.find(i => i.value === mode)?.text ?? mode;
+}
 
 // The one place a single property's effective visual is decided —
 // explicit per-property override first, else the template's (or toolbar's)

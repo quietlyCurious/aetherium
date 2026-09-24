@@ -1,10 +1,13 @@
 // operator/properties/PropertyTile.jsx
 // PropertyTile: one property's value as a tile, in any of the view modes
-// (Text / Indicator / Spark / All). Every property rendering in the app
-// ends up here: the properties listing, the related-asset boxes, the
+// (Text / Indicator / Spark / All, or a custom tile — a saved screen about a
+// property, drawn by PropertyScreenTile). Every property rendering in the
+// app ends up here: the properties listing, the related-asset boxes, the
 // manual-layout canvases, Line Detail.
 
 import { MiniSparkline, ResponsiveSparkline } from './sparklines';
+import { PropertyScreenTile, canDrawPropertyScreen } from './PropertyScreenTile';
+import { screenIdOfViewMode } from '../settings/propertyDisplay';
 
 // Value-first, label-second — the opposite emphasis of a bullet graph.
 // Built for exactly the case a bullet handles badly: station-level KPIs
@@ -13,7 +16,16 @@ import { MiniSparkline, ResponsiveSparkline } from './sparklines';
 // information here; the label just says what it is.
 // unit/decimals come from the pack's properties.json (spec §3.4); a key
 // with neither renders its value as-is.
-export function PropertyTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode = 'all', unit, decimals }) {
+// assetId/propertyKey say which property of which asset this is — only a
+// custom tile needs them, since its screen reads the property itself. A
+// custom tile that can't be drawn (its screen was deleted, or no asset was
+// given) falls back to All.
+export function PropertyTile({ label, value, min, max, sparkline, labelFirst, horizontal, viewMode: requestedViewMode = 'all', unit, decimals, assetId, propertyKey }) {
+  const screenId = screenIdOfViewMode(requestedViewMode);
+  if (screenId && canDrawPropertyScreen(screenId, assetId, propertyKey)) {
+    return <PropertyScreenTile pageId={screenId} assetId={assetId} propertyKey={propertyKey} value={value} label={label} />;
+  }
+  const viewMode = screenId ? 'all' : requestedViewMode;
   const hasRange = min != null && max != null && typeof value === 'number' && max > min;
   const pct = hasRange ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;
 

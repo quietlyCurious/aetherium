@@ -656,3 +656,17 @@
 .op-related-assets-editor--selectable .op-asset-card:not(.op-asset-card--center) {
   cursor: pointer;
 }
+
+/* A custom tile: a saved screen about a property, drawn at its screen's
+   own size (operator/properties/PropertyScreenTile). Block rather than the
+   built-in tiles' flex column, and clipped to its box, the same way a
+   repeater item holds a screen. */
+.op-property-tile.op-property-tile--screen {
+  display: block;
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 4px;
+  background: #fff;
+}

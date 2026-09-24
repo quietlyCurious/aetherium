@@ -22,6 +22,11 @@ function getLayoutStyle(layout) {
   };
 }
 
+// A coordinate field counts as set unless it's blank ('' / undefined / null).
+function isSetCoord(v) {
+  return v !== '' && v !== undefined && v !== null;
+}
+
 function getCoordStyle(coord) {
   if (!coord) return {};
   const u = coord.unit || 'px';
@@ -62,10 +67,18 @@ function getCoordStyle(coord) {
     style.height = `${coord.height}${u}`;
   }
 
-  if (coord.minWidth !== '') style.minWidth = `${coord.minWidth}${u}`;
-  if (coord.maxWidth !== '') style.maxWidth = `${coord.maxWidth}${u}`;
-  if (coord.minHeight !== '') style.minHeight = `${coord.minHeight}${u}`;
-  if (coord.maxHeight !== '') style.maxHeight = `${coord.maxHeight}${u}`;
+  // Min/max get the same explicit-undefined treatment, for the same reason:
+  // getSlotStyle defaults min-width/min-height to the slot's own width and
+  // height (its guard against flex-shrink collapse), and a widget's slot
+  // starts at its catalog default size — 250×200 for a CircularGauge. Left
+  // to leak through the merge, that floor beat the coordinate size, so a
+  // gauge set to 80×80 still drew at 250×200: nothing could be made smaller
+  // than its default, which is what made widgets impossible to fit in a
+  // 220×140 Tile. A coordinate child's size is the coordinate's alone.
+  style.minWidth = isSetCoord(coord.minWidth) ? `${coord.minWidth}${u}` : undefined;
+  style.maxWidth = isSetCoord(coord.maxWidth) ? `${coord.maxWidth}${u}` : undefined;
+  style.minHeight = isSetCoord(coord.minHeight) ? `${coord.minHeight}${u}` : undefined;
+  style.maxHeight = isSetCoord(coord.maxHeight) ? `${coord.maxHeight}${u}` : undefined;
   return style;
 }
 

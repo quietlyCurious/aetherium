@@ -16,6 +16,8 @@ import { PROPERTY_RANGES, PROPERTY_LABELS, PROPERTY_UNITS, PROPERTY_DECIMALS } f
 import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
 import { mergePropertyViewModes, resolvePropertyViewMode } from '../settings/propertyDisplay';
 import { PropertyTile } from '../properties/PropertyTile';
+import { propertyScreenTileBox } from '../properties/PropertyScreenTile';
+import { screenIdOfViewMode } from '../settings/propertyDisplay';
 
 // See usage in AssetCard below and the time-track scrubber in
 // InvestigatePanel's Related Assets tab, the only place this is provided.
@@ -190,6 +192,8 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
         horizontal
         labelFirst
         viewMode={tileViewMode(key)}
+        assetId={relatedTypeExampleAssetId}
+        propertyKey={key}
       />
     );
   };
@@ -218,7 +222,14 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
   if (boxLayoutMode === 'manual') {
     // Per tile now, since per-property visuals mean one box can mix a
     // compact text tile with a wide spark row.
-    const tileSizeEstimate = key => PROPERTY_TILE_SIZE_ESTIMATES[tileViewMode(key)] || PROPERTY_TILE_SIZE_ESTIMATES.text;
+    // A custom tile is exactly its screen's size, so that's known rather
+    // than estimated; a missing one draws as All.
+    const tileSizeEstimate = key => {
+      const mode = tileViewMode(key);
+      const screenId = screenIdOfViewMode(mode);
+      if (screenId) return propertyScreenTileBox(screenId) || PROPERTY_TILE_SIZE_ESTIMATES.all;
+      return PROPERTY_TILE_SIZE_ESTIMATES[mode] || PROPERTY_TILE_SIZE_ESTIMATES.text;
+    };
     const positions = entriesToShow.map(([key]) => boxManualPositions[key] ?? { x: 0, y: 0 });
     // A tile's saved position can be negative — the Properties tab's own
     // editing canvas is an infinite, freely-pannable React Flow canvas, so

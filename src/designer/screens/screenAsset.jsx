@@ -1,6 +1,8 @@
 // designer/screens/screenAsset.jsx
 // A screen that's about an asset: which type it's for (its context), the
 // asset it's showing right now ("self"), and checks on its asset bindings.
+// screenSelfOf also answers for a screen about a property
+// (screenProperty.jsx), which is the same idea one level smaller.
 //
 // The context lives on the page's root container, next to its other
 // page-level settings (pageType), as { modelId, typeId } — so it's saved,
@@ -18,6 +20,14 @@ import { ROOT_CONTAINER_ID } from '../../containerModel';
 import { assetsOfType, checkAssetBinding, describeAssetBinding, typeExists } from '../../model/assetPaths';
 import { CURRENT_MODEL } from '../../model/modelData';
 import { typeNameOf } from '../modelOptions';
+import { pageSizeOf } from './screenSizes';
+import {
+  PROPERTY_CONTEXT, defaultPreviewAssetId, isPropertyContext, previewableAssetIds,
+  previewablePropertyKeys, propertyBindingsOf, propertyFieldLabel,
+} from './screenProperty';
+
+// The About choice for "a screen about any property", alongside the types.
+export const ABOUT_ANY_PROPERTY = '__property__';
 
 const ScreenAssetContext = createContext(null);
 
@@ -49,61 +59,106 @@ export function assetBindingsOf(containers) {
   return found;
 }
 
-// How the page's asset bindings fare against a type — what changing the
-// context to it would do. → { total, broken: [...], partial: [...] }
-export function checkPageBindingsForType(containers, typeId) {
-  const all = assetBindingsOf(containers);
+// How the page's bindings fare if the screen becomes about `about` — a
+// typeId, ABOUT_ANY_PROPERTY, or null for a plain page. Asset bindings
+// need a type (and a path every asset of it has); property bindings need
+// a property screen. → { total, broken: [...], partial: [...] }
+export function checkPageBindingsForAbout(containers, about) {
+  const assetBindings = assetBindingsOf(containers);
+  const propertyBindings = propertyBindingsOf(containers);
   const broken = [];
   const partial = [];
-  all.forEach(entry => {
-    const { status } = typeId ? checkAssetBinding(entry.binding, typeId) : { status: 'broken' };
+  assetBindings.forEach(entry => {
+    const isType = about && about !== ABOUT_ANY_PROPERTY;
+    const { status } = isType ? checkAssetBinding(entry.binding, about) : { status: 'broken' };
     if (status === 'broken') broken.push(entry);
     else if (status === 'partial') partial.push(entry);
   });
-  return { total: all.length, broken, partial };
+  if (about !== ABOUT_ANY_PROPERTY) broken.push(...propertyBindings);
+  return { total: assetBindings.length + propertyBindings.length, broken, partial };
+}
+
+function describeAnyBinding(binding) {
+  return binding.type === 'property' ? `property · ${propertyFieldLabel(binding.field)}` : describeAssetBinding(binding);
 }
 
 // Everything the Screens editor needs to know about the open screen's
 // self, worked out from the editor (the page's context, the chosen preview
-// asset) and the loaded model (useLoadedModel's state). Computed in
-// ScreensWorkspace, which re-renders when the model loads.
+// asset and property) and the loaded model (useLoadedModel's state).
+// Computed in ScreensWorkspace, which re-renders when the model loads.
 //
-//   status     'none' (a plain page) · 'loading' · 'ok' · 'otherModel' (the
-//              screen is about a type in another model) · 'missingType'
+//   status     'none' (a plain page) · 'loading' · 'ok' (about a type) ·
+//              'property' (about any property) · 'otherModel' (about a
+//              type in another model) · 'missingType'
+//   about      what the About box shows: a typeId, ABOUT_ANY_PROPERTY or null
 //   typeId, typeLabel
-//   assetIds   the assets of that type — what "Preview as" offers
-//   assetId    the one being shown: the chosen one, else the first
-//   chooseAsset(id), changeType(typeId | null)
+//   assetIds   what "Preview as" offers: the type's assets, or for a
+//              property screen every asset with values
+//   assetId    the one being shown: the chosen one, else a sensible first
+//   propertyKeys, propertyKey   property screens only: the preview asset's
+//              properties, and the one being shown
+//   chooseAsset(id), chooseProperty(key), changeAbout(about)
 export function screenSelfOf(editor, model) {
-  const context = pageContextOf(editor.containers);
-  const base = { context, typeId: context?.typeId ?? null, typeLabel: null, assetIds: [], assetId: null };
+  const root = (editor.containers || []).find(c => c.id === ROOT_CONTAINER_ID);
+  const isProperty = isPropertyContext(root?.context);
+  const context = isProperty ? root.context : pageContextOf(editor.containers);
+  const about = isProperty ? ABOUT_ANY_PROPERTY : (context?.typeId ?? null);
+  const base = {
+    context, about, typeId: isProperty ? null : (context?.typeId ?? null), typeLabel: null,
+    assetIds: [], assetId: null, propertyKeys: [], propertyKey: null,
+  };
 
-  // Asks first when the page's asset bindings wouldn't all resolve on the
-  // new type, then sets it. Bindings are never removed: broken ones stay
-  // marked until they're fixed, cleared, or the type is changed back.
-  // Returns whether it went ahead.
-  const changeType = (typeId) => {
-    if (typeId === (context?.typeId ?? null)) return true;
-    const check = checkPageBindingsForType(editor.containers, typeId);
+  // Asks first when the page's bindings wouldn't all resolve on the new
+  // choice, then sets it. Bindings are never removed: broken ones stay
+  // marked until they're fixed, cleared, or the choice is changed back.
+  // A plain Page-sized screen that becomes about a property shrinks to a
+  // Tile, since that's what a property's box is. Returns whether it went
+  // ahead.
+  const changeAbout = (next) => {
+    if (next === about) return true;
+    const check = checkPageBindingsForAbout(editor.containers, next);
     if (check.broken.length || check.partial.length) {
-      const target = typeId ? typeNameOf(typeId) : 'no type';
+      const target = next === ABOUT_ANY_PROPERTY ? 'a property screen' : next ? `every ${typeNameOf(next)}` : 'a plain page';
       const lines = [
-        ...check.broken.map(b => `  • ${b.title} → ${b.propName}: ${describeAssetBinding(b.binding)}`),
-        ...check.partial.map(b => `  • ${b.title} → ${b.propName}: ${describeAssetBinding(b.binding)} (only some assets)`),
+        ...check.broken.map(b => `  • ${b.title} → ${b.propName}: ${describeAnyBinding(b.binding)}`),
+        ...check.partial.map(b => `  • ${b.title} → ${b.propName}: ${describeAnyBinding(b.binding)} (only some assets)`),
       ];
-      const message = typeId
-        ? `${check.broken.length + check.partial.length} of ${check.total} asset bindings won't resolve for every ${target}:\n\n${lines.join('\n')}\n\nThey'll stay on their widgets, marked as broken, until you fix or clear them. Change the type?`
-        : `This screen has ${check.total} asset binding${check.total === 1 ? '' : 's'}. Without a type they'll show their static values, marked as broken, until you set one again. Remove the type?`;
+      const message = `${check.broken.length + check.partial.length} of ${check.total} binding${check.total === 1 ? '' : 's'} won't resolve for ${target}:\n\n${lines.join('\n')}\n\nThey'll stay on their widgets, marked as broken, until you fix or clear them. Go ahead?`;
       if (!window.confirm(message)) return false;
     }
-    editor.setPageContextType(typeId ? { modelId: CURRENT_MODEL, typeId } : null);
+    if (next === ABOUT_ANY_PROPERTY) {
+      editor.setPageContextType(PROPERTY_CONTEXT);
+      if (pageSizeOf(editor.containers) === 'page') editor.setPageSizeId('tile');
+    } else {
+      editor.setPageContextType(next ? { modelId: CURRENT_MODEL, typeId: next } : null);
+    }
     return true;
   };
 
-  const withActions = (state) => ({ ...state, changeType, chooseAsset: editor.choosePreviewAsset });
+  const withActions = (state) => ({
+    ...state, changeAbout, chooseAsset: editor.choosePreviewAsset, chooseProperty: editor.choosePreviewProperty,
+  });
 
   if (!context) return withActions({ ...base, status: 'none' });
   if (!model.loaded) return withActions({ ...base, status: 'loading' });
+
+  if (isProperty) {
+    const assetIds = previewableAssetIds();
+    const chosenAsset = editor.chosenPreviewAssetId;
+    const assetId = assetIds.includes(chosenAsset) ? chosenAsset : defaultPreviewAssetId();
+    const propertyKeys = assetId ? previewablePropertyKeys(assetId) : [];
+    const chosenKey = editor.chosenPreviewPropertyKey;
+    return withActions({
+      ...base,
+      status: 'property',
+      typeLabel: 'Any property',
+      assetIds,
+      assetId,
+      propertyKeys,
+      propertyKey: propertyKeys.includes(chosenKey) ? chosenKey : (propertyKeys[0] ?? null),
+    });
+  }
+
   if (context.modelId !== CURRENT_MODEL) return withActions({ ...base, status: 'otherModel' });
   if (!typeExists(context.typeId)) return withActions({ ...base, status: 'missingType' });
 

@@ -7,7 +7,7 @@ import {
   mergeCellContainers, setAspectRatio, updateSlotForTier, applyStyle, pickUpStyle,
   resetPropertiesForParent, makeWidgetContainer, setBinding, clearBinding, setPageContext,
 } from './screenEdits';
-import { pageContextOf, assetBindingsOf, checkPageBindingsForType } from './screenAsset';
+import { pageContextOf, assetBindingsOf, checkPageBindingsForAbout } from './screenAsset';
 import { loadPackForTests } from '../../model/loadPackForTests';
 
 // root ─ a ─ a1
@@ -158,9 +158,9 @@ describe('what a page is about', () => {
   test('checking the page\'s asset bindings against a type', () => {
     let t = setBinding(sampleTree(), 'w', 'value', { type: 'asset', path: ['drivetrain', 'gearbox'], property: 'gearbox_oil_temp_c' });
     t = setBinding(t, 'w', 'min', { type: 'asset', path: [], property: 'active_power_kw' });
-    expect(checkPageBindingsForType(t, GEARED)).toMatchObject({ total: 2, broken: [], partial: [] });
-    const onDirect = checkPageBindingsForType(t, DIRECT);
+    expect(checkPageBindingsForAbout(t, GEARED)).toMatchObject({ total: 2, broken: [], partial: [] });
+    const onDirect = checkPageBindingsForAbout(t, DIRECT);
     expect(onDirect.broken.map(b => b.propName)).toEqual(['value']);
-    expect(checkPageBindingsForType(t, null).broken).toHaveLength(2);
+    expect(checkPageBindingsForAbout(t, null).broken).toHaveLength(2);
   });
 });

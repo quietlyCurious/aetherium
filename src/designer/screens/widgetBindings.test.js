@@ -3,7 +3,7 @@
 //   npx react-scripts test --watchAll=false src/designer/screens
 
 import { loadPackForTests } from '../../model/loadPackForTests';
-import { resolveWidgetProps, hasBrokenAssetBinding } from './widgetBindings';
+import { resolveWidgetProps, hasBrokenBinding } from './widgetBindings';
 
 beforeAll(() => loadPackForTests('wind'));
 
@@ -21,8 +21,8 @@ describe('asset bindings', () => {
   test('no self, or a path this asset lacks, keeps the static value and counts as broken', () => {
     expect(resolveWidgetProps({ value: 7 }, { value: GEARBOX_OIL }, 'CircularGauge', {}).value).toBe(7);
     expect(resolveWidgetProps({ value: 7 }, { value: GEARBOX_OIL }, 'CircularGauge', { assetId: 'BOREAS_F4_WTG20' }).value).toBe(7);
-    expect(hasBrokenAssetBinding({ value: GEARBOX_OIL }, 'CircularGauge', 'BOREAS_F4_WTG20')).toBe(true);
-    expect(hasBrokenAssetBinding({ value: GEARBOX_OIL }, 'CircularGauge', 'BOREAS_F1_WTG01')).toBe(false);
+    expect(hasBrokenBinding({ value: GEARBOX_OIL }, 'CircularGauge', { assetId: 'BOREAS_F4_WTG20' })).toBe(true);
+    expect(hasBrokenBinding({ value: GEARBOX_OIL }, 'CircularGauge', { assetId: 'BOREAS_F1_WTG01' })).toBe(false);
   });
 
   test('a collection property gets history rows', () => {

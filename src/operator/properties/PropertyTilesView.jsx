@@ -230,6 +230,9 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
       // type mode only; everywhere else propertyViewModes is undefined, so
       // this reduces to kpiViewMode exactly as before.
       viewMode: typeVisibilityMode ? resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) : kpiViewMode,
+      // Which property of which asset — what a custom tile's screen reads.
+      assetId: seriesAssetId,
+      propertyKey: p.key,
     };
   };
 

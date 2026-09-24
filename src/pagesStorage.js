@@ -11,7 +11,10 @@
 // Autosave / unsaved-changes warnings are natural fast-follows once this loop
 // is proven out.
 
-const STORAGE_KEY = 'aetherium_pages';
+// Exported for readers that cache against the raw stored string
+// (operator/properties/propertyScreens.js).
+export const PAGES_STORAGE_KEY = 'aetherium_pages';
+const STORAGE_KEY = PAGES_STORAGE_KEY;
 
 // Reads { pages, folders }. Backward-compatible with the pre-folders format,
 // where the stored value was just a bare array of pages.

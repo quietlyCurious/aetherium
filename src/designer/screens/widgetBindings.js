@@ -17,6 +17,9 @@
 //               showing ("self"), or of one reached from it by a path (see
 //               model/assetPaths.js). A collection property gets the
 //               property's history as [{ timestamp, value }] rows.
+//   property    { field } — one field (value, unit, min, history…) of the
+//               property a screen about a property is showing (see
+//               screenProperty.jsx PROPERTY_FIELDS).
 //
 // `context` carries the data the resolvers read:
 //   queryResults — { [queryInstanceId]: { status, data, error } }, from
@@ -24,10 +27,14 @@
 //                  usePageQueryResults)
 //   queries      — the query definitions, for resolvers that need them
 //   assetId      — the screen's self (see screenAsset.jsx), or null
+//   property     — the property self of a screen about a property
+//                  ({ assetId, propertyKey, value? }, see screenProperty.jsx),
+//                  or null
 
 import { evaluateExpression } from '../../expressionEval';
 import { getWidgetPropertyDefs } from '../widgets/widgetPropertyDefs';
 import { resolveAssetSeries, resolveAssetValue } from '../../model/assetPaths';
+import { resolvePropertyField } from './screenProperty';
 
 export const LEAVE_STATIC = Symbol('leave static value');
 
@@ -106,6 +113,16 @@ export const BINDING_RESOLVERS = {
     if (result.error) return LEAVE_STATIC;
     return propDef?.type === 'data' ? result.rows : result.value;
   },
+
+  // A field of the property self. A collection property only takes a
+  // collection field (history) and a scalar one only a scalar field; a
+  // mismatch, or no property self, keeps the static value.
+  property: (binding, { propDef, context }) => {
+    const result = resolvePropertyField(context.property, binding.field);
+    if (result.error) return LEAVE_STATIC;
+    if (propDef?.type === 'data') return result.rows ?? LEAVE_STATIC;
+    return result.value !== undefined ? result.value : LEAVE_STATIC;
+  },
 };
 
 // Why an asset binding can't resolve for this asset (a PATH_ERRORS key),
@@ -118,13 +135,16 @@ export function assetBindingProblem(binding, assetId, isCollectionProp = false) 
   return result.error || null;
 }
 
-// Whether any of a widget's asset bindings can't resolve for this asset.
-export function hasBrokenAssetBinding(bindings, widgetName, assetId) {
+// Whether any of a widget's asset or property bindings can't resolve for
+// what the screen is showing — { assetId, property } as in `context` above.
+// Drives the canvas's red ⚡! badge.
+export function hasBrokenBinding(bindings, widgetName, { assetId = null, property = null } = {}) {
   const propDefs = getWidgetPropertyDefs(widgetName);
   return Object.entries(bindings || {}).some(([propName, b]) => {
-    if (b?.type !== 'asset') return false;
     const isCollection = propDefs.find(p => p.name === propName)?.type === 'data';
-    return !!assetBindingProblem(b, assetId, isCollection);
+    if (b?.type === 'asset') return !!assetBindingProblem(b, assetId, isCollection);
+    if (b?.type === 'property') return !!resolvePropertyField(property, b.field).error;
+    return false;
   });
 }
 
@@ -175,7 +195,7 @@ export function resolveWidgetProps(widgetProps, bindings, widgetName, context = 
     const value = resolve(binding, { propDef, context });
     if (value !== LEAVE_STATIC) resolved[propName] = value;
   });
-  return normalizeChartSeries(expandDotPaths(resolved), widgetName);
+  return normalizeSparklineFields(normalizeChartSeries(expandDotPaths(resolved), widgetName), widgetName);
 }
 
 // Two Chart settings that stopped a Chart bound to real rows drawing
@@ -199,5 +219,21 @@ function normalizeChartSeries(props, widgetName) {
   if (hasRows && !next.series && !next.seriesTemplate) {
     next = { ...next, series: [{ name: next.commonSeriesSettings?.valueField || 'value' }] };
   }
+  return next;
+}
+
+// A Sparkline reads its rows through argumentField/valueField, which
+// DevExtreme defaults to 'arg' and 'val' and the Widgets area doesn't
+// expose by default. History from an asset or property binding comes as
+// { timestamp, value } rows, so a Sparkline bound to one would draw nothing.
+// When the rows have those columns and the fields are still unset or at
+// DevExtreme's defaults, point them at timestamp and value.
+function normalizeSparklineFields(props, widgetName) {
+  if (widgetName !== 'Sparkline') return props;
+  const first = Array.isArray(props.dataSource) ? props.dataSource[0] : null;
+  if (!first || !('timestamp' in first) || !('value' in first)) return props;
+  const next = { ...props };
+  if (!next.argumentField || next.argumentField === 'arg') next.argumentField = 'timestamp';
+  if (!next.valueField || next.valueField === 'val') next.valueField = 'value';
   return next;
 }

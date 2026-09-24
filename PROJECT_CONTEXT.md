@@ -328,6 +328,36 @@ loads the model a screen needs via `modelForScreen` — what it's about,
 or, for a plain screen whose only tie to a model is a repeater, that
 repeater's asset set's model.
 
+**Screens about a property** (`designer/screens/screenProperty.jsx`): the
+smallest fragment. A page's About can be *Any property*, stored as
+`context: { kind: 'property' }` (no model or type — one works everywhere,
+and `pageContextOf` ignores it, so repeaters never find one by type).
+Choosing it shrinks a Page-sized screen to a Tile. Self is one property of
+one asset: "Preview as" picks both, and `ScreenPropertyProvider` /
+`useScreenProperty` carry `{ assetId, propertyKey, value? }` the way
+`ScreenAssetProvider` carries an asset (a given `value` wins, so a
+time-scrubbed box moves its custom tiles too). Widgets bind with ⚡ →
+Property: `{ type: 'property', field }`, one of `PROPERTY_FIELDS` — value,
+value with unit, label, unit, min, max, percent of range, asset name, and
+history (list properties only). A Sparkline bound to history rows gets its
+argument/value fields pointed at `timestamp`/`value` automatically
+(`widgetBindings.js`). Changing About checks asset *and* property bindings
+(`checkPageBindingsForAbout`, `screenSelfOf.changeAbout`).
+
+A saved property screen is a **custom tile**: Visualization's per-property
+Visual column lists them under "Your tiles", stored as
+`'screen:<pageId>'` (`propertyDisplay.js` `screenViewMode` /
+`screenIdOfViewMode` / `viewModeLabel` — use `viewModeLabel` anywhere a
+visual is named). `PropertyTile` hands such a mode to
+`operator/properties/PropertyScreenTile.jsx`, which draws the screen at its
+own size through ScreenView, so AssetCard in every view gets custom tiles
+for free; a deleted screen falls back to All. `propertyScreens.js` reads
+the saved pages (cached against the raw stored string). The toolbar default
+stays the built-in modes for now. Anything that draws a screen inside
+something else gets ScreenView from `screenRenderer.js`
+(`registerScreenRenderer` / `getScreenRenderer`) rather than importing it,
+which would be a circle.
+
 The Screens *editor* lives in the same folder, split the same way as
 state vs. drawing:
 - `useScreenEditor` — all of the editor's state and actions: saved

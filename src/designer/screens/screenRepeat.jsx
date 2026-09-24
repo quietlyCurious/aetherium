@@ -36,6 +36,7 @@ import { needsStart, resolveAssetSet } from '../../model/assetSets';
 import { ScreenAssetProvider, pageContextOf } from './screenAsset';
 import { pageSizeOf, sizeBox } from './screenSizes';
 import { GeneratedCard, useVisualizationConfigs } from './generatedCard';
+import { getScreenRenderer } from './screenRenderer';
 
 // How deep repeaters may nest (a feeder screen repeating turbine screens
 // that repeat component screens is 2). A screen that would repeat itself,
@@ -195,14 +196,6 @@ function PlaceholderItem({ assetId, missingType }) {
   );
 }
 
-// ScreenView registers itself here, rather than this file importing it,
-// because the render stack already runs ScreenView → ContainerCard → here:
-// importing it back would be a circle.
-let ScreenRenderer = null;
-export function registerScreenRenderer(component) {
-  ScreenRenderer = component;
-}
-
 // The repeated items themselves.
 export function RepeatedItems({ repeat, selfAssetId, queryResults, queries }) {
   const { assetSets, pages, chain } = useScreenData();
@@ -210,6 +203,7 @@ export function RepeatedItems({ repeat, selfAssetId, queryResults, queries }) {
   const configs = useVisualizationConfigs();
   const config = { ...DEFAULT_REPEAT, ...(repeat || {}) };
   const { assetIds, total, error } = resolveRepeat(config, { selfAssetId, assetSets });
+  const ScreenRenderer = getScreenRenderer();
 
   if (!ScreenRenderer) return null;
   if (chain.length >= MAX_REPEAT_DEPTH) {

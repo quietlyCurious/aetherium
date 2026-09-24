@@ -44,7 +44,7 @@ import { assetTypeIdOf, buildTypeList, getAssetPathLabel, deslugifyType } from '
 import { ATTENTION_ITEMS, INITIAL_WORK_ITEMS, CURRENT_MODEL, CURRENT_ASSET_MAP, CURRENT_ASSET_DATA, PROPERTY_LABELS } from '../model/modelData';
 import { normalizedLayout, UNDO_TOAST_MS, computeAssetCustomizations, assetCustomizationStore, EMPTY_CUSTOMIZATIONS } from './settings/customizations';
 import { displayOrderStore, EMPTY_DISPLAY_ORDERS } from './settings/displayOrder';
-import { PROPERTY_VIEW_MODE_DEFAULT, KPI_VIEW_MODE_ITEMS } from './settings/propertyDisplay';
+import { PROPERTY_VIEW_MODE_DEFAULT, viewModeLabel } from './settings/propertyDisplay';
 import '@xyflow/react/dist/style.css';
 import { CONTACTS_SEED } from './chrome/ContactsPanel';
 import { AreaRail } from '../shell/AreaRail';
@@ -882,7 +882,7 @@ function OperatorWorkspaceInner({ operatorPersona, activeSaveHandlerRef, unsaved
 
     const typeName = nowTypeList.find(t => t.id === typeId)?.name ?? deslugifyType(asset.assetType);
     const propertyLabel = PROPERTY_LABELS[key] || key;
-    const modeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === mode)?.text ?? mode;
+    const modeLabel = viewModeLabel(mode);
     setUndoToast({
       id: Date.now(),
       message: `Updated the ${typeName} type: ${propertyLabel} → ${modeLabel}`,

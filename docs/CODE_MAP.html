@@ -273,10 +273,10 @@
 
   <main>
     <header class="intro">
-      <div class="eyebrow">quietlyCurious/aetherium · main @ 10974cf</div>
+      <div class="eyebrow">quietlyCurious/aetherium · main @ b552975</div>
       <h1>Aetherium Code Map</h1>
       <p class="lede">How the whole app is put together: the two workspaces and their areas, which file owns what, how a setting or a model's data travels to a box on screen, how the Screens editor is split, and the handful of patterns everything leans on.</p>
-      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 57 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 634. Every industry model now uses the one generic data format.</p>
+      <p class="lede" style="font-size:15px">Status: <span class="chip now">both refactors complete</span> The Operator side is 45 modules and 7 stylesheets under <code>src/operator/</code> (was one 9,074-line file). The designer side and the app shell are 62 files under <code>src/designer/</code> and <code>src/shell/</code>, and <code>App.js</code> is down from 3,202 lines to 634. Every industry model now uses the one generic data format.</p>
     </header>
 
     <section id="glance">
@@ -286,7 +286,7 @@
         <div role="listitem"><strong>634</strong><span>lines in <code>App.js</code> (was 3,202): title bar, navigation, shared data</span></div>
         <div role="listitem"><strong>1,213</strong><span>lines in <code>operator/OperatorWorkspace.jsx</code> (was 9,074)</span></div>
         <div role="listitem"><strong>45+7</strong><span>modules and stylesheets in <code>src/operator/</code></span></div>
-        <div role="listitem"><strong>57</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
+        <div role="listitem"><strong>62</strong><span>files in <code>src/designer/</code> and <code>src/shell/</code></span></div>
         <div role="listitem"><strong>8</strong><span>industry models, one generic data format</span></div>
         <div role="listitem"><strong>23</strong><span>model-data variables, all written in <code>modelData.js</code></span></div>
       </div>
@@ -909,7 +909,7 @@
 
     <section id="screens">
       <h2>Screens: the editor and the renderer</h2>
-      <p>The Screens area builds pages from containers and DevExtreme widgets, and binds widget properties to expressions, to queries, or to the asset the screen is about. It's split three ways: <strong>state</strong> (a hook App holds), <strong>edits</strong> (plain functions), and <strong>drawing</strong> (the workspace and its panels). A saved page renders read-only through the same <code>ContainerCard</code> the canvas uses, so a screen looks the same wherever it shows.</p>
+      <p>The Screens area builds pages from containers and DevExtreme widgets, and binds widget properties to expressions, to queries, or to the asset the screen is about. Every screen is a Tile, a Card or a Page, and a container can repeat an asset set — drawing each asset with its type's screen at the size asked for, or that type's Visualization card where none is built yet. It's split three ways: <strong>state</strong> (a hook App holds), <strong>edits</strong> (plain functions), and <strong>drawing</strong> (the workspace and its panels). A saved page renders read-only through the same <code>ContainerCard</code> the canvas uses, so a screen looks the same wherever it shows.</p>
 
       <figure>
         <div class="fig-scroll">
@@ -992,6 +992,8 @@
       <ul class="tight">
         <li><strong>A page</strong> is <span class="mono">{ id, name, folderId, containers, breakpointOverrides, … }</span> in localStorage <span class="mono">aetherium_pages</span>. Containers nest; a grid container's cells each hold one cell container. Each container carries a <span class="mono">slot</span> (flex placement and box model), a <span class="mono">coord</span> (for coordinate layouts), per-tier <span class="mono">breakpointOverrides</span>, and a widget's <span class="mono">widgetProps</span> and <span class="mono">bindings</span>.</li>
         <li><strong>A binding</strong> is <span class="mono">{ type: 'expression', expression }</span> or <span class="mono">{ type: 'query', queryInstanceId, outputField | outputFields, transform }</span> or <span class="mono">{ type: 'asset', path, property }</span>. Each type is one entry in <span class="mono">BINDING_RESOLVERS</span>.</li>
+        <li><strong>A screen's size</strong> is <span class="mono">pageSize</span> on its root container: <span class="mono">'tile'</span> (220×140), <span class="mono">'card'</span> (360×280) or <span class="mono">'page'</span> (fills what it's given), set beside About in the Page's General details. It sits next to the context rather than inside it, so clearing what a screen is about doesn't forget how big it is; screens saved before sizes existed are Pages. The canvas and the Launch view frame a Tile or a Card at its own size, and the saved-screens list badges anything that isn't a Page — a type usually has more than one screen now. One screen is one size for now: a type's Tile and its Card are two saved screens (<span class="mono">designer/screens/screenSizes.js</span>).</li>
+        <li><strong>A repeater</strong> is a container with <span class="mono">repeat: { assetSetId, start, itemScreen, itemSize, max }</span>. It draws a screen per asset its set finds instead of its own children, each inside its own self. Which screen is a lookup by <strong>type and size</strong> — "each type's Card" — falling back the way Visualization does for a related asset's box: the screen about that type at that size, else a card generated from that type's Visualization property config (<span class="mono">generatedCard.jsx</span>, wrapping the same <span class="mono">AssetCard</span> the Operator draws), else a placeholder. So a mixed set works, and a type nobody has designed for yet shows its real values rather than a gap. Every item gets the box its size defines and a smaller screen is centred in it, not stretched. Nesting stops at <span class="mono">MAX_REPEAT_DEPTH</span>, and a screen already being drawn above can't be drawn again inside itself.</li>
         <li><strong>A screen about a type</strong> has <span class="mono">context: { modelId, typeId }</span> on its root container (set any time from the Page's General details, "About"). It's drawn for one asset of that type at a time, its <em>self</em>: "Preview as" on the canvas toolbar, <span class="mono">?runtime=&lt;page&gt;&amp;asset=&lt;id&gt;</span> for Launch. An asset binding's <span class="mono">path</span> goes by type (<span class="mono">['drivetrain', 'gearbox']</span>, <span class="mono">'..'</span> for the parent), so one screen works for every asset of the type (<span class="mono">model/assetPaths.js</span>). Changing the type checks the page's asset bindings first and never removes them; ones that don't resolve show a red <span class="mono">⚡!</span> badge until fixed.</li>
         <li><strong>Query instances</strong> put a query on a page (<span class="mono">aetherium_query_instances</span>). Their ids restart at 1 per page, so every lookup is scoped to the page (plus app-scoped instances).</li>
         <li><strong>Locks:</strong> a locked container, or anything under one, can't be edited, moved, deleted, painted or pasted into. The checks (<span class="mono">LOCK GUARD</span>) live in <span class="mono">useScreenEditor</span>, not in the edit functions.</li>
@@ -1076,8 +1078,13 @@
         </div>
         <div class="card">
           <h4>Self travels in context</h4>
-          <p>The asset a screen shows reaches <code>ContainerCard</code> through a React context (<code>ScreenAssetProvider</code> / <code>useScreenAsset</code>), not props, so it doesn't thread through every level of nesting. The canvas and <code>ScreenView</code> provide it; a repeater will wrap each item in its own, making that item <em>self</em> inside it.</p>
-          <p class="where">designer/screens/screenAsset.jsx · ContainerCard</p>
+          <p>The asset a screen shows reaches <code>ContainerCard</code> through a React context (<code>ScreenAssetProvider</code> / <code>useScreenAsset</code>), not props, so it doesn't thread through every level of nesting. The canvas and <code>ScreenView</code> provide it; a repeater wraps each item in its own, which is what makes that item <em>self</em> inside it. The saved screens and asset sets a repeater needs travel the same way (<code>ScreenDataProvider</code>), along with the chain of screens already being drawn — the cycle guard.</p>
+          <p class="where">designer/screens/screenAsset.jsx · screenRepeat.jsx · ContainerCard</p>
+        </div>
+        <div class="card">
+          <h4>A designed screen is an improvement, not a prerequisite</h4>
+          <p>Where a repeater finds no screen for a type at the size it asked for, it draws that type's Visualization card instead of an empty box. That's the same asset-over-type fallback Visualization already applies, reached by wrapping the very component it uses (<code>AssetCard</code>) rather than reimplementing the resolution — so a repeater over a fleet is useful on the day you build it, and each screen you design replaces one default.</p>
+          <p class="where">designer/screens/generatedCard.jsx · operator/relatedAssets/AssetCard.jsx</p>
         </div>
         <div class="note">
           <h4>Shortcuts belong to their area</h4>
@@ -1188,22 +1195,26 @@
         <table>
           <thead><tr><th>File</th><th>Lines</th><th>What's there</th></tr></thead>
           <tbody>
-            <tr><td class="mono">screens/useScreenEditor.js</td><td class="num">610</td><td>All Screens state and actions, and the lock rules; App calls it</td></tr>
-            <tr><td class="mono">screens/screenEdits.js</td><td class="num">489</td><td>The container-tree edits as plain functions</td></tr>
+            <tr><td class="mono">screens/useScreenEditor.js</td><td class="num">618</td><td>All Screens state and actions, and the lock rules; App calls it</td></tr>
+            <tr><td class="mono">screens/screenEdits.js</td><td class="num">514</td><td>The container-tree edits as plain functions</td></tr>
             <tr><td class="mono">screens/screenEdits.test.js</td><td class="num">166</td><td>14 tests and 1 todo (<span class="mono">npx react-scripts test --watchAll=false src/designer/screens</span>)</td></tr>
             <tr><td class="mono">screens/usePageQueryInstances.js</td><td class="num">109</td><td>The query instances on pages, scoped to the open page</td></tr>
-            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">221</td><td>The three panels (loading the title bar's model for them), the create wizard, the binding popovers, the canvas shortcuts</td></tr>
+            <tr><td class="mono">screens/ScreensWorkspace.jsx</td><td class="num">225</td><td>The three panels (loading the title bar's model for them), the create wizard, the binding popovers, the canvas shortcuts</td></tr>
             <tr><td class="mono">screens/ScreensLeftPanel.jsx</td><td class="num">415</td><td>Screens, Visuals, Data (the loaded model, or queries), Page Visuals and Page Data tabs</td></tr>
             <tr><td class="mono">screens/ScreenCanvas.jsx</td><td class="num">276</td><td>The canvas toolbar (including what the screen is about and "Preview as") and the page being edited</td></tr>
             <tr><td class="mono">screens/ScreenDetailsPanel.jsx</td><td class="num">78</td><td>The right panel: picks the details for what's selected</td></tr>
-            <tr><td class="mono">screens/ContainerDetails.jsx</td><td class="num">568</td><td>One selection: widget, Layout, Slot, Box and General tabs</td></tr>
+            <tr><td class="mono">screens/ContainerDetails.jsx</td><td class="num">664</td><td>One selection: widget, Layout, Slot, Box and General tabs</td></tr>
             <tr><td class="mono">screens/MultiSelectionDetails.jsx</td><td class="num">185</td><td>Several selected: the settings they share</td></tr>
             <tr><td class="mono">screens/detailsFields.jsx</td><td class="num">69</td><td>The details panel's inputs</td></tr>
-            <tr><td class="mono">screens/ScreenView.jsx</td><td class="num">60</td><td>A saved page, read-only, optionally for one asset (its self)</td></tr>
+            <tr><td class="mono">screens/ScreenView.jsx</td><td class="num">66</td><td>A saved page, read-only, optionally for one asset (its self)</td></tr>
             <tr><td class="mono">screens/usePageQueryResults.js</td><td class="num">68</td><td>Runs a page's query instances and keeps the results fresh</td></tr>
             <tr><td class="mono">screens/widgetBindings.js</td><td class="num">203</td><td>Static props + bindings &rarr; the props a widget renders with</td></tr>
             <tr><td class="mono">screens/widgetBindings.test.js</td><td class="num">47</td><td>Asset bindings and Chart series, against the wind pack</td></tr>
             <tr><td class="mono">screens/screenAsset.jsx</td><td class="num">119</td><td>A screen about a type: the page context, <span class="mono">ScreenAssetProvider</span>/<span class="mono">useScreenAsset</span> (self), checking bindings against a type, and <span class="mono">screenSelfOf</span> (what the editor shows and does about self)</td></tr>
+            <tr><td class="mono">screens/screenSizes.js</td><td class="num">95</td><td>The three fixed screen sizes (Tile, Card, Page), their boxes, and a screen's own size (<span class="mono">pageSize</span> on its root)</td></tr>
+            <tr><td class="mono">screens/screenRepeat.jsx</td><td class="num">266</td><td>Repeaters: which assets a container repeats over (an asset set), which screen each one is drawn with (its type's at the asked-for size, else a generated card), the box every item gets, the nesting and cycle guards, the items themselves, and which model a screen needs loaded</td></tr>
+            <tr><td class="mono">screens/generatedCard.jsx</td><td class="num">82</td><td>The card an asset gets when its type has no screen at that size yet — <span class="mono">operator/relatedAssets/AssetCard</span> plus the four Visualization config sets it reads</td></tr>
+            <tr><td class="mono">screens/screenRepeat.test.js</td><td class="num">145</td><td>What a repeater draws, which screen each item gets by type and size, and sizes themselves</td></tr>
             <tr><td class="mono">DefinitionWorkspace.jsx</td><td class="num">145</td><td>The list + editor shell behind Data Sources, Entities, Queries and Asset Sets</td></tr>
             <tr><td class="mono">useDefinitionDraft.js</td><td class="num">38</td><td>Draft, dirty check and save for a simple form editor</td></tr>
             <tr><td class="mono">useStoredDefinitions.js</td><td class="num">43</td><td>A definition list held in state and saved on every change (add / update / remove); App holds asset sets with it</td></tr>
@@ -1235,7 +1246,7 @@
         <table>
           <thead><tr><th>Group</th><th>Files</th></tr></thead>
           <tbody>
-            <tr><td>Screens building blocks</td><td><span class="mono">ContainerCard</span> (677), <span class="mono">containerModel</span>, <span class="mono">containerTree</span>, <span class="mono">containerStyles</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetBindingPopover</span>, <span class="mono">InputBindingPopover</span>, <span class="mono">QueryInstanceDetailsPanel</span>, <span class="mono">Wizard</span> (694), <span class="mono">RuntimeView</span>, <span class="mono">pagesStorage</span></td></tr>
+            <tr><td>Screens building blocks</td><td><span class="mono">ContainerCard</span> (697), <span class="mono">containerModel</span>, <span class="mono">containerTree</span>, <span class="mono">containerStyles</span>, <span class="mono">GridEditor</span>, <span class="mono">PageVisualsTree</span>, <span class="mono">ScreensPanel</span>, <span class="mono">DevicePicker</span>, <span class="mono">breakpointConfig</span>, <span class="mono">WidgetBindingPopover</span>, <span class="mono">InputBindingPopover</span>, <span class="mono">QueryInstanceDetailsPanel</span>, <span class="mono">Wizard</span> (694), <span class="mono">RuntimeView</span>, <span class="mono">pagesStorage</span></td></tr>
             <tr><td>Widget catalog</td><td><span class="mono">widgetData</span> (the catalog), <span class="mono">widgetProperties</span> (the shipped exposed-property lists — read only through designer/widgets/widgetPropertyDefs), <span class="mono">widgetPropertyOverridesStorage</span>, <span class="mono">widgetConfigs</span> (defaults, and the fallback option list), <span class="mono">widgetSampleData</span>, <span class="mono">WidgetPreview</span>; the full option list is <span class="mono">public/data/widget-options.json</span>, written by <span class="mono">scripts/generateWidgetOptions.js</span></td></tr>
             <tr><td>Theme</td><td><span class="mono">ThemeWorkspace</span>, <span class="mono">BaseThemeGallery</span>, <span class="mono">GalleryPreviewFrame</span>, <span class="mono">themeGalleryHtml</span>, <span class="mono">ThemeModeSwitcher</span></td></tr>
             <tr><td>Data definitions</td><td><span class="mono">DataSourcesWorkspace</span> (736), <span class="mono">QueriesWorkspace</span> (729), <span class="mono">EntitiesWorkspace</span>, <span class="mono">dataModel</span> (538), <span class="mono">entityModel</span>, <span class="mono">queryExecution</span>, <span class="mono">restResolver</span>, <span class="mono">ophubFlowDiscovery</span>, <span class="mono">expressionEval</span>, <span class="mono">ParamListEditor</span>, <span class="mono">FormFields</span></td></tr>
@@ -1295,6 +1306,8 @@
             <tr><td>Designer model</td><td>Screens (Data tab, Create wizard) reads the loaded model; the loader became <span class="mono">useLoadedModel</span>, and the model files moved from <span class="mono">operator/model/</span> to <span class="mono">src/model/</span>. <span class="mono">assetData.js</span> and the unused <span class="mono">NavRail.jsx</span> removed</td></tr>
             <tr><td>Asset Sets</td><td>A new Data area for named asset sets (picked or rule, with an optional start asset), resolved in <span class="mono">model/assetSets.js</span>. Also: switching model asks the open area to confirm like navigating does; <span class="mono">DataListGrid</span> keys computed columns by caption (fixed a React key warning)</td></tr>
             <tr><td>Type screens</td><td>A screen can be about a type (root <span class="mono">context</span>), drawn for one asset at a time; <span class="mono">asset</span> bindings follow paths by type (<span class="mono">model/assetPaths.js</span>); self reaches <span class="mono">ContainerCard</span> through context. Fixed: a Chart bound to real rows drew nothing (empty series template, no default series); widget search now expands its results</td></tr>
+            <tr><td>Repeaters</td><td>A container can repeat an asset set, drawing a screen per asset (<span class="mono">screenRepeat.jsx</span>): the screen for each asset's type, a placeholder for a type with none, nesting and cycle guards, and a live summary in the details panel</td></tr>
+            <tr><td>Screen sizes</td><td>Every screen is a Tile, a Card or a Page (<span class="mono">screenSizes.js</span>); the canvas and Launch frame it at that size, the list badges it, and a repeater asks for a size rather than typed-in item dimensions. Where nothing is built for a type at that size, it draws that type's Visualization card (<span class="mono">generatedCard.jsx</span>) instead of a placeholder. Also: a plain screen that only repeats now loads its set's model in the runtime, and a repeater's wrapped rows pack at the top</td></tr>
           </tbody>
         </table>
       </div>

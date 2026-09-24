@@ -349,6 +349,27 @@
   border-bottom: 1px solid #e3e5e8;
 }
 
+/* Custom tiles (saved property screens) follow the built-in visuals under
+   their own heading. The heading sits inside the first one's list item —
+   DevExtreme's plain list has no group rows here — with the same rule
+   above it that the type actions get below them. */
+.dx-list-item:has(.op-visual-item-heading) {
+  border-top: 1px solid #e3e5e8;
+}
+.op-visual-item-heading {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a8f98;
+}
+.op-visual-item--custom::before {
+  content: '▣';
+  margin-right: 5px;
+  color: #c05e00;
+}
+
 /* Details panel tables that can be reordered by dragging: the grid takes
    the remaining height, with the "Custom order · ↓ Match type order"
    footer (only present once an order has been set) pinned below it. */

@@ -15,7 +15,7 @@ import { getPropertyVisibilityForType, getAssetPathLabel } from '../../model/ass
 import { PROPERTY_LABELS } from '../../model/modelData';
 import { useAssetCustomizations } from '../settings/customizations';
 import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
-import { KPI_VIEW_MODE_ITEMS, PROPERTY_VIEW_MODE_DEFAULT, VISIBILITY_LABEL, VISIBILITY_CYCLE, PROPERTY_VIEW_MODE_UPDATE_TYPE, PROPERTY_VIEW_MODE_OVERRIDE_ITEMS, RELATED_ASSET_VISIBILITY_CYCLE } from '../settings/propertyDisplay';
+import { PROPERTY_VIEW_MODE_DEFAULT, propertyScreenViewModeItems, screenIdOfViewMode, viewModeLabel, VISIBILITY_LABEL, VISIBILITY_CYCLE, PROPERTY_VIEW_MODE_UPDATE_TYPE, PROPERTY_VIEW_MODE_OVERRIDE_ITEMS, RELATED_ASSET_VISIBILITY_CYCLE } from '../settings/propertyDisplay';
 import { buildRelatedAssetRows } from '../relatedAssets/relatedAssetRows';
 import { AllAssetsTypeList } from './AllAssetsEditor';
 import { AssetRevertPopover } from './customizationControls';
@@ -52,7 +52,7 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
     relatedGridRef.current?.instance()?.navigateToRow(selectedRelatedKey);
   }, [selectedRelatedKey]);
 
-  const visualModeLabel = KPI_VIEW_MODE_ITEMS.find(i => i.value === rightPanelViewMode)?.text ?? rightPanelViewMode;
+  const visualModeLabel = viewModeLabel(rightPanelViewMode);
   // The draft is keyed by entity so a stale map left over from whatever
   // was selected before can't leak into this one's first render (the
   // center preview re-seeds it from this entity's saved template on mount).
@@ -164,7 +164,7 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
   const propertyRows = useMemo(() => rawPropertyRows, [rowsSignature]);
 
   const propertyColumns = useMemo(() => {
-    const modeText = mode => KPI_VIEW_MODE_ITEMS.find(i => i.value === mode)?.text ?? mode;
+    const modeText = viewModeLabel;
     return [
       {
         dataField: 'label',
@@ -236,7 +236,16 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
             { text: inherited ? `↓ Match type (${inheritLabel})` : `Default (${inheritLabel})`, value: PROPERTY_VIEW_MODE_DEFAULT, typeAction: !!inherited },
             ...(canUpdateType ? [{ text: `↑ Update type to ${modeText(cellInfo.data.visualMode)}`, value: PROPERTY_VIEW_MODE_UPDATE_TYPE, typeAction: true, dividerAfter: true }] : []),
             ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS,
+            // Custom tiles: saved screens about a property, built in the
+            // Screens area (operator/properties/propertyScreens.js).
+            ...propertyScreenViewModeItems(),
           ];
+          // A custom tile whose screen has since been deleted (or is no
+          // longer about a property) still needs an item, or the box shows
+          // blank. It draws as All until it's changed.
+          if (screenIdOfViewMode(cellInfo.data.visualMode) && !visualSelectItems.some(i => i.value === cellInfo.data.visualMode)) {
+            visualSelectItems.push({ text: 'Missing tile (shows as All)', value: cellInfo.data.visualMode, custom: true, headingBefore: 'Your tiles' });
+          }
           if (!canUpdateType) visualSelectItems[0].dividerAfter = true;
           const stateClass = overridden ? ' op-property-visual-select--override' : inherited ? ' op-property-visual-select--inherited' : '';
           const hint = overridden
@@ -253,7 +262,10 @@ export function NowTypeDetailsList({ entityId, isAssetEntity, relationshipTypeId
               // spells the type actions out.
               displayExpr={item => (item ? (item.value === PROPERTY_VIEW_MODE_DEFAULT ? inheritLabel : item.text) : '')}
               itemRender={item => (
-                <span className={`op-visual-item${item.typeAction ? ' op-visual-item--type-action' : ''}${item.dividerAfter ? ' op-visual-item--divider' : ''}`}>{item.text}</span>
+                <>
+                  {item.headingBefore && <span className="op-visual-item-heading">{item.headingBefore}</span>}
+                  <span className={`op-visual-item${item.typeAction ? ' op-visual-item--type-action' : ''}${item.dividerAfter ? ' op-visual-item--divider' : ''}${item.custom ? ' op-visual-item--custom' : ''}`}>{item.text}</span>
+                </>
               )}
               valueExpr="value"
               value={cellInfo.data.visualMode}

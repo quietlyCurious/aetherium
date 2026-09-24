@@ -7,21 +7,53 @@
 // A screen that's about a type shows one asset of it at a time: the
 // toolbar's "Preview as" picks which, and the page renders inside a
 // ScreenAssetProvider so its asset bindings resolve against that asset.
+// A screen about a property previews one property of one asset: "Preview
+// as" gains a property picker, and ScreenPropertyProvider carries both.
 // `self` is screenSelfOf's answer for the open screen.
 
 import { Button } from 'devextreme-react';
+import { SelectBox } from 'devextreme-react/select-box';
 import ContainerCard from '../../ContainerCard';
 import DevicePicker from '../../DevicePicker';
 import { ROOT_CONTAINER_ID } from '../../containerModel';
 import { findContainerById } from '../../containerTree';
 import { AssetPicker } from '../AssetPicker';
 import { ScreenAssetProvider } from './screenAsset';
+import { ScreenPropertyProvider, propertyOptions } from './screenProperty';
 import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
 
-// What the screen is about, and which asset it's showing. Nothing for a
-// plain page.
+// What the screen is about, and which asset (and, for a property screen,
+// which of its properties) it's showing. Nothing for a plain page.
 function ScreenSelfControls({ self }) {
   if (self.status === 'none' || self.status === 'loading') return null;
+  if (self.status === 'property') {
+    return (
+      <div className="screen-self-controls">
+        <span className="screen-self-label" title="What this screen is about — change it in the Page details">
+          <span className="screen-self-kicker">About</span> Any property
+        </span>
+        <span className="screen-self-kicker">Preview as</span>
+        <AssetPicker
+          value={self.assetId}
+          assetIds={self.assetIds}
+          onChange={(id, { byUser }) => { if (id && byUser) self.chooseAsset(id); }}
+          clearable={false}
+          width={230}
+        />
+        <SelectBox
+          stylingMode="outlined"
+          height={26}
+          width={180}
+          dataSource={propertyOptions(self.assetId)}
+          valueExpr="id"
+          displayExpr="name"
+          value={self.propertyKey}
+          searchEnabled
+          onValueChanged={e => { if (e.value && e.event) self.chooseProperty(e.value); }}
+        />
+      </div>
+    );
+  }
   if (self.status !== 'ok') {
     const why = self.status === 'otherModel'
       ? `This screen is about a type in the “${self.context.modelId}” model. Switch to that model to preview it.`
@@ -247,6 +279,7 @@ export function ScreenCanvas({ editor, self }) {
               onDrop={(e) => { e.preventDefault(); editor.endDrag(); }}
             >
               <ScreenAssetProvider assetId={self.assetId}>
+              <ScreenPropertyProvider assetId={self.status === 'property' ? self.assetId : null} propertyKey={self.propertyKey}>
               {containers.map(c => (
                 <ContainerCard
                   key={c.id}
@@ -277,6 +310,7 @@ export function ScreenCanvas({ editor, self }) {
                   onSnapGuideChange={editor.setSnapGuides}
                 />
               ))}
+              </ScreenPropertyProvider>
               </ScreenAssetProvider>
             </div>
           </div>

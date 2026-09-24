@@ -30,7 +30,8 @@ import { textField as ti, selectField as sb, overflowField, OverflowWarning } fr
 import { describeAssetBinding, PATH_ERRORS } from '../../model/assetPaths';
 import { CURRENT_ASSET_MAP, CURRENT_MODEL } from '../../model/modelData';
 import { assetBindingProblem } from './widgetBindings';
-import { assetBindingsOf } from './screenAsset';
+import { ABOUT_ANY_PROPERTY, assetBindingsOf } from './screenAsset';
+import { PROPERTY_FIELD_ERRORS, describePropertyBinding, propertyBindingsOf } from './screenProperty';
 import { typeOptions } from '../modelOptions';
 import { DEFAULT_REPEAT, repeatScreenSummary, resolveRepeat } from './screenRepeat';
 import { DEFAULT_SCREEN_SIZE, describeSize, sizeBox, sizeLabel, sizeOptions } from './screenSizes';
@@ -58,6 +59,16 @@ const CUSTOM_RATIO_SENTINEL = -1;
 // asset binding shows its path and what it resolves to for the asset the
 // screen is previewing (or why it can't).
 function describeBinding(binding, editor, queries, self, isCollection) {
+  if (binding?.type === 'property') {
+    const previewing = self?.status === 'property' && self.assetId && self.propertyKey
+      ? { assetId: self.assetId, propertyKey: self.propertyKey } : null;
+    const { text, problem } = describePropertyBinding(binding, previewing);
+    const where = `property · ${text}`;
+    if (problem) {
+      return { text: `${where} — ${PROPERTY_FIELD_ERRORS[problem]}`, title: `Property: ${text}\n${PROPERTY_FIELD_ERRORS[problem]}. Set the Page's About to "Any property" to use this.`, isErr: true };
+    }
+    return { text: where, title: `Property: ${text}\nResolves for the property being previewed.`, isErr: false };
+  }
   if (binding?.type === 'asset') {
     const where = describeAssetBinding(binding);
     if (!self?.assetId) {
@@ -505,16 +516,27 @@ function PageSizeField({ editor, container }) {
   </>);
 }
 
-// What the page is about: none (a plain page) or a type from the loaded
-// model. Changing it checks the page's asset bindings first (see
-// screenSelfOf.changeType).
+// What the page is about: nothing (a plain page), any property (a
+// property screen — screenProperty.jsx), or a type from the loaded model.
+// Changing it checks the page's bindings first (screenSelfOf.changeAbout).
 function PageAboutField({ self, containers }) {
   const NONE = '__none__';
-  const bindingCount = assetBindingsOf(containers).length;
-  const options = [{ id: NONE, name: 'Nothing (a plain page)', level: '' }, ...typeOptions()];
-  const known = self.status === 'ok' || self.status === 'none';
-  // Bumped when a change is cancelled, so the box shows the old type again.
+  const assetBindingCount = assetBindingsOf(containers).length;
+  const propertyBindingCount = propertyBindingsOf(containers).length;
+  const options = [
+    { id: NONE, name: 'Nothing (a plain page)', level: '' },
+    { id: ABOUT_ANY_PROPERTY, name: 'Any property', level: 'a custom tile' },
+    ...typeOptions(),
+  ];
+  const known = ['ok', 'none', 'property'].includes(self.status) || (self.status === 'loading' && self.about === ABOUT_ANY_PROPERTY);
+  // Bumped when a change is cancelled, so the box shows the old choice again.
   const [revision, setRevision] = React.useState(0);
+  const count = (n, what) => (n ? ` ${n} ${what} binding${n === 1 ? '' : 's'} on this page.` : '');
+  const note = self.about === ABOUT_ANY_PROPERTY
+    ? `Drawn for one property of one asset at a time. Bind widgets with ⚡ → Property; once saved, it's offered as a Visual for any property in Visualization.${count(propertyBindingCount, 'property')}`
+    : self.typeId
+      ? `Bind widgets to this ${self.typeLabel || 'asset'}'s properties with ⚡ → Asset.${count(assetBindingCount, 'asset')}`
+      : 'Make this a screen about one type of asset, drawn for any asset of that type — or about any property, to use as a custom tile.';
   return (<>
     <span className="details-grid-label">About</span>
     <div className="details-grid-control" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 3 }}>
@@ -523,23 +545,19 @@ function PageAboutField({ self, containers }) {
         dataSource={options}
         valueExpr="id"
         displayExpr="name"
-        value={known ? (self.typeId || NONE) : null}
+        value={known ? (self.about || NONE) : null}
         placeholder={known ? '' : (self.status === 'otherModel' ? `A type in “${self.context?.modelId}”` : 'A type this model doesn’t have')}
         searchEnabled
         itemRender={t => <span>{t.name}{t.level && <span style={{ color: '#999' }}> · {t.level}</span>}</span>}
         onValueChanged={e => {
           if (!e.value) return;
-          if (!self.changeType(e.value === NONE ? null : e.value)) setRevision(n => n + 1);
+          if (!self.changeAbout(e.value === NONE ? null : e.value)) setRevision(n => n + 1);
         }}
         stylingMode="outlined"
         width="100%"
         height={24}
       />
-      <span style={{ fontSize: 10, color: '#888', lineHeight: 1.4 }}>
-        {self.typeId
-          ? `Bind widgets to this ${self.typeLabel || 'asset'}'s properties with ⚡ → Asset.${bindingCount ? ` ${bindingCount} asset binding${bindingCount === 1 ? '' : 's'} on this page.` : ''}`
-          : 'Make this a screen about one type of asset, drawn for any asset of that type.'}
-      </span>
+      <span style={{ fontSize: 10, color: '#888', lineHeight: 1.4 }}>{note}</span>
     </div>
   </>);
 }

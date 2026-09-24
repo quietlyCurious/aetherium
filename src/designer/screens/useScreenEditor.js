@@ -110,6 +110,11 @@ export function useScreenEditor({ queries }) {
   const [previewAssetByPage, setPreviewAssetByPage] = useState({});
   const chosenPreviewAssetId = previewAssetByPage[activePageId ?? 'new'] ?? null;
   const choosePreviewAsset = (assetId) => setPreviewAssetByPage(prev => ({ ...prev, [activePageId ?? 'new']: assetId }));
+  // The same again for a screen about a property (screenProperty.jsx):
+  // which of the preview asset's properties it's showing.
+  const [previewPropertyByPage, setPreviewPropertyByPage] = useState({});
+  const chosenPreviewPropertyKey = previewPropertyByPage[activePageId ?? 'new'] ?? null;
+  const choosePreviewProperty = (key) => setPreviewPropertyByPage(prev => ({ ...prev, [activePageId ?? 'new']: key }));
 
   const instances = usePageQueryInstances(activePageId, queries);
 
@@ -538,8 +543,9 @@ export function useScreenEditor({ queries }) {
   };
 
   // Root only; root is not lockable, so no guard needed.
-  // { modelId, typeId }, or null for a plain page. The Page details ask
-  // first when bindings would stop resolving (screenSelfOf.changeType).
+  // { modelId, typeId }, { kind: 'property' }, or null for a plain page.
+  // The Page details ask first when bindings would stop resolving
+  // (screenSelfOf.changeAbout).
   const setPageContextType = (context) => {
     setContainers(prev => setPageContext(prev, context));
   };
@@ -606,6 +612,7 @@ export function useScreenEditor({ queries }) {
     toggleVisibility, clearBreakpointOverrides, updatePageType,
     // what the screen is about
     setPageContextType, setPageSizeId, chosenPreviewAssetId, choosePreviewAsset,
+    chosenPreviewPropertyKey, choosePreviewProperty,
     setContainerRepeat,
     // canvas tools
     focusMode, setFocusMode, showGap, setShowGap, coordMode, setCoordMode,

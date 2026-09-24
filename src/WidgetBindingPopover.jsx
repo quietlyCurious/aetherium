@@ -21,13 +21,70 @@
 // reachableFrom) — then one of its properties. Stored as { type: 'asset',
 // path, property }, so it follows the path again from whichever asset the
 // screen shows. `self` is screenSelfOf's answer for the open screen.
+//
+// Property mode (screens about any property — designer/screens/
+// screenProperty.jsx) takes the Asset button's place: pick one field of
+// the property being shown (value, unit, range, history…). Stored as
+// { type: 'property', field }.
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
 import { evaluateExpression } from './expressionEval';
 import { inferResultCardinality, RESULT_CARDINALITIES } from './dataModel';
 import { reachableFrom, resolveAssetValue, resolveAssetSeries, PATH_ERRORS, pathKey } from './model/assetPaths';
-import { CURRENT_ASSET_MAP, PROPERTY_UNITS } from './model/modelData';
+import { CURRENT_ASSET_MAP, PROPERTY_LABELS, PROPERTY_UNITS } from './model/modelData';
+import { PROPERTY_FIELD_ERRORS, propertyFieldsFor, resolvePropertyField } from './designer/screens/screenProperty';
+
+// The Property mode's body: every field that fits this widget property,
+// each with what it reads for the property being previewed. One click
+// binds it.
+function PropertyBindingFields({ binding, self, wantsCollection, onSave }) {
+  if (self?.status !== 'property') {
+    return (
+      <div className="binding-hint">
+        This screen isn't about a property. Select the Page and set its <b>About</b> to <b>Any property</b> to bind to one here.
+      </div>
+    );
+  }
+  const previewing = self.assetId && self.propertyKey ? { assetId: self.assetId, propertyKey: self.propertyKey } : null;
+  const current = binding?.type === 'property' ? binding.field : null;
+  const fields = propertyFieldsFor(wantsCollection);
+  const describe = (field) => {
+    const r = resolvePropertyField(previewing, field.id);
+    if (r.error) return { err: PROPERTY_FIELD_ERRORS[r.error] };
+    if (r.rows) return { text: `${r.rows.length} rows` };
+    return { text: String(r.value) };
+  };
+  const previewName = previewing
+    ? `${PROPERTY_LABELS[previewing.propertyKey] || previewing.propertyKey} on ${CURRENT_ASSET_MAP[previewing.assetId]?.name || previewing.assetId}`
+    : null;
+  return (
+    <>
+      <div className="binding-type-label">Field of the property</div>
+      <div className="binding-property-fields">
+        {fields.map(f => {
+          const d = describe(f);
+          return (
+            <button
+              key={f.id}
+              type="button"
+              className={`binding-property-field${current === f.id ? ' binding-property-field--selected' : ''}`}
+              title={f.note || f.label}
+              onClick={() => onSave({ type: 'property', field: f.id })}
+            >
+              <span>{f.label}</span>
+              <span className={d.err ? 'binding-property-field-err' : 'binding-property-field-value'}>{d.err || d.text}</span>
+            </button>
+          );
+        })}
+      </div>
+      {wantsCollection
+        ? <div className="binding-hint">A list property gets the property's history: one row per timestamp, with <b>timestamp</b> and <b>value</b>.</div>
+        : <div className="binding-hint">History goes on list properties (a Chart's or Grid's data).</div>}
+      {previewName && <div className="binding-hint">Previewing {previewName}.</div>}
+    </>
+  );
+}
 
 // The Asset mode's body: where from, which property, and what it gives for
 // the asset being previewed.
@@ -111,9 +168,17 @@ function AssetBindingFields({ binding, self, wantsCollection, onSave }) {
 export default function WidgetBindingPopover({
   propLabel, propType, binding, x, y, pageQueryInstances, queries, self, onSave, onClear, onClose,
 }) {
-  // A new binding on a screen about a type starts in Asset mode.
-  const initialMode = () => binding?.type || (self?.status === 'ok' ? 'asset' : 'expression');
-  const [mode, setMode] = useState(initialMode); // 'expression' | 'query' | 'asset'
+  // A new binding on a screen about a type starts in Asset mode, and on a
+  // screen about a property in Property mode.
+  const initialMode = () => binding?.type
+    || (self?.status === 'ok' ? 'asset' : self?.status === 'property' ? 'property' : 'expression');
+  const [mode, setMode] = useState(initialMode); // 'expression' | 'query' | 'asset' | 'property'
+  // The third button is whichever self binding fits the screen: Property on
+  // a property screen, Asset otherwise — plus the other one when an existing
+  // binding already uses it, so it can still be seen and changed.
+  const selfModes = self?.status === 'property'
+    ? [{ key: 'property', label: 'Property' }, ...(binding?.type === 'asset' ? [{ key: 'asset', label: 'Asset' }] : [])]
+    : [{ key: 'asset', label: 'Asset' }, ...(binding?.type === 'property' ? [{ key: 'property', label: 'Property' }] : [])];
   const [rawText, setRawText] = useState(binding?.type === 'expression' ? (binding.expression ?? '') : '');
   const [pendingInstanceId, setPendingInstanceId] = useState(binding?.type === 'query' ? binding.queryInstanceId : null);
   const existingPickRow = binding?.type === 'query' ? binding.transform?.find(t => t.type === 'pickRow') : null;
@@ -237,7 +302,7 @@ export default function WidgetBindingPopover({
         </div>
 
         <div style={{ display: 'flex', gap: 4, padding: '8px 10px 0' }}>
-          {[{ key: 'expression', label: 'Expression' }, { key: 'query', label: 'Query' }, { key: 'asset', label: 'Asset' }].map(opt => (
+          {[{ key: 'expression', label: 'Expression' }, { key: 'query', label: 'Query' }, ...selfModes].map(opt => (
             <button
               key={opt.key}
               onClick={() => setMode(opt.key)}
@@ -255,7 +320,11 @@ export default function WidgetBindingPopover({
           ))}
         </div>
 
-        {mode === 'asset' ? (
+        {mode === 'property' ? (
+          <div className="binding-popover-body">
+            <PropertyBindingFields binding={binding} self={self} wantsCollection={propType === 'data'} onSave={onSave} />
+          </div>
+        ) : mode === 'asset' ? (
           <div className="binding-popover-body">
             <AssetBindingFields binding={binding} self={self} wantsCollection={propType === 'data'} onSave={onSave} />
           </div>
