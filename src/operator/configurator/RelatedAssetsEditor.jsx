@@ -17,6 +17,7 @@ import { AssetDiagramView } from '../relatedAssets/AssetDiagramView';
 import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
 import { useDiagramSettings, DiagramLayoutControls, DiagramSpacingControls } from './diagramSettings';
 import { RELATED_ASSET_DENSITY_VALUES, formatRelatedAssetDensityLabel, RELATED_ASSETS_LAYOUT_MODE_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, ALIGN_CONTENT_ITEMS } from '../settings/layoutOptions';
+import { viewportScale } from '../../viewport/FitViewport';
 
 // selectedRelatedKey/onSelectRelated: the Details panel's selected Related
 // Assets row, shared both ways — selecting a row highlights its box here,
@@ -56,10 +57,13 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
     const measured = {};
     const containerRect = cardsFlexContainerRef.current?.getBoundingClientRect();
     if (containerRect) {
+      // The flex layout may be drawn zoomed out (FitViewport); on-screen
+      // offsets are then scaled, and the saved positions need layout pixels.
+      const scale = viewportScale(cardsFlexContainerRef.current);
       Object.entries(cardsFlexTileRefs.current).forEach(([key, el]) => {
         if (!el) return;
         const rect = el.getBoundingClientRect();
-        measured[key] = { x: Math.round(rect.left - containerRect.left), y: Math.round(rect.top - containerRect.top) };
+        measured[key] = { x: Math.round((rect.left - containerRect.left) / scale), y: Math.round((rect.top - containerRect.top) / scale) };
       });
     }
     setCardsManualPositions(current => ({ ...measured, ...current }));

@@ -411,6 +411,24 @@ state vs. drawing:
 `ContainerCard`, `PageVisualsTree`, `ScreensPanel`, `DevicePicker`,
 `GridEditor` and the container model/tree files are still at `src/` root.
 
+**Fitted viewport** (`src/viewport/FitViewport.jsx`, maths in
+`fitViewportMath.js`): for runtime views whose layout may not fit — a
+generated layout nobody tidied. It opens fitted (scaled down only as far as
+needed, never above 100%; content that fits is drawn exactly as without
+it), shows zoom controls (−, %, +, Fit) only when the content didn't fit or
+someone zoomed, zooms with Ctrl + scroll around the cursor (plain scroll
+moves the content once it's bigger than the view), pans once a press moves
+past a few pixels (a tap still clicks; a pan doesn't), pinch-zooms, and
+re-fits on resize or a new `resetKey` until someone takes over. `reflow`
+('row' / 'column') is for content that lays itself out against its space:
+zooming out also gives it more room per line. Content is drawn with a CSS
+transform, so code that measures on screen divides by
+`viewportScale(el)` (RelatedAssetsEditor's switch-to-manual does). Used
+today by Related Assets' Cards (auto) view, in the Operator and
+Visualization alike; React Flow still does its own zoom for Manual and
+Diagram. The plan is for this to be the one viewport around coordinate
+layouts once Visualization's manual layouts move onto them.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code

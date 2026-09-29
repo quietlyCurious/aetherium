@@ -5,6 +5,7 @@
 
 import { AssetCardCanvas } from './AssetCardCanvas';
 import { AssetCard } from './AssetCard';
+import { FitViewport } from '../../viewport/FitViewport';
 
 // Cards — the actual view: a plain flex-wrapped grid of related-asset
 // type boxes when cardsLayoutMode is 'auto' (genuinely responsive —
@@ -12,6 +13,12 @@ import { AssetCard } from './AssetCard';
 // above when 'manual'. cardsFlexContainerRef/cardsFlexTileRefs are
 // populated here so RelatedAssetsEditor's handleSwitchCardsToManual can
 // measure real current positions at the moment of switching.
+//
+// The auto (flex) layout sits in a FitViewport: a set of related assets
+// too big for the space opens zoomed out to show all of it, with zoom
+// controls, instead of scrolling. A wrapping flow reflows as it zooms
+// out (wider rows, or taller columns), so it stays readable; a no-wrap
+// line is shrunk as it is. One that fits is drawn exactly as before.
 export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick }) {
   // This asset's own box, always shown first regardless of layout mode —
   // same reasoning as the Diagram view's own isCenter node: the point of
@@ -61,7 +68,9 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
       </div>
     );
   }
+  const reflow = cardsFlowWrap === 'nowrap' ? null : (String(cardsFlowDirection).startsWith('column') ? 'column' : 'row');
   return (
+    <FitViewport className="op-related-assets-viewport" reflow={reflow} resetKey={`${currentTypeId}|${currentTypeExampleAssetId}`}>
     <div
       className="op-related-assets-box-flow"
       style={{ flexDirection: cardsFlowDirection, flexWrap: cardsFlowWrap, alignContent: cardsAlignContent }}
@@ -96,5 +105,6 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
         </div>
       ))}
     </div>
+    </FitViewport>
   );
 }

@@ -407,6 +407,23 @@
   min-height: 0;
 }
 
+/* The viewport the Cards flow sits in (viewport/FitViewport): it takes the
+   flow's old place in the column — the space left below the toolbar — and
+   the flow inside it just lays out, at whatever size the viewport gives it
+   (its full width, or full height for a wrapping column). */
+.op-related-assets-viewport {
+  margin-top: 14px;
+  flex: 1;
+  min-height: 0;
+}
+.op-related-assets-viewport .op-related-assets-box-flow {
+  margin-top: 0;
+  overflow: visible;
+  flex: none;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 /* React Flow fills 100% of its parent, so this needs an explicit size —
    matches .op-related-assets-box-flow's own flex:1/min-height:0 pattern
    so both views fit the same flex-column parent (.op-related-assets-editor)
