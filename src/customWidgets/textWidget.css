@@ -1,0 +1,34 @@
+/* customWidgets/TextWidget — one piece of text filling its container. */
+.ae-text {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.ae-text-content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* One line, cut with an ellipsis. */
+.ae-text--ellipsis .ae-text-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* One line; the component shrinks the font until it fits. */
+.ae-text--shrink .ae-text-content {
+  white-space: nowrap;
+}
+
+/* As many lines as it needs. */
+.ae-text--wrap .ae-text-content {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

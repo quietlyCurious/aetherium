@@ -19,6 +19,9 @@ function getLayoutStyle(layout) {
     flexWrap: layout.flexWrap === 'no wrap' ? 'nowrap' : (layout.flexWrap || 'nowrap'),
     justifyContent: layout.justifyContent || 'flex-start',
     alignItems: layout.alignItems || 'stretch',
+    // How wrapped lines share the cross axis. Unset is the browser's own
+    // default (which behaves as stretch), so older screens are unchanged.
+    ...(layout.alignContent ? { alignContent: layout.alignContent } : {}),
   };
 }
 

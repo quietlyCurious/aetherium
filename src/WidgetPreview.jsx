@@ -44,6 +44,7 @@ import Scheduler from 'devextreme-react/scheduler';
 import Gantt from 'devextreme-react/gantt';
 
 import WIDGET_SAMPLE_DATA from './widgetSampleData';
+import { CUSTOM_WIDGETS } from './customWidgets/customWidgets';
 
 const WIDGET_COMPONENT_MAP = {
   DataGrid: (props) => <DataGrid {...props} />,
@@ -87,6 +88,8 @@ const WIDGET_COMPONENT_MAP = {
   Form: (props) => <Form {...props} />,
   Scheduler: (props) => <Scheduler {...props} />,
   Gantt: (props) => <Gantt {...props} />,
+  // Aetherium's own widgets (customWidgets/customWidgets.js).
+  ...Object.fromEntries(Object.entries(CUSTOM_WIDGETS).map(([name, { component: Component }]) => [name, (props) => <Component {...props} />])),
 };
 
 // Sample-data keys that describe the SHAPE of the sample dataset itself

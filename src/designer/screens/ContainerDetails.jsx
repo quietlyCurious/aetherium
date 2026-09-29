@@ -36,6 +36,7 @@ import { typeOptions } from '../modelOptions';
 import { DEFAULT_REPEAT, repeatScreenSummary, resolveRepeat } from './screenRepeat';
 import { DEFAULT_SCREEN_SIZE, describeSize, sizeBox, sizeLabel, sizeOptions } from './screenSizes';
 import { needsStart } from '../../model/assetSets';
+import { LayoutPresets } from './LayoutPresets';
 import { AssetPicker } from '../AssetPicker';
 
 // Float w/h ratios. null = Free (no constraint).
@@ -274,12 +275,18 @@ function LayoutTab({ editor, self, assetSets, container, layout, lockedClass }) 
     const oldCells = layout.gridCells || buildDefaultCells(layout.gridColumns||2, layout.gridRows||2);
     return migrateGridCells(oldCells, layout.gridColumns||2, layout.gridRows||2, cols, rows);
   };
+  // The fields the Quick presets set are outlined, so it's visible that a
+  // preset is only a shortcut for them (layoutPresetMapping.js).
+  const preset = 'details-grid-control details-grid-control--preset';
+  const isRoot = container.id === ROOT_CONTAINER_ID;
   return (
     <div className={`details-tab-content${lockedClass}`}>
-      <RepeatSection editor={editor} self={self} assetSets={assetSets} container={container} />
+      <LayoutPresets layout={layout} onChange={set} disabled={editor.isSelectedLocked} />
+      {/* A page doesn't repeat; its containers do. */}
+      {!isRoot && <RepeatSection editor={editor} self={self} assetSets={assetSets} container={container} />}
       <div className="details-section"><div className="details-grid">
         <span className="details-section-title">Layout</span>
-        <span className="details-grid-label">Type</span><div className="details-grid-control">{sb(['flex','coordinate','grid'],layout.layoutType,v=>set({layoutType:v}))}</div>
+        <span className="details-grid-label">Type</span><div className={preset}>{sb(['flex','coordinate','grid'],layout.layoutType,v=>set({layoutType:v}))}</div>
         {layout.layoutType === 'grid' ? (<>
           <span className="details-grid-label">Columns</span><div className="details-grid-control">{ti(layout.gridColumns, '2', v => {
             const newCols = Math.max(1, parseInt(v)||2);
@@ -292,10 +299,13 @@ function LayoutTab({ editor, self, assetSets, container, layout, lockedClass }) 
           <span className="details-grid-label">Gap</span><div className="details-grid-control">{ti(layout.gridGap,'8px',v=>set({gridGap:v}))}</div>
           <span className="details-grid-label">Direction</span><div className="details-grid-control">{sb(['horizontal','vertical'], layout.gridMergeDirection || 'horizontal', v => set({ gridMergeDirection: v }))}</div>
         </>) : layout.layoutType === 'flex' ? (<>
-          <span className="details-grid-label">Direction</span><div className="details-grid-control">{sb(['row','column','row-reverse','column-reverse'],layout.flexDirection,v=>set({flexDirection:v}))}</div>
-          <span className="details-grid-label">Wrap</span><div className="details-grid-control">{sb(['no wrap','wrap','wrap-reverse'],layout.flexWrap,v=>set({flexWrap:v}))}</div>
+          <span className="details-grid-label">Direction</span><div className={preset}>{sb(['row','column','row-reverse','column-reverse'],layout.flexDirection,v=>set({flexDirection:v}))}</div>
+          <span className="details-grid-label">Wrap</span><div className={preset}>{sb(['no wrap','wrap','wrap-reverse'],layout.flexWrap,v=>set({flexWrap:v}))}</div>
           <span className="details-grid-label">Justify</span><div className="details-grid-control">{sb(['flex-start','flex-end','center','space-between','space-around'],layout.justifyContent,v=>set({justifyContent:v}))}</div>
           <span className="details-grid-label">Align</span><div className="details-grid-control">{sb(['flex-start','flex-end','center','baseline','stretch'],layout.alignItems,v=>set({alignItems:v}))}</div>
+          {/* align-content: how wrapped lines share the cross axis —
+              Visualization's Distribute (stretch) / Cluster (flex-start). */}
+          <span className="details-grid-label">Align lines</span><div className={preset}>{sb(['stretch','flex-start','flex-end','center','space-between','space-around'],layout.alignContent || 'stretch',v=>set({alignContent:v}))}</div>
         </>) : null}
       </div></div>
     </div>
@@ -681,7 +691,7 @@ export function ContainerDetails({ editor, queries, self, assetSets }) {
           </TabPanelItem>
         )}
 
-        {!container.isWidget && container.id !== ROOT_CONTAINER_ID && (
+        {!container.isWidget && (
           <TabPanelItem title="Layout">
             <LayoutTab editor={editor} self={self} assetSets={assetSets} container={container} layout={layout} lockedClass={lockedClass} />
           </TabPanelItem>

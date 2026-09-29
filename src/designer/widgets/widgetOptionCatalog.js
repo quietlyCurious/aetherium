@@ -14,6 +14,10 @@
 // flagged (`guessed`). Either way an option can be added by typing its
 // path, so nothing is unreachable.
 //
+// Aetherium's own widgets (customWidgets/customWidgets.js) aren't in the
+// file; they carry their option list in the same shape, and it's used
+// whether or not the file loaded.
+//
 // An option: { name, type, value, choices, group, source, guessed? }
 //   type    one of WIDGET_PROPERTY_TYPES, or 'unknown' (fallback only: no
 //           value and no name hint). An option holding a list or an object
@@ -27,6 +31,7 @@
 //   source  'catalog' | 'config' | 'exposed'
 
 import WIDGET_CONFIGS from '../../widgetConfigs';
+import { CUSTOM_WIDGET_OPTIONS } from '../../customWidgets/customWidgets';
 import { labelForOption, groupForOption } from './optionNaming';
 
 // Options that hold the widget's rows/items — collections, bind-only.
@@ -94,13 +99,15 @@ function fromGenerated(entry) {
   return option;
 }
 
-// The available options for one widget: the generated list when it loaded
-// (`generated` is the file's `widgets` map, or null), else the flattened
+// The available options for one widget: a custom widget's own list
+// (customWidgets.js — the generated file only covers DevExtreme), else the
+// generated list when it loaded (`generated` is the file's `widgets` map,
+// or null), else the flattened
 // configuration — plus any exposed property neither knows about, so
 // everything exposed always has a row to untick. Sorted by group, 'General'
 // first, then name.
 export function getWidgetOptionCatalog(widgetName, exposedDefs = [], generated = null) {
-  const fromFile = generated?.[widgetName];
+  const fromFile = CUSTOM_WIDGET_OPTIONS[widgetName] || generated?.[widgetName];
   const options = fromFile
     ? fromFile.map(fromGenerated)
     : (WIDGET_CONFIGS[widgetName] ? flatten(WIDGET_CONFIGS[widgetName], '', []) : []);

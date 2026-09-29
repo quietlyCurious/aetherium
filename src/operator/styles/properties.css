@@ -668,5 +668,6 @@
   overflow: hidden;
   padding: 0;
   border-radius: 4px;
-  background: #fff;
+  /* No background of its own: the card it sits on shows through. */
+  background: transparent;
 }

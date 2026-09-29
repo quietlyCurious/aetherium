@@ -22,6 +22,21 @@
 
 const WIDGET_PROPERTIES = {
 
+// ─── BASICS ────────────────────────────────────────────────────────────────
+Text: [
+  { name: 'text', label: 'Text', type: 'string', default: 'Text' },
+  { name: 'fontSize', label: 'Font Size', type: 'number', default: 16 },
+  { name: 'fontWeight', label: 'Font Weight', type: 'enum', options: ['normal','300','500','600','bold'], default: 'normal' },
+  { name: 'color', label: 'Color', type: 'color', default: '' },
+  { name: 'textAlign', label: 'Align', type: 'enum', options: ['left','center','right'], default: 'left' },
+  { name: 'verticalAlign', label: 'Vertical Align', type: 'enum', options: ['top','center','bottom'], default: 'center' },
+  { name: 'overflow', label: 'Overflow', type: 'enum', options: ['ellipsis','wrap','shrink'], default: 'ellipsis' },
+  { name: 'minFontSize', label: 'Min Font Size', type: 'number', default: 9 },
+  { name: 'decimals', label: 'Decimals', type: 'enum', options: ['auto','0','1','2','3','4'], default: 'auto' },
+  { name: 'prefix', label: 'Prefix', type: 'string', default: '' },
+  { name: 'suffix', label: 'Suffix', type: 'string', default: '' },
+],
+
 // ─── GRIDS & LISTS ─────────────────────────────────────────────────────────
 DataGrid: [
   { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },

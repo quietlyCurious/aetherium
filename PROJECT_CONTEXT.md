@@ -248,6 +248,20 @@ committed `widgetProperties.js`, not something the area does. The edits
 themselves are plain functions on the list in `widgetPropertyEdits.js`
 (the same split Screens has between `screenEdits.js` and its components).
 
+**Aetherium's own widgets** (`src/customWidgets/`): widgets DevExtreme
+doesn't have — so far **Text**, one piece of text (usually bound) with
+size/weight/colour/alignment, number rounding, prefix/suffix, and an
+overflow mode: ellipsis, wrap, or shrink (font shrinks to fit the box, down
+to a minimum — for values in a fixed-size tile). `customWidgets.js` is the
+registry: each entry has its `component` and its `options` in
+widget-options.json's `{ n, t, o?, d? }` shape. WidgetPreview draws them
+from there, the Widgets area lists their options from there (the generated
+file only covers DevExtreme), and they sit in `widgetData.js` under
+*Basics* with `custom: true`, which `generateWidgetOptions.js` skips.
+Adding one: component + registry entry + catalog entry + an exposed list
+(export it from the Widgets area). A KPI (value + label) is deliberately
+two Texts in a screen rather than a widget: screens are how things combine.
+
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
 today, an asset visualization later:
@@ -357,6 +371,18 @@ stays the built-in modes for now. Anything that draws a screen inside
 something else gets ScreenView from `screenRenderer.js`
 (`registerScreenRenderer` / `getScreenRenderer`) rather than importing it,
 which would be a circle.
+
+**Layout tab quick presets** (`designer/screens/LayoutPresets.jsx`,
+`layoutPresetMapping.js`): the Visualization toolbar's layout choices —
+Arrange (Flex / Manual), Flow (Column / Row), Wrap, Lines (Distribute /
+Cluster) — at the top of the Layout tab, drawn with the toolbar's own item
+lists and icons (`operator/settings/layoutOptions.js`). A preset only sets
+existing Layout fields (`layoutType`, `flexDirection`, `flexWrap`,
+`alignContent`), which are outlined; a field set by hand to something the
+presets don't have shows that preset unselected. `alignContent` ("Align
+lines") is new on flex layouts, emitted only when set. The page itself now
+has a Layout tab too (no Repeat section), since a Tile's layout is its
+root's.
 
 The Screens *editor* lives in the same folder, split the same way as
 state vs. drawing:

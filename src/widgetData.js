@@ -4,6 +4,7 @@
 
 const DX_WIDGET_DATA = [
 
+{ id: 'basics', parentId: null, name: 'Basics', assetType: 'category', assetLevel: 'category' },
 { id: 'grids', parentId: null, name: 'Grids & Lists', assetType: 'category', assetLevel: 'category' },
 { id: 'charts', parentId: null, name: 'Charts & Visualization', assetType: 'category', assetLevel: 'category' },
 { id: 'editors', parentId: null, name: 'Editors', assetType: 'category', assetLevel: 'category' },
@@ -12,6 +13,10 @@ const DX_WIDGET_DATA = [
 { id: 'dialogs', parentId: null, name: 'Dialogs & Notifications', assetType: 'category', assetLevel: 'category' },
 { id: 'scheduling', parentId: null, name: 'Scheduling', assetType: 'category', assetLevel: 'category' },
 { id: 'misc', parentId: null, name: 'Miscellaneous', assetType: 'category', assetLevel: 'category' },
+
+// Basics — Aetherium's own widgets, not DevExtreme's (custom: true;
+// see customWidgets/customWidgets.js)
+{ id: 'ae-text', parentId: 'basics', name: 'Text', assetType: 'widget', assetLevel: 'widget', custom: true },
 
 // Grids & Lists
 { id: 'dx-datagrid', parentId: 'grids', name: 'DataGrid', assetType: 'widget', assetLevel: 'widget' },

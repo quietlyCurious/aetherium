@@ -59,6 +59,9 @@ const DEFAULT_SLOT = {
 // Compact default sizes per widget — swap out to taste
 // Format: { width, height } in px
 const WIDGET_DEFAULT_SIZES = {
+  // Aetherium's own — one line of text
+  Text: { width: '160px', height: '32px' },
+
   // Grids & Lists — need more height to show rows
   DataGrid: { width: '400px', height: '250px' },
   TreeList: { width: '400px', height: '250px' },

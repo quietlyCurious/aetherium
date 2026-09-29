@@ -233,7 +233,9 @@ function widgetNames() {
     .replace('export { DX_WIDGET_DATA };', 'module.exports = DX_WIDGET_DATA;');
   const module = { exports: {} };
   new Function('module', 'exports', source)(module, module.exports); // eslint-disable-line no-new-func
-  return module.exports.filter(w => w.assetLevel === 'widget').map(w => w.name);
+  // Aetherium's own widgets (custom: true) have no DevExtreme declarations;
+  // their options live in src/customWidgets/customWidgets.js.
+  return module.exports.filter(w => w.assetLevel === 'widget' && !w.custom).map(w => w.name);
 }
 
 function main() {
@@ -281,7 +283,9 @@ function main() {
   // DevExtreme upgrade this is the list worth reading.
   const exposed = loadExposedProperties();
   const drifted = [];
+  const dxNames = new Set(names);
   Object.entries(exposed).forEach(([widget, defs]) => {
+    if (!dxNames.has(widget)) return; // a custom widget — not DevExtreme's to drift from
     const names = new Set((widgets[widget] || []).map(o => o.n));
     defs.forEach(def => { if (!names.has(def.name)) drifted.push(`${widget}.${def.name}`); });
   });
