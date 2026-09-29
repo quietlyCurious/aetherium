@@ -10,6 +10,11 @@ describe('fitFixed', () => {
   test('an editor can ask for content that fits to sit in the middle', () => {
     expect(fitFixed({ w: 800, h: 600 }, { w: 200, h: 100 }, 'center')).toEqual({ zoom: 1, x: 300, y: 250, fits: true });
   });
+  test('an editor can let small content be fitted up, capped', () => {
+    const r = fitFixed({ w: 1000, h: 800 }, { w: 220, h: 140 }, 'center', 2);
+    expect(r.zoom).toBe(2);
+    expect(r.x).toBeCloseTo((1000 - 440) / 2);
+  });
   test('too big: shrinks to show all of it, leaving room for the controls, centred across', () => {
     const r = fitFixed({ w: 800, h: 600 }, { w: 1600, h: 600 });
     expect(r.fits).toBe(false);

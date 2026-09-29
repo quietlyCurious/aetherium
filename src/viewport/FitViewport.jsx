@@ -36,6 +36,12 @@
 //   controls 'always'   keeps the zoom controls showing even at 100%.
 //   align 'center'      content that fits sits in the middle of the view
 //                       rather than at its top-left.
+//   maxFitZoom          lets Fit zoom small content *in*, up to this (an
+//                       editor's Tile at 200%). 1 — never above 100% — is
+//                       the runtime rule.
+//   Keyboard (editor, while the pointer is over the view): Ctrl/Cmd + = and
+//   − zoom in and out, Ctrl/Cmd + 0 is 100%, Shift + 1 fits. The % button
+//   opens a list of zoom levels.
 // The defaults ('drag', 'auto') are the runtime behaviour above.
 //
 // A wheel over something inside that can itself scroll that way scrolls it,
@@ -52,8 +58,10 @@ import { PAN_THRESHOLD, clampPan, fitFixed, fitReflow, zoomAround } from './fitV
 import './fitViewport.css';
 
 const ZOOM_STEP = 1.25;
+// The % button's list.
+const ZOOM_PRESETS = [0.25, 0.5, 1, 2, 4];
 
-export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', panWith = 'drag', controls: controlsMode = 'auto', resetKey, children }) {
+export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', maxFitZoom = 1, panWith = 'drag', controls: controlsMode = 'auto', resetKey, children }) {
   const viewRef = useRef(null);
   const stageRef = useRef(null);
   const view = useRef({ zoom: 1, x: 0, y: 0 });
@@ -107,7 +115,7 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     } else {
       stage.style.width = 'max-content';
       stage.style.height = '';
-      result = fitFixed(v, { w: stage.offsetWidth, h: stage.offsetHeight }, align);
+      result = fitFixed(v, { w: stage.offsetWidth, h: stage.offsetHeight }, align, maxFitZoom);
     }
     fits.current = result.fits;
     view.current = { zoom: result.zoom, x: result.x, y: result.y };
@@ -115,7 +123,7 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     apply();
     // Let the ResizeObserver callbacks our own measuring caused go by.
     requestAnimationFrame(() => { measuring.current = false; });
-  }, [reflow, sizing, align, apply]);
+  }, [reflow, sizing, align, maxFitZoom, apply]);
 
   // Fit on open, and again for a different subject.
   useLayoutEffect(() => { fit(); }, [fit, resetKey]);
@@ -155,6 +163,17 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     const el = viewRef.current;
     zoomTo(nextZoom, el.clientWidth / 2, el.clientHeight / 2);
   };
+
+  // Keyboard shortcuts reach the current zoom through this ref, so the
+  // listener doesn't have to be re-attached on every render.
+  const zoomKeyRef = useRef(null);
+  zoomKeyRef.current = (action) => {
+    if (action === 'in') zoomAtCentre(view.current.zoom * ZOOM_STEP);
+    else if (action === 'out') zoomAtCentre(view.current.zoom / ZOOM_STEP);
+    else if (action === 'reset') zoomAtCentre(1);
+    else if (action === 'fit') fit();
+  };
+  const [presetsOpen, setPresetsOpen] = useState(false);
 
   // Wheel: Ctrl zooms around the cursor; plain wheel moves the content once
   // it's bigger than the view, and otherwise leaves the page to scroll.
@@ -203,7 +222,13 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     if (panWith !== 'modifier') return undefined;
     const typing = (t) => t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
     const down = (e) => {
-      if (e.code !== 'Space' || !hovered.current || typing(e.target)) return;
+      if (!hovered.current || typing(e.target)) return;
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && (e.key === '=' || e.key === '+')) { e.preventDefault(); zoomKeyRef.current?.('in'); return; }
+      if (mod && (e.key === '-' || e.key === '_')) { e.preventDefault(); zoomKeyRef.current?.('out'); return; }
+      if (mod && e.key === '0') { e.preventDefault(); zoomKeyRef.current?.('reset'); return; }
+      if (e.shiftKey && !mod && (e.key === '!' || e.code === 'Digit1')) { e.preventDefault(); zoomKeyRef.current?.('fit'); return; }
+      if (e.code !== 'Space') return;
       e.preventDefault();
       if (!spaceHeld.current) { spaceHeld.current = true; setSpaceMode(true); }
     };
@@ -300,7 +325,16 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
       {controls.shown && (
         <div className="fit-viewport-controls" role="toolbar" aria-label="Zoom">
           <button type="button" title="Zoom out" onClick={() => zoomAtCentre(view.current.zoom / ZOOM_STEP)}>−</button>
-          <button type="button" className="fit-viewport-pct" title="Back to 100%" onClick={() => zoomAtCentre(1)}>{controls.pct}%</button>
+          <button type="button" className="fit-viewport-pct" title="Zoom level" aria-haspopup="menu" aria-expanded={presetsOpen} onClick={() => setPresetsOpen(o => !o)}>{controls.pct}%</button>
+          {presetsOpen && (
+            <div className="fit-viewport-presets" role="menu">
+              {ZOOM_PRESETS.map(z => (
+                <button key={z} type="button" role="menuitem" className={controls.pct === Math.round(z * 100) ? 'fit-viewport-preset--on' : undefined}
+                  onClick={() => { setPresetsOpen(false); zoomAtCentre(z); }}>{Math.round(z * 100)}%</button>
+              ))}
+              <button type="button" role="menuitem" onClick={() => { setPresetsOpen(false); fit(); }}>Fit</button>
+            </div>
+          )}
           <button type="button" title="Zoom in" onClick={() => zoomAtCentre(view.current.zoom * ZOOM_STEP)}>+</button>
           <button type="button" className="fit-viewport-fit" title="Fit everything in view" onClick={fit}>Fit</button>
         </div>

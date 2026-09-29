@@ -1402,3 +1402,22 @@
   background: rgba(0, 120, 212, 0.08);
   pointer-events: none;
 }
+
+/* A second canvas toolbar row, shown only while it has something to do —
+   today, align / distribute / arrange for a multi-selection in a
+   coordinate layout. */
+.center-subtoolbar {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-bottom: 1px solid #ddd;
+  background: #fafbfc;
+}
+.center-subtoolbar-label {
+  font-size: 11px;
+  color: #666;
+  margin-right: 4px;
+}

@@ -22,6 +22,52 @@ import { ScreenAssetProvider } from './screenAsset';
 import { ScreenPropertyProvider, propertyOptions } from './screenProperty';
 import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
 import { FitViewport } from '../../viewport/FitViewport';
+import { CanvasAlignControls } from '../../operator/canvas/CanvasAlignControls';
+import { arrangedPositions, coordUpdateFor } from './coordinateArrange';
+
+// The selected items, when there are at least two and they share one
+// coordinate-layout parent — what align / distribute / arrange act on.
+function arrangeableSelection(containers, selectedIds) {
+  if (!selectedIds || selectedIds.length < 2) return null;
+  const items = selectedIds.map(id => findContainerById(containers, id)).filter(Boolean);
+  if (items.length < 2 || items.some(c => c.parentId !== items[0].parentId)) return null;
+  const parent = findContainerById(containers, items[0].parentId);
+  return parent?.layout?.layoutType === 'coordinate' ? { parent, items } : null;
+}
+
+// Align / distribute / arrange-in-grid for the selection, reusing
+// Visualization's toolbar controls (they call align / distribute /
+// arrangeGrid on a "canvas" object; this is that object). Sizes and
+// positions are read from the canvas in layout pixels (offset*), which the
+// zoom doesn't affect, then written back as coordinates.
+function useArrangeActions(editor) {
+  const run = (action) => {
+    const sel = arrangeableSelection(editor.containers, editor.selectedContainerIds);
+    if (!sel) return;
+    const canvas = document.querySelector('.screen-canvas-viewport');
+    const find = (id) => canvas?.querySelector(`[data-container-id="${CSS.escape(String(id))}"]`);
+    const body = find(sel.parent.id)?.querySelector(':scope > .container-card-body');
+    if (!body) return;
+    const measured = sel.items.map(c => ({ c, el: find(c.id) })).filter(m => m.el);
+    const positions = arrangedPositions(
+      measured.map(({ c, el }) => ({ id: c.id, x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight })),
+      action,
+    );
+    if (!positions) return;
+    const parentBox = { w: body.clientWidth, h: body.clientHeight };
+    measured.forEach(({ c, el }) => {
+      const pos = positions.get(c.id);
+      if (pos) editor.updateCoord(c.id, coordUpdateFor(c.coord, pos, { w: el.offsetWidth, h: el.offsetHeight }, parentBox));
+    });
+  };
+  return {
+    current: {
+      align: (mode) => run({ type: 'align', mode }),
+      distribute: (axis) => run({ type: 'distribute', axis }),
+      arrangeGrid: () => run({ type: 'grid' }),
+    },
+  };
+}
 
 // What the screen is about, and which asset (and, for a property screen,
 // which of its properties) it's showing. Nothing for a plain page.
@@ -249,15 +295,27 @@ export function ScreenCanvas({ editor, self }) {
   const frameHeight = previewHeight || box?.height || null;
   const framed = !!frameWidth;
   // The canvas zooms and pans (viewport/FitViewport). A framed screen opens
-  // fitted — a large device preview zoomed out to show all of it, a Tile
-  // at 100% — and a Page fills the view. Zoom in to work on a small tile.
+  // fitted — a large device preview zoomed out to show all of it, a Tile or
+  // Card zoomed in (up to 200%) to fill the space — and a Page fills the
+  // view at 100%.
   // Pan with Space + drag, the middle button, or a drag on the grey area
   // around the frame; a plain drag on the page is still the editor's.
   // Re-fits when a different screen, size or device is chosen.
   const fitKey = `${editor.activePageId ?? 'new'}|${sizeId}|${frameWidth}x${frameHeight}`;
+  const arrangeRef = useArrangeActions(editor);
+  const canArrange = !!arrangeableSelection(containers, editor.selectedContainerIds);
   return (
     <div className="app-panel app-panel--center">
       <ScreenCanvasToolbar editor={editor} self={self} />
+      {/* Two or more items in one coordinate layout: the same align /
+          distribute / arrange controls Visualization's manual layouts
+          have, on a row of their own while there's something to act on. */}
+      {canArrange && (
+        <div className="center-subtoolbar">
+          <span className="center-subtoolbar-label">{editor.selectedContainerIds.length} selected</span>
+          <CanvasAlignControls canvasRef={arrangeRef} withArrangeGrid />
+        </div>
+      )}
       <div
         className="center-content"
         onClick={editor.clearCanvasSelection}
@@ -267,6 +325,7 @@ export function ScreenCanvas({ editor, self }) {
           className={`screen-canvas-viewport${framed ? ' screen-canvas-viewport--framed' : ''}`}
           sizing={framed ? 'natural' : 'fill'}
           align="center"
+          maxFitZoom={2}
           panWith="modifier"
           controls="always"
           resetKey={fitKey}

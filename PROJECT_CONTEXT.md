@@ -441,6 +441,21 @@ containers also box-select: drag across empty space (Shift + drag on a
 container that can itself be moved), Shift/Ctrl/Cmd to add;
 `editor.selectContainers(ids, { add })`.
 
+Zooming on the canvas: a Tile or Card opens fitted *up* to fill the space
+(`maxFitZoom={2}`; runtime views keep the never-above-100% rule), the %
+button opens a list of zoom levels, and while the pointer is over the
+canvas Ctrl/Cmd + = / − zoom, Ctrl/Cmd + 0 is 100% and Shift + 1 fits.
+
+**Align, distribute, arrange in grid** (`designer/screens/
+coordinateArrange.js`): two or more selected items in one coordinate
+layout get a second canvas toolbar row (`.center-subtoolbar`) with
+Visualization's own `CanvasAlignControls`. The maths is
+`operator/canvas/canvasGeometry.js`'s align/distribute plus a
+reading-order grid; positions are measured from the canvas in layout pixels
+(`offsetLeft/Top/Width/Height`) and written back through each item's own
+anchors (`coordUpdateFor`: a right-anchored item gets a new right, a
+stretched one both edges).
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code

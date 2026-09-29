@@ -23,8 +23,15 @@ export const clampZoom = (zoom) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
 // without a viewport (top-left, 100%) — or, with `align` 'center', in the
 // middle of the view, the way an editor shows a framed screen. Content
 // that doesn't fit is centred across and starts at the top.
-export function fitFixed(view, content, align = 'start') {
+//
+// `maxZoom` above 1 lets small content be fitted *up* too — an editor
+// showing a 220×140 Tile at 200% so it's comfortable to work on.
+export function fitFixed(view, content, align = 'start', maxZoom = 1) {
   if (!content.w || !content.h || !view.w || !view.h) return { zoom: 1, x: 0, y: 0, fits: true };
+  if (maxZoom > 1 && content.w <= view.w && content.h <= view.h) {
+    const zoom = Math.max(1, Math.min(maxZoom, (view.w - FIT_PAD * 2) / content.w, (view.h - FIT_PAD - CONTROLS_ROOM) / content.h));
+    return { zoom, x: (view.w - content.w * zoom) / 2, y: Math.max(0, (view.h - content.h * zoom) / 2), fits: true };
+  }
   if (content.w <= view.w && content.h <= view.h) {
     return align === 'center'
       ? { zoom: 1, x: (view.w - content.w) / 2, y: Math.max(0, (view.h - content.h) / 2), fits: true }
