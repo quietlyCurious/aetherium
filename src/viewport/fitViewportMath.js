@@ -20,11 +20,16 @@ export const clampZoom = (zoom) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
 
 // Fixed-size content: the largest scale (never above 1) that shows all of
 // it, and where to put it. Content that fits sits exactly where it would
-// without a viewport (top-left, 100%); content that doesn't is centred
-// across and starts at the top.
-export function fitFixed(view, content) {
+// without a viewport (top-left, 100%) — or, with `align` 'center', in the
+// middle of the view, the way an editor shows a framed screen. Content
+// that doesn't fit is centred across and starts at the top.
+export function fitFixed(view, content, align = 'start') {
   if (!content.w || !content.h || !view.w || !view.h) return { zoom: 1, x: 0, y: 0, fits: true };
-  if (content.w <= view.w && content.h <= view.h) return { zoom: 1, x: 0, y: 0, fits: true };
+  if (content.w <= view.w && content.h <= view.h) {
+    return align === 'center'
+      ? { zoom: 1, x: (view.w - content.w) / 2, y: Math.max(0, (view.h - content.h) / 2), fits: true }
+      : { zoom: 1, x: 0, y: 0, fits: true };
+  }
   const zoom = clampZoom(Math.min(1, (view.w - FIT_PAD * 2) / content.w, (view.h - FIT_PAD - CONTROLS_ROOM) / content.h));
   return { zoom, x: Math.max(0, (view.w - content.w * zoom) / 2), y: FIT_PAD, fits: false };
 }

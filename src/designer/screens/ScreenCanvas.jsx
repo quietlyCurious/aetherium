@@ -21,6 +21,7 @@ import { AssetPicker } from '../AssetPicker';
 import { ScreenAssetProvider } from './screenAsset';
 import { ScreenPropertyProvider, propertyOptions } from './screenProperty';
 import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
+import { FitViewport } from '../../viewport/FitViewport';
 
 // What the screen is about, and which asset (and, for a property screen,
 // which of its properties) it's showing. Nothing for a plain page.
@@ -246,75 +247,86 @@ export function ScreenCanvas({ editor, self }) {
   const box = fillsFrame(sizeId) ? null : sizeBox(sizeId);
   const frameWidth = previewWidth || box?.width || null;
   const frameHeight = previewHeight || box?.height || null;
+  const framed = !!frameWidth;
+  // The canvas zooms and pans (viewport/FitViewport). A framed screen opens
+  // fitted — a large device preview zoomed out to show all of it, a Tile
+  // at 100% — and a Page fills the view. Zoom in to work on a small tile.
+  // Pan with Space + drag, the middle button, or a drag on the grey area
+  // around the frame; a plain drag on the page is still the editor's.
+  // Re-fits when a different screen, size or device is chosen.
+  const fitKey = `${editor.activePageId ?? 'new'}|${sizeId}|${frameWidth}x${frameHeight}`;
   return (
     <div className="app-panel app-panel--center">
       <ScreenCanvasToolbar editor={editor} self={self} />
       <div
         className="center-content"
         onClick={editor.clearCanvasSelection}
-        style={{ cursor: paintbrush ? 'crosshair' : undefined }}
+        style={{ cursor: paintbrush ? 'crosshair' : undefined, overflow: 'hidden', display: 'flex' }}
       >
-        {/* Device preview wrapper */}
-        <div className="aetherium-canvas-scroll" style={{
-          width: '100%', height: '100%',
-          overflow: 'auto',
-          display: 'flex',
-          alignItems: frameWidth ? 'flex-start' : 'stretch',
-          justifyContent: frameWidth ? 'center' : 'stretch',
-          padding: frameWidth ? 24 : 0,
-          boxSizing: 'border-box',
-          background: frameWidth ? '#e8e8e8' : 'transparent',
-        }}>
-          <div style={{
-            width: frameWidth ? frameWidth : '100%',
-            height: frameHeight ? frameHeight : '100%',
-            flexShrink: 0,
-            background: '#fff',
-            boxShadow: frameWidth ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
-            overflow: 'hidden',
-            position: 'relative',
-          }}>
-            <div className={`container-canvas${editor.showGap ? '' : ' canvas-no-gap'}`} style={{ padding: 0, height: '100%', boxSizing: 'border-box' }}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => { e.preventDefault(); editor.endDrag(); }}
-            >
-              <ScreenAssetProvider assetId={self.assetId}>
-              <ScreenPropertyProvider assetId={self.status === 'property' ? self.assetId : null} propertyKey={self.propertyKey}>
-              {containers.map(c => (
-                <ContainerCard
-                  key={c.id}
-                  container={c}
-                  containers={containers}
-                  selectedIds={editor.selectedContainerIds}
-                  onSelect={editor.selectContainer}
-                  onDelete={editor.deleteContainer}
-                  onDragStart={editor.startDrag}
-                  onDragOver={editor.dragOver}
-                  onDrop={editor.dropOnCanvas}
-                  onWidgetDrop={editor.dropWidget}
-                  onUpdateLayout={editor.updateLayout}
-                  onUpdateSlot={editor.updateSlot}
-                  onUpdateCoord={editor.updateCoord}
-                  onGridCellDrop={editor.dropInGridCell}
-                  onSetSelectedGridCell={editor.setSelectedGridCell}
-                  onMergeCellContainers={editor.mergeGridCells}
-                  selectedGridCell={editor.selectedGridCell}
-                  dragState={editor.dragState}
-                  draggingId={editor.draggingId}
-                  isDragging={!!editor.draggingId}
-                  coordMode={editor.coordMode}
-                  activeTierId={editor.activeTierId}
-                  snapEnabled={editor.snapEnabled}
-                  snapSize={editor.snapSize}
-                  snapGuides={editor.snapGuides}
-                  onSnapGuideChange={editor.setSnapGuides}
-                />
-              ))}
-              </ScreenPropertyProvider>
-              </ScreenAssetProvider>
+        <FitViewport
+          className={`screen-canvas-viewport${framed ? ' screen-canvas-viewport--framed' : ''}`}
+          sizing={framed ? 'natural' : 'fill'}
+          align="center"
+          panWith="modifier"
+          controls="always"
+          resetKey={fitKey}
+        >
+          <div
+            className={framed ? 'fit-viewport-background' : undefined}
+            style={framed ? { padding: 24 } : { width: '100%', height: '100%' }}
+          >
+            <div style={{
+              width: frameWidth ? frameWidth : '100%',
+              height: frameHeight ? frameHeight : '100%',
+              flexShrink: 0,
+              background: '#fff',
+              boxShadow: framed ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              <div className={`container-canvas${editor.showGap ? '' : ' canvas-no-gap'}`} style={{ padding: 0, height: '100%', boxSizing: 'border-box' }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => { e.preventDefault(); editor.endDrag(); }}
+              >
+                <ScreenAssetProvider assetId={self.assetId}>
+                <ScreenPropertyProvider assetId={self.status === 'property' ? self.assetId : null} propertyKey={self.propertyKey}>
+                {containers.map(c => (
+                  <ContainerCard
+                    key={c.id}
+                    container={c}
+                    containers={containers}
+                    selectedIds={editor.selectedContainerIds}
+                    onSelect={editor.selectContainer}
+                    onSelectMany={editor.selectContainers}
+                    onDelete={editor.deleteContainer}
+                    onDragStart={editor.startDrag}
+                    onDragOver={editor.dragOver}
+                    onDrop={editor.dropOnCanvas}
+                    onWidgetDrop={editor.dropWidget}
+                    onUpdateLayout={editor.updateLayout}
+                    onUpdateSlot={editor.updateSlot}
+                    onUpdateCoord={editor.updateCoord}
+                    onGridCellDrop={editor.dropInGridCell}
+                    onSetSelectedGridCell={editor.setSelectedGridCell}
+                    onMergeCellContainers={editor.mergeGridCells}
+                    selectedGridCell={editor.selectedGridCell}
+                    dragState={editor.dragState}
+                    draggingId={editor.draggingId}
+                    isDragging={!!editor.draggingId}
+                    coordMode={editor.coordMode}
+                    activeTierId={editor.activeTierId}
+                    snapEnabled={editor.snapEnabled}
+                    snapSize={editor.snapSize}
+                    snapGuides={editor.snapGuides}
+                    onSnapGuideChange={editor.setSnapGuides}
+                  />
+                ))}
+                </ScreenPropertyProvider>
+                </ScreenAssetProvider>
+              </div>
             </div>
           </div>
-        </div>
+        </FitViewport>
       </div>
     </div>
   );

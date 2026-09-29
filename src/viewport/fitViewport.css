@@ -15,6 +15,16 @@
   user-select: none;
 }
 
+/* Space held in an editor: everything under the cursor is draggable view. */
+.fit-viewport--space,
+.fit-viewport--space * {
+  cursor: grab !important;
+}
+.fit-viewport--space.fit-viewport--panning,
+.fit-viewport--space.fit-viewport--panning * {
+  cursor: grabbing !important;
+}
+
 .fit-viewport-stage {
   position: absolute;
   left: 0;

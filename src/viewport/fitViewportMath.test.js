@@ -7,6 +7,9 @@ describe('fitFixed', () => {
   test('content that fits is left exactly as it is', () => {
     expect(fitFixed({ w: 800, h: 600 }, { w: 800, h: 600 })).toEqual({ zoom: 1, x: 0, y: 0, fits: true });
   });
+  test('an editor can ask for content that fits to sit in the middle', () => {
+    expect(fitFixed({ w: 800, h: 600 }, { w: 200, h: 100 }, 'center')).toEqual({ zoom: 1, x: 300, y: 250, fits: true });
+  });
   test('too big: shrinks to show all of it, leaving room for the controls, centred across', () => {
     const r = fitFixed({ w: 800, h: 600 }, { w: 1600, h: 600 });
     expect(r.fits).toBe(false);

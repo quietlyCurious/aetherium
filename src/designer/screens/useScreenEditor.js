@@ -280,6 +280,19 @@ export function useScreenEditor({ queries }) {
     }
   };
 
+  // Box-select on the canvas: select these, or add them to the selection
+  // (Shift/Ctrl/Cmd held). Locked items are skipped, like a click on one.
+  const selectContainers = (ids, { add = false } = {}) => {
+    setSelectedQueryInstanceId(null);
+    setSelectedGridCell(null);
+    const pickable = (ids || []).filter(id => id !== ROOT_CONTAINER_ID && !isLocked(id));
+    setSelectedContainerIds(prev => {
+      const next = add ? [...prev.filter(id => !pickable.includes(id)), ...pickable] : pickable;
+      setSelectedContainerId(next.length ? next[next.length - 1] : null);
+      return next;
+    });
+  };
+
   // A Page Visuals tree click: a plain single select — no paintbrush, no
   // multi-select, and locked items can be selected (to unlock them).
   const selectContainerFromTree = (id) => {
@@ -601,7 +614,7 @@ export function useScreenEditor({ queries }) {
     containers,
     selectedContainerId, selectedContainerIds, selectedQueryInstanceId, selectedGridCell,
     setSelectedGridCell, isSelectedLocked,
-    selectContainer, selectContainerFromTree, selectQueryInstance, setSelectedQueryInstanceId,
+    selectContainer, selectContainers, selectContainerFromTree, selectQueryInstance, setSelectedQueryInstanceId,
     clearCanvasSelection,
     addContainer, addWidgetToSelection, dropWidget, deleteContainer, renameContainer, toggleContainerLock,
     draggingId, dragState, startDrag, dragOver, endDrag, dropOnCanvas, dropInPageVisualsTree, dropInGridCell,

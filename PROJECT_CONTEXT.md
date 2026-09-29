@@ -429,6 +429,18 @@ Visualization alike; React Flow still does its own zoom for Manual and
 Diagram. The plan is for this to be the one viewport around coordinate
 layouts once Visualization's manual layouts move onto them.
 
+The Screens canvas uses it too, in editor mode: `panWith="modifier"` (pan
+with Space + drag, the middle button, or a drag on the grey area around a
+framed screen — a plain drag on the page stays the editor's),
+`controls="always"`, `align="center"` for framed screens, and `sizing="fill"`
+for a Page (laid out at the view's size; zoom just magnifies). A wheel over
+something inside that can scroll scrolls it. Everything in ContainerCard
+that measures on screen — coordinate drag, snapping and its guides, resize —
+divides by `viewportScale`, so editing works at any zoom. Coordinate
+containers also box-select: drag across empty space (Shift + drag on a
+container that can itself be moved), Shift/Ctrl/Cmd to add;
+`editor.selectContainers(ids, { add })`.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code

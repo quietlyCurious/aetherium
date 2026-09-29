@@ -25,6 +25,22 @@
 // Leave it null for fixed-size content (a coordinate layout, a screen of
 // set size).
 //
+// `sizing` 'fill' is for content that should take exactly the view's size
+// (a Page on the designer canvas): it's laid out at the view's size and
+// opens at 100%, and zooming just magnifies it.
+//
+// For an editor, where a plain drag already means "move this item":
+//   panWith 'modifier'  pans only with Space + drag, the middle button, or a
+//                       press on the view's own background (outside the
+//                       content) — never a plain drag on the content.
+//   controls 'always'   keeps the zoom controls showing even at 100%.
+//   align 'center'      content that fits sits in the middle of the view
+//                       rather than at its top-left.
+// The defaults ('drag', 'auto') are the runtime behaviour above.
+//
+// A wheel over something inside that can itself scroll that way scrolls it,
+// rather than moving the whole view.
+//
 // The content is drawn scaled with a CSS transform, so anything inside
 // that measures itself on screen (getBoundingClientRect) sees scaled
 // numbers; `viewportScale(el)` gives the factor to divide by.
@@ -37,7 +53,7 @@ import './fitViewport.css';
 
 const ZOOM_STEP = 1.25;
 
-export function FitViewport({ className = '', reflow = null, resetKey, children }) {
+export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', panWith = 'drag', controls: controlsMode = 'auto', resetKey, children }) {
   const viewRef = useRef(null);
   const stageRef = useRef(null);
   const view = useRef({ zoom: 1, x: 0, y: 0 });
@@ -59,10 +75,10 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     view.current = clampPan(view.current, v, content);
     const { zoom, x, y } = view.current;
     stage.style.transform = `translate(${x}px, ${y}px) scale(${zoom})`;
-    const shown = !fits.current || Math.abs(zoom - 1) > 0.001;
+    const shown = controlsMode === 'always' || !fits.current || Math.abs(zoom - 1) > 0.001;
     const pct = Math.round(zoom * 100);
     setControls(prev => (prev.shown === shown && prev.pct === pct ? prev : { shown, pct }));
-  }, []);
+  }, [controlsMode]);
 
   const fit = useCallback(() => {
     const stage = stageRef.current;
@@ -71,7 +87,11 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     measuring.current = true;
     const v = { w: el.clientWidth, h: el.clientHeight };
     let result;
-    if (reflow === 'row' || reflow === 'column') {
+    if (sizing === 'fill') {
+      stage.style.width = `${v.w}px`;
+      stage.style.height = `${v.h}px`;
+      result = { zoom: 1, x: 0, y: 0, fits: true };
+    } else if (reflow === 'row' || reflow === 'column') {
       const measure = (size) => {
         if (reflow === 'column') {
           stage.style.height = `${size}px`;
@@ -87,7 +107,7 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     } else {
       stage.style.width = 'max-content';
       stage.style.height = '';
-      result = fitFixed(v, { w: stage.offsetWidth, h: stage.offsetHeight });
+      result = fitFixed(v, { w: stage.offsetWidth, h: stage.offsetHeight }, align);
     }
     fits.current = result.fits;
     view.current = { zoom: result.zoom, x: result.x, y: result.y };
@@ -95,7 +115,7 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     apply();
     // Let the ResizeObserver callbacks our own measuring caused go by.
     requestAnimationFrame(() => { measuring.current = false; });
-  }, [reflow, apply]);
+  }, [reflow, sizing, align, apply]);
 
   // Fit on open, and again for a different subject.
   useLayoutEffect(() => { fit(); }, [fit, resetKey]);
@@ -110,13 +130,20 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     const onResize = () => {
       if (measuring.current) return;
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => (userAdjusted.current ? apply() : fit()));
+      frame = requestAnimationFrame(() => {
+        if (!userAdjusted.current) { fit(); return; }
+        if (sizing === 'fill') {
+          stage.style.width = `${el.clientWidth}px`;
+          stage.style.height = `${el.clientHeight}px`;
+        }
+        apply();
+      });
     };
     const observer = new ResizeObserver(onResize);
     observer.observe(el);
     if (stage.firstElementChild) observer.observe(stage.firstElementChild);
     return () => { cancelAnimationFrame(frame); observer.disconnect(); };
-  }, [fit, apply]);
+  }, [fit, apply, sizing]);
 
   const zoomTo = useCallback((nextZoom, cx, cy) => {
     view.current = zoomAround(view.current, nextZoom, cx, cy);
@@ -138,6 +165,7 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
     if (!el) return undefined;
     const onWheel = (e) => {
       const r = el.getBoundingClientRect();
+      if (!e.ctrlKey && innerCanScroll(e.target, el, e.shiftKey ? 0 : e.deltaY, e.shiftKey ? e.deltaY : e.deltaX)) return;
       if (e.ctrlKey) {
         e.preventDefault();
         zoomTo(view.current.zoom * Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top);
@@ -166,9 +194,41 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
   const suppressClick = useRef(false);
   const [panning, setPanning] = useState(false);
 
+  // Space held over the view: pan mode for an editor (the hand cursor, and
+  // a drag anywhere pans). Space inside a text field is still just a space.
+  const spaceHeld = useRef(false);
+  const hovered = useRef(false);
+  const [spaceMode, setSpaceMode] = useState(false);
+  useEffect(() => {
+    if (panWith !== 'modifier') return undefined;
+    const typing = (t) => t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+    const down = (e) => {
+      if (e.code !== 'Space' || !hovered.current || typing(e.target)) return;
+      e.preventDefault();
+      if (!spaceHeld.current) { spaceHeld.current = true; setSpaceMode(true); }
+    };
+    const up = (e) => {
+      if (e.code !== 'Space') return;
+      spaceHeld.current = false;
+      setSpaceMode(false);
+    };
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
+  }, [panWith]);
+
   const onPointerDown = (e) => {
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
     if (e.target.closest('.fit-viewport-controls')) return;
+    if (panWith === 'modifier') {
+      // Editor: only Space + drag, the middle button, or a press on the
+      // background around the content. Anything else is the editor's.
+      const onBackground = e.target === viewRef.current || e.target.classList?.contains('fit-viewport-background');
+      const middle = e.pointerType === 'mouse' && e.button === 1;
+      if (!(spaceHeld.current || middle || (onBackground && e.button === 0))) return;
+      if (middle || spaceHeld.current) e.preventDefault();
+    } else if (e.button !== 0 && e.pointerType === 'mouse') {
+      return;
+    }
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 1) {
       drag.current = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: view.current.x, oy: view.current.y, active: false };
@@ -223,8 +283,12 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
   return (
     <div
       ref={viewRef}
-      className={`fit-viewport${panning ? ' fit-viewport--panning' : ''} ${className}`}
-      onPointerDown={onPointerDown}
+      className={`fit-viewport${panning ? ' fit-viewport--panning' : ''}${spaceMode ? ' fit-viewport--space' : ''} ${className}`}
+      onPointerEnter={() => { hovered.current = true; }}
+      onPointerLeave={() => { hovered.current = false; }}
+      onPointerDownCapture={panWith === 'modifier' ? onPointerDown : undefined}
+      onPointerDown={panWith === 'modifier' ? undefined : onPointerDown}
+      onMouseDownCapture={panWith === 'modifier' && spaceMode ? (e) => { e.stopPropagation(); e.preventDefault(); } : undefined}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
@@ -243,6 +307,21 @@ export function FitViewport({ className = '', reflow = null, resetKey, children 
       )}
     </div>
   );
+}
+
+// Whether something between `target` and the viewport can scroll in the
+// wheel's direction — if so, the wheel is its, not the viewport's.
+function innerCanScroll(target, root, dy, dx) {
+  for (let el = target; el && el !== root; el = el.parentElement) {
+    const style = window.getComputedStyle(el);
+    if (dy && /(auto|scroll)/.test(style.overflowY) && el.scrollHeight > el.clientHeight) {
+      if ((dy < 0 && el.scrollTop > 0) || (dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1)) return true;
+    }
+    if (dx && /(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth) {
+      if ((dx < 0 && el.scrollLeft > 0) || (dx > 0 && el.scrollLeft + el.clientWidth < el.scrollWidth - 1)) return true;
+    }
+  }
+  return false;
 }
 
 // The scale an element is drawn at inside a FitViewport (1 outside one).

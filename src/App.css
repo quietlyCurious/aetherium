@@ -1380,3 +1380,25 @@
   box-shadow: 0 0 0 1.5px #e3a15c;
   border-radius: 3px;
 }
+
+/* ── Screens canvas viewport (designer/screens/ScreenCanvas.jsx) ───────────
+   The page sits in a FitViewport: zoom with Ctrl + scroll or the controls,
+   pan with Space + drag, the middle button, or the grey area around a
+   framed screen. */
+.screen-canvas-viewport {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+.screen-canvas-viewport--framed {
+  background: #e8e8e8;
+}
+
+/* Box-select on a coordinate container: the rubber band. */
+.canvas-marquee {
+  position: absolute;
+  z-index: 60;
+  border: 1px solid #0078d4;
+  background: rgba(0, 120, 212, 0.08);
+  pointer-events: none;
+}

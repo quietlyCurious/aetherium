@@ -8,6 +8,7 @@ import WidgetPreview from './WidgetPreview';
 import { resolveWidgetProps, hasBrokenBinding } from './designer/screens/widgetBindings';
 import { useScreenAsset } from './designer/screens/screenAsset';
 import { useScreenProperty } from './designer/screens/screenProperty';
+import { viewportScale } from './viewport/FitViewport';
 import { RepeatedItems } from './designer/screens/screenRepeat';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
@@ -41,11 +42,15 @@ function useResizeEdge(container, containers, selectedIds, onUpdate, edge, isCoo
     if (!card) return;
     const rect = card.getBoundingClientRect();
     const parentRect = card.parentElement?.getBoundingClientRect() || rect;
+    // The canvas may be zoomed (viewport/FitViewport): everything measured
+    // on screen, and every mouse movement, is divided by the zoom to get
+    // back to the layout pixels the sizes are stored in.
+    const k = viewportScale(card);
     const start = {
       x: e.clientX, y: e.clientY,
-      w: rect.width, h: rect.height,
-      left: rect.left - parentRect.left,
-      top:  rect.top  - parentRect.top,
+      w: rect.width / k, h: rect.height / k,
+      left: (rect.left - parentRect.left) / k,
+      top:  (rect.top  - parentRect.top) / k,
     };
 
     const snapVal = (val) => snapEnabled && isCoord
@@ -103,7 +108,7 @@ function useResizeEdge(container, containers, selectedIds, onUpdate, edge, isCoo
             const el = card.parentElement?.querySelector(`[data-container-id="${c.id}"]`);
             if (!el) return null;
             const r = el.getBoundingClientRect();
-            return { id: c.id, w: r.width, h: r.height, left: r.left - parentRect.left, top: r.top - parentRect.top };
+            return { id: c.id, w: r.width / k, h: r.height / k, left: (r.left - parentRect.left) / k, top: (r.top - parentRect.top) / k };
           })
           .filter(Boolean)
       : [];
@@ -119,8 +124,8 @@ function useResizeEdge(container, containers, selectedIds, onUpdate, edge, isCoo
         return;
       }
 
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
+      const dx = (e.clientX - start.x) / k;
+      const dy = (e.clientY - start.y) / k;
 
       onUpdate(container.id, computeUpdate(start, dx, dy));
       coMovers.forEach(cm => onUpdate(cm.id, computeUpdate(cm, dx, dy)));
@@ -136,7 +141,7 @@ function useResizeEdge(container, containers, selectedIds, onUpdate, edge, isCoo
 }
 
 function ContainerCard({
-  container, containers, selectedIds, onSelect, onDelete,
+  container, containers, selectedIds, onSelect, onSelectMany = null, onDelete,
   onDragStart, onDragOver, onDrop, onWidgetDrop,
   onUpdateLayout, onUpdateSlot, onUpdateCoord,
   onGridCellDrop, onSetSelectedGridCell, onMergeCellContainers,
@@ -178,8 +183,60 @@ function ContainerCard({
   // Coord drag state — must be declared before any conditional return
   const coordDragRef = React.useRef(null);
 
+  // ── Box-select ─────────────────────────────────────────────────────────────
+  // Dragging across the empty part of a coordinate container draws a rubber
+  // band and selects the items it touches (Shift/Ctrl/Cmd adds to the
+  // selection). On a container that can itself be moved (it sits in a
+  // coordinate parent), a plain drag still moves it, so box-select there
+  // takes Shift + drag. Measured in layout pixels, so it works zoomed.
+  const [marquee, setMarquee] = React.useState(null); // { x, y, w, h } in the body's content box
+  const marqueeEndedRef = React.useRef(false);
+  const isCoordParent = container.layout?.layoutType === 'coordinate';
+  const onBodyMouseDown = React.useCallback((e) => {
+    if (!isCoordParent || !interactive || e.button !== 0) return;
+    const body = e.currentTarget;
+    if (e.target !== body) return; // empty space only, not an item in it
+    if (isCoordChild && !e.shiftKey) return; // leave the drag to move this container
+    e.preventDefault();
+    e.stopPropagation();
+    const k = viewportScale(body);
+    const rect = body.getBoundingClientRect();
+    const toLocal = (cx, cy) => ({ x: (cx - rect.left) / k + body.scrollLeft, y: (cy - rect.top) / k + body.scrollTop });
+    const start = toLocal(e.clientX, e.clientY);
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const add = e.shiftKey || e.ctrlKey || e.metaKey;
+    let active = false;
+    const band = (pt) => ({ x: Math.min(start.x, pt.x), y: Math.min(start.y, pt.y), w: Math.abs(pt.x - start.x), h: Math.abs(pt.y - start.y) });
+    const onMove = (ev) => {
+      if (!active && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
+      active = true;
+      setMarquee(band(toLocal(ev.clientX, ev.clientY)));
+    };
+    const onUp = (ev) => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      if (!active) return;
+      const b = band(toLocal(ev.clientX, ev.clientY));
+      setMarquee(null);
+      marqueeEndedRef.current = true;
+      // offsetLeft/Top are layout pixels within the body, unaffected by zoom.
+      const touched = Array.from(body.querySelectorAll(':scope > .container-card')).filter(el => (
+        el.offsetLeft < b.x + b.w && el.offsetLeft + el.offsetWidth > b.x
+        && el.offsetTop < b.y + b.h && el.offsetTop + el.offsetHeight > b.y
+      )).map(el => el.getAttribute('data-container-id'));
+      const ids = (container.children || []).filter(c => touched.includes(String(c.id))).map(c => c.id);
+      if (onSelectMany) onSelectMany(ids, { add });
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [isCoordParent, isCoordChild, interactive, container.children, onSelectMany]);
+
   const onCoordMouseDown = React.useCallback((e) => {
     if (!isCoordChild) return;
+    // Only the primary button moves things; the middle button pans the
+    // canvas (viewport/FitViewport).
+    if (e.button !== 0) return;
     if (e.target.closest('.resize-handle')) return;
     const targetCard = e.target.closest('.container-card');
     if (targetCard && targetCard !== e.currentTarget) return;
@@ -191,6 +248,10 @@ function ContainerCard({
     const cardRect   = e.currentTarget.getBoundingClientRect();
     const parentEl   = e.currentTarget.parentElement; // container-card-body of coord parent
     const parentRect = parentEl ? parentEl.getBoundingClientRect() : cardRect;
+    // Zoomed canvas: on-screen measurements and mouse movement are divided
+    // by the zoom, so positions, snapping and guides all work in the layout
+    // pixels coordinates are stored in.
+    const k = viewportScale(e.currentTarget);
 
     // ── Determine anchor type per axis ────────────────────────────────────────
     // 'left'  = only left is set  → drag updates left
@@ -212,21 +273,21 @@ function ContainerCard({
         .forEach(el => {
           const r = el.getBoundingClientRect();
           siblingRects.push({
-            left:    r.left   - parentRect.left,
-            top:     r.top    - parentRect.top,
-            right:   r.right  - parentRect.left,
-            bottom:  r.bottom - parentRect.top,
-            centerX: (r.left  + r.right)  / 2 - parentRect.left,
-            centerY: (r.top   + r.bottom) / 2 - parentRect.top,
+            left:    (r.left   - parentRect.left) / k,
+            top:     (r.top    - parentRect.top) / k,
+            right:   (r.right  - parentRect.left) / k,
+            bottom:  (r.bottom - parentRect.top) / k,
+            centerX: ((r.left  + r.right)  / 2 - parentRect.left) / k,
+            centerY: ((r.top   + r.bottom) / 2 - parentRect.top) / k,
           });
         });
       siblingRects.push({
         left:    0,
         top:     0,
-        right:   parentRect.width,
-        bottom:  parentRect.height,
-        centerX: parentRect.width  / 2,
-        centerY: parentRect.height / 2,
+        right:   parentRect.width / k,
+        bottom:  parentRect.height / k,
+        centerX: parentRect.width  / 2 / k,
+        centerY: parentRect.height / 2 / k,
       });
     }
 
@@ -263,10 +324,11 @@ function ContainerCard({
       origBottom: coord.bottom ?? 0,
       xAnchor,
       yAnchor,
-      dragW: cardRect.width,
-      dragH: cardRect.height,
-      parentW: parentRect.width,
-      parentH: parentRect.height,
+      dragW: cardRect.width / k,
+      dragH: cardRect.height / k,
+      parentW: parentRect.width / k,
+      parentH: parentRect.height / k,
+      k,
       siblingRects,
       coMoverSnapshots,
     };
@@ -278,7 +340,7 @@ function ContainerCard({
         origLeft, origTop, origRight, origBottom,
         xAnchor, yAnchor,
         dragW, dragH, siblingRects,
-        coMoverSnapshots,
+        coMoverSnapshots, k: zoom,
       } = coordDragRef.current;
 
       // Move every other selected sibling by the same left/top-space delta the
@@ -294,8 +356,8 @@ function ContainerCard({
         });
       };
 
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      const dx = (e.clientX - startX) / zoom;
+      const dy = (e.clientY - startY) / zoom;
 
       // Raw positions for every anchor property — always compute all four.
       // Right/bottom deltas invert because increasing offset means closer to that edge.
@@ -471,7 +533,13 @@ function ContainerCard({
         onDragStart(container.id, container.parentId);
       } : undefined}
       onMouseDown={isCoordChild && !isEffectivelyLocked && interactive ? onCoordMouseDown : undefined}
-      onClick={(e) => { e.stopPropagation(); if (!isEffectivelyLocked) onSelect(container.id, e); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        // The mouseup that ends a box-select also clicks the container it
+        // was drawn in; that click mustn't replace the selection just made.
+        if (marqueeEndedRef.current) { marqueeEndedRef.current = false; return; }
+        if (!isEffectivelyLocked) onSelect(container.id, e);
+      }}
       onDragOver={!container.isWidget && interactive ? (e) => { e.preventDefault(); e.stopPropagation(); onDragOver(container.id, null, null); } : undefined}
       onDrop={!container.isWidget && interactive ? (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -482,6 +550,7 @@ function ContainerCard({
     >
       <div
         className={`container-card-body${showDotGrid ? ' container-card-body--coord-dots' : ''}`}
+        onMouseDown={isCoordParent && interactive ? onBodyMouseDown : undefined}
         style={{
           ...layoutStyle, ...bodyPaddingStyle,
           minHeight: 0, flex: 1, position: 'relative',
@@ -512,6 +581,10 @@ function ContainerCard({
             }
           />
         ))}
+
+        {marquee && (
+          <div className="canvas-marquee" style={{ left: marquee.x, top: marquee.y, width: marquee.w, height: marquee.h }} />
+        )}
 
         {/* ── Main content ───────────────────────────────────────────────── */}
         {/* A repeater draws a screen per asset from its set, instead of
@@ -571,6 +644,7 @@ function ContainerCard({
                         container={child}
                         selectedIds={selectedIds}
                         onSelect={onSelect}
+                        onSelectMany={onSelectMany}
                         onDelete={onDelete}
                         onDragStart={onDragStart}
                         onDragOver={onDragOver}
@@ -637,6 +711,7 @@ function ContainerCard({
                   container={child}
                   selectedIds={selectedIds}
                   onSelect={onSelect}
+                  onSelectMany={onSelectMany}
                   onDelete={onDelete}
                   onDragStart={onDragStart}
                   onDragOver={onDragOver}
