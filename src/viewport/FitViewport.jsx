@@ -39,6 +39,7 @@
 //   maxFitZoom          lets Fit zoom small content *in*, up to this (an
 //                       editor's Tile at 200%). 1 — never above 100% — is
 //                       the runtime rule.
+//   onFitChange         called with { zoom, fits } after every fit.
 //   Keyboard (editor, while the pointer is over the view): Ctrl/Cmd + = and
 //   − zoom in and out, Ctrl/Cmd + 0 is 100%, Shift + 1 fits. The % button
 //   opens a list of zoom levels.
@@ -61,7 +62,7 @@ const ZOOM_STEP = 1.25;
 // The % button's list.
 const ZOOM_PRESETS = [0.25, 0.5, 1, 2, 4];
 
-export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', maxFitZoom = 1, panWith = 'drag', controls: controlsMode = 'auto', resetKey, children }) {
+export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', maxFitZoom = 1, panWith = 'drag', controls: controlsMode = 'auto', resetKey, onFitChange, children }) {
   const viewRef = useRef(null);
   const stageRef = useRef(null);
   const view = useRef({ zoom: 1, x: 0, y: 0 });
@@ -69,6 +70,11 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
   const userAdjusted = useRef(false);
   const measuring = useRef(false);
   const [controls, setControls] = useState({ shown: false, pct: 100 });
+  // Told the result of every fit — { zoom, fits } — e.g. for a check that
+  // lays the content out at another display's size and reports whether it
+  // would fit there. Held in a ref so a new callback doesn't re-fit.
+  const onFitChangeRef = useRef(onFitChange);
+  onFitChangeRef.current = onFitChange;
 
   const sizes = () => {
     const v = viewRef.current;
@@ -121,6 +127,7 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     view.current = { zoom: result.zoom, x: result.x, y: result.y };
     userAdjusted.current = false;
     apply();
+    onFitChangeRef.current?.({ zoom: result.zoom, fits: result.fits });
     // Let the ResizeObserver callbacks our own measuring caused go by.
     requestAnimationFrame(() => { measuring.current = false; });
   }, [reflow, sizing, align, maxFitZoom, apply]);
@@ -187,7 +194,8 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
       if (!e.ctrlKey && innerCanScroll(e.target, el, e.shiftKey ? 0 : e.deltaY, e.shiftKey ? e.deltaY : e.deltaX)) return;
       if (e.ctrlKey) {
         e.preventDefault();
-        zoomTo(view.current.zoom * Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top);
+        const k = outerScale(el, r);
+        zoomTo(view.current.zoom * Math.exp(-e.deltaY * 0.0015), (e.clientX - r.left) / k, (e.clientY - r.top) / k);
         return;
       }
       const { view: v, content } = sizes();
@@ -269,16 +277,18 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     if (pinch.current && pointers.current.size === 2) {
       const [a, b] = [...pointers.current.values()];
       const r = viewRef.current.getBoundingClientRect();
-      zoomTo(pinch.current.zoom * Math.hypot(a.x - b.x, a.y - b.y) / pinch.current.d, (a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top);
+      const k = outerScale(viewRef.current, r);
+      zoomTo(pinch.current.zoom * Math.hypot(a.x - b.x, a.y - b.y) / pinch.current.d, ((a.x + b.x) / 2 - r.left) / k, ((a.y + b.y) / 2 - r.top) / k);
       suppressClick.current = true;
       return;
     }
     const d = drag.current;
     if (!d) return;
-    const dx = e.clientX - d.sx;
-    const dy = e.clientY - d.sy;
+    if (!d.active && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < PAN_THRESHOLD) return;
+    const k = outerScale(viewRef.current);
+    const dx = (e.clientX - d.sx) / k;
+    const dy = (e.clientY - d.sy) / k;
     if (!d.active) {
-      if (Math.hypot(dx, dy) < PAN_THRESHOLD) return;
       d.active = true;
       viewRef.current.setPointerCapture?.(d.id);
       setPanning(true);
@@ -341,6 +351,13 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
       )}
     </div>
   );
+}
+
+// How much the view itself is scaled by something around it — a preview
+// frame showing a whole display shrunk to fit (OperatorFitCheck). Cursor
+// positions and drags are divided by it so zoom and pan track the pointer.
+function outerScale(el, rect = el.getBoundingClientRect()) {
+  return el.offsetWidth > 0 && rect.width > 0 ? rect.width / el.offsetWidth : 1;
 }
 
 // Whether something between `target` and the viewport can scroll in the

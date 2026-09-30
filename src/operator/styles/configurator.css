@@ -395,3 +395,82 @@
   font-size: 11px;
   color: #8a8f99;
 }
+
+/* "Will this fit for the operator?" (OperatorFitCheck.jsx): a badge in the
+   Related Assets toolbar, and the invisible copy of the Operator's view it
+   measures — laid out off-screen at the Operator area's size. */
+.op-fit-check {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.op-fit-check-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.op-fit-check-badge--ok { background: #eaf6ea; color: #1e6b1e; }
+.op-fit-check-badge--warn { background: #fff4e5; color: #8a5a00; border-color: #f3c58d; }
+.op-fit-check-badge--pending { background: #f1f2f4; color: #666; }
+.op-fit-check-probe {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  pointer-events: none;
+}
+.op-fit-check-probe .op-related-assets-viewport { margin-top: 0; }
+
+/* The preview shown as a display's Operator view (OperatorDisplayFrame):
+   a grey pane like the Screens canvas around a device preview, holding a
+   frame exactly the Operator area's size, shrunk to fit. The slot is the
+   frame's size after shrinking, so it centres correctly; the frame itself
+   is scaled from its top-left inside it. */
+.op-display-frame-pane {
+  margin-top: 14px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 10px 16px 16px;
+  background: #e8e8e8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.op-display-frame-caption {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.op-display-frame-caption span { color: #888; }
+.op-display-frame-slot {
+  flex-shrink: 0;
+  position: relative;
+}
+.op-display-frame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+}
+/* Inside the frame the Cards viewport fills it exactly, as in the Operator. */
+.op-display-frame .op-related-assets-viewport { margin-top: 0; }

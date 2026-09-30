@@ -456,6 +456,31 @@ reading-order grid; positions are measured from the canvas in layout pixels
 anchors (`coordUpdateFor`: a right-anchored item gets a new right, a
 stretched one both edges).
 
+**Operator fit check** (`operator/configurator/OperatorFitCheck.jsx`): in
+Visualization's Related Assets (Cards, auto), a toolbar badge says whether
+the layout fits the Operator's view on a chosen display ("✓ Fits the
+Operator view · Full HD 1920×1080") or how far operators would be zoomed
+out ("⚠ Operators will see this at 82% · 10" Operator Panel"). Click it to
+pick another display (device previews ≥ 1024 wide; the choice is a
+per-browser preference, `operatorFitDisplayStorage.js`). It lays the same
+cards out invisibly at the Operator area's size, inside the same
+FitViewport the Operator uses (`onFitChange`), with the Operator's rows
+(its default "always" density, not Configure's slider) — so the verdict is
+the Operator's own. The area is the display minus
+`OPERATOR_RELATED_ASSETS_CHROME` (470×282: measured, constant across
+display sizes, side panels at default widths; re-measure if the Operator
+layout changes — how is in the file). Verified against the real Operator
+view at 1280×800, 1366×768 and 1920×1080.
+
+The badge's list also *shows* a display: its first entry is **Fill pane**
+(the preview fills Configure's pane — where it always opens), and picking a
+display turns the preview into that display's Operator view
+(`OperatorDisplayFrame`): a frame exactly the Operator area's size, with
+the Operator's rows, laid out and fitted as the Operator does, shrunk to
+fit the pane and captioned. It's keyed by display, so each opens fitted.
+FitViewport divides pointer maths by any outer scale (`outerScale`), so
+zoom and pan inside the shrunk frame track the cursor.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code

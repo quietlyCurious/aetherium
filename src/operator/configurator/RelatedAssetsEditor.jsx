@@ -18,6 +18,7 @@ import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
 import { useDiagramSettings, DiagramLayoutControls, DiagramSpacingControls } from './diagramSettings';
 import { RELATED_ASSET_DENSITY_VALUES, formatRelatedAssetDensityLabel, RELATED_ASSETS_LAYOUT_MODE_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, ALIGN_CONTENT_ITEMS } from '../settings/layoutOptions';
 import { viewportScale } from '../../viewport/FitViewport';
+import { OperatorDisplayFrame, OperatorFitCheck, fitCheckDisplays } from './OperatorFitCheck';
 
 // selectedRelatedKey/onSelectRelated: the Details panel's selected Related
 // Assets row, shared both ways — selecting a row highlights its box here,
@@ -88,6 +89,14 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
     () => visibleRelatedAssetRows(relatedAssetRows, densityFilter),
     [relatedAssetRows, densityFilter]
   );
+  // What the Operator shows — its own default density, whatever this
+  // preview's slider says. For the fit check.
+  const operatorRows = useMemo(() => visibleRelatedAssetRows(relatedAssetRows), [relatedAssetRows]);
+  // The display the Cards preview is showing as the Operator sees it
+  // (OperatorDisplayFrame), or null to fill the pane — where it opens.
+  const [previewDisplayId, setPreviewDisplayId] = useState(null);
+  const previewDisplay = previewDisplayId ? fitCheckDisplays().find(d => d.id === previewDisplayId) : null;
+  const showingOperatorView = !!previewDisplay && layoutMode === 'cards' && cardsLayoutMode === 'auto';
 
   // Unsaved-changes tracking — same as PropertyTilesView's, with two
   // position channels since both Cards and Diagram have a manual mode.
@@ -246,8 +255,27 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
                 <Button text="Switch to Manual Layout" onClick={diagram.onManualEdit} stylingMode="outlined" />
               )
             )}
+            {/* Will this fit the Operator's view? (Cards auto only — see
+                OperatorFitCheck.) Uses the rows the Operator shows, not
+                this preview's density setting. */}
+            {layoutMode === 'cards' && cardsLayoutMode === 'auto' && (
+              <OperatorFitCheck
+                rows={operatorRows}
+                showingId={previewDisplayId}
+                onShow={setPreviewDisplayId}
+                cardsProps={{
+                  currentTypeId, currentTypeName, currentTypeExampleAssetId,
+                  typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs,
+                  evidencePoints, cardsFlowDirection, cardsFlowWrap, cardsAlignContent,
+                }}
+              />
+            )}
           </div>
-          <div className="op-tierfilter-slider-wrap" style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+          <div
+            className="op-tierfilter-slider-wrap"
+            style={{ width: 160, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0, ...(showingOperatorView ? { opacity: 0.45 } : null) }}
+            title={showingOperatorView ? 'The Operator view shows the related assets the Operator shows — this slider applies to Fill pane' : undefined}
+          >
             <Slider
               min={0}
               max={1}
@@ -329,15 +357,17 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
         </div>
       </div>
       )}
-      {layoutMode === 'cards' ? (
-        visibleRows.length === 0 ? (
-          <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
-        ) : (
+      {layoutMode === 'cards' ? (() => {
+        const rows = showingOperatorView ? operatorRows : visibleRows;
+        if (rows.length === 0) {
+          return <div className="op-dash-text op-dash-text--muted">{showingOperatorView ? 'The Operator shows no related assets here.' : 'No related assets to show at this density.'}</div>;
+        }
+        const cards = (
           <AssetCardsView
             currentTypeId={currentTypeId}
             currentTypeName={currentTypeName}
             currentTypeExampleAssetId={currentTypeExampleAssetId}
-            visibleRows={visibleRows}
+            visibleRows={rows}
             typeDisplayTemplates={typeDisplayTemplates}
             typePropertyConfigs={typePropertyConfigs}
             assetDisplayTemplates={assetDisplayTemplates}
@@ -354,8 +384,11 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
             cardsLayoutCanvasRef={cardsLayoutCanvasRef}
             onTitleClick={onTitleClick}
           />
-        )
-      ) : (
+        );
+        // Keyed by display: each one opens fitted, as the Operator would open
+        // it, rather than carrying over a zoom from the last display.
+        return showingOperatorView ? <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay}>{cards}</OperatorDisplayFrame> : cards;
+      })() : (
         visibleRows.length === 0 ? (
           <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>
         ) : (

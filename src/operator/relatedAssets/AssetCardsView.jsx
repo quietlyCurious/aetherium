@@ -19,7 +19,7 @@ import { FitViewport } from '../../viewport/FitViewport';
 // controls, instead of scrolling. A wrapping flow reflows as it zooms
 // out (wider rows, or taller columns), so it stays readable; a no-wrap
 // line is shrunk as it is. One that fits is drawn exactly as before.
-export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick }) {
+export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExampleAssetId, visibleRows, typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs, evidencePoints, cardsLayoutMode, cardsManualPositions, onCardsPositionsChange, cardsFlexContainerRef, cardsFlexTileRefs, cardsFlowDirection, cardsFlowWrap, cardsAlignContent, cardsLayoutCanvasRef, readOnly, onTitleClick, onGearClick, onFitChange }) {
   // This asset's own box, always shown first regardless of layout mode —
   // same reasoning as the Diagram view's own isCenter node: the point of
   // "related assets" is seeing them in context of the asset they're
@@ -70,7 +70,7 @@ export function AssetCardsView({ currentTypeId, currentTypeName, currentTypeExam
   }
   const reflow = cardsFlowWrap === 'nowrap' ? null : (String(cardsFlowDirection).startsWith('column') ? 'column' : 'row');
   return (
-    <FitViewport className="op-related-assets-viewport" reflow={reflow} resetKey={`${currentTypeId}|${currentTypeExampleAssetId}`}>
+    <FitViewport className="op-related-assets-viewport" reflow={reflow} resetKey={`${currentTypeId}|${currentTypeExampleAssetId}`} onFitChange={onFitChange}>
     <div
       className="op-related-assets-box-flow"
       style={{ flexDirection: cardsFlowDirection, flexWrap: cardsFlowWrap, alignContent: cardsAlignContent }}
