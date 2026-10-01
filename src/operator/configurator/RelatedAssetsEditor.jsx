@@ -18,6 +18,7 @@ import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
 import { useDiagramSettings, DiagramLayoutControls, DiagramSpacingControls } from './diagramSettings';
 import { RELATED_ASSET_DENSITY_VALUES, formatRelatedAssetDensityLabel, RELATED_ASSETS_LAYOUT_MODE_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, ALIGN_CONTENT_ITEMS } from '../settings/layoutOptions';
 import { viewportScale } from '../../viewport/FitViewport';
+import { asCoordPositions, measuredPositions } from '../canvas/manualLayout';
 import { OperatorDisplayFrame, OperatorFitCheck, fitCheckDisplays } from './OperatorFitCheck';
 
 // selectedRelatedKey/onSelectRelated: the Details panel's selected Related
@@ -35,13 +36,13 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // site), falling back to the same defaults as before otherwise.
   const [layoutMode, setLayoutMode] = useState(savedTemplate?.layoutMode ?? 'cards');
   // Cards' own auto(flex)/manual(drag) toggle — same pattern as
-  // PropertyTilesView's propertyLayoutMode: 'manual' swaps in a
-  // separate React Flow canvas (AssetCardCanvas, no edges — related-
+  // PropertyTilesView's propertyLayoutMode: 'manual' places the boxes by
+  // hand (ManualLayoutEditor, the coordinate layout — no edges; related-
   // asset boxes don't relate to each other the way types in Diagram do),
   // seeded by measuring the flex view's actual current box positions at
   // the moment of switching so nothing visually jumps.
   const [cardsLayoutMode, setCardsLayoutMode] = useState(savedTemplate?.cardsLayoutMode ?? 'auto');
-  const [cardsManualPositions, setCardsManualPositions] = useState(savedTemplate?.cardsManualPositions ?? {});
+  const [cardsManualPositions, setCardsManualPositions] = useState(() => asCoordPositions(savedTemplate?.cardsManualPositions));
   // Cards flex container's own row/column, wrap/no-wrap, and distribute/
   // cluster controls — same three settings and icons PropertyTilesView
   // already uses for arranging property tiles within one box, just one
@@ -55,18 +56,10 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   const cardsFlexTileRefs = useRef({});
   const cardsFlexContainerRef = useRef(null);
   const handleSwitchCardsToManual = () => {
-    const measured = {};
-    const containerRect = cardsFlexContainerRef.current?.getBoundingClientRect();
-    if (containerRect) {
-      // The flex layout may be drawn zoomed out (FitViewport); on-screen
-      // offsets are then scaled, and the saved positions need layout pixels.
-      const scale = viewportScale(cardsFlexContainerRef.current);
-      Object.entries(cardsFlexTileRefs.current).forEach(([key, el]) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        measured[key] = { x: Math.round((rect.left - containerRect.left) / scale), y: Math.round((rect.top - containerRect.top) / scale) };
-      });
-    }
+    // The flex layout may be drawn zoomed out (FitViewport); on-screen
+    // offsets are then scaled, and the saved positions need layout pixels.
+    const container = cardsFlexContainerRef.current;
+    const measured = measuredPositions(container, cardsFlexTileRefs.current, viewportScale(container), { withWidth: true });
     setCardsManualPositions(current => ({ ...measured, ...current }));
     setCardsLayoutMode('manual');
   };
@@ -96,12 +89,12 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // (OperatorDisplayFrame), or null to fill the pane — where it opens.
   const [previewDisplayId, setPreviewDisplayId] = useState(null);
   const previewDisplay = previewDisplayId ? fitCheckDisplays().find(d => d.id === previewDisplayId) : null;
-  // Any layout can be shown on a display. Flex Cards are shown live (the
-  // same editable view, in the frame); Manual and Diagram — React Flow
-  // canvases — as a look-only copy with the current draft (dragging inside
-  // a shrunk React Flow canvas doesn't track the pointer; edit on Fill pane).
+  // Any layout can be shown on a display. Cards (flex and manual) are shown
+  // live — the same editable view, in the frame; Diagram — a React Flow
+  // canvas — as a look-only copy with the current draft (dragging inside a
+  // shrunk React Flow canvas doesn't track the pointer; edit on Fill pane).
   const showingOperatorView = !!previewDisplay;
-  const cardsFlexMode = layoutMode === 'cards' && cardsLayoutMode === 'auto';
+  const cardsMode = layoutMode === 'cards';
   // The fit check's invisible copy writes to these; nothing reads them.
   const probeFlexContainerRef = useRef(null);
   const probeFlexTileRefs = useRef({});
@@ -124,11 +117,12 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // a report made while in manual mode may become the manual baseline.
   const diagramLayoutModeRef = useRef(diagram.layoutMode);
   diagramLayoutModeRef.current = diagram.layoutMode;
-  // Stable identities — see PropertyTilesView's handleManualPositionsChange.
-  const handleCardsPositionsChange = useCallback(positions => {
-    unsavedTracker.notePositionsReported('cards', positions);
-    setCardsManualPositions(positions);
-  }, [unsavedTracker]);
+  // Every change of card positions is reported; until the user first
+  // touches the editor each one just becomes the baseline (see
+  // PropertyTilesView). The editor hands over updates as functions.
+  useEffect(() => {
+    if (cardsLayoutMode === 'manual') unsavedTracker.notePositionsReported('cards', cardsManualPositions);
+  }, [unsavedTracker, cardsLayoutMode, cardsManualPositions]);
   const setDiagramManualPositions = diagram.setManualPositions;
   const handleDiagramPositionsChange = useCallback(positions => {
     if (diagramLayoutModeRef.current === 'manual') unsavedTracker.notePositionsReported('diagram', positions);
@@ -164,23 +158,20 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // it — share a node), keyed by relatedTypeId.
   //
   // The highlight is pure CSS, generated for the one selected box, rather
-  // than a prop threaded into each box: the Diagram and the Cards manual
-  // canvas are React Flow graphs whose nodes are seeded from their props,
-  // and feeding the selection through there would re-seed them (and, for
-  // the Diagram, re-run its layout) on every click. React Flow already
-  // stamps each node's id on its wrapper (data-id), and flex cards carry
-  // data-related-key, so a selector finds the box without touching it.
+  // than a prop threaded into each box: the Diagram is a React Flow graph
+  // whose nodes are seeded from their props, and feeding the selection
+  // through there would re-seed them (and re-run its layout) on every
+  // click. React Flow stamps each node's id on its wrapper (data-id), and
+  // cards (flex and manual) carry data-related-key, so a selector finds the
+  // box without touching it.
   const selectedRow = selectedRelatedKey ? relatedAssetRows.find(r => r.key === selectedRelatedKey) : null;
   const attr = value => JSON.stringify(String(value));
   const selectedBoxSelectors = selectedRow ? (layoutMode === 'diagram'
     ? [`.op-related-assets-editor .react-flow__node[data-id=${attr(selectedRow.relatedTypeId)}] > .op-asset-card`]
-    : [
-      `.op-related-assets-editor .op-asset-card[data-related-key=${attr(selectedRow.key)}]`,
-      `.op-related-assets-editor .react-flow__node[data-id=${attr(selectedRow.key)}] > .op-asset-card`,
-    ]) : [];
+    : [`.op-related-assets-editor .op-asset-card[data-related-key=${attr(selectedRow.key)}]`]) : [];
 
-  // Selecting a row scrolls its box into view (flex cards only — the
-  // canvases pan freely, same reasoning as property tiles).
+  // Selecting a row scrolls its box into view (flex cards only — manual
+  // cards and the diagram pan and zoom instead).
   const previewRootRef = useRef(null);
   useEffect(() => {
     if (!selectedRow || layoutMode === 'diagram' || cardsLayoutMode === 'manual') return;
@@ -192,7 +183,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
 
   // Clicking a box selects its row (or clears the selection, for this
   // asset's own box). Not when the click was really the end of a drag —
-  // the canvases move a node under the pointer, so the browser still fires
+  // the canvases move a box under the pointer, so the browser still fires
   // a click on it — and not on a box's title, which navigates to that type.
   const pointerDownAtRef = useRef(null);
   const handleBoxPointerDown = e => { pointerDownAtRef.current = { x: e.clientX, y: e.clientY }; };
@@ -265,15 +256,15 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
             )}
             {/* Will this fit the Operator's view, and how does it look on a
                 display? (OperatorFitCheck.) Every layout can be previewed;
-                the ✓ / % verdict is for Flex Cards, the one drawn in a
-                FitViewport. Uses the rows the Operator shows, not this
+                the ✓ / % verdict is for Cards (flex and manual), drawn in a
+                FitViewport in the Operator; Diagram fits itself. Uses the rows the Operator shows, not this
                 preview's density setting. */}
             {operatorRows.length > 0 && (
               <OperatorFitCheck
                 view="relatedAssets"
                 showingId={previewDisplayId}
                 onShow={setPreviewDisplayId}
-                renderProbe={cardsFlexMode ? (onFitChange) => (
+                renderProbe={cardsMode ? (onFitChange) => (
                   <AssetCardsView
                     currentTypeId={currentTypeId}
                     currentTypeName={currentTypeName}
@@ -284,7 +275,8 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
                     assetDisplayTemplates={assetDisplayTemplates}
                     assetPropertyConfigs={assetPropertyConfigs}
                     evidencePoints={evidencePoints}
-                    cardsLayoutMode="auto"
+                    cardsLayoutMode={cardsLayoutMode}
+                    cardsManualPositions={cardsManualPositions}
                     cardsFlexContainerRef={probeFlexContainerRef}
                     cardsFlexTileRefs={probeFlexTileRefs}
                     cardsFlowDirection={cardsFlowDirection}
@@ -383,54 +375,31 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
         </div>
       </div>
       )}
-      {showingOperatorView && !cardsFlexMode ? (
-        // Manual Cards or a Diagram on a display: a look-only copy of what
-        // the Operator draws (its read-only view), with this draft's
-        // settings and positions.
+      {showingOperatorView && !cardsMode ? (
+        // A Diagram on a display: a look-only copy of what the Operator
+        // draws (its read-only view), with this draft's settings and
+        // positions.
         operatorRows.length === 0 ? (
           <div className="op-dash-text op-dash-text--muted">The Operator shows no related assets here.</div>
         ) : (
           <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay} view="relatedAssets" note="look only — edit on Fill pane">
-            {layoutMode === 'cards' ? (
-              <AssetCardsView
-                currentTypeId={currentTypeId}
-                currentTypeName={currentTypeName}
-                currentTypeExampleAssetId={currentTypeExampleAssetId}
-                visibleRows={operatorRows}
-                typeDisplayTemplates={typeDisplayTemplates}
-                typePropertyConfigs={typePropertyConfigs}
-                assetDisplayTemplates={assetDisplayTemplates}
-                assetPropertyConfigs={assetPropertyConfigs}
-                evidencePoints={evidencePoints}
-                cardsLayoutMode="manual"
-                cardsManualPositions={cardsManualPositions}
-                onCardsPositionsChange={() => {}}
-                cardsFlexContainerRef={probeFlexContainerRef}
-                cardsFlexTileRefs={probeFlexTileRefs}
-                cardsFlowDirection={cardsFlowDirection}
-                cardsFlowWrap={cardsFlowWrap}
-                cardsAlignContent={cardsAlignContent}
-                readOnly
-              />
-            ) : (
-              <AssetDiagramView
-                {...diagram.viewProps}
-                savedManualPositions={diagram.layoutMode === 'manual' ? diagram.manualPositions : undefined}
-                onManualEdit={() => {}}
-                currentTypeId={currentTypeId}
-                currentTypeName={currentTypeName}
-                currentTypeExampleAssetId={currentTypeExampleAssetId}
-                visibleRows={operatorRows}
-                typeList={typeList}
-                allTypesMode={false}
-                typeDisplayTemplates={typeDisplayTemplates}
-                typePropertyConfigs={typePropertyConfigs}
-                assetDisplayTemplates={assetDisplayTemplates}
-                assetPropertyConfigs={assetPropertyConfigs}
-                evidencePoints={evidencePoints}
-                readOnly
-              />
-            )}
+            <AssetDiagramView
+              {...diagram.viewProps}
+              savedManualPositions={diagram.layoutMode === 'manual' ? diagram.manualPositions : undefined}
+              onManualEdit={() => {}}
+              currentTypeId={currentTypeId}
+              currentTypeName={currentTypeName}
+              currentTypeExampleAssetId={currentTypeExampleAssetId}
+              visibleRows={operatorRows}
+              typeList={typeList}
+              allTypesMode={false}
+              typeDisplayTemplates={typeDisplayTemplates}
+              typePropertyConfigs={typePropertyConfigs}
+              assetDisplayTemplates={assetDisplayTemplates}
+              assetPropertyConfigs={assetPropertyConfigs}
+              evidencePoints={evidencePoints}
+              readOnly
+            />
           </OperatorDisplayFrame>
         )
       ) : layoutMode === 'cards' ? (() => {
@@ -451,7 +420,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
             evidencePoints={evidencePoints}
             cardsLayoutMode={cardsLayoutMode}
             cardsManualPositions={cardsManualPositions}
-            onCardsPositionsChange={handleCardsPositionsChange}
+            onCardsPositionsChange={setCardsManualPositions}
             cardsFlexContainerRef={cardsFlexContainerRef}
             cardsFlexTileRefs={cardsFlexTileRefs}
             cardsFlowDirection={cardsFlowDirection}

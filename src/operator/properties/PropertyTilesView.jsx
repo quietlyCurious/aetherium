@@ -6,7 +6,7 @@
 // unsaved tracking for the display template. (The Operator side shows
 // properties through AssetCard instead.)
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { confirm } from 'devextreme/ui/dialog';
 import { useUnsavedTracker } from '../../unsavedChangesStore';
 import ButtonGroup, { Item as ButtonGroupItem } from 'devextreme-react/button-group';
@@ -17,9 +17,12 @@ import { HMI_CATEGORY_ORDER, getAssetPropertySeries, sliceSeriesToRange } from '
 import { PROPERTY_TIERS, PROPERTY_CATEGORIES, PROPERTY_LABELS, PROPERTY_RANGES, PROPERTY_UNITS, PROPERTY_DECIMALS } from '../../model/modelData';
 import { applySavedOrder } from '../settings/displayOrder';
 import { resolvePropertyViewMode, KPI_VIEW_MODE_ITEMS } from '../settings/propertyDisplay';
-import { PropertyTileCanvas } from './PropertyTileCanvas';
+import { ManualLayoutEditor } from '../canvas/ManualLayoutEditor';
+import { CanvasAlignControls } from '../canvas/CanvasAlignControls';
+import { asCoordPositions, measuredPositions } from '../canvas/manualLayout';
+import { viewportScale } from '../../viewport/FitViewport';
 import { PropertyTile } from './PropertyTile';
-import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MODE_ITEMS, RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS, RELATED_ASSETS_ALIGN_VERTICAL_ITEMS, RELATED_ASSETS_DISTRIBUTE_ITEMS, TIER_FILTER_ITEMS, TIER_FILTER_SLIDER_VALUES, TIER_RANK, formatTierFilterSliderLabel } from '../settings/layoutOptions';
+import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MODE_ITEMS, TIER_FILTER_ITEMS, TIER_FILTER_SLIDER_VALUES, TIER_RANK, formatTierFilterSliderLabel } from '../settings/layoutOptions';
 import { AssetPropertiesView } from './AssetPropertiesView';
 import { OperatorDisplayFrame, OperatorFitCheck, fitCheckDisplays } from '../configurator/OperatorFitCheck';
 
@@ -47,12 +50,12 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
   const [alignContent, setAlignContent] = useState(savedTemplate?.alignContent ?? 'flex-start');
   // 'auto': the flex preview above drives appearance, matching Cards/
   // Diagram rendering everywhere this template is used. 'manual': the
-  // PropertyTileCanvas below takes over instead — same properties,
-  // freely positioned, no edges. Manual positions are part of the saved
+  // ManualLayoutEditor below takes over instead — same properties, placed
+  // by hand on the coordinate layout. Manual positions are part of the saved
   // template itself (manualPositions below), so they apply everywhere
   // the template is used, not just in this editor.
   const [propertyLayoutMode, setPropertyLayoutMode] = useState(savedTemplate?.layoutMode ?? 'auto');
-  const [manualPositions, setManualPositions] = useState(savedTemplate?.manualPositions ?? {});
+  const [manualPositions, setManualPositions] = useState(() => asCoordPositions(savedTemplate?.manualPositions));
   const propertyLayoutCanvasRef = useRef(null);
   // The display the preview is showing as the Operator sees it
   // (OperatorDisplayFrame), or null to fill the pane — where it opens.
@@ -87,13 +90,12 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
     { tiles: propertyLayoutMode === 'manual' ? manualPositions : null },
     !!(typeVisibilityMode && activeSaveHandlerRef),
   );
-  // Stable identity matters: the canvases re-report positions from an
-  // effect keyed on their callback, so a fresh function every render
-  // loops (report → setState → render → new callback → report …).
-  const handleManualPositionsChange = useCallback(positions => {
-    unsavedTracker.notePositionsReported('tiles', positions);
-    setManualPositions(positions);
-  }, [unsavedTracker]);
+  // Every change of positions is reported; until the user first touches the
+  // editor each one just becomes the baseline (tiles the editor placed
+  // itself, in the first free spot, aren't an unsaved change).
+  useEffect(() => {
+    if (propertyLayoutMode === 'manual') unsavedTracker.notePositionsReported('tiles', manualPositions);
+  }, [unsavedTracker, propertyLayoutMode, manualPositions]);
 
   // Registers "save the current draft" into the shared ref the global
   // title-bar Save button ultimately calls — kept in sync with the same
@@ -143,8 +145,8 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
   // inherits, and its visibility as edited in the Details panel. For the
   // fit check and the display preview (configurator/OperatorFitCheck).
   // Configurator editing only (operatorTypeId given). Manual layout too:
-  // the Operator draws a manual box as plain positioned tiles (AssetCard),
-  // not a React Flow canvas, so it can be checked and shown like Flex.
+  // the Operator draws a manual box as positioned tiles (AssetCard, through
+  // ManualLayoutView), so it can be checked and shown like Flex.
   const operatorCardProps = typeVisibilityMode && operatorTypeId ? {
     relatedTypeId: operatorTypeId,
     relatedTypeName: operatorTitle,
@@ -166,15 +168,8 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
   // earlier in this same editing session) manual positions win over a
   // fresh measurement for any property that already has one.
   const handleSwitchToManualLayout = () => {
-    const measured = {};
-    const containerRect = flexPreviewContainerRef.current?.getBoundingClientRect();
-    if (containerRect) {
-      Object.entries(flexTileRefs.current).forEach(([key, el]) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        measured[key] = { x: Math.round(rect.left - containerRect.left), y: Math.round(rect.top - containerRect.top) };
-      });
-    }
+    const container = flexPreviewContainerRef.current;
+    const measured = measuredPositions(container, flexTileRefs.current, viewportScale(container));
     setManualPositions(current => ({ ...measured, ...current }));
     setPropertyLayoutMode('manual');
   };
@@ -233,7 +228,7 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
     kpiViewMode !== 'none' || (typeVisibilityMode && resolvePropertyViewMode(effectivePropertyViewModes, p.key, kpiViewMode) !== 'none')
   ));
 
-  // Extracted so PropertyTileCanvas's tiles array (built below, for
+  // Extracted so the manual editor's tiles (built below, for
   // manual mode) computes the exact same range/sparkline props as the
   // flex-rendering path — one source of truth for what a tile shows,
   // regardless of which layout mode is currently active.
@@ -354,24 +349,7 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
                 />
               )}
               {groupingMode === 'none' && propertyLayoutMode === 'manual' ? (
-                <>
-                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                    {RELATED_ASSETS_ALIGN_VERTICAL_ITEMS.map(item => (
-                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                    ))}
-                  </ButtonGroup>
-                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.align(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                    {RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS.map(item => (
-                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                    ))}
-                  </ButtonGroup>
-                  <ButtonGroup keyExpr="value" selectedItemKeys={[]} onItemClick={e => propertyLayoutCanvasRef.current?.distribute(e.itemData.value)} stylingMode="outlined" className="op-dash-chart-toggle">
-                    {RELATED_ASSETS_DISTRIBUTE_ITEMS.map(item => (
-                      <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />
-                    ))}
-                  </ButtonGroup>
-                  <Button text="Arrange in Grid" onClick={() => propertyLayoutCanvasRef.current?.arrangeGrid()} stylingMode="outlined" />
-                </>
+                <CanvasAlignControls canvasRef={propertyLayoutCanvasRef} withArrangeGrid />
               ) : groupingMode === 'none' && (
                 <>
                   <ButtonGroup
@@ -445,8 +423,8 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
       {showingOperatorView ? (
         // The preview as the chosen display's Operator view. Keyed by
         // display so each opens fitted, as the Operator would open it.
-        // Manual: the editor is a React Flow canvas; this is the Operator's
-        // positioned-tiles drawing of the same positions, to look at.
+        // Manual: the Operator draws the box (title and all) around the
+        // positioned tiles; this shows that drawing — move tiles on Fill pane.
         <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay} view="properties" note={propertyLayoutMode === 'manual' ? 'look only — move tiles on Fill pane' : undefined}>
           <AssetPropertiesView {...operatorCardProps} />
         </OperatorDisplayFrame>
@@ -472,12 +450,23 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
           </div>
         ) : typeVisibilityMode && propertyLayoutMode === 'manual' ? (
           <div className="op-property-tiles-singlebox op-property-tiles-singlebox--typeflow">
-            <PropertyTileCanvas
+            <ManualLayoutEditor
               ref={propertyLayoutCanvasRef}
-              tiles={flatTiles.map(p => ({ key: p.key, tileProps: buildTileProps(p), selected: p.key === selectedPropertyKey }))}
-              manualPositions={manualPositions}
-              onPositionsChange={handleManualPositionsChange}
-              onSelectTile={onSelectProperty}
+              itemNoun="properties"
+              resetKey={typeId}
+              items={flatTiles.map(p => ({
+                key: p.key,
+                content: (
+                  <div
+                    className={`op-manual-layout-item${onSelectProperty ? ' op-property-tile-select' : ''}${p.key === selectedPropertyKey ? ' op-property-tile-select--selected' : ''}`}
+                    onClick={onSelectProperty ? () => onSelectProperty(p.key === selectedPropertyKey ? null : p.key) : undefined}
+                  >
+                    <PropertyTile {...buildTileProps(p)} />
+                  </div>
+                ),
+              }))}
+              positions={manualPositions}
+              onPositionsChange={setManualPositions}
             />
           </div>
         ) : (

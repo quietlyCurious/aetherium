@@ -130,9 +130,9 @@ Whenever a set of related assets needs laying out, there are two
 interchangeable rendering modes sharing the same row data and the same
 box component:
 
-- **Cards** (`AssetCardsView`) — flexbox auto-flow, or a manual
-  free-positioning sub-mode (`CardsLayoutCanvas`, itself a React Flow
-  canvas used just for drag-positioning, not graph edges).
+- **Cards** (`AssetCardsView`) — flexbox auto-flow, or a manual sub-mode
+  placed by hand on the coordinate layout (`ManualLayoutEditor` /
+  `ManualLayoutView`, below — no graph edges).
 - **Diagram** (`AssetDiagramView` / `AssetDiagramViewInner`) —
   a real node-link graph via React Flow + elkjs for auto-layout, edges
   meaningful (asset relationships), with its own manual sub-mode too.
@@ -425,9 +425,8 @@ zooming out also gives it more room per line. Content is drawn with a CSS
 transform, so code that measures on screen divides by
 `viewportScale(el)` (RelatedAssetsEditor's switch-to-manual does). Used
 today by Related Assets' Cards (auto) view, in the Operator and
-Visualization alike; React Flow still does its own zoom for Manual and
-Diagram. The plan is for this to be the one viewport around coordinate
-layouts once Visualization's manual layouts move onto them.
+Visualization alike, by manual Cards and Properties (editor and Operator),
+and by the Screens canvas; React Flow still does its own zoom for Diagram.
 
 The Screens canvas uses it too, in editor mode: `panWith="modifier"` (pan
 with Space + drag, the middle button, or a drag on the grey area around a
@@ -458,9 +457,9 @@ stretched one both edges).
 
 **The coordinate layout, shared** (`src/coordinate/`): how items in a
 coordinate layout are moved, snapped, box-selected and arranged lives here,
-used by the designer's ContainerCard and by `CoordinateCanvas` (step 5a of
-the layout consolidation; manual layouts in Visualization move onto it in
-5b).
+used by the designer's ContainerCard and by `CoordinateCanvas` (steps 5a
+and 5b of the layout consolidation: Visualization's manual layouts are
+built on it).
 - `coordinateMove.js`: the maths, no DOM. `moveStartOf(coord, measured)`,
   `movedCoord(start, dx, dy, { snap, snapSize, targets })` → `{ update,
   delta, guides }` (writes each axis in its own anchors; snaps a line-up
@@ -471,12 +470,20 @@ the layout consolidation; manual layouts in Visualization move onto it in
   right-anchored item it's dragged by.
 - `coordinateCanvasDom.js`: the mouse side — `beginCoordinateMove`,
   `beginMarquee`, `arrangedUpdates` / `arrangeControlsFor` (the object
-  CanvasAlignControls drives). Measures in layout pixels at any zoom.
+  CanvasAlignControls drives). Measures in layout pixels at any zoom. A
+  move only starts after 3px, and reports `onEnd(moved)`.
 - `CoordinateCanvas.jsx`: an editable coordinate layout outside the
   designer — items `[{ id, coord, content }]`, `selectedIds` /
-  `onSelectionChange`, `onUpdateCoord(id, update)`, `snap`, `readOnly`;
-  grows to hold its items; ref = align/distribute/arrangeGrid. Put it in a
-  FitViewport for zoom/pan.
+  `onSelectionChange`, `onUpdateCoord(id, update)`, `snap`, `readOnly`,
+  `trim` (read-only: no empty band before the first item); an item with
+  `coord: null` is placed in the first free spot (`onAutoPlace`). Items
+  without a width are their content's width (`max-content`). Grows to
+  hold its items (re-measured when an item resizes); the click that ends
+  a move is swallowed and selects the moved item; buttons and links in an
+  item work as usual. Ref = align/distribute/arrangeGrid on the
+  selection, plus `arrange(action, ids)`. Put it in a FitViewport for
+  zoom/pan.
+- `coordinatePlacement.js`: `placeUnplaced` — the first-free-spot rule.
 - `coordinateCanvas.css`: `.coord-dots` (the snap grid), `.snap-guide`,
   `.canvas-marquee`, and CoordinateCanvas's own classes (was App.snap.css).
 
@@ -507,16 +514,42 @@ area and by the Properties check/preview, with a draft template overlaid.
 FitViewport divides pointer maths by any outer scale (`outerScale`), so
 zoom and pan inside the shrunk frame track the cursor.
 
-Every layout can be previewed on a display. Properties is checked in every
-layout (Flex and Manual — Manual is a static AssetCard, so its FitViewport
-can answer); grouped properties aren't checked yet. Related Assets' Manual
-Cards and Diagram draw on React Flow in the Operator (they fit themselves),
-so they pass no `renderProbe`: the badge is neutral ("▭ Preview on a
-display" / "▭ Operator view · <display>") and the frame shows a read-only
-copy with the draft positions, captioned "look only — edit on Fill pane".
-Manual layouts get the ✓/% verdict once they move onto coordinate layouts
-(step 5); Diagram when it reports its own fit. The density / tier slider
-dims while a display is showing.
+Every layout can be previewed on a display, and every layout but Diagram
+gets the ✓/% verdict: Properties (Flex and Manual; grouped properties
+aren't checked yet) and Related Assets' Cards (Flex and Manual — both drawn
+in a FitViewport in the Operator). Cards, flex or manual, stay editable in
+the frame. Properties Manual shows the Operator's drawing (the box, title
+and all), captioned "look only — move tiles on Fill pane". Diagram draws on
+React Flow (it fits itself), so it passes no `renderProbe`: the badge is
+neutral ("▭ Preview on a display" / "▭ Operator view · <display>") and the
+frame shows a read-only copy captioned "look only — edit on Fill pane"; it
+gets a verdict when it reports its own fit. The density / tier slider dims
+while a display is showing.
+
+**Manual layouts** (step 5b): Properties Manual and Cards Manual are the
+coordinate layout, not React Flow. `operator/canvas/ManualLayoutEditor` is
+the Configure editor — `CoordinateCanvas` in a FitViewport (zoom/pan like
+the designer), at least as big as its pane; snap to grid and neighbours
+with guides, box-select, group moves, and CanvasAlignControls through its
+ref (align needs 2 selected, distribute 3; Arrange in Grid arranges the
+selection, or everything with fewer than 2 selected). Its own selection
+outline shows only for 2+; a single item's selection is the Details
+panel's. `ManualLayoutView` is the Operator's read-only drawing (AssetCard's
+manual box, read-only manual Cards): trimmed to the items, no margin.
+- Saved positions are `{ key: { left, top } }`, cards also `width` (kept
+  from the flex layout at Switch to Manual, so cards keep their shape; a
+  card with no saved width is capped at 280px, as manual cards always
+  were, unless its type's own properties are manual). `manualLayout.js`
+  `asCoordPositions` reads old `{ x, y }` saves (shifted clear of negative
+  space, as the Operator drew them) — on load, in the Operator, and in
+  `customizations.js`'s comparisons; saving writes the new form.
+- An item with no position (made visible, or appeared, after arranging)
+  goes in the first free spot (`coordinate/coordinatePlacement.js`): same
+  row if there's room within the arrangement's width, else a new row,
+  never overlapping. CoordinateCanvas places it once sizes settle (and
+  nothing nested is still placing); the editor writes it into the draft
+  (not an unsaved change), the Operator computes the same spot.
+- `unsavedChangesStore`'s position comparison reads `left/top` or `x/y`.
 
 ## Where things live
 
@@ -547,16 +580,19 @@ dims while a display is showing.
   (`layoutOptions.js`).
 - `src/operator/properties/` — `PropertyTile` and the sparklines (every
   property tile in the app), the property listing (`PropertyTilesView`)
-  and `PropertyTileCanvas`, its manual-layout mode.
+  (its manual mode is `ManualLayoutEditor`, below).
 - `src/operator/relatedAssets/` — `AssetCard` (the fallback resolution
-  point above), the Cards and Diagram engines, `AssetCardCanvas`, ELK
+  point above), the Cards and Diagram engines, ELK
   auto-layout, the read-only views, and `relatedAssetRows.js` (which
   related assets an entity shows, in what order — one definition, read
   by the Details grid, the editor preview and the read-only view).
-- `src/operator/canvas/` — `ManualLayoutCanvas`, the single canvas behind
-  every manual layout (property tiles, asset cards, both diagrams);
-  `CanvasAlignControls`, the align/distribute/arrange toolbar groups; and
-  `canvasGeometry.js`, the node-bounds and floating-edge maths.
+- `src/operator/canvas/` — manual layouts on the coordinate layout:
+  `ManualLayoutEditor` (Configure), `ManualLayoutView` (read-only), and
+  `manualLayout.js` (saved positions, old-save reading, measuring at
+  Switch to Manual); `CanvasAlignControls`, the align/distribute/arrange
+  toolbar groups (manual layouts, the diagrams, the designer); and
+  `canvasGeometry.js`, the node-bounds and floating-edge maths (the
+  diagrams' manual mode is still React Flow, `AssetDiagramView`).
 - `src/operator/configurator/` — the Configurator's own panels: the tree,
   the centre preview, the three editors (`PropertyTilesView` is the
   Properties one, plus `RelatedAssetsEditor` and `AllAssetsEditor`), the

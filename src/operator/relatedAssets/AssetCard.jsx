@@ -1,6 +1,6 @@
 // operator/relatedAssets/AssetCard.jsx
 // One asset's box: its title plus its visible properties as PropertyTiles.
-// Used by every related-assets view (Cards, the Cards canvas, Diagram
+// Used by every related-assets view (Cards, manual Cards, Diagram
 // nodes, the All Assets diagram), in the Configurator and the Operator
 // alike.
 //
@@ -16,30 +16,11 @@ import { PROPERTY_RANGES, PROPERTY_LABELS, PROPERTY_UNITS, PROPERTY_DECIMALS } f
 import { useDisplayOrders, resolveEntityOrder, applySavedOrder, categoryOrderedPropertyKeys } from '../settings/displayOrder';
 import { mergePropertyViewModes, resolvePropertyViewMode } from '../settings/propertyDisplay';
 import { PropertyTile } from '../properties/PropertyTile';
-import { propertyScreenTileBox } from '../properties/PropertyScreenTile';
-import { screenIdOfViewMode } from '../settings/propertyDisplay';
+import { ManualLayoutView } from '../canvas/ManualLayoutView';
 
 // See usage in AssetCard below and the time-track scrubber in
 // InvestigatePanel's Related Assets tab, the only place this is provided.
 export const TimeScrubContext = createContext(null);
-
-// Real measured PropertyTile dimensions vary substantially by view mode —
-// text tiles are a compact 120x60, indicator tiles stack a 60px vertical
-// gauge track above the value and label (real height ~114px), and
-// spark/all tiles run a sparkline alongside the value instead (real width
-// ~233-244px, height unchanged at ~60px since the sparkline sits beside
-// the text rather than below it). Each entry here is that real measurement
-// plus a generous safety margin, used only by AssetCard's
-// manual-mode static bounding-box estimate below (never a live
-// measurement, since there's nothing to measure against in a static
-// render), so a saved manual layout's container is sized correctly for
-// whichever view mode the type is actually configured with.
-const PROPERTY_TILE_SIZE_ESTIMATES = {
-  text: { width: 140, height: 80 },
-  indicator: { width: 140, height: 140 },
-  spark: { width: 260, height: 80 },
-  all: { width: 280, height: 80 },
-};
 
 // Renders a related type's title plus its "always"-visible properties as
 // PropertyTiles, using that type's own saved display template — the single
@@ -198,66 +179,20 @@ export function AssetCard({ relatedTypeId, relatedTypeName, relatedTypeExampleAs
     );
   };
 
-  // Manual layout — the bug this fixes: this component previously always
-  // rendered the flex path below regardless of what was actually saved,
-  // so a type's own manually-arranged properties (set and saved via the
-  // Properties tab) never showed up anywhere this component is used
-  // (Related Assets Cards/Diagram, All Assets diagram) — only inside the
-  // Properties tab's own editor. Read-only here (no dragging) — just
-  // placing each tile at its saved position. Unpositioned entries (newly
-  // visible since the layout was last saved) stack in the corner, same
-  // convention as PropertyTileCanvas's own default. Container grows to
-  // fit the furthest-positioned tile, with a fixed per-tile size estimate
-  // since there's no live measurement in a static render like this —
-  // generous enough that overflow (safety net, not the expected case)
-  // stays visible rather than clipping. The estimate itself must vary by
-  // view mode — text tiles are a compact 120x60, but indicator tiles stack
-  // a 60px vertical gauge track above the value and label (real height
-  // ~114px), and spark/all tiles run a sparkline alongside the value
-  // instead (real width ~233-244px) — a single fixed estimate sized for
-  // text tiles alone measurably undersized indicator tiles specifically,
-  // which is exactly the reported bug: the label, being the bottom-most
-  // element of each tile's own stack, was the first thing to spill past
-  // the container's too-short declared bottom edge.
+  // Manual layout: each tile at its saved position (set in the Properties
+  // tab), drawn the way the editor draws it — ManualLayoutView, the
+  // coordinate layout read-only, sized to the tiles as they really are.
+  // A tile with no position yet (made visible since the layout was saved)
+  // goes in the first free spot, as it does in the editor.
   if (boxLayoutMode === 'manual') {
-    // Per tile now, since per-property visuals mean one box can mix a
-    // compact text tile with a wide spark row.
-    // A custom tile is exactly its screen's size, so that's known rather
-    // than estimated; a missing one draws as All.
-    const tileSizeEstimate = key => {
-      const mode = tileViewMode(key);
-      const screenId = screenIdOfViewMode(mode);
-      if (screenId) return propertyScreenTileBox(screenId) || PROPERTY_TILE_SIZE_ESTIMATES.all;
-      return PROPERTY_TILE_SIZE_ESTIMATES[mode] || PROPERTY_TILE_SIZE_ESTIMATES.text;
-    };
-    const positions = entriesToShow.map(([key]) => boxManualPositions[key] ?? { x: 0, y: 0 });
-    // A tile's saved position can be negative — the Properties tab's own
-    // editing canvas is an infinite, freely-pannable React Flow canvas, so
-    // a tile dragged left of or above the origin saves a negative x/y just
-    // fine there. This static render has no panning of its own, so
-    // without shifting every tile by however far negative the most-
-    // negative one is, that tile would render to the left of/above the
-    // container's own (0,0) origin — visually outside the box entirely,
-    // which is exactly what was seen: manual boxes with tiles escaping
-    // their own border.
-    const offsetX = Math.min(0, ...positions.map(p => p.x));
-    const offsetY = Math.min(0, ...positions.map(p => p.y));
-    const containerWidth = Math.max(0, ...entriesToShow.map(([key], i) => positions[i].x - offsetX + tileSizeEstimate(key).width));
-    const containerHeight = Math.max(0, ...entriesToShow.map(([key], i) => positions[i].y - offsetY + tileSizeEstimate(key).height));
     return (
       <>
         {titleElement}
         {gearElement}
-        <div style={{ position: 'relative', width: containerWidth, height: containerHeight, overflow: 'visible' }}>
-          {entriesToShow.map(([key, value]) => {
-            const pos = boxManualPositions[key] ?? { x: 0, y: 0 };
-            return (
-              <div key={key} style={{ position: 'absolute', left: pos.x - offsetX, top: pos.y - offsetY }}>
-                {renderPropertyTile([key, value])}
-              </div>
-            );
-          })}
-        </div>
+        <ManualLayoutView
+          items={entriesToShow.map(entry => ({ key: entry[0], content: renderPropertyTile(entry) }))}
+          positions={boxManualPositions}
+        />
       </>
     );
   }

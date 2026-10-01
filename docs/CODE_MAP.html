@@ -1037,9 +1037,9 @@
           <p class="where">NowTypeDetailsList · DataListGrid · useCallback handlers</p>
         </div>
         <div class="note">
-          <h4>One canvas, four manual modes</h4>
-          <p>Property tiles, related-asset cards and both diagrams all place things by hand through the same <code>ManualLayoutCanvas</code>: it owns node syncing, drag with grid snap, position reporting and align / distribute / arrange. A caller supplies its node component, its grid spacing and the noun for the warnings. The toolbar buttons come from <code>CanvasAlignControls</code>.</p>
-          <p class="where">canvas/ManualLayoutCanvas.jsx · canvas/CanvasAlignControls.jsx</p>
+          <h4>Manual layouts are the coordinate layout</h4>
+          <p>Property tiles and related-asset cards are placed by hand on the designer's own coordinate layout: <code>ManualLayoutEditor</code> (Configure — <code>CoordinateCanvas</code> in a FitViewport: snap with guides, box-select, group moves, zoom and pan) and <code>ManualLayoutView</code> (the Operator, read-only). Positions are <code>{ left, top }</code> (cards also <code>width</code>); <code>manualLayout.js</code> reads older <code>{ x, y }</code> saves. An item with no position goes in the first free spot. The diagrams' manual mode is still React Flow (<code>AssetDiagramView</code>). The toolbar buttons come from <code>CanvasAlignControls</code> everywhere, the designer included.</p>
+          <p class="where">canvas/ManualLayoutEditor.jsx · canvas/ManualLayoutView.jsx · canvas/manualLayout.js · canvas/CanvasAlignControls.jsx · src/coordinate/</p>
         </div>
         <div class="note">
           <h4>One class, one stylesheet</h4>
@@ -1149,13 +1149,13 @@
             <tr><td class="mono">properties/PropertyTile.jsx</td><td class="num">121</td><td>One property as a tile, in every view mode</td></tr>
             <tr><td class="mono">properties/sparklines.jsx</td><td class="num">59</td><td><span class="mono">MiniSparkline</span> and <span class="mono">ResponsiveSparkline</span></td></tr>
             <tr><td class="mono">properties/PropertyTilesView.jsx</td><td class="num">467</td><td>A property listing: grouped tiles, filter and layout toolbar, its own Save</td></tr>
-            <tr><td class="mono">properties/PropertyTileCanvas.jsx</td><td class="num">53</td><td>The shared canvas, configured for property tiles</td></tr>
-            <tr><td class="mono">canvas/ManualLayoutCanvas.jsx</td><td class="num">167</td><td>The one manual-layout canvas: node sync, drag with grid snap, position reporting, align / distribute / arrange</td></tr>
+            <tr><td class="mono">canvas/ManualLayoutEditor.jsx</td><td class="num">78</td><td>Placing tiles or cards by hand in Configure: the coordinate canvas in a zoomable viewport, with align / distribute / arrange</td></tr>
+            <tr><td class="mono">canvas/ManualLayoutView.jsx</td><td class="num">27</td><td>A manual layout as the Operator draws it: read-only, trimmed to its items</td></tr>
+            <tr><td class="mono">canvas/manualLayout.js</td><td class="num">49</td><td>Saved manual positions: reading old saves, measuring the flex layout at Switch to Manual</td></tr>
             <tr><td class="mono">canvas/CanvasAlignControls.jsx</td><td class="num">38</td><td>The align / distribute / arrange toolbar groups</td></tr>
             <tr><td class="mono">canvas/canvasGeometry.js</td><td class="num">184</td><td>Node bounds, floating-edge geometry, align and distribute maths</td></tr>
-            <tr><td class="mono">relatedAssets/AssetCard.jsx</td><td class="num">266</td><td>One asset's card, and the single place asset-over-type display settings resolve; also <span class="mono">TimeScrubContext</span></td></tr>
-            <tr><td class="mono">relatedAssets/AssetCardsView.jsx</td><td class="num">100</td><td>The Cards engine (flex, or the canvas below)</td></tr>
-            <tr><td class="mono">relatedAssets/AssetCardCanvas.jsx</td><td class="num">48</td><td>The shared canvas, configured for asset cards</td></tr>
+            <tr><td class="mono">relatedAssets/AssetCard.jsx</td><td class="num">212</td><td>One asset's card, and the single place asset-over-type display settings resolve; also <span class="mono">TimeScrubContext</span></td></tr>
+            <tr><td class="mono">relatedAssets/AssetCardsView.jsx</td><td class="num">147</td><td>The Cards engine (flex, or placed by hand)</td></tr>
             <tr><td class="mono">relatedAssets/AssetDiagramView.jsx</td><td class="num">510</td><td>The Diagram engine: nodes, floating edges, auto or manual layout</td></tr>
             <tr><td class="mono">relatedAssets/elkLayout.js</td><td class="num">144</td><td>ELK auto-layout and the diagram's algorithm, direction and routing choices</td></tr>
             <tr><td class="mono">relatedAssets/ReadOnlyViews.jsx</td><td class="num">139</td><td>Read-only Related Assets and All Assets views for the Operator side</td></tr>
@@ -1321,7 +1321,7 @@
             <tr><td class="mono">AssetCard · AssetCardsView · AssetDiagramView</td><td class="mono" style="opacity:.65">RelatedAssetBoxContent · RelatedAssetsCards · RelatedAssetsDiagram</td></tr>
             <tr><td class="mono">RelatedAssetsEditor · AllAssetsEditor</td><td class="mono" style="opacity:.65">RelatedAssetsPreview · AllAssetsDiagram</td></tr>
             <tr><td class="mono">op-property-tile-* · op-property-tiles-* · op-asset-card-*</td><td class="mono" style="opacity:.65">op-statkpi-* · op-hmiprops-* · op-related-asset-box-*</td></tr>
-            <tr><td class="mono">op-manual-canvas(-node)</td><td class="mono" style="opacity:.65">op-property-layout-canvas(-node)</td></tr>
+            <tr><td class="mono">op-manual-layout(-item) · coord-canvas-*</td><td class="mono" style="opacity:.65">op-manual-canvas(-node) · op-property-layout-canvas(-node)</td></tr>
             <tr><td class="mono">shell/AreaRail · app-rail-*</td><td class="mono" style="opacity:.65">operator/chrome/NavRail · op-nav-rail-*</td></tr>
             <tr><td class="mono">Operator Experience · Configuration Experience</td><td class="mono" style="opacity:.65">Operator Interface · Configurator Interface (+ one menu entry per area)</td></tr>
           </tbody>

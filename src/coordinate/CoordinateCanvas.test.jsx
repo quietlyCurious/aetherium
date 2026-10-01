@@ -4,7 +4,7 @@
 // selection by click. Moving, snapping and box-select are the shared maths
 // (coordinateMove.test.js) plus the browser.
 
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { createRef } from 'react';
 import { CoordinateCanvas } from './CoordinateCanvas';
 
@@ -76,5 +76,33 @@ describe('CoordinateCanvas', () => {
     expect(typeof ref.current.align).toBe('function');
     expect(typeof ref.current.distribute).toBe('function');
     expect(typeof ref.current.arrangeGrid).toBe('function');
+  });
+});
+
+describe('CoordinateCanvas placement', () => {
+  it('gives items without a position a spot, and reports it', async () => {
+    const onAutoPlace = jest.fn();
+    const { container } = render(
+      <CoordinateCanvas
+        items={[{ id: 'a', coord: { left: 0, top: 0 }, content: 'A' }, { id: 'n', coord: null, content: 'N' }]}
+        onAutoPlace={onAutoPlace}
+      />,
+    );
+    // jsdom has no layout (every size is 0), so where it lands says little
+    // (the spot maths is coordinatePlacement.test.js) — what matters here
+    // is that it's placed, shown and reported.
+    await waitFor(() => expect(onAutoPlace).toHaveBeenCalledTimes(1));
+    expect(onAutoPlace.mock.calls[0][0].get('n')).toEqual({ left: expect.any(Number), top: expect.any(Number) });
+    await waitFor(() => expect(itemEl(container, 'n').style.visibility).toBe(''));
+  });
+
+  it('trims empty space before the first item', () => {
+    const { container } = render(
+      <CoordinateCanvas readOnly trim items={[{ id: 'a', coord: { left: 40, top: 30 }, content: 'A' }, { id: 'b', coord: { left: 140, top: 60 }, content: 'B' }]} />,
+    );
+    expect(itemEl(container, 'a').style.left).toBe('0px');
+    expect(itemEl(container, 'a').style.top).toBe('0px');
+    expect(itemEl(container, 'b').style.left).toBe('100px');
+    expect(itemEl(container, 'b').style.top).toBe('30px');
   });
 });

@@ -1,18 +1,60 @@
 /* operator/styles/canvas.css
-   The manual-layout canvas shared by property tiles, asset cards and both
-   diagrams. Components: operator/canvas/. */
+   Manual layouts in Visualization — property tiles and asset cards placed
+   by hand on the coordinate layout (operator/canvas/ManualLayoutEditor).
+   The canvas itself (dots, guides, box-select band) is styled by
+   coordinate/coordinateCanvas.css. */
 
-/* Property manual-layout canvas — sits inside .op-property-tiles-singlebox--
-   typeflow, which already provides flex:1/min-height:0/height:100%, so
-   this just needs to actually fill that space. */
-.op-manual-canvas {
+/* The editor's viewport: fills the space it's given (inside
+   .op-property-tiles-singlebox--typeflow, or the Related Assets pane),
+   with a grey surround so the canvas reads as a page. */
+.op-manual-layout {
+  flex: 1;
   width: 100%;
-  height: 100%;
   min-height: 300px;
   border: 1px solid #e5e5e5;
   border-radius: 3px;
+  background: #e8e8e8;
+  position: relative;
+  overflow: hidden;
+}
+.op-manual-layout > .op-manual-layout-viewport {
+  position: absolute;
+  inset: 0;
+}
+.op-manual-layout .coord-canvas {
+  background-color: #fff;
 }
 
-.op-manual-canvas .react-flow {
-  background: #e8e8e8;
+/* A single selected item is the Details panel's selection, highlighted in
+   the item itself; the canvas's own outline is for a multi-selection. */
+.op-manual-layout .coord-canvas:not(.coord-canvas--multi) .coord-canvas-item--selected {
+  outline: none;
+}
+
+/* A property tile on the canvas: the same white card the flex layout's
+   tiles sit on. */
+.op-manual-layout-item {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+}
+.op-manual-layout-item.op-property-tile-select--selected {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+.op-manual-layout-item.op-property-tile-select {
+  cursor: move;
+}
+
+/* Related Assets' manual Cards editor: placed like the flex Cards'
+   viewport (op-related-assets-viewport). In a display frame it fills the
+   frame edge to edge. */
+.op-related-assets-manual {
+  margin-top: 14px;
+  min-height: 0;
+}
+.op-display-frame .op-related-assets-manual {
+  margin-top: 0;
+  min-height: 0;
+  height: 100%;
 }

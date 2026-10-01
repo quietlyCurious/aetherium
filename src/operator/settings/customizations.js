@@ -10,6 +10,7 @@ import { assetTypeIdOf, getRelatedAssetsForType } from '../../model/assetQueries
 import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP } from '../../model/modelData';
 import { applySavedOrder, categoryOrderedPropertyKeys } from './displayOrder';
 import { VISIBILITY_LABEL, viewModeLabel } from './propertyDisplay';
+import { asCoordPositions } from '../canvas/manualLayout';
 
 // ─── Asset customizations: which assets differ from their type ─────────
 //
@@ -24,7 +25,8 @@ import { VISIBILITY_LABEL, viewModeLabel } from './propertyDisplay';
 
 // A display template's layout fields with the same defaults every
 // renderer uses, so "no template" and "a template holding the defaults"
-// compare equal. Manual positions only matter in manual mode.
+// compare equal. Manual positions only matter in manual mode, and are
+// compared in one form (manualLayout.js reads older { x, y } saves).
 export function normalizedLayout(template) {
   const layoutMode = template?.layoutMode ?? 'auto';
   return JSON.stringify({
@@ -33,8 +35,15 @@ export function normalizedLayout(template) {
     flowWrap: template?.flowWrap ?? 'wrap',
     alignContent: template?.alignContent ?? 'flex-start',
     layoutMode,
-    manualPositions: layoutMode === 'manual' ? (template?.manualPositions ?? {}) : {},
+    manualPositions: layoutMode === 'manual' ? asCoordPositions(template?.manualPositions) : {},
   });
+}
+
+// A Related Assets template for comparing, with its card positions in one
+// form (manualLayout.js).
+function comparableRelatedTemplate(template) {
+  if (!template) return 'null';
+  return JSON.stringify({ ...template, cardsManualPositions: asCoordPositions(template.cardsManualPositions) });
 }
 
 // One pass over the current model's assets. Returns:
@@ -98,7 +107,7 @@ export function computeAssetCustomizations({ typeDisplayTemplates, typePropertyC
       .map(([key]) => key);
     const typeRelated = typeRelatedAssetConfigs?.[typeId] || {};
     const related = Object.entries(ownRelated).some(([key, v]) => v !== (typeRelated[key] || 'always'))
-      || (!!ownRelatedTemplate && JSON.stringify(ownRelatedTemplate) !== JSON.stringify(relatedAssetsTemplates?.[typeId] ?? null));
+      || (!!ownRelatedTemplate && comparableRelatedTemplate(ownRelatedTemplate) !== comparableRelatedTemplate(relatedAssetsTemplates?.[typeId]));
     const differs = layout || visuals.length > 0 || visibility.length > 0 || related || propertyOrder || relatedOrder;
 
     const summaryParts = [];

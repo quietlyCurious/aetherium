@@ -210,12 +210,6 @@
   color: #aaa;
 }
 
-.op-manual-canvas-node {
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 3px;
-}
-
 /* The dot-pattern background's own <rect> spans the entire canvas, and
    React Flow renders it after the node layer in the DOM — with both at
    z-index:auto, plain DOM order stacks it on top for hit-testing
@@ -377,13 +371,6 @@
 .op-property-tile-select--selected,
 .op-property-tile-select--selected:hover {
   outline-color: #0078d4;
-}
-
-/* Same highlight on the manual canvas's node (border already exists
-   there, so just recolor it plus a matching ring). */
-.op-manual-canvas-node.op-property-tile-select--selected {
-  border-color: #0078d4;
-  box-shadow: 0 0 0 1px #0078d4;
 }
 
 /* Revert's Undo toast — bottom-center, dark so it reads as transient

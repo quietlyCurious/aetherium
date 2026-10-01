@@ -33,8 +33,10 @@ export function rectIn(el, container, k = viewportScale(container)) {
 //   snap, snapSize
 //   onUpdate(id, update)   write coord fields (called for every mouse move)
 //   onGuides(guides|null)  the snap lines to draw in the container
+//   onEnd(moved)  when the mouse is released; moved = it really moved
+//                 (more than a few pixels), so a click can be told apart
 //   id           the item's own id, for onUpdate
-export function beginCoordinateMove(e, { itemEl, id, coord, coMovers = [], itemSelector, snap = false, snapSize = 8, onUpdate, onGuides }) {
+export function beginCoordinateMove(e, { itemEl, id, coord, coMovers = [], itemSelector, snap = false, snapSize = 8, onUpdate, onGuides, onEnd }) {
   const container = itemEl.parentElement;
   const k = viewportScale(itemEl);
   const measured = container ? rectIn(itemEl, container, k) : null;
@@ -47,8 +49,11 @@ export function beginCoordinateMove(e, { itemEl, id, coord, coMovers = [], itemS
   const coStarts = coMovers.map(m => ({ id: m.id, start: moveStartOf(m.coord) }));
   const sx = e.clientX;
   const sy = e.clientY;
+  let moved = false;
 
   const onMove = (ev) => {
+    if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 3) return;
+    moved = true;
     const { update, delta, guides } = movedCoord(start, (ev.clientX - sx) / k, (ev.clientY - sy) / k, { snap, snapSize, targets });
     onUpdate(id, update);
     coStarts.forEach(m => onUpdate(m.id, shiftedCoord(m.start, delta.x, delta.y)));
@@ -58,6 +63,7 @@ export function beginCoordinateMove(e, { itemEl, id, coord, coMovers = [], itemS
     if (onGuides) onGuides(null);
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
+    if (onEnd) onEnd(moved);
   };
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);

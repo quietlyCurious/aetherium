@@ -70,12 +70,15 @@ export function stableStringify(value) {
 // Returns stable handles: markSaved() (call right after saving, to make
 // the current state the new baseline), notePositionsReported(),
 // noteUserInput().
+// A position is { left, top } (manual layouts) or { x, y } (the diagram).
+const posX = p => p.left ?? p.x;
+const posY = p => p.top ?? p.y;
 function positionsMoved(baseline, current) {
   if (!baseline || !current) return false;
   return Object.keys(current).some(key => {
     const a = baseline[key];
     const b = current[key];
-    return a && b && (Math.round(a.x) !== Math.round(b.x) || Math.round(a.y) !== Math.round(b.y));
+    return a && b && (Math.round(posX(a)) !== Math.round(posX(b)) || Math.round(posY(a)) !== Math.round(posY(b)));
   });
 }
 
