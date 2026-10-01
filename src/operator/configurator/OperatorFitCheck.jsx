@@ -1,51 +1,59 @@
 // operator/configurator/OperatorFitCheck.jsx
-// "Will this fit for the operator?" — for Related Assets in Configure.
+// "Will this fit for the operator?" — for the views Configure shapes and
+// the Operator's Assets area shows: Properties and Related Assets.
 //
-// The Operator's Assets area draws Related Assets in a FitViewport: a
-// layout too big for the space opens zoomed out. That's the safety net for
-// a generated layout nobody tidied; this is the nudge to tidy it. A badge
-// in the Related Assets toolbar says whether the current layout fits the
-// Operator's view on a chosen display, or how far operators would be
-// zoomed out:
+// The Operator draws both in a FitViewport: a layout too big for the space
+// opens zoomed out. That's the safety net for a layout nobody tidied; this
+// is the nudge to tidy it. A badge in the view's toolbar says whether the
+// current layout fits the Operator's view on a chosen display, or how far
+// operators would be zoomed out:
 //
 //   ✓ Fits the Operator view · Full HD 1920×1080
 //   ⚠ Operators will see this at 72% · Full HD 1920×1080
 //
-// How it knows: it lays the same Cards out, invisibly, in a box the size
-// the Operator's Related Assets area has on that display, inside the same
-// FitViewport the Operator uses, and reports what that viewport decided.
-// So it can't drift from what operators actually get. It shows the rows
-// the Operator shows (the "always" ones), not Configure's density setting.
+// How it knows: the caller renders what the Operator renders there
+// (`renderProbe` — the Operator's own component for that view, with the
+// draft settings), and this lays it out invisibly in a box the size that
+// view has in the Operator on that display, and reports what its
+// FitViewport decided. So it can't drift from what operators get.
 //
-// The Operator area's size is the display minus the panels around it
-// (OPERATOR_RELATED_ASSETS_CHROME) — measured in the real app with the
+// The Operator area's size is the display minus the panels around that
+// view (OPERATOR_VIEWS[view].chrome) — measured in the real app with the
 // side panels at their default widths, and constant across display sizes.
 // If the Operator layout changes, re-measure: open the Operator's Assets
-// area on an asset's Related Assets at a known window size and compare
-// .op-related-assets-viewport's clientWidth/clientHeight with the window.
+// area on an asset at a known window size and compare the view's viewport
+// (.op-properties-viewport / .op-related-assets-viewport) clientWidth and
+// clientHeight with the window.
 //
 // Seeing it, not just being told: the badge's list starts with "Fill pane"
 // (the preview fills Configure's pane, as always — where it opens), then
-// the displays. Picking a display also shows it: the preview becomes that
-// display's Operator view (OperatorDisplayFrame below) — a frame exactly
-// the size of the Operator's Related Assets area there, laid out and
-// fitted as the Operator does, with the Operator's rows, shrunk to fit the
-// pane. Tweak the layout and watch it on the target display. Fill pane
-// switches back; the badge keeps checking the last display picked.
+// the displays. Picking a display also shows it: the caller swaps its
+// preview for OperatorDisplayFrame below — a frame exactly the size of
+// that Operator view there, holding the Operator's rendering, shrunk to
+// fit the pane. Fill pane switches back; the badge keeps checking the last
+// display picked.
 //
-// Cards (auto) layout only for now: Manual and Diagram are React Flow
-// canvases with their own fit-to-view, until they move onto coordinate
-// layouts.
+// Every layout can be previewed on a display — the frame just holds
+// whatever the Operator draws there. The verdict needs a FitViewport to
+// ask, so a view whose Operator rendering is a React Flow canvas (Related
+// Assets' Manual and Diagram — they fit themselves, their own way) passes
+// no renderProbe: the badge then just offers the preview ("▭ Preview on a
+// display"), with no ✓ or %. Those layouts get the verdict when they move
+// onto coordinate layouts (Manual) or when Diagram learns to report its
+// own fit.
 
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { SelectBox } from 'devextreme-react/select-box';
 import { DEVICE_CATEGORIES } from '../../breakpointConfig';
 import { loadOperatorFitDisplay, saveOperatorFitDisplay } from '../../operatorFitDisplayStorage';
-import { AssetCardsView } from '../relatedAssets/AssetCardsView';
 
-// Window size minus the Operator's Related Assets viewport, at default
-// panel widths (measured at 1280×800, 1366×768, 1920×1080 and 2560×1440).
-export const OPERATOR_RELATED_ASSETS_CHROME = { w: 470, h: 282 };
+// The Operator views this can check, and what surrounds each: window size
+// minus the view's viewport, at default panel widths (both measured at
+// 1280×800, 1366×768, 1920×1080 and 2560×1440).
+export const OPERATOR_VIEWS = {
+  properties: { label: 'Properties', chrome: { w: 470, h: 268 } },
+  relatedAssets: { label: 'Related Assets', chrome: { w: 470, h: 282 } },
+};
 
 const DEFAULT_DISPLAY_ID = 'fhd';
 
@@ -59,16 +67,20 @@ export function fitCheckDisplays() {
     .map(d => ({ id: d.id, label: d.label, width: d.width, height: d.height }));
 }
 
-export function operatorAreaFor(display) {
+// The size `view` has in the Operator on `display`.
+export function operatorAreaFor(display, view) {
+  const { chrome } = OPERATOR_VIEWS[view];
   return {
-    w: Math.max(0, display.width - OPERATOR_RELATED_ASSETS_CHROME.w),
-    h: Math.max(0, display.height - OPERATOR_RELATED_ASSETS_CHROME.h),
+    w: Math.max(0, display.width - chrome.w),
+    h: Math.max(0, display.height - chrome.h),
   };
 }
 
-// The badge's wording, from the probe's fit result.
-export function describeOperatorFit(result, display) {
+// The badge's wording, from the probe's fit result — or, for a layout with
+// no probe, just what it offers / is showing.
+export function describeOperatorFit(result, display, { checkable = true, showing = false } = {}) {
   const where = `${display.label} ${display.width}×${display.height}`;
+  if (!checkable) return { tone: 'neutral', text: showing ? `▭ Operator view · ${where}` : '▭ Preview on a display' };
   if (!result) return { tone: 'pending', text: `Checking the Operator view… · ${where}` };
   if (result.fits) return { tone: 'ok', text: `✓ Fits the Operator view · ${where}` };
   return { tone: 'warn', text: `⚠ Operators will see this at ${Math.round(result.zoom * 100)}% · ${where}` };
@@ -76,25 +88,23 @@ export function describeOperatorFit(result, display) {
 
 export const FILL_PANE = 'fill';
 
-// cardsProps: what the visible AssetCardsView is drawn with (the Operator
-// draws the same saved template); rows: the rows the Operator shows.
-// showingId: the display the preview is showing (null = Fill pane);
-// onShow(displayId | null) switches it.
-export function OperatorFitCheck({ cardsProps, rows, showingId = null, onShow }) {
+// view: a key of OPERATOR_VIEWS. renderProbe(onFitChange): what the
+// Operator draws in that view, with its FitViewport reporting to
+// onFitChange — or nothing, for a layout that can only be previewed. showingId: the display the preview is showing (null = Fill
+// pane); onShow(displayId | null) switches it.
+export function OperatorFitCheck({ view, renderProbe, showingId = null, onShow }) {
   const displays = useMemo(() => fitCheckDisplays(), []);
   const [displayId, setDisplayId] = useState(() => {
     const saved = loadOperatorFitDisplay();
     return displays.some(d => d.id === saved) ? saved : DEFAULT_DISPLAY_ID;
   });
   const display = displays.find(d => d.id === displayId) || displays[0];
-  const area = operatorAreaFor(display);
+  const area = operatorAreaFor(display, view);
   const [result, setResult] = useState(null);
   const [picking, setPicking] = useState(false);
-  // AssetCardsView writes to these; nothing reads them here.
-  const flexContainerRef = useRef(null);
-  const flexTileRefs = useRef({});
 
-  const { tone, text } = describeOperatorFit(result, display);
+  const checkable = typeof renderProbe === 'function';
+  const { tone, text } = describeOperatorFit(result, display, { checkable, showing: !!showingId });
   const choose = (id) => {
     setPicking(false);
     if (id === FILL_PANE) { onShow?.(null); return; }
@@ -112,9 +122,11 @@ export function OperatorFitCheck({ cardsProps, rows, showingId = null, onShow })
       <button
         type="button"
         className={`op-fit-check-badge op-fit-check-badge--${tone}`}
-        title={tone === 'warn'
+        title={!checkable
+          ? 'See this layout at the size the Operator view has on a display. (The ✓ / % check covers Flex layouts; this layout fits itself in the Operator.)'
+          : tone === 'warn'
           ? 'Operators can still see everything — the view opens zoomed out, with zoom controls. Tidy the layout here to avoid it. Click to see it on a display, or check another.'
-          : 'How the Operator’s Related Assets view will open. Click to see it on a display, or check another.'}
+          : `How the Operator’s ${OPERATOR_VIEWS[view].label} view will open. Click to see it on a display, or check another.`}
         onClick={() => setPicking(p => !p)}
       >
         {text}
@@ -136,35 +148,25 @@ export function OperatorFitCheck({ cardsProps, rows, showingId = null, onShow })
           opened
         />
       )}
-      {rows.length > 0 && (
-        <div className="op-fit-check-probe" aria-hidden="true" style={{ width: area.w, height: area.h }}>
-          <AssetCardsView
-            {...cardsProps}
-            key={display.id}
-            visibleRows={rows}
-            cardsLayoutMode="auto"
-            cardsFlexContainerRef={flexContainerRef}
-            cardsFlexTileRefs={flexTileRefs}
-            readOnly
-            onTitleClick={undefined}
-            onGearClick={undefined}
-            onFitChange={setResult}
-          />
+      {checkable && (
+        <div className="op-fit-check-probe" aria-hidden="true" key={display.id} style={{ width: area.w, height: area.h }}>
+          {renderProbe(setResult)}
         </div>
       )}
     </span>
   );
 }
 
-// The preview as a display's Operator view: a frame exactly the size of the
-// Operator's Related Assets area on `display`, holding whatever the
+// The preview as a display's Operator view: a frame exactly the size of
+// `view` in the Operator on `display`, holding whatever the
 // Operator draws there (children — the Cards, in their own FitViewport),
 // shrunk as needed to fit this pane and centred, with a caption saying
-// what it is. Nothing inside needs to know it's shrunk: FitViewport lays
+// what it is (plus `note`, e.g. that it's a look-only copy). Nothing
+// inside needs to know it's shrunk: FitViewport lays
 // out by layout pixels and corrects pointer maths for the outer scale.
-export function OperatorDisplayFrame({ display, children }) {
+export function OperatorDisplayFrame({ display, view, note, children }) {
   const paneRef = useRef(null);
-  const area = operatorAreaFor(display);
+  const area = operatorAreaFor(display, view);
   const [scale, setScale] = useState(1);
   useLayoutEffect(() => {
     const pane = paneRef.current;
@@ -187,6 +189,7 @@ export function OperatorDisplayFrame({ display, children }) {
       <div className="op-display-frame-caption">
         <b>{display.label}</b> · Operator view {area.w}×{area.h}
         {scale < 0.999 && <span> · shown here at {Math.round(scale * 100)}%</span>}
+        {note && <span> · {note}</span>}
       </div>
       <div className="op-display-frame-slot" style={{ width: area.w * scale, height: area.h * scale }}>
         <div className="op-display-frame" style={{ width: area.w, height: area.h, transform: `scale(${scale})` }}>

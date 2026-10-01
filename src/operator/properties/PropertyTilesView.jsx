@@ -20,6 +20,8 @@ import { resolvePropertyViewMode, KPI_VIEW_MODE_ITEMS } from '../settings/proper
 import { PropertyTileCanvas } from './PropertyTileCanvas';
 import { PropertyTile } from './PropertyTile';
 import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MODE_ITEMS, RELATED_ASSETS_ALIGN_HORIZONTAL_ITEMS, RELATED_ASSETS_ALIGN_VERTICAL_ITEMS, RELATED_ASSETS_DISTRIBUTE_ITEMS, TIER_FILTER_ITEMS, TIER_FILTER_SLIDER_VALUES, TIER_RANK, formatTierFilterSliderLabel } from '../settings/layoutOptions';
+import { AssetPropertiesView } from './AssetPropertiesView';
+import { OperatorDisplayFrame, OperatorFitCheck, fitCheckDisplays } from '../configurator/OperatorFitCheck';
 
 // An asset's (or a type's example asset's) properties as tiles, grouped by
 // category. seriesAssetId is the asset whose series feed the sparklines.
@@ -29,7 +31,7 @@ import { ALIGN_CONTENT_ITEMS, FLOW_DIRECTION_ITEMS, FLOW_WRAP_ITEMS, GROUPING_MO
 // visual map and shares the same selected property, and it's a sibling of
 // this component, not a child. Undefined everywhere else this renders
 // (Investigate), which then behaves exactly as before.
-export function PropertyTilesView({ properties: props, seriesAssetId, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty, propertyOrder }) {
+export function PropertyTilesView({ properties: props, seriesAssetId, evidencePoints, typeVisibilityMode, typeId, typePropertyConfigs, typeDisplayTemplates, onSaveTypeDisplayTemplate, onViewModeChange, activeSaveHandlerRef, showToolbar, propertyViewModes, inheritedPropertyViewModes, selectedPropertyKey, onSelectProperty, propertyOrder, operatorTypeId, operatorTitle }) {
   const savedTemplate = typeVisibilityMode ? typeDisplayTemplates?.[typeId] : null;
   const [kpiViewMode, setKpiViewMode] = useState(savedTemplate?.viewMode ?? 'text');
   // What actually renders: this entity's own per-property choices over
@@ -52,6 +54,9 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
   const [propertyLayoutMode, setPropertyLayoutMode] = useState(savedTemplate?.layoutMode ?? 'auto');
   const [manualPositions, setManualPositions] = useState(savedTemplate?.manualPositions ?? {});
   const propertyLayoutCanvasRef = useRef(null);
+  // The display the preview is showing as the Operator sees it
+  // (OperatorDisplayFrame), or null to fill the pane — where it opens.
+  const [previewDisplayId, setPreviewDisplayId] = useState(null);
   // Measures the flex preview's actual current tile positions at the
   // moment of switching to manual, so nothing visually jumps — refs are
   // populated by the flex preview's own render below, read once on
@@ -131,6 +136,28 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
   if (!props) {
     return <div className="op-dash-text op-dash-text--muted">No properties available for this item.</div>;
   }
+
+  // What the Operator's Assets area will draw for this entity, with the
+  // settings as they are right now (saved or not): its AssetCard under this
+  // draft template — this entity's per-property visuals over what it
+  // inherits, and its visibility as edited in the Details panel. For the
+  // fit check and the display preview (configurator/OperatorFitCheck).
+  // Configurator editing only (operatorTypeId given). Manual layout too:
+  // the Operator draws a manual box as plain positioned tiles (AssetCard),
+  // not a React Flow canvas, so it can be checked and shown like Flex.
+  const operatorCardProps = typeVisibilityMode && operatorTypeId ? {
+    relatedTypeId: operatorTypeId,
+    relatedTypeName: operatorTitle,
+    relatedTypeExampleAssetId: seriesAssetId,
+    typeDisplayTemplates: { [operatorTypeId]: { ...buildSavePayload(), propertyViewModes: effectivePropertyViewModes ?? {} } },
+    assetDisplayTemplates: {},
+    typePropertyConfigs: { [operatorTypeId]: typePropertyConfigs?.[typeId] || {} },
+    assetPropertyConfigs: {},
+    evidencePoints,
+  } : null;
+  const canCheckOperator = !!operatorCardProps && groupingMode === 'none';
+  const previewDisplay = canCheckOperator && previewDisplayId ? fitCheckDisplays().find(d => d.id === previewDisplayId) : null;
+  const showingOperatorView = !!previewDisplay;
 
   // Measures the flex preview's real current tile positions at the exact
   // moment of switching, so entering manual mode never causes a visible
@@ -280,8 +307,22 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
                     )}
                   </>
                 )}
+                {/* Will this fit the Operator's view? Same badge and list as
+                    Related Assets (OperatorFitCheck). */}
+                {canCheckOperator && (
+                  <OperatorFitCheck
+                    view="properties"
+                    showingId={previewDisplayId}
+                    onShow={setPreviewDisplayId}
+                    renderProbe={(onFitChange) => <AssetPropertiesView {...operatorCardProps} onFitChange={onFitChange} />}
+                  />
+                )}
               </div>
-              <div className="op-tierfilter-slider-wrap" style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0 }}>
+              <div
+                className="op-tierfilter-slider-wrap"
+                style={{ width: 220, padding: '4px 8px 20px', boxSizing: 'border-box', flexShrink: 0, ...(showingOperatorView ? { opacity: 0.45 } : null) }}
+                title={showingOperatorView ? 'The Operator view shows the properties the Operator shows (the "Always" ones) — this slider applies to Fill pane' : undefined}
+              >
                 <Slider
                   min={0}
                   max={2}
@@ -401,7 +442,15 @@ export function PropertyTilesView({ properties: props, seriesAssetId, evidencePo
           </>
         </div>
       )}
-      {categories.length === 0 ? (
+      {showingOperatorView ? (
+        // The preview as the chosen display's Operator view. Keyed by
+        // display so each opens fitted, as the Operator would open it.
+        // Manual: the editor is a React Flow canvas; this is the Operator's
+        // positioned-tiles drawing of the same positions, to look at.
+        <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay} view="properties" note={propertyLayoutMode === 'manual' ? 'look only — move tiles on Fill pane' : undefined}>
+          <AssetPropertiesView {...operatorCardProps} />
+        </OperatorDisplayFrame>
+      ) : categories.length === 0 ? (
         <div className="op-dash-text op-dash-text--muted">
           {typeVisibilityMode ? `No properties marked "${tierFilter}"` : `No ${tierFilter} properties for this asset.`}
         </div>

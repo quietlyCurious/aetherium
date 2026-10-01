@@ -40,6 +40,9 @@
 //                       editor's Tile at 200%). 1 — never above 100% — is
 //                       the runtime rule.
 //   onFitChange         called with { zoom, fits } after every fit.
+//   fillWidth           fixed-size content is at least as wide as the view
+//                       (a box that has always spanned its panel keeps
+//                       doing so); only wider content is fitted.
 //   Keyboard (editor, while the pointer is over the view): Ctrl/Cmd + = and
 //   − zoom in and out, Ctrl/Cmd + 0 is 100%, Shift + 1 fits. The % button
 //   opens a list of zoom levels.
@@ -62,7 +65,7 @@ const ZOOM_STEP = 1.25;
 // The % button's list.
 const ZOOM_PRESETS = [0.25, 0.5, 1, 2, 4];
 
-export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', maxFitZoom = 1, panWith = 'drag', controls: controlsMode = 'auto', resetKey, onFitChange, children }) {
+export function FitViewport({ className = '', reflow = null, sizing = 'natural', align = 'start', maxFitZoom = 1, fillWidth = false, panWith = 'drag', controls: controlsMode = 'auto', resetKey, onFitChange, children }) {
   const viewRef = useRef(null);
   const stageRef = useRef(null);
   const view = useRef({ zoom: 1, x: 0, y: 0 });
@@ -101,6 +104,7 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     measuring.current = true;
     const v = { w: el.clientWidth, h: el.clientHeight };
     let result;
+    stage.style.minWidth = '';
     if (sizing === 'fill') {
       stage.style.width = `${v.w}px`;
       stage.style.height = `${v.h}px`;
@@ -121,6 +125,9 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     } else {
       stage.style.width = 'max-content';
       stage.style.height = '';
+      // Content narrower than the view still spans it (a box that's always
+      // been full width stays full width); wider content keeps its size.
+      stage.style.minWidth = fillWidth ? `${v.w}px` : '';
       result = fitFixed(v, { w: stage.offsetWidth, h: stage.offsetHeight }, align, maxFitZoom);
     }
     fits.current = result.fits;
@@ -130,7 +137,7 @@ export function FitViewport({ className = '', reflow = null, sizing = 'natural',
     onFitChangeRef.current?.({ zoom: result.zoom, fits: result.fits });
     // Let the ResizeObserver callbacks our own measuring caused go by.
     requestAnimationFrame(() => { measuring.current = false; });
-  }, [reflow, sizing, align, maxFitZoom, apply]);
+  }, [reflow, sizing, align, maxFitZoom, fillWidth, apply]);
 
   // Fit on open, and again for a different subject.
   useLayoutEffect(() => { fit(); }, [fit, resetKey]);

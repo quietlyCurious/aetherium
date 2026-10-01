@@ -418,6 +418,7 @@
 .op-fit-check-badge--ok { background: #eaf6ea; color: #1e6b1e; }
 .op-fit-check-badge--warn { background: #fff4e5; color: #8a5a00; border-color: #f3c58d; }
 .op-fit-check-badge--pending { background: #f1f2f4; color: #666; }
+.op-fit-check-badge--neutral { background: #eef3f9; color: #355a80; border-color: #cfdcec; }
 .op-fit-check-probe {
   position: fixed;
   left: -100000px;
@@ -472,5 +473,6 @@
   background: #fff;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
 }
-/* Inside the frame the Cards viewport fills it exactly, as in the Operator. */
-.op-display-frame .op-related-assets-viewport { margin-top: 0; }
+/* Inside the frame the view fills it exactly, as in the Operator. */
+.op-display-frame .op-related-assets-viewport,
+.op-display-frame .op-related-assets-diagram { margin-top: 0; }

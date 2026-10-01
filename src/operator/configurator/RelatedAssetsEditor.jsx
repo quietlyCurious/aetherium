@@ -96,7 +96,15 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
   // (OperatorDisplayFrame), or null to fill the pane — where it opens.
   const [previewDisplayId, setPreviewDisplayId] = useState(null);
   const previewDisplay = previewDisplayId ? fitCheckDisplays().find(d => d.id === previewDisplayId) : null;
-  const showingOperatorView = !!previewDisplay && layoutMode === 'cards' && cardsLayoutMode === 'auto';
+  // Any layout can be shown on a display. Flex Cards are shown live (the
+  // same editable view, in the frame); Manual and Diagram — React Flow
+  // canvases — as a look-only copy with the current draft (dragging inside
+  // a shrunk React Flow canvas doesn't track the pointer; edit on Fill pane).
+  const showingOperatorView = !!previewDisplay;
+  const cardsFlexMode = layoutMode === 'cards' && cardsLayoutMode === 'auto';
+  // The fit check's invisible copy writes to these; nothing reads them.
+  const probeFlexContainerRef = useRef(null);
+  const probeFlexTileRefs = useRef({});
 
   // Unsaved-changes tracking — same as PropertyTilesView's, with two
   // position channels since both Cards and Diagram have a manual mode.
@@ -255,19 +263,37 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
                 <Button text="Switch to Manual Layout" onClick={diagram.onManualEdit} stylingMode="outlined" />
               )
             )}
-            {/* Will this fit the Operator's view? (Cards auto only — see
-                OperatorFitCheck.) Uses the rows the Operator shows, not
-                this preview's density setting. */}
-            {layoutMode === 'cards' && cardsLayoutMode === 'auto' && (
+            {/* Will this fit the Operator's view, and how does it look on a
+                display? (OperatorFitCheck.) Every layout can be previewed;
+                the ✓ / % verdict is for Flex Cards, the one drawn in a
+                FitViewport. Uses the rows the Operator shows, not this
+                preview's density setting. */}
+            {operatorRows.length > 0 && (
               <OperatorFitCheck
-                rows={operatorRows}
+                view="relatedAssets"
                 showingId={previewDisplayId}
                 onShow={setPreviewDisplayId}
-                cardsProps={{
-                  currentTypeId, currentTypeName, currentTypeExampleAssetId,
-                  typeDisplayTemplates, typePropertyConfigs, assetDisplayTemplates, assetPropertyConfigs,
-                  evidencePoints, cardsFlowDirection, cardsFlowWrap, cardsAlignContent,
-                }}
+                renderProbe={cardsFlexMode ? (onFitChange) => (
+                  <AssetCardsView
+                    currentTypeId={currentTypeId}
+                    currentTypeName={currentTypeName}
+                    currentTypeExampleAssetId={currentTypeExampleAssetId}
+                    visibleRows={operatorRows}
+                    typeDisplayTemplates={typeDisplayTemplates}
+                    typePropertyConfigs={typePropertyConfigs}
+                    assetDisplayTemplates={assetDisplayTemplates}
+                    assetPropertyConfigs={assetPropertyConfigs}
+                    evidencePoints={evidencePoints}
+                    cardsLayoutMode="auto"
+                    cardsFlexContainerRef={probeFlexContainerRef}
+                    cardsFlexTileRefs={probeFlexTileRefs}
+                    cardsFlowDirection={cardsFlowDirection}
+                    cardsFlowWrap={cardsFlowWrap}
+                    cardsAlignContent={cardsAlignContent}
+                    readOnly
+                    onFitChange={onFitChange}
+                  />
+                ) : undefined}
               />
             )}
           </div>
@@ -357,7 +383,57 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
         </div>
       </div>
       )}
-      {layoutMode === 'cards' ? (() => {
+      {showingOperatorView && !cardsFlexMode ? (
+        // Manual Cards or a Diagram on a display: a look-only copy of what
+        // the Operator draws (its read-only view), with this draft's
+        // settings and positions.
+        operatorRows.length === 0 ? (
+          <div className="op-dash-text op-dash-text--muted">The Operator shows no related assets here.</div>
+        ) : (
+          <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay} view="relatedAssets" note="look only — edit on Fill pane">
+            {layoutMode === 'cards' ? (
+              <AssetCardsView
+                currentTypeId={currentTypeId}
+                currentTypeName={currentTypeName}
+                currentTypeExampleAssetId={currentTypeExampleAssetId}
+                visibleRows={operatorRows}
+                typeDisplayTemplates={typeDisplayTemplates}
+                typePropertyConfigs={typePropertyConfigs}
+                assetDisplayTemplates={assetDisplayTemplates}
+                assetPropertyConfigs={assetPropertyConfigs}
+                evidencePoints={evidencePoints}
+                cardsLayoutMode="manual"
+                cardsManualPositions={cardsManualPositions}
+                onCardsPositionsChange={() => {}}
+                cardsFlexContainerRef={probeFlexContainerRef}
+                cardsFlexTileRefs={probeFlexTileRefs}
+                cardsFlowDirection={cardsFlowDirection}
+                cardsFlowWrap={cardsFlowWrap}
+                cardsAlignContent={cardsAlignContent}
+                readOnly
+              />
+            ) : (
+              <AssetDiagramView
+                {...diagram.viewProps}
+                savedManualPositions={diagram.layoutMode === 'manual' ? diagram.manualPositions : undefined}
+                onManualEdit={() => {}}
+                currentTypeId={currentTypeId}
+                currentTypeName={currentTypeName}
+                currentTypeExampleAssetId={currentTypeExampleAssetId}
+                visibleRows={operatorRows}
+                typeList={typeList}
+                allTypesMode={false}
+                typeDisplayTemplates={typeDisplayTemplates}
+                typePropertyConfigs={typePropertyConfigs}
+                assetDisplayTemplates={assetDisplayTemplates}
+                assetPropertyConfigs={assetPropertyConfigs}
+                evidencePoints={evidencePoints}
+                readOnly
+              />
+            )}
+          </OperatorDisplayFrame>
+        )
+      ) : layoutMode === 'cards' ? (() => {
         const rows = showingOperatorView ? operatorRows : visibleRows;
         if (rows.length === 0) {
           return <div className="op-dash-text op-dash-text--muted">{showingOperatorView ? 'The Operator shows no related assets here.' : 'No related assets to show at this density.'}</div>;
@@ -387,7 +463,7 @@ export function RelatedAssetsEditor({ relatedAssetRows, evidencePoints, typeDisp
         );
         // Keyed by display: each one opens fitted, as the Operator would open
         // it, rather than carrying over a zoom from the last display.
-        return showingOperatorView ? <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay}>{cards}</OperatorDisplayFrame> : cards;
+        return showingOperatorView ? <OperatorDisplayFrame key={previewDisplay.id} display={previewDisplay} view="relatedAssets">{cards}</OperatorDisplayFrame> : cards;
       })() : (
         visibleRows.length === 0 ? (
           <div className="op-dash-text op-dash-text--muted">No related assets to show at this density.</div>

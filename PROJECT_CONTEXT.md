@@ -457,29 +457,42 @@ anchors (`coordUpdateFor`: a right-anchored item gets a new right, a
 stretched one both edges).
 
 **Operator fit check** (`operator/configurator/OperatorFitCheck.jsx`): in
-Visualization's Related Assets (Cards, auto), a toolbar badge says whether
-the layout fits the Operator's view on a chosen display ("✓ Fits the
-Operator view · Full HD 1920×1080") or how far operators would be zoomed
-out ("⚠ Operators will see this at 82% · 10" Operator Panel"). Click it to
-pick another display (device previews ≥ 1024 wide; the choice is a
-per-browser preference, `operatorFitDisplayStorage.js`). It lays the same
-cards out invisibly at the Operator area's size, inside the same
-FitViewport the Operator uses (`onFitChange`), with the Operator's rows
-(its default "always" density, not Configure's slider) — so the verdict is
-the Operator's own. The area is the display minus
-`OPERATOR_RELATED_ASSETS_CHROME` (470×282: measured, constant across
-display sizes, side panels at default widths; re-measure if the Operator
-layout changes — how is in the file). Verified against the real Operator
-view at 1280×800, 1366×768 and 1920×1080.
+Visualization's Properties and Related Assets (flex/Cards auto layouts), a
+toolbar badge says whether the layout fits that view in the Operator on a
+chosen display ("✓ Fits the Operator view · Full HD 1920×1080") or how far
+operators would be zoomed out ("⚠ Operators will see this at 68% · 10"
+Operator Panel"). It's generic: the caller passes `view` (a key of
+`OPERATOR_VIEWS`, which holds each view's measured surrounding panels —
+Properties 470×268, Related Assets 470×282, constant across display sizes
+at default panel widths; how to re-measure is in the file) and
+`renderProbe(onFitChange)`, the Operator's own component for that view with
+the draft settings. It lays that out invisibly at the Operator area's size
+and reports what its FitViewport decided, so the verdict is the Operator's
+own. The badge's list starts with **Fill pane** (where the preview opens),
+then the displays (device previews ≥ 1024 wide; last one checked is a
+per-browser preference, `operatorFitDisplayStorage.js`); picking a display
+swaps the preview for `OperatorDisplayFrame` — that view at exactly the
+Operator's size, with the Operator's rendering, shrunk to fit the pane and
+captioned, keyed by display so each opens fitted. Checked against the real
+Operator at 1280×800, 1366×768 and 1920×1080, for both views.
 
-The badge's list also *shows* a display: its first entry is **Fill pane**
-(the preview fills Configure's pane — where it always opens), and picking a
-display turns the preview into that display's Operator view
-(`OperatorDisplayFrame`): a frame exactly the Operator area's size, with
-the Operator's rows, laid out and fitted as the Operator does, shrunk to
-fit the pane and captioned. It's keyed by display, so each opens fitted.
+The Operator's Properties view is `operator/properties/AssetPropertiesView`
+(AssetCard in its box, inside a FitViewport with `fillWidth`; a wrapping
+row reflows, anything else is shrunk as is) — used by the Operator's Assets
+area and by the Properties check/preview, with a draft template overlaid.
 FitViewport divides pointer maths by any outer scale (`outerScale`), so
 zoom and pan inside the shrunk frame track the cursor.
+
+Every layout can be previewed on a display. Properties is checked in every
+layout (Flex and Manual — Manual is a static AssetCard, so its FitViewport
+can answer); grouped properties aren't checked yet. Related Assets' Manual
+Cards and Diagram draw on React Flow in the Operator (they fit themselves),
+so they pass no `renderProbe`: the badge is neutral ("▭ Preview on a
+display" / "▭ Operator view · <display>") and the frame shows a read-only
+copy with the draft positions, captioned "look only — edit on Fill pane".
+Manual layouts get the ✓/% verdict once they move onto coordinate layouts
+(step 5); Diagram when it reports its own fit. The density / tier slider
+dims while a display is showing.
 
 ## Where things live
 

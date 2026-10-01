@@ -688,3 +688,11 @@
   /* No background of its own: the card it sits on shows through. */
   background: transparent;
 }
+
+/* The Operator's Properties view (AssetPropertiesView): the viewport takes
+   the panel's remaining height, and the asset's box sits inside it, drawn
+   exactly as before when it fits. */
+.op-properties-viewport {
+  flex: 1;
+  min-height: 0;
+}

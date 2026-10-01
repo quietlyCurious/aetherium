@@ -180,6 +180,8 @@ export function NowTypeMainPreview({ activeTabIndex, title, entityId, isAssetEnt
           propertyOrder={effectivePropertyOrder}
           selectedPropertyKey={propertyVisuals?.selectedKey ?? null}
           onSelectProperty={propertyVisuals?.setSelectedKey}
+          operatorTypeId={ownTypeId}
+          operatorTitle={typeList?.find(t => t.id === ownTypeId)?.name ?? title}
         />
       </div>
     </div>

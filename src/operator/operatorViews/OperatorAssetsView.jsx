@@ -8,7 +8,7 @@ import HierarchyTree from '../../HierarchyTree';
 import { deslugifyType, getAssetDisplayLabel } from '../../model/assetQueries';
 import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, CURRENT_TIMESTAMPS } from '../../model/modelData';
 import { ReadOnlyRelatedAssetsView, ReadOnlyAllAssetsView } from '../relatedAssets/ReadOnlyViews';
-import { AssetCard } from '../relatedAssets/AssetCard';
+import { AssetPropertiesView } from '../properties/AssetPropertiesView';
 import { NowAssetTreeItemTemplate } from '../configurator/NowAssetTreePanel';
 
 // Left panel for the new Operator-only Assets area — the real asset
@@ -39,7 +39,7 @@ export function OperatorAssetTreePanel({ selectedAssetId, onSelectAsset }) {
 // asset is selected in OperatorAssetTreePanel and shows it through the
 // same three visual playgrounds Visualization configures (Properties/
 // Related Assets/All Assets), entirely read-only: no toolbar, no
-// editing, no save. Properties reuses AssetCard directly
+// editing, no save. Properties reuses AssetCard (in AssetPropertiesView)
 // (it already renders a given asset's own real values under its type's
 // saved template, flex or manual, with no canvas involved at all for
 // manual mode — just absolutely-positioned tiles); Related Assets and
@@ -83,21 +83,21 @@ export function OperatorAssetDetail({ selectedAssetId, typeList, typeDisplayTemp
         />
       </div>
       <div className="op-now-type-detail-main">
+        {/* Fitted: a box too big for the space opens zoomed out rather
+            than scrolling (AssetPropertiesView). */}
         {activeTab === 'properties' && (
-          <div className={`op-property-tiles-singlebox${(assetDisplayTemplates?.[selectedAssetId]?.layoutMode ?? typeDisplayTemplates?.[typeId]?.layoutMode) === 'manual' ? ' op-property-tiles-singlebox--manual' : ''}`}>
-            <AssetCard
-              relatedTypeId={typeId}
-              relatedTypeName={typeName}
-              relatedTypeExampleAssetId={selectedAssetId}
-              typeDisplayTemplates={typeDisplayTemplates}
-              typePropertyConfigs={typePropertyConfigs}
-              assetDisplayTemplates={assetDisplayTemplates}
-              assetPropertyConfigs={assetPropertyConfigs}
-              evidencePoints={evidencePoints}
-              onTitleClick={onTitleClick}
-              onGearClick={onGearClick}
-            />
-          </div>
+          <AssetPropertiesView
+            relatedTypeId={typeId}
+            relatedTypeName={typeName}
+            relatedTypeExampleAssetId={selectedAssetId}
+            typeDisplayTemplates={typeDisplayTemplates}
+            typePropertyConfigs={typePropertyConfigs}
+            assetDisplayTemplates={assetDisplayTemplates}
+            assetPropertyConfigs={assetPropertyConfigs}
+            evidencePoints={evidencePoints}
+            onTitleClick={onTitleClick}
+            onGearClick={onGearClick}
+          />
         )}
         {activeTab === 'related' && (
           <ReadOnlyRelatedAssetsView
