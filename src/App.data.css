@@ -1,7 +1,7 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    App.data.css  —  Data workspace styles (Phase 2a)
    Covers: title bar dropdown divider, placeholder panels for
-   Data Sources / Queries / Scripts workspaces.
+   Data Sources / Queries workspaces.
    ───────────────────────────────────────────────────────────────────────────── */
 
 /* ── Title bar dropdown divider ──────────────────────────────────────────── */
@@ -12,7 +12,7 @@
 }
 
 /* ── Data workspace shell ─────────────────────────────────────────────────── */
-/* Full-height container for the three data views (Data Sources, Queries, Scripts) */
+/* Full-height container for the data definition views */
 .data-workspace {
   height: 100%;
   display: flex;
@@ -52,18 +52,7 @@
   line-height: 1.6;
 }
 
-.data-workspace-placeholder-badge {
-  margin-top: 8px;
-  font-size: 11px;
-  color: #0055aa;
-  background: #e8f2ff;
-  border: 1px solid #b3d0ff;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-weight: 500;
-}
-
-/* ── Shared DataListGrid (Data Sources / Queries / Scripts left panels) ───── */
+/* ── Shared DataListGrid (definition list panels) ─────────────────────────── */
 /* Tightens DevExtreme's default grid chrome to match Aetherium's compact density. */
 .data-list-grid .dx-datagrid-headers {
   font-size: 10px;

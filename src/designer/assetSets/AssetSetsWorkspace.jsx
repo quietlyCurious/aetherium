@@ -3,7 +3,7 @@
 // for the selected one with a live preview of what it resolves to. The
 // sets themselves, and how they resolve, are model/assetSets.js.
 //
-// Same list + editor shell as Data Sources, Entities and Queries
+// Same list + editor shell as Data Sources and Queries
 // (DefinitionWorkspace). Unlike those, a set belongs to one industry model,
 // so this area loads the title bar's model (useLoadedModel, as Screens and
 // the Operator side do) and lists only that model's sets.

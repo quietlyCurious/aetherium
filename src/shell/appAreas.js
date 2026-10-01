@@ -32,7 +32,7 @@
 import { VisualizationRailIcon } from '../operator/icons';
 import {
   ScreensRailIcon, WidgetsRailIcon, ThemeRailIcon,
-  DataSourcesRailIcon, EntitiesRailIcon, QueriesRailIcon, AssetSetsRailIcon, ScriptsRailIcon,
+  DataSourcesRailIcon, QueriesRailIcon, AssetSetsRailIcon,
 } from './areaIcons';
 
 const UNSAVED = 'You have unsaved changes — save them';
@@ -82,10 +82,6 @@ export const APP_AREAS = [
     save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this data source' },
   },
   {
-    id: 'entities', workspace: 'configurator', railGroup: 'data', view: 'entities', label: 'Entities', Icon: EntitiesRailIcon,
-    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save entity data' },
-  },
-  {
     id: 'queries', workspace: 'configurator', railGroup: 'data', view: 'queries', label: 'Queries', Icon: QueriesRailIcon,
     save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this query' },
   },
@@ -94,7 +90,6 @@ export const APP_AREAS = [
     usesModel: true,
     save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this asset set' },
   },
-  { id: 'scripts', workspace: 'configurator', railGroup: 'data', view: 'scripts', label: 'Scripts', Icon: ScriptsRailIcon, save: null },
 ];
 
 // The area showing for a view (+ persona, for the OperatorWorkspace view).

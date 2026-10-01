@@ -3,13 +3,13 @@
 // Save), which area is showing, and the data every designer area shares.
 //
 // Each area draws itself — OperatorWorkspace, ScreensWorkspace, the
-// definition workspaces (Data Sources, Entities, Queries, Asset Sets), ThemeWorkspace,
-// WidgetsWorkspace, ScriptsWorkspace. The workspaces and their areas —
+// definition workspaces (Data Sources, Queries, Asset Sets), ThemeWorkspace,
+// WidgetsWorkspace. The workspaces and their areas —
 // names, rail groups, what Save says — are shell/appAreas.js. What stays
 // here is what spans areas: the title bar (workspace menu, model switcher,
 // Launch, Save), the Configuration Experience's rail, navigation and its
-// unsaved-changes check, and the data definitions (data sources, entities,
-// queries) more than one area reads.
+// unsaved-changes check, and the data definitions (data sources, queries)
+// more than one area reads.
 //
 // The Screens editor's state comes from useScreenEditor, called here rather
 // than inside ScreensWorkspace so the open page and its unsaved edits
@@ -38,10 +38,7 @@ import './operator/styles/operatorViews.css';
 import './operator/styles/chrome.css';
 import DataSourcesWorkspace from './DataSourcesWorkspace';
 import QueriesWorkspace from './QueriesWorkspace';
-import EntitiesWorkspace from './EntitiesWorkspace';
 import RuntimeView from './RuntimeView';
-import { makeNewEntity } from './entityModel';
-import { loadEntities, saveEntities } from './entitiesStorage';
 import { loadDataSources, saveDataSources } from './dataSourcesStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadAssetSets, saveAssetSets } from './assetSetsStorage';
@@ -55,7 +52,6 @@ import OperatorWorkspace from './operator/OperatorWorkspace';
 import { ScreensWorkspace } from './designer/screens/ScreensWorkspace';
 import { useScreenEditor } from './designer/screens/useScreenEditor';
 import { WidgetsWorkspace } from './designer/widgets/WidgetsWorkspace';
-import { ScriptsWorkspace } from './designer/ScriptsWorkspace';
 import { APP_AREAS, WORKSPACES, findArea, railGroupsFor } from './shell/appAreas';
 import { AreaRail } from './shell/AreaRail';
 import './shell/appRail.css';
@@ -96,7 +92,7 @@ function AetheriumEditor() {
   // ── Moving between areas ─────────────────────────────────────────────────
   // Only the area being left is asked (its handle's confirmLeave — see
   // areaHandles below):
-  //  - Data Sources, Entities, Queries, Asset Sets, Widgets: confirm; leaving drops the
+  //  - Data Sources, Queries, Asset Sets, Widgets: confirm; leaving drops the
   //    unsaved edits, since their editor unmounts.
   //  - Visualization: the Configurator's Save/Discard dialog. Always goes
   //    ahead.
@@ -145,7 +141,7 @@ function AetheriumEditor() {
     navigateTo(area);
   };
 
-  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'entities'|'queries'|'scripts'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
+  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'queries'|'assetsets'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
   // Read once on mount from the URL — a deep link there (if present)
   // takes priority over the persisted last-used persona below. Also
   // reused (via setInitialDeepLink) for in-app navigation that switches
@@ -187,8 +183,6 @@ function AetheriumEditor() {
   // ── Phase 2 Data Layer ────────────────────────────────────────────────────
   // System-scoped (shared across all pages of this project):
   const [dataSources,      setDataSources]      = useState(() => loadDataSources());  // DataSource definitions
-  const [entities,         setEntities]          = useState(() => loadEntities());  // Entity definitions (schema + rows)
-  const entitiesWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger entity-data save
   const dataSourcesWorkspaceRef = React.useRef(null);
   const queriesWorkspaceRef = React.useRef(null);
   const assetSetsWorkspaceRef = React.useRef(null);
@@ -219,7 +213,6 @@ function AetheriumEditor() {
   const areaHandles = {
     screens: { current: screensHandle },
     datasources: dataSourcesWorkspaceRef,
-    entities: entitiesWorkspaceRef,
     queries: queriesWorkspaceRef,
     assetsets: assetSetsWorkspaceRef,
     widgets: widgetsWorkspaceRef,
@@ -262,34 +255,6 @@ function AetheriumEditor() {
     setDataSources(prev => {
       const next = prev.filter(ds => ds.id !== id);
       saveDataSources(next);
-      return next;
-    });
-    return true;
-  };
-
-  // ── Entities ─────────────────────────────────────────────────────────────
-  const handleAddEntity = () => {
-    const entity = makeNewEntity('Untitled Entity', generateDataId);
-    setEntities(prev => {
-      const next = [...prev, entity];
-      saveEntities(next);
-      return next;
-    });
-    return entity.id;
-  };
-
-  const handleUpdateEntity = (id, updates) => {
-    setEntities(prev => {
-      const next = prev.map(e => e.id === id ? { ...e, ...updates, updatedAt: new Date().toISOString() } : e);
-      saveEntities(next);
-      return next;
-    });
-  };
-
-  const handleDeleteEntity = (id) => {
-    setEntities(prev => {
-      const next = prev.filter(e => e.id !== id);
-      saveEntities(next);
       return next;
     });
     return true;
@@ -516,15 +481,6 @@ function AetheriumEditor() {
             onDelete={handleDeleteDataSource}
           />
 
-        ) : currentView === 'entities' ? (
-          <EntitiesWorkspace
-            ref={entitiesWorkspaceRef}
-            entities={entities}
-            onAdd={handleAddEntity}
-            onUpdate={handleUpdateEntity}
-            onDelete={handleDeleteEntity}
-          />
-
         ) : currentView === 'queries' ? (
           <QueriesWorkspace
             ref={queriesWorkspaceRef}
@@ -544,9 +500,6 @@ function AetheriumEditor() {
             onUpdate={assetSets.update}
             onDelete={assetSets.remove}
           />
-
-        ) : currentView === 'scripts' ? (
-          <ScriptsWorkspace />
 
         ) : currentView === 'operator' ? (
           <OperatorWorkspace

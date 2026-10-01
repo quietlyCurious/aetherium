@@ -1,6 +1,6 @@
 // queriesStorage.js
 // Browser localStorage-backed persistence for Query definitions.
-// Same pattern as pagesStorage.js / entitiesStorage.js.
+// Same pattern as pagesStorage.js / dataSourcesStorage.js.
 
 const QUERIES_STORAGE_KEY = 'aetherium_queries';
 

@@ -1,8 +1,7 @@
 // ParamListEditor.jsx
-// Shared editable list-of-rows control for Query/Script input & output parameter
+// Shared editable list-of-rows control for Query input & output parameter
 // definitions. Generic by design — the caller supplies which columns to render,
-// each column's control type, and a factory for blank rows. Reused as-is by the
-// (Phase 3) Scripts workspace, which has the same input/output shape.
+// each column's control type, and a factory for blank rows.
 
 import React from 'react';
 import { SelectBox } from 'devextreme-react/select-box';

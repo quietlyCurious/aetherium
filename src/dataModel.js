@@ -2,19 +2,19 @@
 // Data layer model constants and defaults for Aetherium's Phase 2 binding system.
 //
 // Scope model:
-//   DataSource, Query, Script definitions  →  system-scoped (available to all apps)
-//   QueryInstance, ScriptInstance          →  page-scoped by default; can be promoted to app-scoped
+//   DataSource, Query definitions  →  system-scoped (available to all apps)
+//   QueryInstance                  →  page-scoped by default; can be promoted to app-scoped
 //
 // UI architecture:
-//   Data Sources / Queries / Scripts workspaces  →  pure definition CRUD, no page context.
-//   Instances of queries, scripts, AND widgets    →  always live with a page — surfaced in a
-//   "Page Data" panel (queries/scripts) or the page's visual tree (widgets), never inside the
+//   Data Sources / Queries workspaces  →  pure definition CRUD, no page context.
+//   Instances of queries AND widgets    →  always live with a page — surfaced in a
+//   "Page Data" panel (queries) or the page's visual tree (widgets), never inside the
 //   system-scoped definition workspaces. A query definition is reusable; an instance is "this
 //   query, on this page, with these input values."
 //
 // Phase 2a covers: DataSource + Query definitions, QueryInstance (page-scoped).
 // Phase 2b adds:  REST live resolver, poll interval execution.
-// Phase 3  adds:  Scripts, app-scoped promotion, widget-to-widget event wiring.
+// Phase 3  adds:  app-scoped promotion, widget-to-widget event wiring.
 //
 // Future note: exporting a full app (a collection of pages) may want to de-duplicate identical
 // plugin/widget instances that repeat across many pages for performance — deferred until the
@@ -162,7 +162,6 @@ export const QUERY_TYPES = {
   REST_DELETE: 'rest_delete',  // REST DELETE
   ENTITY_READ: 'entity_read',  // OpHub entity table read (get/filter)
   ENTITY_WRITE:'entity_write', // OpHub entity table insert/update/delete
-  SCRIPT:      'script',       // Python script (Phase 3+)
 };
 
 export const QUERY_DIRECTIONS = {
@@ -188,7 +187,6 @@ export const QUERY_TYPE_LABELS = {
   rest_delete:  'REST DELETE',
   entity_read:  'Entity Read',
   entity_write: 'Entity Write',
-  script:       'Script (Python)',
 };
 
 export const UI_HINTS = {
@@ -275,24 +273,8 @@ export const DEFAULT_QUERY = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Script (Phase 3+)
-// Python script with typed inputs/outputs, defined at system level.
-// Included here as a placeholder so the state shape is correct from the start.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const DEFAULT_SCRIPT = {
-  id:          null,
-  name:        '',
-  description: '',
-  inputs:      [],   // same shape as query inputs
-  outputs:     [],   // same shape as query outputs
-  language:    'python',
-  body:        '',   // script source (Phase 3)
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Query Instance
-// A query (or script) added to a specific page, with per-instance configuration.
+// A query added to a specific page, with per-instance configuration.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const EXECUTION_TRIGGERS = {
@@ -318,7 +300,6 @@ export const INSTANCE_SCOPES = {
 export const DEFAULT_QUERY_INSTANCE = {
   id:                  null,    // Page-scoped integer (1-based) OR UUID if app-scoped
   queryId:             null,    // Reference to Query.id
-  scriptId:            null,    // Reference to Script.id (Phase 3; mutually exclusive with queryId)
   alias:               '',      // User-facing label, e.g. 'Current Value for F1'
   scope:               INSTANCE_SCOPES.PAGE,
   pageId:              null,    // Which page owns this instance when scope is PAGE; null when scope is APP (shared across all pages) — matches OpHub's own page.flows[] vs. globals[] split
@@ -396,9 +377,9 @@ export const TRANSFORM_TYPES = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Query/Script input & output editor catalogs
+// Query input & output editor catalogs
 // Shared dropdown option lists used by ParamListEditor instances across the
-// Queries (and later Scripts) workspaces.
+// Queries workspace.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const FIELD_TYPE_OPTIONS = [

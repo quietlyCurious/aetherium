@@ -30,7 +30,7 @@ folder and commit/push yourself. Claude doesn't commit or push.
 Aetherium is a React + DevExtreme 25.x app with two main halves:
 
 - **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
-  Entities, Queries, Asset Sets, Scripts) — the original app, now areas on
+  Queries, Asset Sets) — the original app, now areas on
   the Configuration Experience's left rail, alongside Visualization (see
   "The designer half"). The model switcher applies in Visualization,
   Screens and Asset Sets, and is dimmed in the other areas, which don't
@@ -70,7 +70,7 @@ The app has two workspaces, picked from the title-bar menu: the
 **Operator Experience** and the **Configuration Experience**. The
 Configuration Experience's left rail holds Visualization (below), then the
 page-builder areas (Design: Screens, Widgets, Theme) and the data
-definitions (Data: Data Sources, Entities, Queries, Asset Sets, Scripts) — see "The
+definitions (Data: Data Sources, Queries, Asset Sets) — see "The
 designer half". `OperatorWorkspace.jsx` renders both the Operator
 Experience and Visualization, differently depending on `operatorPersona`:
 
@@ -144,12 +144,12 @@ side calls `AssetCardsView`/`AssetDiagramView` more directly via
 underneath, so the type/asset fallback above applies identically in
 either mode without extra work.
 
-## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries, Asset Sets)
+## The designer half (Screens, Widgets, Theme, Data Sources, Queries, Asset Sets)
 
 Not refactored the way the Operator side was — it isn't seven comparable
 areas. Screens is the big one (its own folder, below); Widgets has its
-own folder too (below); Theme and Scripts are small; Data Sources,
-Entities, Queries and Asset Sets are "a list of definitions plus an
+own folder too (below); Theme is small; Data Sources,
+Queries and Asset Sets are "a list of definitions plus an
 editor".
 
 Those four share `src/designer/DefinitionWorkspace.jsx`: it owns
@@ -684,7 +684,7 @@ class names match, as of phase 5: `op-property-tile-*`,
   now, kept on purpose for future use. Leave it in place.
 - `src/App.js` — the outer shell: title bar (area menu, model switcher,
   Launch, Save), navigation between areas, and the shared data
-  definitions (data sources, entities, queries). Every area is its own
+  definitions (data sources, queries). Every area is its own
   workspace component; `src/shell/appAreas.js` lists them.
 - `src/designer/widgets/` — the Widgets area (see "The designer half"):
   `WidgetsWorkspace`, `WidgetOptionsEditor` (+ `OptionAdvancedFields`,
@@ -692,7 +692,6 @@ class names match, as of phase 5: `op-property-tile-*`,
   `optionNaming` (the label and group a path implies),
   `widgetPropertyEdits`, the shared `WidgetPropertyField`, and the
   `widgetPropertyDefs` store every widget property lookup goes through.
-- `src/designer/ScriptsWorkspace.jsx` — the Scripts area (a placeholder).
 - **Explanations and detectors** (`INDUSTRY_PACK_SPEC.md` §14): a pack
   can ship `explanations.json`, written by its own `explain.py` from
   detectors built on the shared toolkit in `ModelAndData/tools/detectors/`.
@@ -733,7 +732,7 @@ class names match, as of phase 5: `op-property-tile-*`,
   that prompts ask twice.
 - `src/designer/` — pieces shared by the designer areas:
   `DefinitionWorkspace` (the list + editor shell behind Data Sources,
-  Entities, Queries and Asset Sets), `useDefinitionDraft`,
+  Queries and Asset Sets), `useDefinitionDraft`,
   `useStoredDefinitions`, and the model pickers `AssetPicker` and
   `modelOptions` (used by Asset Sets and Screens); `screens/` holds the Screens area — the editor
   (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`), the read-only

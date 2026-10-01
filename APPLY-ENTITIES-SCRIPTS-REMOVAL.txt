@@ -1,0 +1,15 @@
+Remove Entities and Scripts: apply steps
+
+1. Before copying anything, tag the current state so it's easy to find later:
+     git tag pre-data-cleanup
+     git push origin pre-data-cleanup
+
+2. Copy the files in this zip over your repo (paths are relative to the repo root).
+
+3. Delete these 4 files (git rm deletes them and stages the deletion):
+     git rm src/EntitiesWorkspace.jsx src/entityModel.js src/entitiesStorage.js src/designer/ScriptsWorkspace.jsx
+
+4. Commit and push.
+
+Note: your browser's localStorage still holds any saved entity data under its old key.
+Nothing reads it anymore, so it's harmless; clearing site data removes it.

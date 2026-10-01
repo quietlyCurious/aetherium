@@ -1329,7 +1329,7 @@
 }
 
 /* The model switcher in areas that don't use the model yet (Screens
-   through Scripts): shown, so the Configuration Experience's context
+   through Queries): shown, so the Configuration Experience's context
    stays visible, but dimmed and not openable. */
 .app-titlebar-model-switcher--inactive {
   opacity: 0.35;

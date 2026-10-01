@@ -15,7 +15,7 @@
 // Deliberately narrow in scope: only currentView === 'operator' is ever
 // restored on load. Any other persisted view falls back to the existing
 // 'screens' default — the cold-start behavior of the other views (queries,
-// entities, datasources, etc.) hasn't been verified to handle being
+// datasources, etc.) hasn't been verified to handle being
 // restored without their own additional context (e.g. activePageId for
 // screens), so this doesn't change their behavior at all.
 

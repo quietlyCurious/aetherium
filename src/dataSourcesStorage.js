@@ -1,6 +1,6 @@
 // dataSourcesStorage.js
 // Browser localStorage-backed persistence for Data Source definitions.
-// Same pattern as pagesStorage.js / entitiesStorage.js.
+// Same pattern as pagesStorage.js / queriesStorage.js.
 
 const DATA_SOURCES_STORAGE_KEY = 'aetherium_data_sources';
 

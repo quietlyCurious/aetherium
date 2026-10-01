@@ -1,6 +1,6 @@
 // designer/DefinitionWorkspace.jsx
 // The shell every "list of definitions" area shares — Data Sources,
-// Queries and Entities today. Left: a titled list with a + button (and an
+// Queries and Asset Sets today. Left: a titled list with a + button (and an
 // optional toolbar under the title). Right: the selected definition's
 // editor, or a placeholder when nothing is selected.
 //

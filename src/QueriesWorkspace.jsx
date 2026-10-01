@@ -23,9 +23,7 @@ import { executeRestQuery, BODY_ENCODING } from './restResolver';
 import { fetchOphubFlows, mapOphubFlowToQuery } from './ophubFlowDiscovery';
 import notify from 'devextreme/ui/notify';
 
-// Script is its own definition workspace (Phase 3) — never a Query type choice.
 const QUERY_TYPE_OPTIONS = Object.entries(QUERY_TYPE_LABELS)
-  .filter(([value]) => value !== QUERY_TYPES.SCRIPT)
   .map(([value, label]) => ({ value, label }));
 
 const CARDINALITY_LABELS = {
