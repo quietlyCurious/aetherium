@@ -9,6 +9,8 @@ import { resolveWidgetProps, hasBrokenBinding } from './designer/screens/widgetB
 import { useScreenAsset } from './designer/screens/screenAsset';
 import { useScreenProperty } from './designer/screens/screenProperty';
 import { viewportScale } from './viewport/FitViewport';
+import { beginCoordinateMove, beginMarquee } from './coordinate/coordinateCanvasDom';
+import './coordinate/coordinateCanvas.css';
 import { RepeatedItems } from './designer/screens/screenRepeat';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
@@ -180,9 +182,6 @@ function ContainerCard({
   const isHiddenAtTier = activeTierId && activeTierId !== BASE_TIER_ID
     && (container.breakpointOverrides?.[activeTierId]?.hidden ?? false);
 
-  // Coord drag state — must be declared before any conditional return
-  const coordDragRef = React.useRef(null);
-
   // ── Box-select ─────────────────────────────────────────────────────────────
   // Dragging across the empty part of a coordinate container draws a rubber
   // band and selects the items it touches (Shift/Ctrl/Cmd adds to the
@@ -199,39 +198,24 @@ function ContainerCard({
     if (isCoordChild && !e.shiftKey) return; // leave the drag to move this container
     e.preventDefault();
     e.stopPropagation();
-    const k = viewportScale(body);
-    const rect = body.getBoundingClientRect();
-    const toLocal = (cx, cy) => ({ x: (cx - rect.left) / k + body.scrollLeft, y: (cy - rect.top) / k + body.scrollTop });
-    const start = toLocal(e.clientX, e.clientY);
-    const sx = e.clientX;
-    const sy = e.clientY;
-    const add = e.shiftKey || e.ctrlKey || e.metaKey;
-    let active = false;
-    const band = (pt) => ({ x: Math.min(start.x, pt.x), y: Math.min(start.y, pt.y), w: Math.abs(pt.x - start.x), h: Math.abs(pt.y - start.y) });
-    const onMove = (ev) => {
-      if (!active && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 4) return;
-      active = true;
-      setMarquee(band(toLocal(ev.clientX, ev.clientY)));
-    };
-    const onUp = (ev) => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      if (!active) return;
-      const b = band(toLocal(ev.clientX, ev.clientY));
-      setMarquee(null);
-      marqueeEndedRef.current = true;
-      // offsetLeft/Top are layout pixels within the body, unaffected by zoom.
-      const touched = Array.from(body.querySelectorAll(':scope > .container-card')).filter(el => (
-        el.offsetLeft < b.x + b.w && el.offsetLeft + el.offsetWidth > b.x
-        && el.offsetTop < b.y + b.h && el.offsetTop + el.offsetHeight > b.y
-      )).map(el => el.getAttribute('data-container-id'));
-      const ids = (container.children || []).filter(c => touched.includes(String(c.id))).map(c => c.id);
-      if (onSelectMany) onSelectMany(ids, { add });
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    beginMarquee(e, {
+      container: body,
+      itemSelector: '.container-card',
+      idOf: el => el.getAttribute('data-container-id'),
+      onBand: setMarquee,
+      onDone: (touched, { add }) => {
+        marqueeEndedRef.current = true;
+        const ids = (container.children || []).filter(c => touched.includes(String(c.id))).map(c => c.id);
+        if (onSelectMany) onSelectMany(ids, { add });
+      },
+    });
   }, [isCoordParent, isCoordChild, interactive, container.children, onSelectMany]);
 
+  // ── Moving a coordinate child ──────────────────────────────────────────────
+  // Drag moves it (and the rest of a multi-selection under the same parent),
+  // snapping to the grid and to its siblings with guides — the coordinate
+  // layout's own move (coordinate/coordinateCanvasDom.js), shared with
+  // CoordinateCanvas.
   const onCoordMouseDown = React.useCallback((e) => {
     if (!isCoordChild) return;
     // Only the primary button moves things; the middle button pans the
@@ -244,203 +228,28 @@ function ContainerCard({
     e.preventDefault();
     e.stopPropagation();
 
-    const coord = container.coord || DEFAULT_COORD;
-    const cardRect   = e.currentTarget.getBoundingClientRect();
-    const parentEl   = e.currentTarget.parentElement; // container-card-body of coord parent
-    const parentRect = parentEl ? parentEl.getBoundingClientRect() : cardRect;
-    // Zoomed canvas: on-screen measurements and mouse movement are divided
-    // by the zoom, so positions, snapping and guides all work in the layout
-    // pixels coordinates are stored in.
-    const k = viewportScale(e.currentTarget);
-
-    // ── Determine anchor type per axis ────────────────────────────────────────
-    // 'left'  = only left is set  → drag updates left
-    // 'right' = only right is set → drag updates right (inverted delta)
-    // 'both'  = stretch mode      → drag updates both (preserves derived width)
-    const isSet = (v) => v !== '' && v !== undefined && v !== null;
-    const leftSet   = isSet(coord.left);
-    const rightSet  = isSet(coord.right);
-    const topSet    = isSet(coord.top);
-    const bottomSet = isSet(coord.bottom);
-    const xAnchor = leftSet && rightSet ? 'both' : rightSet ? 'right' : 'left';
-    const yAnchor = topSet && bottomSet ? 'both' : bottomSet ? 'bottom' : 'top';
-
-    // ── Capture sibling & parent geometry once at drag start ─────────────────
-    const siblingRects = [];
-    if (parentEl) {
-      Array.from(parentEl.querySelectorAll(':scope > .container-card'))
-        .filter(el => el !== e.currentTarget)
-        .forEach(el => {
-          const r = el.getBoundingClientRect();
-          siblingRects.push({
-            left:    (r.left   - parentRect.left) / k,
-            top:     (r.top    - parentRect.top) / k,
-            right:   (r.right  - parentRect.left) / k,
-            bottom:  (r.bottom - parentRect.top) / k,
-            centerX: ((r.left  + r.right)  / 2 - parentRect.left) / k,
-            centerY: ((r.top   + r.bottom) / 2 - parentRect.top) / k,
-          });
-        });
-      siblingRects.push({
-        left:    0,
-        top:     0,
-        right:   parentRect.width / k,
-        bottom:  parentRect.height / k,
-        centerX: parentRect.width  / 2 / k,
-        centerY: parentRect.height / 2 / k,
-      });
-    }
-
-    // ── Group drag: if this item is part of a multi-selection, capture the other
-    // selected siblings (same parent) so they can be moved by the same delta.
-    const isGroupDrag = selectedIds && selectedIds.length > 1 && selectedIds.includes(container.id);
-    const coMoverSnapshots = isGroupDrag
+    const isGroupMove = selectedIds && selectedIds.length > 1 && selectedIds.includes(container.id);
+    const coMovers = isGroupMove
       ? selectedIds
           .filter(id => id !== container.id)
           .map(id => findContainerById(containers, id))
           .filter(c => c && c.parentId === container.parentId)
-          .map(c => {
-            const cc = c.coord || DEFAULT_COORD;
-            const cLeftSet = isSet(cc.left), cRightSet = isSet(cc.right);
-            const cTopSet = isSet(cc.top), cBottomSet = isSet(cc.bottom);
-            return {
-              id: c.id,
-              origLeft:   cc.left   ?? 0,
-              origTop:    cc.top    ?? 0,
-              origRight:  cc.right  ?? 0,
-              origBottom: cc.bottom ?? 0,
-              xAnchor: cLeftSet && cRightSet ? 'both' : cRightSet ? 'right' : 'left',
-              yAnchor: cTopSet && cBottomSet ? 'both' : cBottomSet ? 'bottom' : 'top',
-            };
-          })
+          .map(c => ({ id: c.id, coord: c.coord || DEFAULT_COORD }))
       : [];
 
-    coordDragRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
-      origLeft:   coord.left   ?? 0,
-      origTop:    coord.top    ?? 0,
-      origRight:  coord.right  ?? 0,
-      origBottom: coord.bottom ?? 0,
-      xAnchor,
-      yAnchor,
-      dragW: cardRect.width / k,
-      dragH: cardRect.height / k,
-      parentW: parentRect.width / k,
-      parentH: parentRect.height / k,
-      k,
-      siblingRects,
-      coMoverSnapshots,
-    };
-
-    const onMouseMove = (e) => {
-      if (!coordDragRef.current) return;
-      const {
-        startX, startY,
-        origLeft, origTop, origRight, origBottom,
-        xAnchor, yAnchor,
-        dragW, dragH, siblingRects,
-        coMoverSnapshots, k: zoom,
-      } = coordDragRef.current;
-
-      // Move every other selected sibling by the same left/top-space delta the
-      // primary dragged item moved, each respecting its own anchor configuration.
-      const moveCoMoversBy = (deltaX, deltaY) => {
-        coMoverSnapshots.forEach(cm => {
-          const cUpd = {};
-          if (cm.xAnchor !== 'right')  cUpd.left   = Math.max(0, Math.round(cm.origLeft   + deltaX));
-          if (cm.xAnchor !== 'left')   cUpd.right  = Math.max(0, Math.round(cm.origRight  - deltaX));
-          if (cm.yAnchor !== 'bottom') cUpd.top    = Math.max(0, Math.round(cm.origTop    + deltaY));
-          if (cm.yAnchor !== 'top')    cUpd.bottom = Math.max(0, Math.round(cm.origBottom - deltaY));
-          onUpdateCoord(cm.id, cUpd);
-        });
-      };
-
-      const dx = (e.clientX - startX) / zoom;
-      const dy = (e.clientY - startY) / zoom;
-
-      // Raw positions for every anchor property — always compute all four.
-      // Right/bottom deltas invert because increasing offset means closer to that edge.
-      const rawLeft   = Math.max(0, Math.round(origLeft   + dx));
-      const rawRight  = Math.max(0, Math.round(origRight  - dx));
-      const rawTop    = Math.max(0, Math.round(origTop    + dy));
-      const rawBottom = Math.max(0, Math.round(origBottom - dy));
-
-      if (!snapEnabled) {
-        const upd = {};
-        if (xAnchor !== 'right')  upd.left   = rawLeft;
-        if (xAnchor !== 'left')   upd.right  = rawRight;
-        if (yAnchor !== 'bottom') upd.top    = rawTop;
-        if (yAnchor !== 'top')    upd.bottom = rawBottom;
-        onUpdateCoord(container.id, upd);
-        moveCoMoversBy(rawLeft - origLeft, rawTop - origTop);
-        if (onSnapGuideChange) onSnapGuideChange(null);
-        return;
-      }
-
-      // ── Element snap (always in left/top-space — same as sibling rects) ─────
-      // snapX/Y.offset is in left/top-space; for right/bottom, the offset inverts.
-      const dragPointsX = [rawLeft, rawLeft + dragW / 2, rawLeft + dragW];
-      const dragPointsY = [rawTop,  rawTop  + dragH / 2, rawTop  + dragH];
-
-      let bestDistX = snapSize;
-      let bestDistY = snapSize;
-      let snapX = null;
-      let snapY = null;
-
-      for (const sr of siblingRects) {
-        const txPoints = [sr.left, sr.centerX, sr.right];
-        const tyPoints = [sr.top,  sr.centerY, sr.bottom];
-        for (const tp of txPoints) {
-          for (const dp of dragPointsX) {
-            const dist = Math.abs(dp - tp);
-            if (dist < bestDistX) { bestDistX = dist; snapX = { offset: tp - dp, guidePos: tp }; }
-          }
-        }
-        for (const tp of tyPoints) {
-          for (const dp of dragPointsY) {
-            const dist = Math.abs(dp - tp);
-            if (dist < bestDistY) { bestDistY = dist; snapY = { offset: tp - dp, guidePos: tp }; }
-          }
-        }
-      }
-
-      // ── Apply snap to anchor properties ──────────────────────────────────────
-      // Element snap offset is in left/top-space: +offset moves element right/down.
-      // For right/bottom anchors the sign inverts (closer to right edge = smaller value).
-      const gridSnap = (v) => Math.round(v / snapSize) * snapSize;
-
-      const finalLeft   = snapX ? Math.max(0, rawLeft   + snapX.offset) : gridSnap(rawLeft);
-      const finalRight  = snapX ? Math.max(0, rawRight  - snapX.offset) : gridSnap(rawRight);
-      const finalTop    = snapY ? Math.max(0, rawTop    + snapY.offset) : gridSnap(rawTop);
-      const finalBottom = snapY ? Math.max(0, rawBottom - snapY.offset) : gridSnap(rawBottom);
-
-      const upd = {};
-      if (xAnchor !== 'right')  upd.left   = finalLeft;
-      if (xAnchor !== 'left')   upd.right  = finalRight;
-      if (yAnchor !== 'bottom') upd.top    = finalTop;
-      if (yAnchor !== 'top')    upd.bottom = finalBottom;
-
-      // ── Guides ────────────────────────────────────────────────────────────────
-      const guides = [];
-      if (snapX) guides.push({ type: 'v', position: snapX.guidePos });
-      if (snapY) guides.push({ type: 'h', position: snapY.guidePos });
-      if (onSnapGuideChange) {
-        onSnapGuideChange(guides.length > 0 ? { containerId: container.parentId, guides } : null);
-      }
-
-      onUpdateCoord(container.id, upd);
-      moveCoMoversBy(finalLeft - origLeft, finalTop - origTop);
-    };
-
-    const onMouseUp = () => {
-      coordDragRef.current = null;
-      if (onSnapGuideChange) onSnapGuideChange(null);
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    beginCoordinateMove(e, {
+      itemEl: e.currentTarget,
+      id: container.id,
+      coord: container.coord || DEFAULT_COORD,
+      coMovers,
+      itemSelector: '.container-card',
+      snap: snapEnabled,
+      snapSize,
+      onUpdate: onUpdateCoord,
+      onGuides: onSnapGuideChange
+        ? (guides) => onSnapGuideChange(guides ? { containerId: container.parentId, guides } : null)
+        : null,
+    });
   }, [isCoordChild, container, containers, selectedIds, onUpdateCoord, coordMode, snapEnabled, snapSize, onSnapGuideChange]);
 
   // Apply breakpoint slot overrides for preview
@@ -549,7 +358,7 @@ function ContainerCard({
       onDragLeave={(e) => { e.stopPropagation(); }}
     >
       <div
-        className={`container-card-body${showDotGrid ? ' container-card-body--coord-dots' : ''}`}
+        className={`container-card-body${showDotGrid ? ' coord-dots' : ''}`}
         onMouseDown={isCoordParent && interactive ? onBodyMouseDown : undefined}
         style={{
           ...layoutStyle, ...bodyPaddingStyle,

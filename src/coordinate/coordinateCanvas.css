@@ -1,0 +1,50 @@
+/* coordinate/coordinateCanvas.css
+   What a coordinate layout looks like while it's being edited — in the
+   designer (ContainerCard) and in CoordinateCanvas alike:
+     .coord-dots     faint dots on the layout, spaced by --snap-size (set
+                     inline from the live snap size), shown while snap is on
+     .snap-guide     the line drawn while a moved item lines up with another
+                     (positioned inline, pointer-events none)
+     .canvas-marquee the box-select band
+     .coord-canvas*  CoordinateCanvas's own pieces */
+
+.coord-dots {
+  background-image: radial-gradient(circle, rgba(0, 120, 212, 0.18) 1px, transparent 1px);
+  background-size: var(--snap-size, 8px) var(--snap-size, 8px);
+  background-position: 0 0;
+  /* Dots stay put in the layout's own space as it scrolls. */
+  background-attachment: local;
+}
+
+.snap-guide {
+  background: #0078d4;
+  opacity: 0.75;
+  box-shadow: 0 0 2px rgba(0, 120, 212, 0.5);
+}
+
+.canvas-marquee {
+  position: absolute;
+  z-index: 60;
+  border: 1px solid #0078d4;
+  background: rgba(0, 120, 212, 0.08);
+  pointer-events: none;
+}
+
+/* CoordinateCanvas: items placed by coordinates in a box that grows to
+   hold them. */
+.coord-canvas {
+  position: relative;
+  user-select: none;
+}
+.coord-canvas-item {
+  position: absolute;
+  cursor: move;
+}
+.coord-canvas--readonly .coord-canvas-item {
+  cursor: default;
+}
+.coord-canvas-item--selected {
+  outline: 2px solid #0078d4;
+  outline-offset: 2px;
+  border-radius: 2px;
+}

@@ -20,7 +20,6 @@ import React, { useState } from 'react';
 import 'devextreme/dist/css/dx.fluent.blue.light.compact.css';
 import './App.css';
 import './App.locked.css'; // Pass 2 — locked-selection styling
-import './App.snap.css';  // Snap-to-grid dot grid styles
 import './App.bindings.css'; // Phase 1 binding system
 import './App.data.css'; // Phase 2a data workspace
 import './App.detailsRadius.css'; // scoped border-radius override for details panel controls

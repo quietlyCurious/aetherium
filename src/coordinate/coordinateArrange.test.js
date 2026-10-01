@@ -1,5 +1,5 @@
-// designer/screens/coordinateArrange.test.js
-//   npx react-scripts test --watchAll=false src/designer/screens
+// coordinate/coordinateArrange.test.js
+//   npx react-scripts test --watchAll=false src/coordinate
 
 import { arrangedPositions, coordUpdateFor } from './coordinateArrange';
 

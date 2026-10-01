@@ -1,4 +1,4 @@
-// designer/screens/coordinateArrange.js
+// coordinate/coordinateArrange.js
 // Align, distribute and arrange-in-grid for items in a coordinate layout —
 // the same actions, maths and icons as Visualization's manual canvases
 // (operator/canvas/canvasGeometry.js), applied to designer containers.
@@ -15,7 +15,8 @@
 // Actions: { type: 'align', mode: top|middle|bottom|left|center|right },
 // { type: 'distribute', axis: horizontal|vertical }, { type: 'grid' }.
 
-import { alignSelectedNodes, distributeSelectedNodes } from '../../operator/canvas/canvasGeometry';
+import { alignSelectedNodes, distributeSelectedNodes } from '../operator/canvas/canvasGeometry';
+import { isSetCoord } from './coordinateMove';
 
 // Arrange in Grid: the gap between cells, and the most columns it will use.
 const GRID_GAP = 8;
@@ -47,7 +48,7 @@ export function arrangedPositions(items, action) {
   return new Map(moved.map(n => [n.id, { x: n.position.x, y: n.position.y }]));
 }
 
-const isSet = (v) => v !== '' && v !== undefined && v !== null;
+const isSet = isSetCoord;
 
 // pos: the new top-left; size: { w, h } as drawn; parent: { w, h } of the
 // coordinate container's content box. All in layout pixels. Positions are

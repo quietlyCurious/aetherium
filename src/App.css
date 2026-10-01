@@ -1394,15 +1394,6 @@
   background: #e8e8e8;
 }
 
-/* Box-select on a coordinate container: the rubber band. */
-.canvas-marquee {
-  position: absolute;
-  z-index: 60;
-  border: 1px solid #0078d4;
-  background: rgba(0, 120, 212, 0.08);
-  pointer-events: none;
-}
-
 /* A second canvas toolbar row, shown only while it has something to do —
    today, align / distribute / arrange for a multi-selection in a
    coordinate layout. */

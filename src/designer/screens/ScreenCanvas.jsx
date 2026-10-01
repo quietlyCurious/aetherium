@@ -23,7 +23,7 @@ import { ScreenPropertyProvider, propertyOptions } from './screenProperty';
 import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
 import { FitViewport } from '../../viewport/FitViewport';
 import { CanvasAlignControls } from '../../operator/canvas/CanvasAlignControls';
-import { arrangedPositions, coordUpdateFor } from './coordinateArrange';
+import { arrangeControlsFor, arrangedUpdates } from '../../coordinate/coordinateCanvasDom';
 
 // The selected items, when there are at least two and they share one
 // coordinate-layout parent — what align / distribute / arrange act on.
@@ -37,9 +37,8 @@ function arrangeableSelection(containers, selectedIds) {
 
 // Align / distribute / arrange-in-grid for the selection, reusing
 // Visualization's toolbar controls (they call align / distribute /
-// arrangeGrid on a "canvas" object; this is that object). Sizes and
-// positions are read from the canvas in layout pixels (offset*), which the
-// zoom doesn't affect, then written back as coordinates.
+// arrangeGrid on a "canvas" object; this is that object). The measuring
+// and write-back are the coordinate layout's own (coordinate/).
 function useArrangeActions(editor) {
   const run = (action) => {
     const sel = arrangeableSelection(editor.containers, editor.selectedContainerIds);
@@ -48,25 +47,10 @@ function useArrangeActions(editor) {
     const find = (id) => canvas?.querySelector(`[data-container-id="${CSS.escape(String(id))}"]`);
     const body = find(sel.parent.id)?.querySelector(':scope > .container-card-body');
     if (!body) return;
-    const measured = sel.items.map(c => ({ c, el: find(c.id) })).filter(m => m.el);
-    const positions = arrangedPositions(
-      measured.map(({ c, el }) => ({ id: c.id, x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight })),
-      action,
-    );
-    if (!positions) return;
-    const parentBox = { w: body.clientWidth, h: body.clientHeight };
-    measured.forEach(({ c, el }) => {
-      const pos = positions.get(c.id);
-      if (pos) editor.updateCoord(c.id, coordUpdateFor(c.coord, pos, { w: el.offsetWidth, h: el.offsetHeight }, parentBox));
-    });
+    const updates = arrangedUpdates(body, sel.items.map(c => ({ id: c.id, coord: c.coord, el: find(c.id) })), action);
+    updates?.forEach((update, id) => editor.updateCoord(id, update));
   };
-  return {
-    current: {
-      align: (mode) => run({ type: 'align', mode }),
-      distribute: (axis) => run({ type: 'distribute', axis }),
-      arrangeGrid: () => run({ type: 'grid' }),
-    },
-  };
+  return { current: arrangeControlsFor(run) };
 }
 
 // What the screen is about, and which asset (and, for a property screen,

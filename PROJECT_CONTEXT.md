@@ -446,8 +446,8 @@ Zooming on the canvas: a Tile or Card opens fitted *up* to fill the space
 button opens a list of zoom levels, and while the pointer is over the
 canvas Ctrl/Cmd + = / − zoom, Ctrl/Cmd + 0 is 100% and Shift + 1 fits.
 
-**Align, distribute, arrange in grid** (`designer/screens/
-coordinateArrange.js`): two or more selected items in one coordinate
+**Align, distribute, arrange in grid** (`coordinate/coordinateArrange.js`):
+two or more selected items in one coordinate
 layout get a second canvas toolbar row (`.center-subtoolbar`) with
 Visualization's own `CanvasAlignControls`. The maths is
 `operator/canvas/canvasGeometry.js`'s align/distribute plus a
@@ -455,6 +455,30 @@ reading-order grid; positions are measured from the canvas in layout pixels
 (`offsetLeft/Top/Width/Height`) and written back through each item's own
 anchors (`coordUpdateFor`: a right-anchored item gets a new right, a
 stretched one both edges).
+
+**The coordinate layout, shared** (`src/coordinate/`): how items in a
+coordinate layout are moved, snapped, box-selected and arranged lives here,
+used by the designer's ContainerCard and by `CoordinateCanvas` (step 5a of
+the layout consolidation; manual layouts in Visualization move onto it in
+5b).
+- `coordinateMove.js`: the maths, no DOM. `moveStartOf(coord, measured)`,
+  `movedCoord(start, dx, dy, { snap, snapSize, targets })` → `{ update,
+  delta, guides }` (writes each axis in its own anchors; snaps a line-up
+  with a target's edge/centre within snapSize, else rounds to the grid),
+  `shiftedCoord` for the rest of a group, `snapTargets`, `bandBetween`,
+  `touchesBand`. Line-ups use where the item is drawn (measured), so
+  right-anchored and stretched items snap correctly, and a group follows a
+  right-anchored item it's dragged by.
+- `coordinateCanvasDom.js`: the mouse side — `beginCoordinateMove`,
+  `beginMarquee`, `arrangedUpdates` / `arrangeControlsFor` (the object
+  CanvasAlignControls drives). Measures in layout pixels at any zoom.
+- `CoordinateCanvas.jsx`: an editable coordinate layout outside the
+  designer — items `[{ id, coord, content }]`, `selectedIds` /
+  `onSelectionChange`, `onUpdateCoord(id, update)`, `snap`, `readOnly`;
+  grows to hold its items; ref = align/distribute/arrangeGrid. Put it in a
+  FitViewport for zoom/pan.
+- `coordinateCanvas.css`: `.coord-dots` (the snap grid), `.snap-guide`,
+  `.canvas-marquee`, and CoordinateCanvas's own classes (was App.snap.css).
 
 **Operator fit check** (`operator/configurator/OperatorFitCheck.jsx`): in
 Visualization's Properties and Related Assets (flex/Cards auto layouts), a
