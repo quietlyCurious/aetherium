@@ -24,12 +24,9 @@ export const ThemeRailIcon = () => (
   </Svg>
 );
 
-export const DataSourcesRailIcon = () => (
-  <Svg><ellipse cx="8" cy="3.5" rx="5.5" ry="2" /><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9" /><path d="M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2" /></Svg>
-);
-
-export const QueriesRailIcon = () => (
-  <Svg><path d="M9 1.5 3.5 9h4l-1 5.5L12.5 7h-4z" /></Svg>
+// A plug: where a source is reached from.
+export const ConnectionsRailIcon = () => (
+  <Svg><path d="M5.5 1.5v3M10.5 1.5v3" /><path d="M3.5 4.5h9v2.5a4.5 4.5 0 0 1-9 0z" /><path d="M8 11.5v3" /></Svg>
 );
 
 export const AssetSetsRailIcon = () => (

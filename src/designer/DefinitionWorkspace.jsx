@@ -1,6 +1,6 @@
 // designer/DefinitionWorkspace.jsx
-// The shell every "list of definitions" area shares — Data Sources,
-// Queries and Asset Sets today. Left: a titled list with a + button (and an
+// The shell every "list of definitions" area shares — Connections and
+// Asset Sets today. Left: a titled list with a + button (and an
 // optional toolbar under the title). Right: the selected definition's
 // editor, or a placeholder when nothing is selected.
 //
@@ -33,7 +33,7 @@ export function UnsavedDot() {
 
 export const DefinitionWorkspace = forwardRef(function DefinitionWorkspace({
   items,
-  title,              // 'Data Sources'
+  title,              // 'Connections'
   noun,               // 'data source' — used in the prompts
   addTitle,           // tooltip on the + button
   noDataText,

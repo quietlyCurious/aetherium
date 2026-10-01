@@ -10,14 +10,14 @@
 // id, plus the query definitions, ready to hand to ScreenView.
 //
 // What it reads is a snapshot taken when the page id changes: if a query
-// or data source is edited elsewhere while this stays mounted, it keeps
+// or connection is edited elsewhere while this stays mounted, it keeps
 // polling what it loaded, the same way the page layout itself doesn't
 // live-update either.
 
 import { useState, useEffect } from 'react';
 import { loadQueryInstances } from '../../queryInstancesStorage';
 import { loadQueries } from '../../queriesStorage';
-import { loadDataSources } from '../../dataSourcesStorage';
+import { loadConnections } from '../../connectionsStorage';
 import { runAllQueryInstances } from '../../queryExecution';
 
 // Not yet configurable per-instance via any UI — DEFAULT_QUERY_INSTANCE has
@@ -29,28 +29,16 @@ export const POLL_INTERVAL_MS = 5000;
 export function usePageQueryResults(pageId) {
   const [queryResults, setQueryResults] = useState({});
 
-  const allInstances = loadQueryInstances();
-  const pageInstances = allInstances.filter(qi => qi.pageId === pageId || qi.scope === 'app');
+  const pageInstances = loadQueryInstances().filter(qi => qi.pageId === pageId || qi.scope === 'app');
   const queries = loadQueries();
-  const dataSources = loadDataSources();
+  const connections = loadConnections();
 
   useEffect(() => {
-    console.log('[usePageQueryResults] pageId:', pageId);
-    console.log('[usePageQueryResults] all query instances in storage:', allInstances.length, allInstances);
-    console.log('[usePageQueryResults] instances matched to this page:', pageInstances.length, pageInstances);
-    console.log('[usePageQueryResults] queries in storage:', queries.length);
-    console.log('[usePageQueryResults] data sources in storage:', dataSources.length);
-
-    if (pageInstances.length === 0) {
-      console.log('[usePageQueryResults] No instances matched this page — stopping here. Nothing will execute.');
-      return;
-    }
+    if (pageInstances.length === 0) return;
     let cancelled = false;
 
     const runAll = async () => {
-      console.log('[usePageQueryResults] Running', pageInstances.length, 'instance(s)…');
-      const results = await runAllQueryInstances(pageInstances, queries, dataSources);
-      console.log('[usePageQueryResults] Results:', results);
+      const results = await runAllQueryInstances(pageInstances, queries, connections);
       if (!cancelled) setQueryResults(prev => ({ ...prev, ...results }));
     };
 

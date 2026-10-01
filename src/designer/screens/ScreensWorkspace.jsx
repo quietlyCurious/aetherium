@@ -8,8 +8,9 @@
 //   ScreenDetailsPanel  whatever is selected
 //
 // `editor` is useScreenEditor's result: App owns it (so the canvas
-// survives leaving the area), this draws it. `queries` are the Queries
-// area's definitions, which the Data tab offers and bindings name.
+// survives leaving the area), this draws it. `queries` are the saved
+// copies of queries pages use, which bindings name; `connections` are what
+// the Data tab browses live, and `onSaveQuery` saves a browsed query's copy.
 // `selectedModel` is the title bar's industry model: this area loads it
 // (the same way the Operator side does) for the Data tab's Model view, the
 // Create wizard, and screens that are about a type (their asset bindings
@@ -195,7 +196,7 @@ function InputBindingEditor({ editor }) {
   );
 }
 
-export function ScreensWorkspace({ editor, queries, assetSets, selectedModel }) {
+export function ScreensWorkspace({ editor, queries, connections, onSaveQuery, assetSets, selectedModel }) {
   const model = useLoadedModel(selectedModel);
   const self = screenSelfOf(editor, model);
   useCanvasShortcuts(editor);
@@ -208,7 +209,7 @@ export function ScreensWorkspace({ editor, queries, assetSets, selectedModel }) 
     <ScreenDataProvider assetSets={assetSets} pages={editor.pages} chain={editor.activePageId ? [editor.activePageId] : []}>
       <Splitter orientation="horizontal" style={{ height: '100%' }}>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreensLeftPanel editor={editor} queries={queries} model={model} self={self} />
+          <ScreensLeftPanel editor={editor} queries={queries} connections={connections} onSaveQuery={onSaveQuery} model={model} self={self} />
         </SplitterItem>
         <SplitterItem resizable={true}>
           <ScreenCanvas editor={editor} self={self} />

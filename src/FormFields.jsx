@@ -1,6 +1,6 @@
 // FormFields.jsx
 // Shared, presentation-only field primitives for the system-scoped definition workspaces
-// (Data Sources, Queries). Pulled out of DataSourcesWorkspace.jsx so the same
+// (Connections, and anything else with a label + control grid), so the same
 // label/control grid pattern isn't reimplemented per-workspace — extend here, not in callers.
 
 import React from 'react';

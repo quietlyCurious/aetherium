@@ -3,13 +3,13 @@
 // Save), which area is showing, and the data every designer area shares.
 //
 // Each area draws itself — OperatorWorkspace, ScreensWorkspace, the
-// definition workspaces (Data Sources, Queries, Asset Sets), ThemeWorkspace,
+// definition workspaces (Connections, Asset Sets), ThemeWorkspace,
 // WidgetsWorkspace. The workspaces and their areas —
 // names, rail groups, what Save says — are shell/appAreas.js. What stays
 // here is what spans areas: the title bar (workspace menu, model switcher,
 // Launch, Save), the Configuration Experience's rail, navigation and its
-// unsaved-changes check, and the data definitions (data sources, queries)
-// more than one area reads.
+// unsaved-changes check, and the data definitions (connections, saved
+// query copies) more than one area reads.
 //
 // The Screens editor's state comes from useScreenEditor, called here rather
 // than inside ScreensWorkspace so the open page and its unsaved edits
@@ -36,10 +36,9 @@ import './operator/styles/relatedAssets.css';
 import './operator/styles/configurator.css';
 import './operator/styles/operatorViews.css';
 import './operator/styles/chrome.css';
-import DataSourcesWorkspace from './DataSourcesWorkspace';
-import QueriesWorkspace from './QueriesWorkspace';
+import ConnectionsWorkspace from './connections/ConnectionsWorkspace';
 import RuntimeView from './RuntimeView';
-import { loadDataSources, saveDataSources } from './dataSourcesStorage';
+import { loadConnections, saveConnections } from './connectionsStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
 import { loadAssetSets, saveAssetSets } from './assetSetsStorage';
 import AssetSetsWorkspace from './designer/assetSets/AssetSetsWorkspace';
@@ -55,7 +54,8 @@ import { WidgetsWorkspace } from './designer/widgets/WidgetsWorkspace';
 import { APP_AREAS, WORKSPACES, findArea, railGroupsFor } from './shell/appAreas';
 import { AreaRail } from './shell/AreaRail';
 import './shell/appRail.css';
-import { generateDataId, DEFAULT_DATA_SOURCE, DEFAULT_QUERY } from './dataModel';
+import { generateDataId } from './dataModel';
+import { makeConnection } from './connections/connectionKinds';
 import { useHasUnsavedChanges } from './unsavedChangesStore';
 
 // A new asset set, for useStoredDefinitions. Module-level so it stays the
@@ -92,7 +92,7 @@ function AetheriumEditor() {
   // ── Moving between areas ─────────────────────────────────────────────────
   // Only the area being left is asked (its handle's confirmLeave — see
   // areaHandles below):
-  //  - Data Sources, Queries, Asset Sets, Widgets: confirm; leaving drops the
+  //  - Connections, Asset Sets, Widgets: confirm; leaving drops the
   //    unsaved edits, since their editor unmounts.
   //  - Visualization: the Configurator's Save/Discard dialog. Always goes
   //    ahead.
@@ -141,7 +141,7 @@ function AetheriumEditor() {
     navigateTo(area);
   };
 
-  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'datasources'|'queries'|'assetsets'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
+  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'connections'|'assetsets'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
   // Read once on mount from the URL — a deep link there (if present)
   // takes priority over the persisted last-used persona below. Also
   // reused (via setInitialDeepLink) for in-app navigation that switches
@@ -182,9 +182,8 @@ function AetheriumEditor() {
 
   // ── Phase 2 Data Layer ────────────────────────────────────────────────────
   // System-scoped (shared across all pages of this project):
-  const [dataSources,      setDataSources]      = useState(() => loadDataSources());  // DataSource definitions
-  const dataSourcesWorkspaceRef = React.useRef(null);
-  const queriesWorkspaceRef = React.useRef(null);
+  const connections = useStoredDefinitions({ load: loadConnections, save: saveConnections, makeNew: makeConnection });
+  const connectionsWorkspaceRef = React.useRef(null);
   const assetSetsWorkspaceRef = React.useRef(null);
   const widgetsWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
@@ -196,7 +195,8 @@ function AetheriumEditor() {
   React.useEffect(() => {
     saveOperatorNavigation({ currentView, operatorPersona, selectedModel });
   }, [currentView, operatorPersona, selectedModel]);
-  const [queries,          setQueries]          = useState(() => loadQueries());  // Query definitions
+  // Saved copies of the queries pages use, taken from their connection.
+  const [queries,          setQueries]          = useState(() => loadQueries());
   // Asset sets: named lists of assets from a model (model/assetSets.js).
   // Held here with the other definitions so Screens can read them too.
   const assetSets = useStoredDefinitions({ load: loadAssetSets, save: saveAssetSets, makeNew: makeAssetSet });
@@ -212,8 +212,7 @@ function AetheriumEditor() {
   const screensHandle = { save: screens.savePage, confirmLeave: () => true };
   const areaHandles = {
     screens: { current: screensHandle },
-    datasources: dataSourcesWorkspaceRef,
-    queries: queriesWorkspaceRef,
+    connections: connectionsWorkspaceRef,
     assetsets: assetSetsWorkspaceRef,
     widgets: widgetsWorkspaceRef,
     operator: operatorWorkspaceRef,
@@ -222,75 +221,33 @@ function AetheriumEditor() {
   const currentArea = findArea(currentView, operatorPersona);
   const currentWorkspace = WORKSPACES.find(w => w.id === currentArea?.workspace) ?? WORKSPACES[0];
 
-  // ── Phase 2 Data Layer Handlers ───────────────────────────────────────────
-
-  // ── Data Sources ──────────────────────────────────────────────────────────
-  const handleAddDataSource = (dsData = {}) => {
-    const ds = { ...DEFAULT_DATA_SOURCE, ...dsData, id: generateDataId() };
-    setDataSources(prev => {
-      const next = [...prev, ds];
-      saveDataSources(next);
-      return next;
-    });
-    return ds.id;
-  };
-
-  const handleUpdateDataSource = (id, updates) => {
-    setDataSources(prev => {
-      const next = prev.map(ds =>
-        ds.id === id ? { ...ds, ...updates, config: { ...ds.config, ...(updates.config || {}) } } : ds
-      );
-      saveDataSources(next);
-      return next;
-    });
-  };
-
-  const handleDeleteDataSource = (id) => {
-    // Guard: don't delete if queries reference this data source
-    const inUse = queries.some(q => q.dataSourceId === id);
-    if (inUse) {
-      // Caller should warn the user — handler returns false to signal blocked
-      return false;
-    }
-    setDataSources(prev => {
-      const next = prev.filter(ds => ds.id !== id);
-      saveDataSources(next);
-      return next;
-    });
-    return true;
-  };
-
-  // ── Queries ───────────────────────────────────────────────────────────────
-  const handleAddQuery = (qData = {}) => {
-    const q = { ...DEFAULT_QUERY, ...qData, id: generateDataId() };
+  // ── Connections and saved query copies ────────────────────────────────────
+  // A connection in use (any page has an instance of one of its queries)
+  // can't be deleted; deleting one drops its unused saved copies with it.
+  const handleDeleteConnection = (id) => {
+    const usedQueryIds = new Set(screens.queryInstances.map(qi => qi.queryId));
+    if (queries.some(q => q.connectionId === id && usedQueryIds.has(q.id))) return false;
+    connections.remove(id);
     setQueries(prev => {
-      const next = [...prev, q];
-      saveQueries(next); // persisted inside the updater so a rapid loop of calls
-      return next;        // (e.g. the OpHub sync feature) always saves the correct final array
-    });
-    return q.id;
-  };
-
-  const handleUpdateQuery = (id, updates) => {
-    setQueries(prev => {
-      const next = prev.map(q =>
-        q.id === id ? { ...q, ...updates, config: { ...q.config, ...(updates.config || {}) } } : q
-      );
-      saveQueries(next);
-      return next;
-    });
-  };
-
-  const handleDeleteQuery = (id) => {
-    // Guard: don't delete if query instances reference this query
-    const inUse = screens.queryInstances.some(qi => qi.queryId === id);
-    if (inUse) return false;
-    setQueries(prev => {
-      const next = prev.filter(q => q.id !== id);
+      const next = prev.filter(q => q.connectionId !== id);
       saveQueries(next);
       return next;
     });
     return true;
+  };
+
+  // Saves (or refreshes) the copy of a browsed query and returns its id.
+  // One copy per connection + sourceKey, so fetching again updates it.
+  const handleSaveQueryCopy = (connectionId, { sourceKey, definition }) => {
+    const existing = queries.find(q => q.connectionId === connectionId && q.sourceKey === sourceKey);
+    const id = existing?.id ?? generateDataId();
+    const copy = { ...definition, id, connectionId, sourceKey, fetchedAt: new Date().toISOString() };
+    setQueries(prev => {
+      const next = prev.some(q => q.id === id) ? prev.map(q => (q.id === id ? copy : q)) : [...prev, copy];
+      saveQueries(next);
+      return next;
+    });
+    return id;
   };
 
   return (
@@ -472,23 +429,15 @@ function AetheriumEditor() {
         ) : currentView === 'theme' ? (
           <ThemeWorkspace />
 
-        ) : currentView === 'datasources' ? (
-          <DataSourcesWorkspace
-            ref={dataSourcesWorkspaceRef}
-            dataSources={dataSources}
-            onAdd={handleAddDataSource}
-            onUpdate={handleUpdateDataSource}
-            onDelete={handleDeleteDataSource}
-          />
-
-        ) : currentView === 'queries' ? (
-          <QueriesWorkspace
-            ref={queriesWorkspaceRef}
+        ) : currentView === 'connections' ? (
+          <ConnectionsWorkspace
+            ref={connectionsWorkspaceRef}
+            connections={connections.items}
             queries={queries}
-            dataSources={dataSources}
-            onAdd={handleAddQuery}
-            onUpdate={handleUpdateQuery}
-            onDelete={handleDeleteQuery}
+            queryInstances={screens.queryInstances}
+            onAdd={connections.add}
+            onUpdate={connections.update}
+            onDelete={handleDeleteConnection}
           />
 
         ) : currentView === 'assetsets' ? (
@@ -521,7 +470,7 @@ function AetheriumEditor() {
 
 
         ) : (
-          <ScreensWorkspace editor={screens} queries={queries} assetSets={assetSets.items} selectedModel={selectedModel} />
+          <ScreensWorkspace editor={screens} queries={queries} connections={connections.items} onSaveQuery={handleSaveQueryCopy} assetSets={assetSets.items} selectedModel={selectedModel} />
         )}
         </div>
         </div>

@@ -192,7 +192,7 @@
 }
 
 /* Overrides the shared .left-panel-tab-content padding (used by many other
-   workspaces — Data Sources, Queries, etc.) specifically for the Now area's
+   workspaces — Connections, Asset Sets, etc.) specifically for the Now area's
    Types/Assets tab content, so the types table lines up with the properties
    table in the center pane. Scoped narrowly rather than changing the shared
    rule itself. */

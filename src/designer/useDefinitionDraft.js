@@ -1,8 +1,7 @@
 // designer/useDefinitionDraft.js
 // A definition editor's working copy: edits go into `draft`, the committed
 // definition stays untouched until Save, and `isDirty` says whether the two
-// differ. Used by the Data Source and Query editors, which had identical
-// copies of this logic.
+// differ. Used by the Connection and Asset Set editors.
 //
 // The draft resets the moment a DIFFERENT definition is selected, and it
 // does so synchronously during render (React's recommended pattern for

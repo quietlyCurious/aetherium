@@ -159,7 +159,7 @@ function getNextContainerName(containers) {
 }
 
 // Container IDs now use the same UUID generator as every other Aetherium
-// entity (pages, queries, data sources, query instances) instead
+// entity (pages, queries, connections, query instances) instead
 // of a plain in-memory counter. The old counter (`let nextContainerId = 2`)
 // reset to 2 on every single app/tab load, with zero awareness of IDs
 // already present in whatever page happened to be loaded — so a freshly

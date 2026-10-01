@@ -4,10 +4,8 @@
 // definition lists this way so every area that reads them (the definition
 // areas, and Screens) sees the same list.
 //
-// Asset sets use it. Data sources and queries still have their
-// own hand-written handlers in App.js with the same shape (plus a couple of
-// extras: a data source's config merges one level deeper, and deleting one
-// in use is refused) — they could move onto this when next touched.
+// Asset sets and connections use it (App.js wraps a connection's delete to
+// refuse one that pages use).
 //
 //   const assetSets = useStoredDefinitions({ load, save, makeNew });
 //   assetSets.items; assetSets.add(extra) → id; assetSets.update(id, changes); assetSets.remove(id)

@@ -1,17 +1,15 @@
 // queryExecution.js
-// Executes query instances and produces a per-instance results map that
-// ContainerCard's resolveWidgetProps() reads from to fill in Query-type
-// bindings with real data. This is the piece connecting everything already
-// built (the proxy, the resolver, the binding UI, the row-selection adapter)
-// into an actual running loop.
+// Runs query instances and produces a per-instance results map that
+// ContainerCard's resolveWidgetProps() reads to fill in Query-type bindings
+// with real data. Each query runs through its connection's connector
+// (connections/connectionKinds.js), so this file never branches on kind.
 
 import { evaluateExpression } from './expressionEval';
-import { executeRestQuery, parseOpHubHistorianResponse } from './restResolver';
+import { connectorFor } from './connections/connectionKinds';
 
-// Same "binding > override > default" priority already used to DISPLAY an
-// instance's effective input values in QueryInstanceDetailsPanel — this is
-// the execution-time counterpart, returning a plain {fieldName: value}
-// object suitable for passing straight into executeRestQuery.
+// Same "binding > override > default" priority QueryInstanceDetailsPanel
+// uses to DISPLAY an instance's effective inputs — this is the execution-time
+// counterpart, a plain {fieldName: value} object.
 export function resolveEffectiveInputValues(instance, query) {
   const values = {};
   (query.inputs || []).forEach(inputDef => {
@@ -31,60 +29,31 @@ export function resolveEffectiveInputValues(instance, query) {
   return values;
 }
 
-// Normalizes a raw query response into a flat array of rows. OPC UA and
-// historian-style queries return {status, result: [{timestamp, name,
-// quality, value}, ...]} — the shape validated against a real OpHub instance
-// earlier — reuses that existing, tested parser directly. Other query types
-// (SQL, generic REST) haven't been validated against a live response yet in
-// this app; this applies a best-effort fallback rather than assuming a
-// specific shape — OpHub's {status, result} envelope pattern held true
-// across every endpoint tested so far, so unwrap that if present.
-function parseQueryResponse(query, rawJson) {
-  if (query.type?.startsWith('opcua')) {
-    return parseOpHubHistorianResponse(rawJson);
-  }
-  const result = rawJson?.result;
-  if (Array.isArray(result)) return result;
-  if (result && typeof result === 'object') return [result];
-  return [];
-}
+const failed = (error) => ({ status: 'error', error, data: null, lastRunAt: Date.now() });
 
-// Runs one query instance: resolves its effective inputs, executes it via
-// the proxy, parses the response, and returns a result object ready to store
-// in a per-instance results map. Never throws — errors are captured in the
-// returned object so a single failing query can't break the whole page.
-export async function runQueryInstance({ instance, query, dataSource }) {
-  console.log('[queryExecution] Running instance', instance.id, '— queryId:', instance.queryId);
-  if (!query) {
-    console.log('[queryExecution] STOPPED: no Query found matching queryId', instance.queryId);
-    return { status: 'error', error: 'Query not found', data: null, lastRunAt: Date.now() };
-  }
-  if (!dataSource) {
-    console.log('[queryExecution] STOPPED: no Data Source found matching dataSourceId', query.dataSourceId, 'on query', query.name);
-    return { status: 'error', error: 'Data source not found', data: null, lastRunAt: Date.now() };
-  }
+// Runs one query instance. Never throws — an error is captured in the result
+// so one failing query can't break the whole page.
+export async function runQueryInstance({ instance, query, connection }) {
+  if (!query) return failed('Query not found');
+  if (!connection) return failed('Connection not found');
+  const connector = connectorFor(connection);
+  if (!connector) return failed(`Unknown connection kind "${connection.kind}"`);
   try {
     const inputValues = resolveEffectiveInputValues(instance, query);
-    console.log('[queryExecution] Calling executeRestQuery for', query.name, 'with inputs:', inputValues);
-    const rawJson = await executeRestQuery({ dataSource, query, instance, inputValues });
-    console.log('[queryExecution] Raw response for', query.name, ':', rawJson);
-    const data = parseQueryResponse(query, rawJson);
-    console.log('[queryExecution] Parsed rows for', query.name, ':', data);
+    const data = await connector.run({ connection, query, instance, inputValues });
     return { status: 'success', data, error: null, lastRunAt: Date.now() };
   } catch (err) {
-    console.log('[queryExecution] STOPPED: executeRestQuery threw:', err.message);
-    return { status: 'error', error: err.message, data: null, lastRunAt: Date.now() };
+    return failed(err.message);
   }
 }
 
-// Runs every given query instance in parallel and returns a map keyed by
-// instance id. Used both for the initial on-load run and each poll tick.
-export async function runAllQueryInstances(instances, queries, dataSources) {
+// Runs every given instance in parallel; returns results keyed by instance
+// id. Used for the on-load run and each poll tick.
+export async function runAllQueryInstances(instances, queries, connections) {
   const entries = await Promise.all(instances.map(async (instance) => {
     const query = queries.find(q => q.id === instance.queryId);
-    const dataSource = query ? dataSources.find(ds => ds.id === query.dataSourceId) : null;
-    const result = await runQueryInstance({ instance, query, dataSource });
-    return [instance.id, result];
+    const connection = query ? connections.find(c => c.id === query.connectionId) : null;
+    return [instance.id, await runQueryInstance({ instance, query, connection })];
   }));
   return Object.fromEntries(entries);
 }

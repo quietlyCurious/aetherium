@@ -2,11 +2,14 @@
 // Browser localStorage-backed persistence for QueryInstances (page-scoped and
 // app-scoped alike — a flat array, each tagged with a `pageId`, or `null` for
 // app-scoped instances shared across all pages). Same pattern as
-// pagesStorage.js / dataSourcesStorage.js / queriesStorage.js.
+// pagesStorage.js / connectionsStorage.js / queriesStorage.js.
+
+import { migrateToConnections } from './dataMigration';
 
 const QUERY_INSTANCES_STORAGE_KEY = 'aetherium_query_instances';
 
 export function loadQueryInstances() {
+  migrateToConnections();
   try {
     const raw = window.localStorage.getItem(QUERY_INSTANCES_STORAGE_KEY);
     if (!raw) return [];

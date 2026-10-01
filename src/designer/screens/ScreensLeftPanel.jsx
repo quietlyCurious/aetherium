@@ -3,8 +3,8 @@
 //   Screens       the saved screens and their folders (ScreensPanel)
 //   Visuals       widgets to add — drag onto the canvas, or double-click
 //   Data          the loaded model's assets, what's reachable from the
-//                 asset a screen is about (This asset), or the queries you
-//                 can add to this page
+//                 asset a screen is about (This asset), or the queries
+//                 your connections offer, fetched live (QueryBrowser)
 //   Page Visuals  the open page's container tree (PageVisualsTree)
 //   Page Data     the query instances on this page
 // Moved out of App.js unchanged. `model` is useLoadedModel's state for the
@@ -14,7 +14,6 @@
 import { useMemo } from 'react';
 import { SelectBox, TabPanel } from 'devextreme-react';
 import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
-import notify from 'devextreme/ui/notify';
 import ScreensPanel from '../../ScreensPanel';
 import HierarchyTree from '../../HierarchyTree';
 import PageVisualsTabWrapper from '../../PageVisualsTree';
@@ -23,6 +22,7 @@ import { reachableFrom, resolveAssetValue, pathKey } from '../../model/assetPath
 import { DX_WIDGET_DATA } from '../../widgetData';
 import { widgetSupport } from '../../widgetSupport';
 import { findContainerById } from '../../containerTree';
+import { QueryBrowser } from './QueryBrowser';
 
 // Sorts a flat, two-level parentId-based hierarchy (categories + items, the
 // shape DX_WIDGET_DATA uses) alphabetically by name WITHIN each
@@ -204,64 +204,6 @@ function AssetTreeItemTemplate(item) {
 
 const emptyNote = { padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 };
 
-function QueriesToAdd({ editor, queries }) {
-  const { activePageId, dataTabSearch, queryInstances } = editor;
-  return (
-    <div>
-      {!activePageId && (
-        <div style={{ padding: '10px 14px', fontSize: 11, color: '#7a6000', background: '#fffbe6', borderBottom: '1px solid #ffe08a' }}>
-          Save this screen first — query instances need a real page to belong to.
-        </div>
-      )}
-      {queries.length === 0 ? (
-        <p style={emptyNote}>
-          No queries yet. Create one in the Queries workspace first.
-        </p>
-      ) : (() => {
-        const queryFilter = dataTabSearch.trim().toLowerCase();
-        const visibleQueries = [...queries]
-          .filter(q => !queryFilter || (q.name || '').toLowerCase().includes(queryFilter))
-          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        if (visibleQueries.length === 0) {
-          return (
-            <p style={emptyNote}>
-              No queries match "{dataTabSearch}".
-            </p>
-          );
-        }
-        return visibleQueries.map(q => {
-          const countOnPage = queryInstances.filter(qi => qi.pageId === activePageId && qi.queryId === q.id).length;
-          return (
-            <div key={q.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderBottom: '1px solid #f1f1f1' }}>
-              <span style={{ fontSize: 13, flexShrink: 0 }}>⚡</span>
-              <span style={{ flex: 1, fontSize: 12, color: q.name ? '#222' : '#aaa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {q.name || '(unnamed)'}
-              </span>
-              {countOnPage > 0 && (
-                <span style={{ fontSize: 9, color: '#888', flexShrink: 0 }} title="Instances of this query already on this page">
-                  {countOnPage} on page
-                </span>
-              )}
-              <button
-                className="focus-mode-btn"
-                style={{ fontSize: 11, padding: '2px 8px', flexShrink: 0 }}
-                disabled={!activePageId}
-                title={activePageId ? 'Add an instance of this query to the current page' : 'Save this screen first'}
-                onClick={() => {
-                  editor.addQueryInstance({ queryId: q.id });
-                  notify(`Added "${q.name || 'query'}" to this page`, 'success', 2000);
-                }}
-              >
-                + Add
-              </button>
-            </div>
-          );
-        });
-      })()}
-    </div>
-  );
-}
-
 function PageQueryInstanceList({ editor, queries }) {
   const { pageQueryInstances, selectedQueryInstanceId } = editor;
   if (pageQueryInstances.length === 0) {
@@ -309,7 +251,7 @@ function PageQueryInstanceList({ editor, queries }) {
   });
 }
 
-export function ScreensLeftPanel({ editor, queries, model, self }) {
+export function ScreensLeftPanel({ editor, queries, connections, onSaveQuery, model, self }) {
   // "This asset" is offered only while the screen is about one.
   const dataModes = [
     ...(self.status === 'ok' ? [{ value: 'self', label: 'This asset' }] : []),
@@ -392,7 +334,7 @@ export function ScreensLeftPanel({ editor, queries, model, self }) {
               ) : dataMode === 'model' ? (
                 <ModelTree model={model} searchText={editor.dataTabSearch} />
               ) : (
-                <QueriesToAdd editor={editor} queries={queries} />
+                <QueryBrowser editor={editor} connections={connections} queries={queries} onSaveQuery={onSaveQuery} />
               )}
             </div>
           </div>

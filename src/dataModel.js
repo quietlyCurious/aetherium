@@ -2,19 +2,16 @@
 // Data layer model constants and defaults for Aetherium's Phase 2 binding system.
 //
 // Scope model:
-//   DataSource, Query definitions  →  system-scoped (available to all apps)
-//   QueryInstance                  →  page-scoped by default; can be promoted to app-scoped
+//   Queries         →  defined at their source (Operations Hub, ThingWorx) and
+//                      browsed live through a Connection; a page that uses one
+//                      keeps a saved copy of its definition (system-scoped).
+//   QueryInstance   →  page-scoped by default; can be promoted to app-scoped.
 //
-// UI architecture:
-//   Data Sources / Queries workspaces  →  pure definition CRUD, no page context.
-//   Instances of queries AND widgets    →  always live with a page — surfaced in a
-//   "Page Data" panel (queries) or the page's visual tree (widgets), never inside the
-//   system-scoped definition workspaces. A query definition is reusable; an instance is "this
-//   query, on this page, with these input values."
+// Instances of queries AND widgets always live with a page — surfaced in the
+// "Page Data" tab (queries) or the page's visual tree (widgets). A query is
+// reusable; an instance is "this query, on this page, with these input values."
 //
-// Phase 2a covers: DataSource + Query definitions, QueryInstance (page-scoped).
-// Phase 2b adds:  REST live resolver, poll interval execution.
-// Phase 3  adds:  app-scoped promotion, widget-to-widget event wiring.
+// Later: app-scoped promotion, widget-to-widget event wiring.
 //
 // Future note: exporting a full app (a collection of pages) may want to de-duplicate identical
 // plugin/widget instances that repeat across many pages for performance — deferred until the
@@ -37,116 +34,6 @@ export function nextInstanceId(existingInstances = []) {
   if (existingInstances.length === 0) return 1;
   return Math.max(...existingInstances.map(i => i.id ?? 0)) + 1;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Data Source
-// ─────────────────────────────────────────────────────────────────────────────
-
-// 'type' is the CONNECTIVITY CATEGORY only — it drives which field set renders.
-// Product identity (iFIX vs CIMPLICITY vs generic OPC UA) lives in DataSource.productKey,
-// not here. Multiple products can share the same connectivity type.
-export const DATA_SOURCE_TYPES = {
-  REST:               'rest',                // HTTP REST endpoint
-  OPCUA:              'opcua',                // OPC UA (generic, iFIX, CIMPLICITY)
-  SQL:                'sql',                  // Relational database (JDBC/SQL Server/etc.)
-  HISTORIAN:          'historian',            // Proficy Historian (REST-based)
-  ENTITY:             'entity',               // OpHub-managed internal table
-  GRAPHQL:            'graphql',              // GraphQL endpoint
-  PLANT_APPLICATIONS: 'plant_applications',   // Multi-connection: REST + SQL + GraphQL, each toggleable
-};
-
-// Extension products — support auto-sync (WebSocket push from back end).
-// This is a PRODUCT-level distinction, not a connectivity-type one: e.g. Proficy iFIX and
-// the generic REST API connector can both have type:'rest'/'opcua', but only some products
-// actually support push. Keyed by DataSource.productKey.
-export const EXTENSION_PRODUCT_KEYS = new Set([
-  'proficy_historian',
-  'proficy_ifix',
-  'proficy_cimplicity',
-  'opcua',
-]);
-
-export const DATA_SOURCE_TYPE_LABELS = {
-  rest:               'REST',
-  opcua:              'OPC UA',
-  sql:                'SQL / Relational Database',
-  historian:          'Proficy Historian',
-  entity:             'Entity (Internal Table)',
-  graphql:            'GraphQL',
-  plant_applications: 'Plant Applications (Multi-Connection)',
-};
-
-export const AUTH_TYPES = {
-  NONE:   'none',
-  BEARER: 'bearer',
-  BASIC:  'basic',
-  OAUTH:  'oauth',
-};
-
-export const DEFAULT_DATA_SOURCE = {
-  id:              null,
-  name:            '',
-  type:            DATA_SOURCE_TYPES.REST,
-  productType:     '',         // Original product label (e.g. "Proficy Historian")
-  productKey:      null,       // Product catalog key (e.g. 'proficy_historian', 'opcua')
-  isSystemManaged: false,      // true = auto-created by system; read-only in UI
-  description:     '',
-
-  config: {
-    // ── REST / Historian / GraphQL / Plant Applications sub-connections ───────
-    baseUrl:  '',
-    auth: {
-      type:         AUTH_TYPES.NONE,
-      // Bearer
-      bearerToken:  '',
-      // Basic
-      username:     '',
-      password:     '',
-      // OAuth (both grant types)
-      tokenUrl:     '',
-      clientId:     '',
-      clientSecret: '',
-      grantType:    'client_credentials', // 'client_credentials' | 'password'
-      // Passwords/tokens/secrets are never PERSISTED to disk on export —
-      // stored in-memory during the authoring session only. See note in App save/load.
-    },
-    ignoreTls:           false,
-    certificateRequired: false,
-
-    // ── OPC UA (generic, iFIX, CIMPLICITY) ─────────────────────────────────────
-    opcuaEnabled:    true,   // toggle shown for multi-connection products
-    endpoint:        '',     // e.g. 'opc.tcp://host:49310'
-    securityMode:    0,      // 0=None, 1=Sign, 2=SignAndEncrypt
-    securityPolicy:  '',     // URI string
-    applicationUri:  '',
-    readAuthType:    'anonymous',        // 'anonymous' | 'usernamePassword'
-    readUsername:    '',
-    readPassword:    '',
-    writeAuthType:   'readCredentials',  // 'readCredentials' | 'loggedOnUser' | 'usernamePassword'
-
-    // ── SQL ─────────────────────────────────────────────────────────────────
-    dbType:         'sqlserver',  // 'sqlserver' | 'postgres' | 'jdbc' (latter two disabled in UI)
-    connectionUrl:  '',           // Full JDBC URL (preserved for reference / import)
-    server:         '',
-    port:           1433,
-    database:       '',
-
-    // ── Entity (OpHub internal table) ────────────────────────────────────────
-    columns: [],          // [{ columnId, name, type, mandatory }]
-
-    // ── Plant Applications (multi-connection) ──────────────────────────────────
-    // Each sub-connection gets its own namespaced config object so fields don't collide.
-    restEnabled:    true,
-    sqlEnabled:     true,
-    graphqlEnabled: true,
-    rest:    {},   // shape matches the REST fields above
-    sql:     {},   // shape matches the SQL fields above
-    graphql: {},   // shape matches the REST fields above (GraphQL reuses REST shape)
-  },
-
-  // Import traceability — null for user-created sources
-  _ophubUuid: null,
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Query
@@ -189,88 +76,16 @@ export const QUERY_TYPE_LABELS = {
   entity_write: 'Entity Write',
 };
 
-export const UI_HINTS = {
-  TEXT:       'text',
-  NUMBER:     'number',
-  DATETIME:   'datetime',
-  COMBOBOX:   'combobox',
-  TAGBROWSER: 'tagbrowser',
-  INPUTFIELD: 'inputField',
-};
-
-export const PARAM_TYPES = {
-  INPUT:            'INPUT_PARAMETER',
-  INPUT_OUTPUT:     'INPUT_OUTPUT_PARAMETER', // SQL OUTPUT params (also returned as output)
-  QUERY:            'query',                  // REST URL query parameter
-};
-
-// Default shapes for inputs and outputs
-export const DEFAULT_QUERY_INPUT = {
-  name:         '',
-  type:         'String',   // 'String'|'Number'|'DateTime'|'Boolean'|'Real'
-  optional:     true,
-  defaultValue: null,
-  uiHint:       UI_HINTS.TEXT,
-  paramType:    null,
-  operator:     null,       // for entity conditions: '=', '>', '<', etc.
-  entityField:  null,       // for entity conditions: the actual entity column this input filters
-};
-
-export const DEFAULT_QUERY_OUTPUT = {
-  name:        '',          // field name / dot-path (e.g. 'Data.Samples.Value')
-  type:        'String',
-  outputGroup: 'default',   // 'default' for flat; 'Resultset1' etc. for SQL
-  outputType:  'scalar',    // 'scalar'|'Resultset'|'OutputParameter'
-};
-
-export const DEFAULT_QUERY = {
-  id:                null,
-  name:              '',
-  dataSourceId:      null,
-  // Aetherium-specific — NOT an OpHub concept. If set, a failed read against the primary
-  // data source falls back to this one (same query config replayed against the backup
-  // connection). Most useful for redundant Historian/OPC UA pairs. Left null = no failover.
-  secondaryDataSourceId: null,
-  type:              QUERY_TYPES.REST_GET,
-  direction:         QUERY_DIRECTIONS.READ,
-  // Informational only — the Query editor always displays the LIVE value from
-  // inferResultCardinality(query), never lets the user pick this directly. This
-  // stored field exists for import (OpHub sets it explicitly) and for any future
-  // code that wants a cheap cached read without recomputing.
-  resultCardinality: RESULT_CARDINALITIES.SCALAR,
-  inputs:            [],    // [DEFAULT_QUERY_INPUT, ...]
-  outputs:           [],    // [DEFAULT_QUERY_OUTPUT, ...]
-  description:       '',
-
-  config: {
-    // ── OPC UA ──────────────────────────────────────────────────────────────
-    samplingMode:      'currentvalue',  // 'currentvalue'|'interpolated'|'cyclic'|'raw'
-    qualityThreshold:  'Uncertain',
-
-    // ── REST ────────────────────────────────────────────────────────────────
-    path:     '',    // Relative URL path; base URL comes from DataSource
-    verb:     'get',
-    request:  '',    // Named API request label
-
-    // ── SQL ─────────────────────────────────────────────────────────────────
-    schemaName:            'dbo',
-    procName:              '',
-    convertDatetimeToLocal: false,
-    dateTimeParams:        [],  // input field names to format as datetime for SQL
-
-    // ── Entity ──────────────────────────────────────────────────────────────
-    conditions: [],  // [{ fieldName, paramName, operator }]
-  },
-
-  // Execution defaults (can be overridden per instance)
-  pollInterval: null,   // ms; null = on-demand or push only
-  pushEnabled:  false,  // whether this query supports WebSocket push
-
-  // Import traceability
-  _ophubFlowId:   null,
-  _ophubFlowUuid: null,
-  _ophubFlowType: null,
-};
+// A saved query copy — the definition of a query a page uses, taken from its
+// connection when it was added from the Data tab (see queriesStorage.js):
+//
+//   { id, connectionId, sourceKey,            // sourceKey: 'ophub:<flowUuid>'
+//     name, description, type, direction,
+//     inputs:  [{ name, type, optional, defaultValue, uiHint, paramType }],
+//     outputs: [{ name, type, outputGroup, outputType }],
+//     config,                                 // only what the result shape needs
+//     resultCardinality, fetchedAt,
+//     _ophubFlowUuid }                        // OpHub only: which flow to run
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Query Instance
@@ -321,7 +136,7 @@ export const DEFAULT_QUERY_INSTANCE = {
   // Execution configuration
   trigger:     EXECUTION_TRIGGERS.ON_PAGE_LOAD,
   autoSync:    false,     // WebSocket push; only valid for extension query types
-  pollInterval: null,     // ms; overrides Query.pollInterval; null = use query default
+  pollInterval: null,     // ms; null = the global poll interval (usePageQueryResults)
 
   // OpHub import traceability
   _ophubFlowInstanceId: null,   // Original integer flowInstanceId from page.flows[]
@@ -372,116 +187,15 @@ export const TRANSFORM_TYPES = {
   // This is the "adapter" extension point: a query is never forced to be scalar-shaped
   // just because some widget wants a single value. The reduce happens at bind-time, not
   // query-definition-time. Not yet implemented in the binding editor UI — reserved here
-  // so the Query workspace doesn't need its own cardinality-narrowing logic.
+  // so a query never needs its own cardinality-narrowing logic.
   REDUCE:     'reduce',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Query input & output editor catalogs
-// Shared dropdown option lists used by ParamListEditor instances across the
-// Queries workspace.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const FIELD_TYPE_OPTIONS = [
-  { value: 'String',   label: 'String'   },
-  { value: 'Number',   label: 'Number'   },
-  { value: 'Real',     label: 'Real'     },
-  { value: 'Boolean',  label: 'Boolean'  },
-  { value: 'DateTime', label: 'DateTime' },
-];
-
-export const UI_HINT_OPTIONS = [
-  { value: UI_HINTS.TEXT,       label: 'Text'        },
-  { value: UI_HINTS.NUMBER,     label: 'Number'      },
-  { value: UI_HINTS.DATETIME,   label: 'Date/Time'   },
-  { value: UI_HINTS.COMBOBOX,   label: 'Combo Box'   },
-  { value: UI_HINTS.TAGBROWSER, label: 'Tag Browser' },
-  { value: UI_HINTS.INPUTFIELD, label: 'Input Field' },
-];
-
-export const PARAM_TYPE_OPTIONS = [
-  { value: null,                     label: '—'                       },
-  { value: PARAM_TYPES.INPUT,        label: 'Input'                   },
-  { value: PARAM_TYPES.INPUT_OUTPUT, label: 'Input + Output (SQL OUT)' },
-];
-
-export const ENTITY_OPERATOR_OPTIONS = [
-  { value: '=',    label: '='                },
-  { value: '!=',   label: '≠'                },
-  { value: '>',    label: '>'                },
-  { value: '<',    label: '<'                },
-  { value: '>=',   label: '≥'                },
-  { value: '<=',   label: '≤'                },
-  { value: 'like', label: 'contains (like)'  },
-];
-
-export const REST_VERB_OPTIONS = [
-  { value: 'get',    label: 'GET'    },
-  { value: 'post',   label: 'POST'   },
-  { value: 'put',    label: 'PUT'    },
-  { value: 'delete', label: 'DELETE' },
-];
-
-export const OPCUA_SAMPLING_MODE_OPTIONS = [
-  { value: 'currentvalue', label: 'Current Value'           },
-  { value: 'interpolated', label: 'Interpolated (historical)' },
-  { value: 'raw',          label: 'Raw (historical)'         },
-  { value: 'cyclic',       label: 'Cyclic (historical)'      },
-];
-
-export const OPCUA_QUALITY_THRESHOLD_OPTIONS = ['Good', 'Uncertain', 'Bad'];
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Factory helpers — always return a fresh object, never a shared reference.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export function makeBlankInput(overrides = {}) {
-  return { ...DEFAULT_QUERY_INPUT, ...overrides };
-}
-
-export function makeBlankOutput(overrides = {}) {
-  return { ...DEFAULT_QUERY_OUTPUT, ...overrides };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Standard OPC UA input/output templates
-// One-click "insert standard shape" helpers. These exact field names/types/
-// uiHints are the contract Aetherium's OPC UA resolver (and OpHub import) expect
-// — quick-inserting them avoids the user hand-typing something that must match
-// exactly to work at runtime.
-// ─────────────────────────────────────────────────────────────────────────────
-
-export const OPCUA_CURRENT_VALUE_INPUT_TEMPLATE = [
-  { name: 'tag',              type: 'String', optional: false, defaultValue: '',           uiHint: UI_HINTS.TAGBROWSER, paramType: null },
-  { name: 'tagDisplayFormat', type: 'String', optional: false, defaultValue: 'short',       uiHint: UI_HINTS.COMBOBOX,   paramType: null },
-];
-
-export const OPCUA_HISTORICAL_INPUT_TEMPLATE = [
-  ...OPCUA_CURRENT_VALUE_INPUT_TEMPLATE,
-  { name: 'samplingMode', type: 'String',   optional: false, defaultValue: 'interpolated', uiHint: UI_HINTS.COMBOBOX, paramType: null },
-  { name: 'startTime',    type: 'DateTime', optional: false, defaultValue: '',              uiHint: UI_HINTS.DATETIME, paramType: null },
-  { name: 'endTime',      type: 'DateTime', optional: false, defaultValue: '',              uiHint: UI_HINTS.DATETIME, paramType: null },
-  { name: 'durationSecs', type: 'Number',   optional: false, defaultValue: '3600',          uiHint: UI_HINTS.NUMBER,   paramType: null },
-  { name: 'sampleSize',   type: 'Number',   optional: false, defaultValue: '1000',          uiHint: UI_HINTS.NUMBER,   paramType: null },
-];
-
-export const OPCUA_WRITE_INPUT_TEMPLATE = [
-  { name: 'tag',   type: 'String', optional: false, defaultValue: '', uiHint: UI_HINTS.TAGBROWSER, paramType: null },
-  { name: 'value', type: 'String', optional: false, defaultValue: '', uiHint: UI_HINTS.TEXT,       paramType: null },
-];
-
-export const OPCUA_READ_OUTPUT_TEMPLATE = [
-  { name: 'timestamp', type: 'String', outputGroup: 'default', outputType: 'scalar' },
-  { name: 'name',      type: 'String', outputGroup: 'default', outputType: 'scalar' },
-  { name: 'value',     type: 'String', outputGroup: 'default', outputType: 'scalar' },
-  { name: 'quality',   type: 'String', outputGroup: 'default', outputType: 'scalar' },
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Result cardinality inference
 // Cardinality is ALWAYS derived from type/direction/config — never hand-picked by
-// the user. The Query editor computes this live for display; it is informational,
-// not authoritative storage (see DEFAULT_QUERY.resultCardinality comment above).
+// the user. Connectors compute it when they map a source's query, and the
+// saved copy stores the result.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function inferResultCardinality(query) {

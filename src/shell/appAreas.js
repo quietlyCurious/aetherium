@@ -32,7 +32,7 @@
 import { VisualizationRailIcon } from '../operator/icons';
 import {
   ScreensRailIcon, WidgetsRailIcon, ThemeRailIcon,
-  DataSourcesRailIcon, QueriesRailIcon, AssetSetsRailIcon,
+  ConnectionsRailIcon, AssetSetsRailIcon,
 } from './areaIcons';
 
 const UNSAVED = 'You have unsaved changes — save them';
@@ -78,12 +78,8 @@ export const APP_AREAS = [
   { id: 'theme',   workspace: 'configurator', railGroup: 'design', view: 'theme',   label: 'Theme',   Icon: ThemeRailIcon,   save: null },
 
   {
-    id: 'datasources', workspace: 'configurator', railGroup: 'data', view: 'datasources', label: 'Data Sources', Icon: DataSourcesRailIcon,
-    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this data source' },
-  },
-  {
-    id: 'queries', workspace: 'configurator', railGroup: 'data', view: 'queries', label: 'Queries', Icon: QueriesRailIcon,
-    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this query' },
+    id: 'connections', workspace: 'configurator', railGroup: 'data', view: 'connections', label: 'Connections', Icon: ConnectionsRailIcon,
+    save: { title: ({ hasUnsavedChanges }) => hasUnsavedChanges ? UNSAVED : 'Save this connection' },
   },
   {
     id: 'assetsets', workspace: 'configurator', railGroup: 'data', view: 'assetsets', label: 'Asset Sets', Icon: AssetSetsRailIcon,

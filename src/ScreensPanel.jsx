@@ -3,7 +3,7 @@
 // native HTML5 drag-and-drop to move a screen into (or out of) a folder.
 // Built as its own component rather than stretching the shared DataListGrid —
 // the hierarchical folder/expand-collapse/drag-drop needs here are meaningfully
-// different from the flat lists Data Sources/Queries/Theme use.
+// different from the flat lists Connections/Asset Sets/Theme use.
 //
 // Folders and pages are sorted alphabetically by name (folders keep their own
 // relative order among themselves; pages sort within their folder, and

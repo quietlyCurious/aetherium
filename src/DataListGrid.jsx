@@ -1,6 +1,6 @@
 // DataListGrid.jsx
 // Shared DevExtreme DataGrid-based list view for the left panel of definition workspaces
-// (Data Sources, Queries, Asset Sets, via designer/DefinitionWorkspace), the Theme
+// (Connections, Asset Sets, via designer/DefinitionWorkspace), the Theme
 // lists, and the Configurator's Types tab and Details grids. Replaces hand-rolled <div> list rows with a real
 // grid so search, paging, and multi-column display come for free and stay consistent
 // across every workspace that needs a "pick one item from a list" panel.
