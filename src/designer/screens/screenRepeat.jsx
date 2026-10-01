@@ -1,15 +1,36 @@
 // designer/screens/screenRepeat.jsx
-// A repeater: a container that draws a screen per asset instead of its own
-// children. Its source is a saved asset set (model/assetSets.js); each
-// asset it finds gets a screen, drawn with that asset as its self.
+// A repeater: a container that draws an item per thing it repeats over,
+// instead of its own children. It repeats over one of:
+//
+//   assets      a saved asset set (model/assetSets.js); each asset it finds
+//               gets a screen, drawn with that asset as its self
+//   properties  the properties of the screen's own asset (self) that
+//               Visualization shows — the same ones, order and visuals as
+//               the Operator (operator/properties/shownProperties.js); each
+//               gets its property tile
 //
 //   container.repeat = {
-//     assetSetId,                     // which set
-//     start: 'self' | { assetId },    // what a set with a start parameter gets
+//     over: 'assets' | 'properties',  // 'assets' when missing (older saves)
+//     assetSetId,                     // assets: which set
+//     start: 'self' | { assetId },    // assets: what a set with a start parameter gets
 //     itemScreen: { mode: 'byType' | 'fixed', pageId },
-//     itemSize,                       // 'tile' | 'card' | 'page' — the box
+//     itemSize,                       // assets: 'tile' | 'card' | 'page' — the box
+//     properties: {
+//       include,                      // 'always' (what the Operator shows) | 'sometimes' | 'all'
+//       visual,                       // 'visualization' (each property's own) | a view mode
+//     },
 //     max,                            // how many to draw
+//     positions,                      // { itemKey: { left, top } } — used when the
+//                                     // container's layout is coordinate (Manual)
 //   }
+//
+// Laid out like any container: Flex flows the items; Manual (coordinate)
+// places each by hand, at positions[itemKey] (an asset's id, a property's
+// key), on the coordinate layout's own canvas (coordinate/CoordinateCanvas)
+// — the same snapping, guides and box-select as everywhere else. An item
+// with no position (new to the set, or before anything was moved) goes in
+// the first free spot. Editing positions needs the Screens editor
+// (RepeatEditProvider); everywhere else they're drawn read-only.
 //
 // Which screen an item gets ('byType') is a lookup by type AND size
 // (screenSizes.js): a repeater asks for, say, the Card for a turbine, and
@@ -23,20 +44,25 @@
 // designed a screen for yet still shows its real values rather than a gap.
 // Step 2 is why (3) is rare: it needs an asset the model doesn't have.
 //
-// Items are read-only here: a repeated screen is edited by opening that
-// screen, not inside the repeater. The saved screens and asset sets reach
+// Items' contents are read-only here: a repeated screen is edited by
+// opening that screen, not inside the repeater (only where items sit is
+// edited here). The saved screens and asset sets reach
 // this deep in the tree through ScreenDataProvider rather than props, the
 // same way self does — and each item is wrapped in its own
 // ScreenAssetProvider, which is what makes it self inside that item.
 
-import { createContext, useContext } from 'react';
-import { CURRENT_ASSET_MAP, CURRENT_MODEL } from '../../model/modelData';
-import { assetTypeIdOf, deslugifyType } from '../../model/assetQueries';
+import { Fragment, createContext, useContext, useMemo, useState } from 'react';
+import { CURRENT_ASSET_MAP, CURRENT_MODEL, PROPERTY_LABELS } from '../../model/modelData';
+import { assetTypeIdOf, deslugifyType, getAssetProperties } from '../../model/assetQueries';
 import { needsStart, resolveAssetSet } from '../../model/assetSets';
 import { ScreenAssetProvider, pageContextOf } from './screenAsset';
 import { pageSizeOf, sizeBox } from './screenSizes';
-import { GeneratedCard, useVisualizationConfigs } from './generatedCard';
+import { GeneratedCard, fullTrendRange, useVisualizationConfigs } from './generatedCard';
 import { getScreenRenderer } from './screenRenderer';
+import { shownPropertyEntries } from '../../operator/properties/shownProperties';
+import { AssetPropertyTile } from '../../operator/properties/AssetPropertyTile';
+import { useDisplayOrders } from '../../operator/settings/displayOrder';
+import { CoordinateCanvas } from '../../coordinate/CoordinateCanvas';
 
 // How deep repeaters may nest (a feeder screen repeating turbine screens
 // that repeat component screens is 2). A screen that would repeat itself,
@@ -44,6 +70,7 @@ import { getScreenRenderer } from './screenRenderer';
 export const MAX_REPEAT_DEPTH = 3;
 
 export const DEFAULT_REPEAT = {
+  over: 'assets',
   assetSetId: null,
   start: 'self',
   itemScreen: { mode: 'byType', pageId: null },
@@ -51,8 +78,34 @@ export const DEFAULT_REPEAT = {
   // almost always wants. The box each item gets comes from this rather
   // than from typed-in numbers.
   itemSize: 'card',
+  // Properties: what the Operator shows, each with its own visual.
+  properties: { include: 'always', visual: 'visualization' },
   max: 24,
+  positions: {},
 };
+
+// What a property repeater can show each property as: its own visual from
+// Visualization, or one visual for all of them.
+export const PROPERTY_VISUAL_FOR_ALL = 'visualization';
+
+// Is this container a repeater that draws items (rather than its own
+// children)? An asset repeater needs its set chosen first.
+export function isRepeater(container) {
+  const repeat = container?.repeat;
+  if (!repeat) return false;
+  return repeat.over === 'properties' || !!repeat.assetSetId;
+}
+
+export const repeatsProperties = (repeat) => repeat?.over === 'properties';
+
+// Lets the Screens editor change a repeater's item positions from the
+// canvas. updateRepeat(containerId, repeat => nextRepeat). Absent (the
+// runtime view, a screen drawn inside another) means read-only.
+const RepeatEditContext = createContext(null);
+export function RepeatEditProvider({ updateRepeat, children }) {
+  const value = useMemo(() => (updateRepeat ? { updateRepeat } : null), [updateRepeat]);
+  return <RepeatEditContext.Provider value={value}>{children}</RepeatEditContext.Provider>;
+}
 
 const ScreenDataContext = createContext({ assetSets: [], pages: [], chain: [] });
 
@@ -114,6 +167,31 @@ export function resolveRepeat(repeat, { selfAssetId, assetSets }) {
   if (error) return { assetIds: [], total: 0, error };
   const max = Math.max(1, config.max ?? DEFAULT_REPEAT.max);
   return { assetIds: assetIds.slice(0, max), total: assetIds.length, error: null };
+}
+
+// The properties a property repeater draws, for the asset `selfAssetId`.
+// configs: Visualization's saved configs; displayOrders: useDisplayOrders().
+// → { entries: [{ key, value, viewMode }], total, error }
+export function resolvePropertyRepeat(repeat, { selfAssetId, configs, displayOrders }) {
+  const config = { ...DEFAULT_REPEAT, ...(repeat || {}) };
+  const options = { ...DEFAULT_REPEAT.properties, ...(config.properties || {}) };
+  const asset = selfAssetId ? CURRENT_ASSET_MAP[selfAssetId] : null;
+  if (!asset) {
+    return { entries: [], total: 0, error: 'Repeating properties needs an asset: make the screen about a type, or put this inside a repeated item' };
+  }
+  const properties = getAssetProperties(selfAssetId) || {};
+  const { entries, viewModeOf } = shownPropertyEntries({
+    typeId: assetTypeIdOf(asset),
+    assetId: selfAssetId,
+    properties,
+    configs,
+    displayOrders,
+    include: options.include,
+  });
+  const fixed = options.visual && options.visual !== PROPERTY_VISUAL_FOR_ALL ? options.visual : null;
+  const max = Math.max(1, config.max ?? DEFAULT_REPEAT.max);
+  const all = entries.map(([key, value]) => ({ key, value, viewMode: fixed || viewModeOf(key) }));
+  return { entries: all.slice(0, max), total: all.length, error: null };
 }
 
 // The saved screen about `typeId` at `sizeId`, in the loaded model.
@@ -196,37 +274,59 @@ function PlaceholderItem({ assetId, missingType }) {
   );
 }
 
-// The repeated items themselves.
-export function RepeatedItems({ repeat, selfAssetId, queryResults, queries }) {
+// The items a repeater draws, as [{ key, content }] plus any notes to
+// show around them ({ before, after } — the reason nothing is drawn, or
+// "Showing 24 of 30").
+function useRepeatItems(repeat, { selfAssetId, queryResults, queries }) {
   const { assetSets, pages, chain } = useScreenData();
-  // One read shared by every generated card below.
+  // One read shared by every generated card and tile below.
   const configs = useVisualizationConfigs();
+  const displayOrders = useDisplayOrders();
+  const evidencePoints = useMemo(() => fullTrendRange(), []);
   const config = { ...DEFAULT_REPEAT, ...(repeat || {}) };
-  const { assetIds, total, error } = resolveRepeat(config, { selfAssetId, assetSets });
   const ScreenRenderer = getScreenRenderer();
+  const note = (text) => <div className="screen-repeat-note">{text}</div>;
 
-  if (!ScreenRenderer) return null;
   if (chain.length >= MAX_REPEAT_DEPTH) {
-    return <div className="screen-repeat-note">Repeaters are nested {MAX_REPEAT_DEPTH} deep here — this one isn't drawn.</div>;
+    return { items: [], before: note(`Repeaters are nested ${MAX_REPEAT_DEPTH} deep here — this one isn't drawn.`) };
   }
-  if (error) return <div className="screen-repeat-note">{error}.</div>;
-  if (assetIds.length === 0) return <div className="screen-repeat-note">This set finds no assets right now.</div>;
+
+  if (repeatsProperties(config)) {
+    const { entries, total, error } = resolvePropertyRepeat(config, { selfAssetId, configs, displayOrders });
+    if (error) return { items: [], before: note(`${error}.`) };
+    if (!entries.length) return { items: [], before: note('This asset shows no properties right now.') };
+    return {
+      items: entries.map(({ key, value, viewMode }) => ({
+        key,
+        content: (
+          <div className="screen-repeat-property op-property-tiles-singlebox" title={PROPERTY_LABELS[key] || key}>
+            <AssetPropertyTile assetId={selfAssetId} propertyKey={key} value={value} viewMode={viewMode} evidencePoints={evidencePoints} />
+          </div>
+        ),
+      })),
+      after: total > entries.length ? note(`Showing ${entries.length} of ${total}.`) : null,
+    };
+  }
+
+  if (!ScreenRenderer) return { items: [] };
+  const { assetIds, total, error } = resolveRepeat(config, { selfAssetId, assetSets });
+  if (error) return { items: [], before: note(`${error}.`) };
+  if (assetIds.length === 0) return { items: [], before: note('This set finds no assets right now.') };
 
   // Every item gets the same box — the one the asked-for size defines. A
   // screen that is itself smaller than that box (a Tile found where a Card
   // was asked for, say) is centred in it rather than stretched, so its
   // proportions survive.
   const box = sizeBox(repeatItemSize(config, pages));
-
-  return (
-    <>
-      {assetIds.map(assetId => {
-        const { page, source, missingType } = screenForAsset(assetId, config, pages);
-        const repeats = page && chain.includes(page.id);
-        const inner = page ? sizeBox(pageSizeOf(page.containers)) : box;
-        return (
+  return {
+    items: assetIds.map(assetId => {
+      const { page, source, missingType } = screenForAsset(assetId, config, pages);
+      const repeats = page && chain.includes(page.id);
+      const inner = page ? sizeBox(pageSizeOf(page.containers)) : box;
+      return {
+        key: assetId,
+        content: (
           <div
-            key={assetId}
             className="screen-repeat-item"
             style={{ width: box.width, height: box.height }}
             title={CURRENT_ASSET_MAP[assetId]?.name}
@@ -250,11 +350,63 @@ export function RepeatedItems({ repeat, selfAssetId, queryResults, queries }) {
               <PlaceholderItem assetId={assetId} missingType={missingType} />
             )}
           </div>
-        );
-      })}
-      {total > assetIds.length && (
-        <div className="screen-repeat-note">Showing {assetIds.length} of {total}.</div>
-      )}
+        ),
+      };
+    }),
+    after: total > assetIds.length ? note(`Showing ${assetIds.length} of ${total}.`) : null,
+  };
+}
+
+// What goes in a repeater's body: its items, flowed by the container's own
+// flex layout, or — when the container is laid out by hand (coordinate) —
+// placed on the coordinate canvas at their saved positions. In the Screens
+// editor (RepeatEditProvider, and `interactive`) they can be moved there:
+// snapping to the grid and each other, box-select, group moves.
+export function RepeaterBody({ container, selfAssetId, queryResults, queries, interactive = true, snap = true, snapSize = 8 }) {
+  const repeat = container.repeat;
+  const { items, before, after } = useRepeatItems(repeat, { selfAssetId, queryResults, queries });
+  const edit = useContext(RepeatEditContext);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const byHand = container.layout?.layoutType === 'coordinate';
+
+  if (!byHand) {
+    return (
+      <>
+        {before}
+        {items.map(item => <Fragment key={item.key}>{item.content}</Fragment>)}
+        {after}
+      </>
+    );
+  }
+
+  const editable = interactive && !!edit;
+  const positions = repeat?.positions || {};
+  const setPositions = (change) => edit.updateRepeat(container.id, r => ({ ...r, positions: change(r?.positions || {}) }));
+  return (
+    <>
+      {before}
+      <CoordinateCanvas
+        className="screen-repeat-canvas"
+        fill
+        showDots={false}
+        readOnly={!editable}
+        snap={snap}
+        snapSize={snapSize}
+        margin={0}
+        items={items.map(item => ({ id: item.key, coord: positions[item.key] ?? null, content: item.content }))}
+        selectedIds={selectedIds.filter(id => items.some(it => it.key === id))}
+        onSelectionChange={setSelectedIds}
+        onUpdateCoord={editable ? (key, update) => setPositions(p => ({ ...p, [key]: { ...p[key], ...update } })) : undefined}
+        // New items get a spot, and the editor keeps it, so they stay put
+        // when something else moves. Read-only, the spot is worked out the
+        // same way each time it's drawn.
+        onAutoPlace={editable ? (spots) => setPositions(p => {
+          const next = { ...p };
+          spots.forEach((pos, key) => { if (!next[key]) next[key] = pos; });
+          return next;
+        }) : undefined}
+      />
+      {after}
     </>
   );
 }

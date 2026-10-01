@@ -11,7 +11,7 @@ import { useScreenProperty } from './designer/screens/screenProperty';
 import { viewportScale } from './viewport/FitViewport';
 import { beginCoordinateMove, beginMarquee } from './coordinate/coordinateCanvasDom';
 import './coordinate/coordinateCanvas.css';
-import { RepeatedItems } from './designer/screens/screenRepeat';
+import { RepeaterBody, isRepeater } from './designer/screens/screenRepeat';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
   const isActive = dragState.beforeId === beforeId && dragState.overParentId === parentId;
@@ -367,7 +367,7 @@ function ContainerCard({
           // the top rather than being spread down a tall container —
           // otherwise five Tiles in a full-height container come out as
           // one row at the top and one at the bottom.
-          ...(container.repeat?.assetSetId ? { alignContent: 'flex-start' } : null),
+          ...(isRepeater(container) ? { alignContent: 'flex-start' } : null),
           // Overflow read from slot so user-set values (and breakpoint overrides) apply.
           // Falls back to 'auto' to match the historical hardcoded behaviour.
           overflowX: effectiveSlot?.overflowX || 'auto',
@@ -396,14 +396,19 @@ function ContainerCard({
         )}
 
         {/* ── Main content ───────────────────────────────────────────────── */}
-        {/* A repeater draws a screen per asset from its set, instead of
-            its own children (designer/screens/screenRepeat.jsx). */}
-        {container.repeat?.assetSetId ? (
-          <RepeatedItems
-            repeat={container.repeat}
+        {/* A repeater draws an item per asset in its set, or per property
+            of its asset, instead of its own children — flowed, or placed
+            by hand when this container is Manual (coordinate)
+            (designer/screens/screenRepeat.jsx). */}
+        {isRepeater(container) ? (
+          <RepeaterBody
+            container={container}
             selfAssetId={screenAssetId}
             queryResults={queryResults}
             queries={queries}
+            interactive={interactive}
+            snap={snapEnabled}
+            snapSize={snapSize}
           />
         ) : container.layout?.layoutType === 'grid' ? (() => {
           const cols  = container.layout.gridColumns || 2;

@@ -6,23 +6,25 @@
 // property that became visible, a related asset that appeared, after the
 // layout was arranged).
 //
-// placeUnplaced(placed, unplaced, { gap }) → Map(id → { left, top })
+// placeUnplaced(placed, unplaced, { gap, rowWidth }) → Map(id → { left, top })
 //   placed:   [{ x, y, w, h }] — what's already there, in layout pixels
 //   unplaced: [{ id, w, h }] — placed in this order; each one placed
 //             counts as "already there" for the next
 //
 // "Room" is the width of the arrangement as it stands (its right-most
 // edge), or the widest unplaced item when nothing is placed yet — so a
-// layout arranged three wide keeps growing three wide.
+// layout arranged three wide keeps growing three wide. rowWidth, when
+// given, is room there always is (the width of the container), so items
+// with nowhere yet fill rows across it, the way a wrapping flow would.
 
 const overlaps = (a, b, gap) => a.x < b.x + b.w + gap && a.x + a.w + gap > b.x
   && a.y < b.y + b.h + gap && a.y + a.h + gap > b.y;
 
-export function placeUnplaced(placed, unplaced, { gap = 16 } = {}) {
+export function placeUnplaced(placed, unplaced, { gap = 16, rowWidth = 0 } = {}) {
   const taken = placed.map(r => ({ ...r }));
   const result = new Map();
   unplaced.forEach(item => {
-    const width = Math.max(item.w, ...taken.map(r => r.x + r.w));
+    const width = Math.max(item.w, rowWidth, ...taken.map(r => r.x + r.w));
     // Candidates: the origin, just right of each item (on its top line),
     // and the start of a new row under everything.
     const bottom = taken.length ? Math.max(...taken.map(r => r.y + r.h)) + gap : 0;

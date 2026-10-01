@@ -166,6 +166,13 @@ export function setRepeat(tree, id, repeat) {
   });
 }
 
+// Changes a repeater's settings from what they are now — for the canvas,
+// which moves several items per mouse move: change(repeat) → next repeat.
+// A container that isn't repeating is left alone.
+export function updateRepeat(tree, id, change) {
+  return updateContainerInTree(tree, id, c => (c.repeat ? { ...c, repeat: change(c.repeat) } : c));
+}
+
 // ── Page context ────────────────────────────────────────────────────────────
 // What the page is about: { modelId, typeId } on the root container, or
 // null to make it a plain page again. Bindings are left alone either way —

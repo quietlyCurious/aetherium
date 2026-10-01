@@ -33,7 +33,10 @@ import { assetBindingProblem } from './widgetBindings';
 import { ABOUT_ANY_PROPERTY, assetBindingsOf } from './screenAsset';
 import { PROPERTY_FIELD_ERRORS, describePropertyBinding, propertyBindingsOf } from './screenProperty';
 import { typeOptions } from '../modelOptions';
-import { DEFAULT_REPEAT, repeatScreenSummary, resolveRepeat } from './screenRepeat';
+import { DEFAULT_REPEAT, PROPERTY_VISUAL_FOR_ALL, repeatScreenSummary, resolvePropertyRepeat, resolveRepeat } from './screenRepeat';
+import { useVisualizationConfigs } from './generatedCard';
+import { useDisplayOrders } from '../../operator/settings/displayOrder';
+import { PROPERTY_VIEW_MODE_OVERRIDE_ITEMS, propertyScreenViewModeItems } from '../../operator/settings/propertyDisplay';
 import { DEFAULT_SCREEN_SIZE, describeSize, sizeBox, sizeLabel, sizeOptions } from './screenSizes';
 import { needsStart } from '../../model/assetSets';
 import { LayoutPresets } from './LayoutPresets';
@@ -164,43 +167,66 @@ function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) 
   );
 }
 
-// Makes a container repeat an asset set: a screen per asset it finds
-// (screenRepeat.jsx). Shows what the set resolves to right now and which
-// screen each type gets, so a mixed set is visible without opening items.
+// Makes a container a repeater (screenRepeat.jsx): an item per asset in a
+// saved set, or per property of this screen's asset. Shows what it finds
+// right now — for a set, which screen each type gets, so a mixed set is
+// visible without opening items.
+const REPEAT_OVER = { nothing: "Doesn't repeat", assets: 'Assets in a set', properties: 'This asset’s properties' };
+const INCLUDE_LABELS = { always: 'what the Operator shows', sometimes: 'Always and Sometimes', all: 'all of them' };
+
 function RepeatSection({ editor, self, assetSets, container }) {
-  const NONE = '__none__';
   const id = container.id;
   const repeat = { ...DEFAULT_REPEAT, ...(container.repeat || {}) };
-  const isRepeating = !!container.repeat?.assetSetId;
+  const over = container.repeat ? (repeat.over || 'assets') : 'nothing';
   // Only the loaded model's sets: another model's ids mean nothing here.
   const modelSets = (assetSets || []).filter(s => s.modelId === CURRENT_MODEL);
-  const setOptions = [{ id: NONE, name: "Doesn't repeat" }, ...modelSets.map(s => ({ id: s.id, name: s.name || '(unnamed set)' }))];
+  const setOptions = modelSets.map(s => ({ id: s.id, name: s.name || '(unnamed set)' }));
   const chosenSet = modelSets.find(s => s.id === repeat.assetSetId) || null;
   const update = (changes) => editor.setContainerRepeat(id, { ...repeat, ...changes });
+  const configs = useVisualizationConfigs();
+  const displayOrders = useDisplayOrders();
+  const byHand = container.layout?.layoutType === 'coordinate';
 
-  const { assetIds, total, error } = isRepeating
+  const assetResult = over === 'assets' && repeat.assetSetId
     ? resolveRepeat(repeat, { selfAssetId: self.assetId, assetSets })
     : { assetIds: [], total: 0, error: null };
-  const summary = isRepeating && !error ? repeatScreenSummary(assetIds, repeat, editor.pages) : [];
+  const summary = over === 'assets' && repeat.assetSetId && !assetResult.error ? repeatScreenSummary(assetResult.assetIds, repeat, editor.pages) : [];
+  const propertyResult = over === 'properties'
+    ? resolvePropertyRepeat(repeat, { selfAssetId: self.assetId, configs, displayOrders })
+    : null;
   const screenOptions = (editor.pages || []).map(p => ({ id: p.id, name: p.name || '(unnamed screen)' }));
+  const propertyOptions = { ...DEFAULT_REPEAT.properties, ...(repeat.properties || {}) };
+  const visualOptions = [
+    { id: PROPERTY_VISUAL_FOR_ALL, name: 'Each its own (Visualization)' },
+    ...PROPERTY_VIEW_MODE_OVERRIDE_ITEMS.map(i => ({ id: i.value, name: `${i.text} for all` })),
+    ...propertyScreenViewModeItems().map(i => ({ id: i.value, name: `${i.text} for all` })),
+  ];
+  const placedCount = Object.keys(repeat.positions || {}).length;
 
   return (
     <div className="details-section"><div className="details-grid">
       <span className="details-section-title">Repeat</span>
-      <span className="details-grid-label">Asset set</span>
+      <span className="details-grid-label">Over</span>
       <div className="details-grid-control">
-        <SelectBox
-          dataSource={setOptions} valueExpr="id" displayExpr="name" searchEnabled
-          value={repeat.assetSetId || NONE}
-          onValueChanged={e => {
-            if (!e.value) return;
-            if (e.value === NONE) editor.setContainerRepeat(id, null);
-            else update({ assetSetId: e.value });
-          }}
-          stylingMode="outlined" width="100%" height={24}
-        />
+        {sb(Object.values(REPEAT_OVER), REPEAT_OVER[over], v => {
+          const next = Object.keys(REPEAT_OVER).find(k => REPEAT_OVER[k] === v);
+          if (next === over) return;
+          if (next === 'nothing') editor.setContainerRepeat(id, null);
+          else editor.setContainerRepeat(id, { ...repeat, over: next });
+        })}
       </div>
-      {isRepeating && (<>
+      {over === 'assets' && (<>
+        <span className="details-grid-label">Asset set</span>
+        <div className="details-grid-control">
+          <SelectBox
+            dataSource={setOptions} valueExpr="id" displayExpr="name" searchEnabled
+            value={repeat.assetSetId || null} placeholder="Choose a set…"
+            onValueChanged={e => e.value && update({ assetSetId: e.value })}
+            stylingMode="outlined" width="100%" height={24}
+          />
+        </div>
+      </>)}
+      {over === 'assets' && repeat.assetSetId && (<>
         {chosenSet && needsStart(chosenSet) && (<>
           <span className="details-grid-label">Starts from</span>
           <div className="details-grid-control">
@@ -244,11 +270,34 @@ function RepeatSection({ editor, self, assetSets, container }) {
             </span>
           </div>
         </>)}
+      </>)}
+      {over === 'properties' && (<>
+        <span className="details-grid-label">Which</span>
+        <div className="details-grid-control">
+          {sb(Object.values(INCLUDE_LABELS), INCLUDE_LABELS[propertyOptions.include] || INCLUDE_LABELS.always,
+            v => update({ properties: { ...propertyOptions, include: Object.keys(INCLUDE_LABELS).find(k => INCLUDE_LABELS[k] === v) } }))}
+        </div>
+        <span className="details-grid-label">Visual</span>
+        <div className="details-grid-control">
+          <SelectBox
+            dataSource={visualOptions} valueExpr="id" displayExpr="name"
+            value={propertyOptions.visual || PROPERTY_VISUAL_FOR_ALL}
+            onValueChanged={e => e.value && update({ properties: { ...propertyOptions, visual: e.value } })}
+            stylingMode="outlined" width="100%" height={24}
+          />
+        </div>
+      </>)}
+      {container.repeat && (over === 'properties' || repeat.assetSetId) && (<>
         <span className="details-grid-label">At most</span>
         <div className="details-grid-control">{ti(repeat.max, '24', v => update({ max: Math.max(1, parseInt(v) || DEFAULT_REPEAT.max) }), 'number')}</div>
+        <span className="details-grid-label">Arrange</span>
+        <div className="details-grid-control">
+          {sb(['flowed', 'by hand'], byHand ? 'by hand' : 'flowed',
+            v => editor.updateLayout(id, { layoutType: v === 'by hand' ? 'coordinate' : 'flex' }))}
+        </div>
         <div className="details-grid-note">
-          {error ? <span className="details-grid-warn">{error}.</span> : (<>
-            <div><b>{total}</b> asset{total === 1 ? '' : 's'}{total > assetIds.length ? `, drawing ${assetIds.length}` : ''}</div>
+          {over === 'assets' ? (assetResult.error ? <span className="details-grid-warn">{assetResult.error}.</span> : (<>
+            <div><b>{assetResult.total}</b> asset{assetResult.total === 1 ? '' : 's'}{assetResult.total > assetResult.assetIds.length ? `, drawing ${assetResult.assetIds.length}` : ''}</div>
             {summary.map(row => (
               <div key={row.typeLabel}>
                 {row.count} × {row.typeLabel} → {row.screenName
@@ -258,8 +307,13 @@ function RepeatSection({ editor, self, assetSets, container }) {
                     : <span className="details-grid-warn">nothing to draw</span>}
               </div>
             ))}
-            {container.children?.length > 0 && <div className="details-grid-warn">This container's own {container.children.length} child{container.children.length === 1 ? '' : 'ren'} aren't drawn while it repeats.</div>}
-          </>)}
+          </>)) : (propertyResult.error ? <span className="details-grid-warn">{propertyResult.error}.</span> : (
+            <div><b>{propertyResult.total}</b> propert{propertyResult.total === 1 ? 'y' : 'ies'}{propertyResult.total > propertyResult.entries.length ? `, drawing ${propertyResult.entries.length}` : ''} · as set in Visualization’s Properties tab for this type</div>
+          ))}
+          {byHand
+            ? <div>Drag items on the canvas to place them; new ones go in the first free spot.{placedCount > 0 && <> <button type="button" className="details-link-button" onClick={() => update({ positions: {} })}>Clear positions</button></>}</div>
+            : <div>Flowed by this container's layout (Layout tab).</div>}
+          {container.children?.length > 0 && <div className="details-grid-warn">This container's own {container.children.length} child{container.children.length === 1 ? '' : 'ren'} aren't drawn while it repeats.</div>}
         </div>
       </>)}
     </div></div>

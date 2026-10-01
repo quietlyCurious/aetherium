@@ -143,3 +143,55 @@ describe('sizes', () => {
     expect(sizeBox('enormous')).toEqual(sizeBox('page'));
   });
 });
+
+describe('repeating properties', () => {
+  const { resolvePropertyRepeat, isRepeater } = require('./screenRepeat');
+  const { assetTypeIdOf } = require('../../model/assetQueries');
+  // Read live: the pack is loaded in beforeAll, after this file is imported.
+  const turbine = () => require('../../model/modelData').CURRENT_ASSET_DATA.find(a => assetTypeIdOf(a) === GEARED);
+  const noConfigs = { typeDisplayTemplates: {}, typePropertyConfigs: {}, assetDisplayTemplates: {}, assetPropertyConfigs: {} };
+  const props = (over) => ({ over: 'properties', ...over });
+
+  test('is a repeater as soon as it repeats properties; an asset repeater once it has a set', () => {
+    expect(isRepeater({ repeat: props() })).toBe(true);
+    expect(isRepeater({ repeat: { over: 'assets', assetSetId: null } })).toBe(false);
+    expect(isRepeater({ repeat: { assetSetId: 'x' } })).toBe(true);
+    expect(isRepeater({})).toBe(false);
+  });
+
+  test('needs an asset', () => {
+    const result = resolvePropertyRepeat(props(), { selfAssetId: null, configs: noConfigs, displayOrders: {} });
+    expect(result.error).toMatch(/needs an asset/);
+    expect(result.entries).toEqual([]);
+  });
+
+  test("draws the asset's shown properties, each with its own visual, capped by max", () => {
+    const asset = turbine();
+    const all = resolvePropertyRepeat(props(), { selfAssetId: asset.id, configs: noConfigs, displayOrders: {} });
+    expect(all.error).toBeNull();
+    expect(all.total).toBeGreaterThan(2);
+    expect(all.entries.every(e => e.viewMode === 'text')).toBe(true);
+    const two = resolvePropertyRepeat(props({ max: 2 }), { selfAssetId: asset.id, configs: noConfigs, displayOrders: {} });
+    expect(two.entries).toHaveLength(2);
+    expect(two.total).toBe(all.total);
+  });
+
+  test('follows Visualization: Never-visible left out, per-property visuals kept, or one visual for all', () => {
+    const asset = turbine();
+    const typeId = assetTypeIdOf(asset);
+    const all = resolvePropertyRepeat(props(), { selfAssetId: asset.id, configs: noConfigs, displayOrders: {} });
+    const [first, second] = all.entries.map(e => e.key);
+    const configs = {
+      ...noConfigs,
+      typePropertyConfigs: { [typeId]: { [first]: 'never' } },
+      typeDisplayTemplates: { [typeId]: { viewMode: 'text', propertyViewModes: { [second]: 'spark' } } },
+    };
+    const shown = resolvePropertyRepeat(props(), { selfAssetId: asset.id, configs, displayOrders: {} });
+    expect(shown.entries.map(e => e.key)).not.toContain(first);
+    expect(shown.entries.find(e => e.key === second).viewMode).toBe('spark');
+    const withNever = resolvePropertyRepeat(props({ properties: { include: 'all' } }), { selfAssetId: asset.id, configs, displayOrders: {} });
+    expect(withNever.entries.map(e => e.key)).toContain(first);
+    const indicators = resolvePropertyRepeat(props({ properties: { visual: 'indicator' } }), { selfAssetId: asset.id, configs, displayOrders: {} });
+    expect(indicators.entries.every(e => e.viewMode === 'indicator')).toBe(true);
+  });
+});

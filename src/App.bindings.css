@@ -254,6 +254,34 @@
   position: relative;
 }
 
+/* A property repeater's item: one property tile, at its own size, in the
+   light box Visualization draws tiles in (op-property-tiles-singlebox,
+   which also gives the tile its light-theme colours), without that box's
+   own spacing. */
+.screen-repeat-property.op-property-tiles-singlebox {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin: 0;
+  padding: 4px 6px;
+}
+
+/* A repeater laid out by hand: the coordinate canvas fills the
+   container's body (which draws the snap dots itself). */
+.screen-repeat-canvas {
+  background: transparent;
+}
+
+/* A small text-style action inside the details panel's notes. */
+.details-link-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #0078d4;
+  font-size: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 /* The card Visualization's property config gives an asset whose type has
    no screen at that size yet (designer/screens/generatedCard). */
 .screen-generated-card {

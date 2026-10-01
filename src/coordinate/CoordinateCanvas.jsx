@@ -24,6 +24,10 @@
 //   readOnly     no moving or selecting — just draws them where they are
 //   trim         draw the items' top-left-most corner at the origin (for a
 //                read-only view: no empty band where nothing is)
+//   fill         at least as big as what it's in (100% × 100%), and new
+//                items fill rows across that width (a designer repeater)
+//   showDots     draw the snap grid's dots (default: while editing with
+//                snap on); off when what it's in already draws them
 // ref: { align(mode), distribute(axis), arrangeGrid(), arrange(action, ids) }
 // — the first three act on the selection (the object CanvasAlignControls
 // drives); arrange takes any ids.
@@ -52,6 +56,8 @@ export const CoordinateCanvas = forwardRef(function CoordinateCanvas({
   snapSize = 8,
   readOnly = false,
   trim = false,
+  fill = false,
+  showDots = true,
   minWidth = 0,
   minHeight = 0,
   margin = 40,
@@ -145,7 +151,7 @@ export const CoordinateCanvas = forwardRef(function CoordinateCanvas({
       const spots = placeUnplaced(placed, pending.map(it => {
         const el = elOf(it.id);
         return { id: it.id, w: el?.offsetWidth ?? 0, h: el?.offsetHeight ?? 0 };
-      }));
+      }), { rowWidth: fill ? canvasRef.current?.parentElement?.clientWidth ?? 0 : 0 });
       setAutoPlaced(current => {
         const next = { ...current };
         spots.forEach((pos, id) => { next[id] = pos; });
@@ -247,7 +253,7 @@ export const CoordinateCanvas = forwardRef(function CoordinateCanvas({
       ref={canvasRef}
       className={[
         'coord-canvas',
-        snap && !readOnly ? 'coord-dots' : '',
+        snap && !readOnly && showDots ? 'coord-dots' : '',
         readOnly ? 'coord-canvas--readonly' : '',
         selectedIds.length > 1 ? 'coord-canvas--multi' : '',
         className,
@@ -255,6 +261,7 @@ export const CoordinateCanvas = forwardRef(function CoordinateCanvas({
       style={{
         width: Math.max(minWidth, extent.w + margin),
         height: Math.max(minHeight, extent.h + margin),
+        ...(fill ? { minWidth: '100%', minHeight: '100%' } : null),
         '--snap-size': `${snapSize}px`,
       }}
       onMouseDown={onCanvasMouseDown}

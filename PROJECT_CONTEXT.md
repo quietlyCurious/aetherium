@@ -342,6 +342,35 @@ loads the model a screen needs via `modelForScreen` — what it's about,
 or, for a plain screen whose only tie to a model is a repeater, that
 repeater's asset set's model.
 
+A repeater can also go **over the properties of its asset** (step 5c):
+`repeat: { over: 'properties', properties: { include, visual }, max }`.
+Its items are self's properties as Visualization shows them —
+`operator/properties/shownProperties.js` (`shownPropertyEntries`, shared
+with AssetCard): which ones (`include`: 'always' = what the Operator
+shows, 'sometimes', 'all'), in Visualization's order, each with its own
+visual (`visual: 'visualization'`) or one visual for all (a view mode or a
+property screen). Each is drawn by `operator/properties/AssetPropertyTile`
+(also AssetCard's). Needs an asset: a screen about a type, or inside a
+repeated item. `isRepeater(container)` is the check (a properties repeater
+always draws; an asset one once it has a set). `over` missing = assets.
+
+Any repeater can be laid out **by hand**: when its container is Manual
+(coordinate), `RepeaterBody` draws the items on `CoordinateCanvas` (`fill`,
+`showDots={false}` — the body draws them) at `repeat.positions[itemKey]`
+(an asset id or a property key). In the Screens editor
+(`RepeatEditProvider`, from ScreenCanvas, with
+`editor.updateContainerRepeat(id, repeat => next)`) they move like
+coordinate children: snap, guides, box-select, group moves; elsewhere
+(runtime, nested screens) read-only. Items with no position go in the
+first free spot, filling rows across the container (`rowWidth`); the
+editor saves those spots into `positions` (so switching to by hand, or a
+new item, marks the screen unsaved), the runtime works them out the same
+way. The Repeat section has Over (nothing / assets in a set / this asset's
+properties), Which and Visual for properties, At most, Arrange (flowed /
+by hand — the container's layout type) and Clear positions. Not yet:
+align / distribute for repeater items (the designer's arrange bar acts on
+containers), and per-item overrides of the visual.
+
 **Screens about a property** (`designer/screens/screenProperty.jsx`): the
 smallest fragment. A page's About can be *Any property*, stored as
 `context: { kind: 'property' }` (no model or type — one works everywhere,
@@ -550,6 +579,8 @@ manual box, read-only manual Cards): trimmed to the items, no margin.
   nothing nested is still placing); the editor writes it into the draft
   (not an unsaved change), the Operator computes the same spot.
 - `unsavedChangesStore`'s position comparison reads `left/top` or `x/y`.
+- Open: revisit min/max properties when picking manual instead of flex or
+  diagram layouts.
 
 ## Where things live
 

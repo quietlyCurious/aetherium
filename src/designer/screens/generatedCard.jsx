@@ -42,6 +42,15 @@ export function useVisualizationConfigs() {
   return useMemo(() => visualizationConfigs(), []);
 }
 
+// The full available trend, as evidencePoints (the range sparklines draw
+// over) — the same choice the Operator's Assets area makes for a box with
+// no particular event window around it.
+export function fullTrendRange() {
+  return CURRENT_TIMESTAMPS.length
+    ? [{ time: CURRENT_TIMESTAMPS[0] }, { time: CURRENT_TIMESTAMPS[CURRENT_TIMESTAMPS.length - 1] }]
+    : [];
+}
+
 // One asset, drawn the way Visualization would draw it. The title is the
 // asset's own name rather than its type's: a repeater shows a row of
 // these, and which asset each one is is the whole point.
@@ -52,11 +61,7 @@ export function GeneratedCard({ assetId, configs: given }) {
   const own = useVisualizationConfigs();
   const configs = given || own;
   const asset = CURRENT_ASSET_MAP[assetId];
-  // The full available trend, the same choice the Operator's Assets area
-  // makes for a box with no particular event window around it.
-  const evidencePoints = useMemo(() => (CURRENT_TIMESTAMPS.length
-    ? [{ time: CURRENT_TIMESTAMPS[0] }, { time: CURRENT_TIMESTAMPS[CURRENT_TIMESTAMPS.length - 1] }]
-    : []), []);
+  const evidencePoints = useMemo(() => fullTrendRange(), []);
   if (!asset) return null;
 
   // The "where this came from" line is a tooltip rather than a line of its

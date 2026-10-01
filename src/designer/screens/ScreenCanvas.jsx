@@ -20,6 +20,7 @@ import { findContainerById } from '../../containerTree';
 import { AssetPicker } from '../AssetPicker';
 import { ScreenAssetProvider } from './screenAsset';
 import { ScreenPropertyProvider, propertyOptions } from './screenProperty';
+import { RepeatEditProvider } from './screenRepeat';
 import { fillsFrame, pageSizeOf, sizeBox } from './screenSizes';
 import { FitViewport } from '../../viewport/FitViewport';
 import { CanvasAlignControls } from '../../operator/canvas/CanvasAlignControls';
@@ -333,6 +334,7 @@ export function ScreenCanvas({ editor, self }) {
               >
                 <ScreenAssetProvider assetId={self.assetId}>
                 <ScreenPropertyProvider assetId={self.status === 'property' ? self.assetId : null} propertyKey={self.propertyKey}>
+                <RepeatEditProvider updateRepeat={editor.updateContainerRepeat}>
                 {containers.map(c => (
                   <ContainerCard
                     key={c.id}
@@ -364,6 +366,7 @@ export function ScreenCanvas({ editor, self }) {
                     onSnapGuideChange={editor.setSnapGuides}
                   />
                 ))}
+                </RepeatEditProvider>
                 </ScreenPropertyProvider>
                 </ScreenAssetProvider>
               </div>

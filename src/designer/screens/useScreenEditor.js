@@ -17,7 +17,7 @@
 // be edited, moved, deleted, painted, pasted into or given children;
 // selecting and unlocking always work), and what gets selected afterwards.
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import notify from 'devextreme/ui/notify';
 import {
   loadPagesAndFolders, savePagesAndFolders, makeNewPage, makeNewFolder,
@@ -38,7 +38,7 @@ import {
   makeWidgetContainer, dropIntoGridCell, applyLayoutUpdate, mergeCellContainers,
   updateSlotForTier, updateWidgetPropsForTier, updateCoordKeepingRatio,
   setAspectRatio, toggleHiddenForTier, clearTierOverrides, toggleLock,
-  setBinding, clearBinding, pickUpStyle, applyStyle, setPageContext, setPageSize, setRepeat,
+  setBinding, clearBinding, pickUpStyle, applyStyle, setPageContext, setPageSize, setRepeat, updateRepeat,
 } from './screenEdits';
 import { usePageQueryInstances } from './usePageQueryInstances';
 
@@ -576,6 +576,13 @@ export function useScreenEditor({ queries }) {
     setContainers(prev => setRepeat(prev, id, repeat));
   };
 
+  // Moves a repeater's items on the canvas: change(repeat) → next repeat
+  // (screenEdits.updateRepeat). Stable, so the canvas's context doesn't
+  // change every render.
+  const updateContainerRepeat = useCallback((id, change) => {
+    setContainers(prev => (isLockedOrAncestorLocked(prev, id) ? prev : updateRepeat(prev, id, change)));
+  }, [setContainers]);
+
   const updatePageType = (id, pageType) => {
     setContainers(prev => updatePageTypeInTree(prev, id, pageType));
   };
@@ -627,6 +634,7 @@ export function useScreenEditor({ queries }) {
     setPageContextType, setPageSizeId, chosenPreviewAssetId, choosePreviewAsset,
     chosenPreviewPropertyKey, choosePreviewProperty,
     setContainerRepeat,
+    updateContainerRepeat,
     // canvas tools
     focusMode, setFocusMode, showGap, setShowGap, coordMode, setCoordMode,
     snapEnabled, setSnapEnabled, snapSize, setSnapSize, snapGuides, setSnapGuides,

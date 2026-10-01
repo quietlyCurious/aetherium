@@ -43,3 +43,13 @@ describe('placeUnplaced', () => {
     expect(at(placeUnplaced(placed, [{ id: 'a', w: 400, h: 60 }]), 'a')).toEqual({ left: 0, top: 76 });
   });
 });
+
+describe('placeUnplaced with a row width', () => {
+  it('fills rows across the container when nothing is placed yet', () => {
+    const items = ['a', 'b', 'c', 'd'].map(id => ({ id, w: 100, h: 50 }));
+    const spots = placeUnplaced([], items, { rowWidth: 340 });
+    expect([...spots.values()]).toEqual([
+      { left: 0, top: 0 }, { left: 116, top: 0 }, { left: 232, top: 0 }, { left: 0, top: 66 },
+    ]);
+  });
+});
