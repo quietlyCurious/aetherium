@@ -262,6 +262,28 @@ Adding one: component + registry entry + catalog entry + an exposed list
 (export it from the Widgets area). A KPI (value + label) is deliberately
 two Texts in a screen rather than a widget: screens are how things combine.
 
+**What a page builder can actually place** is decided by three lists that
+`src/widgetCoverage.test.js` keeps in step: `widgetData.js` (what the
+Visuals tree offers), `WidgetPreview`'s `WIDGET_COMPONENT_MAP` (what can
+draw itself) and `src/widgetSupport.js` (what we deliberately don't place
+yet, and why). A widget listed in `widgetSupport.js` still appears in the
+tree, greyed with a one-word badge and a tooltip, but can't be dragged or
+double-clicked onto a canvas — the four reasons are *overlay* (needs a
+trigger/action concept screens don't have), *layout* (lays out children,
+which Aetherium's containers already do and a leaf widget can't), *behaviour*
+(adds dragging or resizing to something else rather than drawing) and
+*service* (needs a backend, API key or map data). Everything else must have
+both a component and an exposed list, which the test asserts — so adding a
+widget means component + properties + sample data, or an entry saying why
+not.
+
+Two traps when adding one, both found the hard way: an item-based widget
+(Menu, Tabs, Toolbar…) must NOT give `dataSource` a `[]` default, because
+DevExtreme ignores `items` as soon as `dataSource` is set, empty or not;
+and `widgetSampleData` is only for content with no default — a sample never
+wins over a property default, since defaults are written into the widget
+when it's dropped.
+
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
 today, an asset visualization later:

@@ -21,6 +21,7 @@ import PageVisualsTabWrapper from '../../PageVisualsTree';
 import { CURRENT_ASSET_DATA, CURRENT_ASSET_MAP, PROPERTY_DECIMALS, PROPERTY_UNITS } from '../../model/modelData';
 import { reachableFrom, resolveAssetValue, pathKey } from '../../model/assetPaths';
 import { DX_WIDGET_DATA } from '../../widgetData';
+import { widgetSupport } from '../../widgetSupport';
 import { findContainerById } from '../../containerTree';
 
 // Sorts a flat, two-level parentId-based hierarchy (categories + items, the
@@ -160,18 +161,26 @@ function SelfTree({ self, searchText }) {
 // The Widgets area's tree uses it too, without double-click.
 export function WidgetTreeItemTemplate(item, onDblClick) {
   const isWidget = item.assetLevel === 'widget';
+  // A widget the screen builder can't place yet (an overlay, a layout
+  // container, something needing a service) stays listed but can't be
+  // dragged or double-clicked onto the canvas — dropping one would only
+  // produce a placeholder. See src/widgetSupport.js.
+  const unsupported = isWidget ? widgetSupport(item.name) : null;
+  const placeable = isWidget && !unsupported;
   return (
     <div
-      className={`tree-item${isWidget ? ' tree-item--widget' : ''}`}
-      draggable={isWidget}
-      onDoubleClick={isWidget && onDblClick ? (e) => { e.stopPropagation(); onDblClick(item); } : undefined}
-      onDragStart={isWidget ? (e) => {
+      className={`tree-item${isWidget ? ' tree-item--widget' : ''}${unsupported ? ' tree-item--unsupported' : ''}`}
+      draggable={placeable}
+      title={unsupported ? `${item.name} — ${unsupported.reason}` : undefined}
+      onDoubleClick={placeable && onDblClick ? (e) => { e.stopPropagation(); onDblClick(item); } : undefined}
+      onDragStart={placeable ? (e) => {
         e.dataTransfer.setData('dx-widget-name', item.name);
         e.dataTransfer.setData('dx-widget-id', item.id);
         e.dataTransfer.effectAllowed = 'copy';
       } : undefined}
     >
       <span className="tree-item-name">{item.name}</span>
+      {unsupported && <span className="tree-item-badge tree-item-badge--unsupported">{unsupported.kind}</span>}
     </div>
   );
 }

@@ -86,6 +86,18 @@ TreeList: [
   { name: 'parentIdExpr', label: 'Parent ID Expr', type: 'string', default: 'parentId', bindable: false },
 ],
 
+CardView: [
+  { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },
+  { name: 'columns', label: 'Columns', type: 'json' },
+  { name: 'cardMinWidth', label: 'Card Min Width', type: 'number', default: 200 },
+  { name: 'cardMaxWidth', label: 'Card Max Width', type: 'number', default: 400 },
+  { name: 'allowColumnReordering', label: 'Field Reordering', type: 'bool', default: false },
+  { name: 'fieldHintEnabled', label: 'Field Hints', type: 'bool', default: false },
+  { name: 'wordWrapEnabled', label: 'Word Wrap', type: 'bool', default: false },
+  { name: 'keyExpr', label: 'Key Expr', type: 'string', default: 'id', bindable: false },
+  { name: 'noDataText', label: 'No Data Text', type: 'string', default: 'No data' },
+],
+
 List: [
   { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },
   { name: 'selectionMode', label: 'Selection Mode', type: 'enum', options: ['none','single','multiple','all'], default: 'none' },
@@ -550,6 +562,93 @@ Form: [
   { name: 'alignItemLabels', label: 'Align Labels', type: 'bool', default: true },
 ],
 
+// ─── NAVIGATION ────────────────────────────────────────────────────────────
+Menu: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'orientation', label: 'Orientation', type: 'enum', options: ['horizontal','vertical'], default: 'horizontal' },
+  { name: 'submenuDirection', label: 'Submenu Direction', type: 'enum', options: ['auto','leftOrTop','rightOrBottom'], default: 'auto' },
+  { name: 'selectionMode', label: 'Selection Mode', type: 'enum', options: ['none','single'], default: 'none' },
+  { name: 'selectByClick', label: 'Select by Click', type: 'bool', default: false },
+  { name: 'hideSubmenuOnMouseLeave', label: 'Hide Submenu on Leave', type: 'bool', default: false },
+  { name: 'adaptivityEnabled', label: 'Adaptive', type: 'bool', default: false },
+  { name: 'displayExpr', label: 'Display Expr', type: 'string', default: 'text', bindable: false },
+],
+
+Accordion: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'selectedIndex', label: 'Selected Index', type: 'number', default: 0 },
+  { name: 'collapsible', label: 'Collapsible', type: 'bool', default: false },
+  { name: 'multiple', label: 'Multiple Open', type: 'bool', default: false },
+  { name: 'animationDuration', label: 'Animation Duration', type: 'number', default: 300 },
+  { name: 'deferRendering', label: 'Defer Rendering', type: 'bool', default: true },
+  { name: 'noDataText', label: 'No Data Text', type: 'string', default: 'No data' },
+],
+
+Tabs: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'selectedIndex', label: 'Selected Index', type: 'number', default: 0 },
+  { name: 'orientation', label: 'Orientation', type: 'enum', options: ['horizontal','vertical'], default: 'horizontal' },
+  { name: 'stylingMode', label: 'Styling Mode', type: 'enum', options: ['primary','secondary'], default: 'primary' },
+  { name: 'iconPosition', label: 'Icon Position', type: 'enum', options: ['start','end','top','bottom'], default: 'start' },
+  { name: 'selectionMode', label: 'Selection Mode', type: 'enum', options: ['single','multiple'], default: 'single' },
+  { name: 'showNavButtons', label: 'Nav Buttons', type: 'bool', default: false },
+  { name: 'scrollingEnabled', label: 'Scrolling', type: 'bool', default: true },
+],
+
+TabPanel: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'selectedIndex', label: 'Selected Index', type: 'number', default: 0 },
+  { name: 'tabsPosition', label: 'Tabs Position', type: 'enum', options: ['top','bottom','left','right'], default: 'top' },
+  { name: 'stylingMode', label: 'Styling Mode', type: 'enum', options: ['primary','secondary'], default: 'primary' },
+  { name: 'iconPosition', label: 'Icon Position', type: 'enum', options: ['start','end','top','bottom'], default: 'start' },
+  { name: 'animationEnabled', label: 'Animation', type: 'bool', default: false },
+  { name: 'swipeEnabled', label: 'Swipe Enabled', type: 'bool', default: true },
+  { name: 'showNavButtons', label: 'Nav Buttons', type: 'bool', default: false },
+  { name: 'deferRendering', label: 'Defer Rendering', type: 'bool', default: true },
+  { name: 'loop', label: 'Loop', type: 'bool', default: false },
+],
+
+MultiView: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'selectedIndex', label: 'Selected Index', type: 'number', default: 0 },
+  { name: 'animationEnabled', label: 'Animation', type: 'bool', default: true },
+  { name: 'swipeEnabled', label: 'Swipe Enabled', type: 'bool', default: true },
+  { name: 'loop', label: 'Loop', type: 'bool', default: false },
+  { name: 'deferRendering', label: 'Defer Rendering', type: 'bool', default: true },
+],
+
+Toolbar: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'multiline', label: 'Multiline', type: 'bool', default: false },
+  { name: 'noDataText', label: 'No Data Text', type: 'string', default: 'No data' },
+],
+
+Pagination: [
+  { name: 'itemCount', label: 'Item Count', type: 'number', default: 100 },
+  { name: 'pageSize', label: 'Page Size', type: 'number', default: 10 },
+  { name: 'pageIndex', label: 'Page Index', type: 'number', default: 0 },
+  { name: 'allowedPageSizes', label: 'Allowed Page Sizes', type: 'json', default: [5,10,20] },
+  { name: 'displayMode', label: 'Display Mode', type: 'enum', options: ['adaptive','compact','full'], default: 'adaptive' },
+  { name: 'showInfo', label: 'Show Info', type: 'bool', default: true },
+  { name: 'showNavigationButtons', label: 'Nav Buttons', type: 'bool', default: true },
+  { name: 'infoText', label: 'Info Text', type: 'string', default: 'Page {0} of {1} ({2} items)' },
+],
+
+Stepper: [
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'selectedIndex', label: 'Selected Index', type: 'number', default: 0 },
+  { name: 'orientation', label: 'Orientation', type: 'enum', options: ['horizontal','vertical'], default: 'horizontal' },
+  { name: 'linear', label: 'Linear', type: 'bool', default: false },
+  { name: 'selectOnFocus', label: 'Select on Focus', type: 'bool', default: true },
+],
+
 // ─── DIALOGS & NOTIFICATIONS ───────────────────────────────────────────────
 Popup: [
   { name: 'title', label: 'Title', type: 'string', default: 'Popup' },
@@ -558,6 +657,21 @@ Popup: [
   { name: 'dragEnabled', label: 'Drag Enabled', type: 'bool', default: true },
   { name: 'resizeEnabled', label: 'Resize Enabled', type: 'bool', default: false },
   { name: 'fullScreen', label: 'Full Screen', type: 'bool', default: false },
+],
+
+LoadIndicator: [
+  { name: 'animationType', label: 'Animation', type: 'enum', options: ['circle','sparkle'], default: 'circle' },
+  { name: 'indicatorSrc', label: 'Image URL', type: 'string', default: '' },
+  { name: 'hint', label: 'Hint', type: 'string', default: '' },
+],
+
+ProgressBar: [
+  { name: 'value', label: 'Value', type: 'number', default: 0 },
+  { name: 'min', label: 'Min', type: 'number', default: 0 },
+  { name: 'max', label: 'Max', type: 'number', default: 100 },
+  { name: 'showStatus', label: 'Show Status', type: 'bool', default: true },
+  { name: 'statusFormat', label: 'Status Format', type: 'string', default: '' },
+  { name: 'stylingMode', label: 'Styling Mode', type: 'enum', options: ['outlined','underlined','filled'], default: 'outlined' },
 ],
 
 // ─── SCHEDULING ────────────────────────────────────────────────────────────
@@ -585,6 +699,21 @@ Button: [
   { name: 'type', label: 'Type', type: 'enum', options: ['normal','default','back','danger','success'], default: 'normal' },
   { name: 'stylingMode', label: 'Styling Mode', type: 'enum', options: ['contained','outlined','text'], default: 'contained' },
   { name: 'icon', label: 'Icon', type: 'string', default: '' },
+  { name: 'disabled', label: 'Disabled', type: 'bool', default: false },
+],
+
+DropDownButton: [
+  { name: 'text', label: 'Text', type: 'string', default: 'Actions' },
+  { name: 'icon', label: 'Icon', type: 'string', default: '' },
+  { name: 'items', label: 'Items', type: 'json' },
+  { name: 'dataSource', label: 'Data Source', type: 'data' },
+  { name: 'type', label: 'Type', type: 'enum', options: ['normal','default','back','danger','success'], default: 'normal' },
+  { name: 'stylingMode', label: 'Styling Mode', type: 'enum', options: ['contained','outlined','text'], default: 'outlined' },
+  { name: 'splitButton', label: 'Split Button', type: 'bool', default: false },
+  { name: 'showArrowIcon', label: 'Arrow Icon', type: 'bool', default: true },
+  { name: 'useSelectMode', label: 'Select Mode', type: 'bool', default: false },
+  { name: 'displayExpr', label: 'Display Expr', type: 'string', default: 'text', bindable: false },
+  { name: 'keyExpr', label: 'Key Expr', type: 'string', default: 'id', bindable: false },
   { name: 'disabled', label: 'Disabled', type: 'bool', default: false },
 ],
 

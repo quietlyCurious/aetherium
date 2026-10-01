@@ -235,6 +235,65 @@ const WIDGET_SAMPLE_DATA = {
       { id: 4, parentId: 2, title: 'Phase B', start: new Date(2024,1,2), end: new Date(2024,1,28), progress: 20 },
     ]},
   },
+
+  // ── Navigation, buttons and lists ──────────────────────────────────────
+  // Only the widgets whose content has no default need a sample: an
+  // item-based widget draws nothing at all until it has items, while a
+  // Button or a ProgressBar already starts with a sensible default from its
+  // property list, which wins over anything here anyway.
+  Menu: {
+    items: [
+      { text: 'Unit', items: [{ text: 'Overview' }, { text: 'Trends' }] },
+      { text: 'Alarms', items: [{ text: 'Active' }, { text: 'History' }] },
+      { text: 'Reports' },
+    ],
+  },
+  Accordion: {
+    items: [
+      { title: 'Readings', text: 'Flow, pressure and temperature' },
+      { title: 'Alarms', text: 'Active and recently cleared' },
+      { title: 'Maintenance', text: 'Open work orders' },
+    ],
+    collapsible: true,
+  },
+  Tabs: {
+    items: [{ text: 'Overview' }, { text: 'Trends' }, { text: 'Alarms' }],
+  },
+  TabPanel: {
+    items: [
+      { title: 'Overview', text: 'Unit overview' },
+      { title: 'Trends', text: 'Historical trends' },
+      { title: 'Alarms', text: 'Active alarms' },
+    ],
+  },
+  MultiView: {
+    items: [{ text: 'First view' }, { text: 'Second view' }],
+  },
+  Toolbar: {
+    items: [
+      { widget: 'dxButton', location: 'before', options: { icon: 'refresh', text: 'Refresh' } },
+      { widget: 'dxButton', location: 'before', options: { icon: 'export', text: 'Export' } },
+      { text: 'Unit 3', location: 'center' },
+    ],
+  },
+  Stepper: {
+    items: [{ text: 'Isolate' }, { text: 'Inspect' }, { text: 'Restore' }],
+  },
+  DropDownButton: {
+    text: 'Actions',
+    items: [{ id: 1, text: 'Acknowledge' }, { id: 2, text: 'Assign' }, { id: 3, text: 'Snooze' }],
+  },
+  CardView: {
+    // Unlike DataGrid, CardView draws nothing from rows alone — without
+    // columns it just says "use the column chooser".
+    columns: ['asset', 'status', 'output'],
+    dataSource: [
+      { id: 1, asset: 'Pump A', status: 'Running', output: 128 },
+      { id: 2, asset: 'Pump B', status: 'Standby', output: 0 },
+      { id: 3, asset: 'Compressor', status: 'Running', output: 74 },
+    ],
+    keyExpr: 'id',
+  },
 };
 
 export default WIDGET_SAMPLE_DATA;

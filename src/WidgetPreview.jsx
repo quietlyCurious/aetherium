@@ -42,6 +42,19 @@ import FileUploader from 'devextreme-react/file-uploader';
 import Form from 'devextreme-react/form';
 import Scheduler from 'devextreme-react/scheduler';
 import Gantt from 'devextreme-react/gantt';
+import CardView from 'devextreme-react/card-view';
+import Menu from 'devextreme-react/menu';
+import Accordion from 'devextreme-react/accordion';
+import Tabs from 'devextreme-react/tabs';
+import TabPanel from 'devextreme-react/tab-panel';
+import MultiView from 'devextreme-react/multi-view';
+import Toolbar from 'devextreme-react/toolbar';
+import Pagination from 'devextreme-react/pagination';
+import Stepper from 'devextreme-react/stepper';
+import Button from 'devextreme-react/button';
+import DropDownButton from 'devextreme-react/drop-down-button';
+import ProgressBar from 'devextreme-react/progress-bar';
+import LoadIndicator from 'devextreme-react/load-indicator';
 
 import WIDGET_SAMPLE_DATA from './widgetSampleData';
 import { CUSTOM_WIDGETS } from './customWidgets/customWidgets';
@@ -88,6 +101,19 @@ const WIDGET_COMPONENT_MAP = {
   Form: (props) => <Form {...props} />,
   Scheduler: (props) => <Scheduler {...props} />,
   Gantt: (props) => <Gantt {...props} />,
+  CardView: (props) => <CardView {...props} />,
+  Menu: (props) => <Menu {...props} />,
+  Accordion: (props) => <Accordion {...props} />,
+  Tabs: (props) => <Tabs {...props} />,
+  TabPanel: (props) => <TabPanel {...props} />,
+  MultiView: (props) => <MultiView {...props} />,
+  Toolbar: (props) => <Toolbar {...props} />,
+  Pagination: (props) => <Pagination {...props} />,
+  Stepper: (props) => <Stepper {...props} />,
+  Button: (props) => <Button {...props} />,
+  DropDownButton: (props) => <DropDownButton {...props} />,
+  ProgressBar: (props) => <ProgressBar {...props} />,
+  LoadIndicator: (props) => <LoadIndicator {...props} />,
   // Aetherium's own widgets (customWidgets/customWidgets.js).
   ...Object.fromEntries(Object.entries(CUSTOM_WIDGETS).map(([name, { component: Component }]) => [name, (props) => <Component {...props} />])),
 };
@@ -110,9 +136,21 @@ const WIDGET_COMPONENT_MAP = {
 const SHAPE_DEPENDENT_SAMPLE_KEYS = {
   DataGrid: ['columns'],
   TreeList: ['columns'],
+  CardView: ['columns'],
   Chart: ['series'],
   PieChart: ['series'],
   PolarChart: ['series'],
+  // The item-based widgets take EITHER items or dataSource, and `items`
+  // wins in DevExtreme — so a sample's items would quietly hide a bound
+  // dataSource, the same trap the grids' columns had.
+  Menu: ['items'],
+  Accordion: ['items'],
+  Tabs: ['items'],
+  TabPanel: ['items'],
+  MultiView: ['items'],
+  Toolbar: ['items'],
+  Stepper: ['items'],
+  DropDownButton: ['items'],
 };
 
 function hasRealCollectionData(value) {
@@ -143,11 +181,6 @@ function WidgetPreview({ widgetName, widgetProps, style }) {
     : sampleData;
 
   const mergedProps = { ...effectiveSampleData, ...widgetProps, width: '100%', height: '100%' };
-
-  // Temporary diagnostic — shows exactly what reaches the real DevExtreme
-  // component. Expand the logged object in the console to inspect
-  // dataSource/series/seriesTemplate/commonSeriesSettings directly.
-  console.log(`[WidgetPreview] ${widgetName}`, mergedProps);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', minHeight: 0, flex: 1, ...style }}>

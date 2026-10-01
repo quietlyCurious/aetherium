@@ -213,6 +213,22 @@
   color: #3b6d11;
 }
 
+/* A widget the screen builder can't place yet — listed, explained on
+   hover, but not draggable. See src/widgetSupport.js. */
+.tree-item--unsupported {
+  cursor: default;
+}
+
+.tree-item--unsupported .tree-item-name {
+  color: #aaa;
+}
+
+.tree-item-badge--unsupported {
+  background: #f4f4f4;
+  color: #999;
+  text-transform: lowercase;
+}
+
 .tree-item--asset {
   cursor: default;
 }
