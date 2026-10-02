@@ -1,0 +1,6 @@
+gitignore
+# Ignore a specific file
+.env
+
+# Ignore an entire folder (always end with a trailing slash)
+node_modules/
