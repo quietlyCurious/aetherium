@@ -238,10 +238,10 @@ function AetheriumEditor() {
 
   // Saves (or refreshes) the copy of a browsed query and returns its id.
   // One copy per connection + sourceKey, so fetching again updates it.
-  const handleSaveQueryCopy = (connectionId, { sourceKey, definition }) => {
+  const handleSaveQueryCopy = (connectionId, { sourceKey, group, definition }) => {
     const existing = queries.find(q => q.connectionId === connectionId && q.sourceKey === sourceKey);
     const id = existing?.id ?? generateDataId();
-    const copy = { ...definition, id, connectionId, sourceKey, fetchedAt: new Date().toISOString() };
+    const copy = { ...definition, id, connectionId, sourceKey, group, fetchedAt: new Date().toISOString() };
     setQueries(prev => {
       const next = prev.some(q => q.id === id) ? prev.map(q => (q.id === id ? copy : q)) : [...prev, copy];
       saveQueries(next);

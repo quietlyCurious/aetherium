@@ -49,6 +49,7 @@ export const QUERY_TYPES = {
   REST_DELETE: 'rest_delete',  // REST DELETE
   ENTITY_READ: 'entity_read',  // OpHub entity table read (get/filter)
   ENTITY_WRITE:'entity_write', // OpHub entity table insert/update/delete
+  TWX_SERVICE: 'twx_service',  // ThingWorx service on a Thing
 };
 
 export const QUERY_DIRECTIONS = {
@@ -74,18 +75,20 @@ export const QUERY_TYPE_LABELS = {
   rest_delete:  'REST DELETE',
   entity_read:  'Entity Read',
   entity_write: 'Entity Write',
+  twx_service:  'ThingWorx Service',
 };
 
 // A saved query copy — the definition of a query a page uses, taken from its
 // connection when it was added from the Data tab (see queriesStorage.js):
 //
-//   { id, connectionId, sourceKey,            // sourceKey: 'ophub:<flowUuid>'
+//   { id, connectionId, sourceKey, group,     // sourceKey: 'ophub:<flowUuid>' | 'twx:<Thing>/<Service>'
 //     name, description, type, direction,
 //     inputs:  [{ name, type, optional, defaultValue, uiHint, paramType }],
 //     outputs: [{ name, type, outputGroup, outputType }],
 //     config,                                 // only what the result shape needs
 //     resultCardinality, fetchedAt,
 //     _ophubFlowUuid }                        // OpHub only: which flow to run
+//   ThingWorx keeps config: { thing, service, resultBaseType, dataShape }.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Query Instance
@@ -226,6 +229,12 @@ export function inferResultCardinality(query) {
       );
       return looksLikeSeries ? RESULT_CARDINALITIES.SERIES : RESULT_CARDINALITIES.SCALAR;
     }
+
+    case QUERY_TYPES.TWX_SERVICE:
+      // A table comes back as rows; a single value as one row {result}.
+      if (query.config?.resultBaseType === 'INFOTABLE') return RESULT_CARDINALITIES.RESULTSET;
+      if (query.config?.resultBaseType === 'NOTHING') return RESULT_CARDINALITIES.NONE;
+      return RESULT_CARDINALITIES.SCALAR;
 
     default:
       return RESULT_CARDINALITIES.SCALAR;

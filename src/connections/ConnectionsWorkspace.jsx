@@ -1,5 +1,5 @@
 // connections/ConnectionsWorkspace.jsx
-// The Connections area: the OpHub instances (and, next, ThingWorx servers)
+// The Connections area: the OpHub instances and ThingWorx servers
 // whose queries screens can use. A connection is only where to reach a
 // source — its queries are browsed live from the Screens Data tab, never
 // defined here.
@@ -16,7 +16,7 @@ import { useDefinitionDraft } from '../designer/useDefinitionDraft';
 import { Field, TxtInput, InfoNote, SectionTitle } from '../FormFields';
 import { ConnectionsRailIcon } from '../shell/areaIcons';
 import { CONNECTOR_LIST, CONNECTORS, connectorFor, connectionLabel } from './connectionKinds';
-import { browseConnection } from './useQueryCatalog';
+import { testConnection } from './useQueryCatalog';
 
 function TestResult({ result }) {
   if (!result) return null;
@@ -47,15 +47,23 @@ const ConnectionEditor = forwardRef(function ConnectionEditor({ connection: comm
 
   const set = (key, value) => setDraft(prev => ({ ...prev, [key]: value }));
 
-  // Switching kind keeps shared fields and fills in the new kind's defaults.
-  const changeKind = (kind) => setDraft(prev => ({ ...CONNECTORS[kind].defaults, ...prev, kind }));
+  // Switching kind keeps the name and proxy URL and replaces the old kind's
+  // own fields with the new kind's defaults. The old fields are set to
+  // undefined rather than left out, because saving merges into the stored
+  // connection (and undefined fields aren't written to storage).
+  const changeKind = (kind) => setDraft(prev => ({
+    ...Object.fromEntries(Object.keys(prev).map(key => [key, undefined])),
+    ...CONNECTORS[kind].defaults,
+    id: prev.id, name: prev.name, kind,
+    ...(prev.proxyUrl ? { proxyUrl: prev.proxyUrl } : {}),
+  }));
 
   const runTest = async () => {
     setTest({ status: 'testing' });
     try {
-      const items = await browseConnection(draft);
-      const groups = new Set(items.map(i => i.group)).size;
-      setTest({ status: 'ok', message: `✓ Connected — ${items.length} ${connector.itemNoun} in ${groups} group${groups === 1 ? '' : 's'}` });
+      const { count, noun, groups } = await testConnection(draft);
+      const inGroups = groups ? ` in ${groups} group${groups === 1 ? '' : 's'}` : '';
+      setTest({ status: 'ok', message: `✓ Connected — ${count} ${noun}${inGroups}` });
     } catch (err) {
       setTest({ status: 'error', message: err.message });
     }

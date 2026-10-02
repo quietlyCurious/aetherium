@@ -606,13 +606,18 @@ manual box, read-only manual Cards): trimmed to the items, no margin.
 
 ### Queries come from their source (Oct 2026)
 
-Aetherium doesn't define queries. They're defined in Operations Hub (and,
-next, ThingWorx) and browsed live from the Screens **Data** tab (Queries
+Aetherium doesn't define queries. They're defined in Operations Hub or
+ThingWorx and browsed live from the Screens **Data** tab (Queries
 mode, `designer/screens/QueryBrowser.jsx`). A **Connection**
 (`src/connections/`) is just where to reach a source through the local
 proxy. Each kind is a connector with one shape — `browse(connection)` lists
 its queries, `run(...)` executes one — registered in `connectionKinds.js`;
-`ophubConnector.js` + `ophubWire.js` are the OpHub one. Adding a query to a
+`ophubConnector.js` + `ophubWire.js` are the OpHub one; `twxConnector.js` is
+ThingWorx, where a query is a service on a Thing, listed in two steps
+(`listGroups` = Things, `listGroup` = a Thing's services, fetched when opened;
+platform built-ins sit behind a toggle). The proxy (`AmyTempStore/ophub-proxy`)
+forwards `/api/ophub/*` with OpHub's cookie and `/api/twx/*` with a ThingWorx
+app key from its `.env`. Adding a query to a
 page saves a copy of its definition (`queriesStorage.js`, keyed by
 `connectionId` + `sourceKey` such as `ophub:<flowUuid>`), which bindings and
 the runtime read, so a screen keeps working if the source is offline.

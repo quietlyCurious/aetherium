@@ -11,15 +11,21 @@
 //                                  fetching again updates a saved copy
 //                                  instead of adding a second one
 //   browse(connection)             → [{ sourceKey, group, definition }]
+//     …or, for a source listed in two steps (ThingWorx: Things, then a
+//     Thing's services), instead of browse:
+//   groupNoun                      'Things' — "212 Things"
+//   listGroups(connection)         → [{ key, label }]
+//   listGroup(connection, key)     → [{ sourceKey, group, definition, minor }]
+//                                  (minor: shown behind a "built-in" toggle)
 //   run({ connection, query, instance, inputValues }) → rows[]
-//
-// Adding ThingWorx is a twxConnector beside ophubConnector, registered here.
 
 import { ophubConnector } from './ophubConnector';
+import { twxConnector } from './twxConnector';
 import { generateDataId } from '../dataModel';
 
 export const CONNECTORS = {
   [ophubConnector.kind]: ophubConnector,
+  [twxConnector.kind]: twxConnector,
 };
 
 export const CONNECTOR_LIST = Object.values(CONNECTORS);

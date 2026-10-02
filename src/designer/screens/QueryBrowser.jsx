@@ -9,6 +9,11 @@
 // definition; a saved copy that has drifted from its source is marked
 // "changed" with an Update button, and one whose query has gone from the
 // source is listed as "missing".
+//
+// A connection listed in two steps (ThingWorx) shows its groups (Things)
+// collapsed and fetches a group's queries (services) the first time it's
+// opened. Search matches group names as well as query names. Services every
+// Thing inherits from the platform sit behind a "built-in" toggle.
 
 import { useState } from 'react';
 import notify from 'devextreme/ui/notify';
@@ -19,6 +24,7 @@ const TYPE_BADGES = {
   opcua_read: 'OPC UA', opcua_write: 'OPC UA write', sql_sproc: 'SQL',
   rest_get: 'REST', rest_post: 'REST', rest_put: 'REST', rest_delete: 'REST',
   entity_read: 'Entity', entity_write: 'Entity write',
+  twx_service: 'Service',
 };
 
 // What makes two copies of a query different for a screen's purposes: what
@@ -87,28 +93,59 @@ function QueryRow({ item, saved, countOnPage, canAdd, missing, onAdd, onUpdate }
   );
 }
 
-function Group({ title, count, children }) {
-  const [collapsed, setCollapsed] = useState(false);
+function Group({ title, countText, hint, startCollapsed = false, forceOpen = false, onOpen, children }) {
+  const [collapsed, setCollapsed] = useState(startCollapsed);
+  const open = forceOpen || !collapsed;
+  const toggle = () => {
+    if (!open) onOpen?.();
+    setCollapsed(open);
+  };
   return (
     <>
       <div
-        style={{ padding: '5px 10px 5px 12px', fontSize: 11, fontWeight: 600, color: '#555', cursor: 'pointer', userSelect: 'none' }}
-        onClick={() => setCollapsed(c => !c)}
+        style={{ padding: '5px 10px 5px 12px', fontSize: 11, fontWeight: 600, color: '#555', cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        title={hint || title}
+        onClick={toggle}
       >
-        {collapsed ? '▸' : '▾'} {title} <span style={{ color: '#aaa', fontWeight: 400 }}>({count})</span>
+        {open ? '▾' : '▸'} {title} {countText && <span style={{ color: '#aaa', fontWeight: 400 }}>({countText})</span>}
       </div>
-      {!collapsed && children}
+      {open && children}
     </>
   );
 }
 
-function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, onRefresh }) {
-  const { connection, status, items, error } = entry;
+// A group's items: its main ones, then the minor (built-in) ones behind a toggle.
+function GroupItems({ items, renderItem, showMinor }) {
+  const [minorOpen, setMinorOpen] = useState(false);
+  const main = items.filter(i => !i.minor);
+  const minor = items.filter(i => i.minor);
+  const minorShown = showMinor || minorOpen || main.length === 0;
+  return (
+    <>
+      {main.map(renderItem)}
+      {minor.length > 0 && !minorShown && (
+        <div
+          style={{ padding: '3px 10px 5px 26px', fontSize: 10, color: '#0f6cbd', cursor: 'pointer' }}
+          onClick={() => setMinorOpen(true)}
+        >
+          + {minor.length} built-in service{minor.length === 1 ? '' : 's'}
+        </div>
+      )}
+      {minorShown && minor.map(renderItem)}
+    </>
+  );
+}
+
+const byName = (a, b) => a.definition.name.localeCompare(b.definition.name);
+
+function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, onRefresh, onLoadGroup }) {
+  const { connection, status, error, groups, lazy } = entry;
   const connector = connectorFor(connection);
   const { activePageId, queryInstances } = editor;
   const matches = (name) => !search || (name || '').toLowerCase().includes(search);
   const countOnPage = (queryId) => queryId ? queryInstances.filter(qi => qi.pageId === activePageId && qi.queryId === queryId).length : 0;
   const savedFor = (sourceKey) => savedCopies.find(q => q.sourceKey === sourceKey);
+  const itemNoun = connector?.itemNoun || 'queries';
 
   const add = (item) => {
     const queryId = onSaveQuery(connection.id, item);
@@ -121,26 +158,51 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
   };
   // A saved copy offered as if it came from the source — for adding while
   // the source can't be reached.
-  const asItem = (saved) => ({ sourceKey: saved.sourceKey, group: 'Saved copies', definition: saved });
+  const asItem = (saved) => ({ sourceKey: saved.sourceKey, group: saved.group, definition: saved });
 
-  const liveKeys = new Set(items.map(i => i.sourceKey));
-  const visible = items.filter(i => matches(i.definition.name));
-  const missing = status === 'ok' ? savedCopies.filter(q => !liveKeys.has(q.sourceKey) && matches(q.name)) : [];
+  // What search leaves of each group: a group whose name matches keeps all
+  // its items.
+  const shownGroups = groups
+    .map(group => {
+      const labelMatches = matches(group.label);
+      const items = (labelMatches ? group.items : group.items.filter(i => matches(i.definition.name))).slice().sort(byName);
+      return { ...group, items, show: !search || labelMatches || items.length > 0 };
+    })
+    .filter(g => g.show)
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  // Saved copies the source no longer offers. For a two-step source this is
+  // only known once the copy's group is loaded (or the group itself is gone).
+  const liveKeys = new Set(groups.flatMap(g => g.items.map(i => i.sourceKey)));
+  const groupByKey = new Map(groups.map(g => [g.key, g]));
+  const missing = status !== 'ok' ? [] : savedCopies.filter(q => {
+    if (liveKeys.has(q.sourceKey) || !matches(q.name)) return false;
+    if (!lazy) return true;
+    const group = groupByKey.get(q.group);
+    return !group || group.status === 'ok';
+  });
   const offline = status === 'error' ? savedCopies.filter(q => matches(q.name)) : [];
 
-  const groups = [];
-  visible.forEach(item => {
-    let group = groups.find(g => g.title === item.group);
-    if (!group) groups.push(group = { title: item.group, items: [] });
-    group.items.push(item);
-  });
-  groups.sort((a, b) => a.title.localeCompare(b.title));
-  groups.forEach(g => g.items.sort((a, b) => a.definition.name.localeCompare(b.definition.name)));
-
+  const total = lazy ? groups.length : groups.reduce((n, g) => n + g.items.length, 0);
+  const shown = lazy ? shownGroups.length : shownGroups.reduce((n, g) => n + g.items.length, 0);
   const statusText = status === 'loading' ? 'loading…'
     : status === 'error' ? 'unreachable'
-    : search ? `${visible.length} of ${items.length}`
-    : `${items.length} ${connector?.itemNoun || 'queries'}`;
+    : `${search ? `${shown} of ` : ''}${total} ${lazy ? connector.groupNoun : itemNoun}`;
+
+  const renderItem = (item) => {
+    const saved = savedFor(item.sourceKey);
+    return (
+      <QueryRow
+        key={item.sourceKey}
+        item={item}
+        saved={saved}
+        countOnPage={countOnPage(saved?.id)}
+        canAdd={!!activePageId}
+        onAdd={() => add(item)}
+        onUpdate={() => update(item)}
+      />
+    );
+  };
 
   return (
     <div>
@@ -153,19 +215,19 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
         <button
           className="focus-mode-btn"
           style={{ fontSize: 12, padding: '0 5px', lineHeight: '16px', flexShrink: 0 }}
-          title="Fetch this connection's queries again"
+          title={`Fetch this connection's ${lazy ? connector.groupNoun : itemNoun} again`}
           disabled={status === 'loading'}
           onClick={onRefresh}
         >⟳</button>
       </div>
 
-      {status === 'loading' && <p style={{ ...note, fontStyle: 'italic' }}>Fetching {connector?.itemNoun || 'queries'}…</p>}
+      {status === 'loading' && <p style={{ ...note, fontStyle: 'italic' }}>Fetching {lazy ? connector.groupNoun : itemNoun}…</p>}
 
       {status === 'error' && (
         <>
           <p style={{ ...note, color: '#c62828' }}>{error}</p>
           {offline.length > 0 && (
-            <Group title="Saved copies" count={offline.length}>
+            <Group title="Saved copies" countText={offline.length}>
               {offline.map(q => (
                 <QueryRow key={q.id} item={asItem(q)} saved={q} countOnPage={countOnPage(q.id)} canAdd={!!activePageId} onAdd={() => add(asItem(q))} />
               ))}
@@ -174,31 +236,29 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
         </>
       )}
 
-      {status === 'ok' && visible.length === 0 && missing.length === 0 && (
-        <p style={note}>{search ? 'No matches.' : `This connection offers no ${connector?.itemNoun || 'queries'}.`}</p>
+      {status === 'ok' && shownGroups.length === 0 && missing.length === 0 && (
+        <p style={note}>{search ? 'No matches.' : `This connection offers no ${lazy ? connector.groupNoun : itemNoun}.`}</p>
       )}
 
-      {status === 'ok' && groups.map(group => (
-        <Group key={group.title} title={group.title} count={group.items.length}>
-          {group.items.map(item => {
-            const saved = savedFor(item.sourceKey);
-            return (
-              <QueryRow
-                key={item.sourceKey}
-                item={item}
-                saved={saved}
-                countOnPage={countOnPage(saved?.id)}
-                canAdd={!!activePageId}
-                onAdd={() => add(item)}
-                onUpdate={() => update(item)}
-              />
-            );
-          })}
+      {status === 'ok' && shownGroups.map(group => (
+        <Group
+          key={group.key}
+          title={group.label}
+          hint={group.description}
+          countText={group.status === 'ok' ? group.items.length : null}
+          startCollapsed={lazy}
+          forceOpen={!!search && group.items.length > 0}
+          onOpen={() => { if (lazy && (group.status === 'idle' || group.status === 'error')) onLoadGroup(group.key); }}
+        >
+          {group.status === 'loading' && <p style={{ ...note, padding: '4px 10px 6px 26px', fontStyle: 'italic' }}>Fetching {itemNoun}…</p>}
+          {group.status === 'error' && <p style={{ ...note, padding: '4px 10px 6px 26px', color: '#c62828' }}>{group.error}</p>}
+          {group.status === 'ok' && group.items.length === 0 && <p style={{ ...note, padding: '4px 10px 6px 26px' }}>No {itemNoun}.</p>}
+          {group.status === 'ok' && <GroupItems items={group.items} renderItem={renderItem} showMinor={!!search} />}
         </Group>
       ))}
 
       {missing.length > 0 && (
-        <Group title="No longer at the source" count={missing.length}>
+        <Group title="No longer at the source" countText={missing.length}>
           {missing.map(q => <QueryRow key={q.id} saved={q} missing countOnPage={countOnPage(q.id)} />)}
         </Group>
       )}
@@ -207,11 +267,11 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
 }
 
 export function QueryBrowser({ editor, connections, queries, onSaveQuery }) {
-  const { entries, refresh } = useQueryCatalog(connections);
+  const { entries, refresh, loadGroup } = useQueryCatalog(connections);
   const search = editor.dataTabSearch.trim().toLowerCase();
 
   if (connections.length === 0) {
-    return <p style={note}>No connections yet. Add an Operations Hub connection in the Connections area.</p>;
+    return <p style={note}>No connections yet. Add one in the Connections area.</p>;
   }
   return (
     <div>
@@ -229,6 +289,7 @@ export function QueryBrowser({ editor, connections, queries, onSaveQuery }) {
           editor={editor}
           onSaveQuery={onSaveQuery}
           onRefresh={() => refresh(entry.connection.id)}
+          onLoadGroup={(key) => loadGroup(entry.connection.id, key)}
         />
       ))}
     </div>
