@@ -4,7 +4,9 @@
 //   Visuals       widgets to add — drag onto the canvas, or double-click
 //   Data          the loaded model's assets, what's reachable from the
 //                 asset a screen is about (This asset), or the queries
-//                 your connections offer, fetched live (QueryBrowser)
+//                 your connections offer, fetched live (QueryBrowser), or
+//                 the objects of an object type, to drag onto widgets
+//                 (ObjectBrowser)
 //   Page Visuals  the open page's container tree (PageVisualsTree)
 //   Page Data     the query instances on this page
 // Moved out of App.js unchanged. `model` is useLoadedModel's state for the
@@ -23,6 +25,7 @@ import { DX_WIDGET_DATA } from '../../widgetData';
 import { widgetSupport } from '../../widgetSupport';
 import { findContainerById } from '../../containerTree';
 import { QueryBrowser } from './QueryBrowser';
+import { ObjectBrowser } from './ObjectBrowser';
 
 // Sorts a flat, two-level parentId-based hierarchy (categories + items, the
 // shape DX_WIDGET_DATA uses) alphabetically by name WITHIN each
@@ -251,10 +254,11 @@ function PageQueryInstanceList({ editor, queries }) {
   });
 }
 
-export function ScreensLeftPanel({ editor, queries, connections, onSaveQuery, model, self }) {
+export function ScreensLeftPanel({ editor, queries, connections, objectTypes, onSaveQuery, model, self }) {
   // "This asset" is offered only while the screen is about one.
   const dataModes = [
     ...(self.status === 'ok' ? [{ value: 'self', label: 'This asset' }] : []),
+    { value: 'objects', label: 'Objects' },
     { value: 'queries', label: 'Queries' },
     { value: 'model', label: 'Model' },
   ];
@@ -325,12 +329,14 @@ export function ScreensLeftPanel({ editor, queries, connections, onSaveQuery, mo
                 style={{ width: '100%' }}
                 value={editor.dataTabSearch}
                 onChange={(e) => editor.setDataTabSearch(e.target.value)}
-                placeholder={dataMode === 'model' ? 'Search model…' : dataMode === 'self' ? 'Search properties…' : 'Search queries…'}
+                placeholder={dataMode === 'model' ? 'Search model…' : dataMode === 'self' ? 'Search properties…' : dataMode === 'objects' ? 'Search objects…' : 'Search queries…'}
               />
             </div>
             <div style={{ flex: 1, overflow: 'auto' }}>
               {dataMode === 'self' ? (
                 <SelfTree self={self} searchText={editor.dataTabSearch} />
+              ) : dataMode === 'objects' ? (
+                <ObjectBrowser editor={editor} objectTypes={objectTypes} connections={connections} queries={queries} />
               ) : dataMode === 'model' ? (
                 <ModelTree model={model} searchText={editor.dataTabSearch} />
               ) : (

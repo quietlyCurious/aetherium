@@ -29,6 +29,11 @@ export const ConnectionsRailIcon = () => (
   <Svg><path d="M5.5 1.5v3M10.5 1.5v3" /><path d="M3.5 4.5h9v2.5a4.5 4.5 0 0 1-9 0z" /><path d="M8 11.5v3" /></Svg>
 );
 
+// A tag on a cube: a kind of thing you can pick up and drop.
+export const ObjectTypesRailIcon = () => (
+  <Svg><path d="M8 1.8 13.5 4.8v6.4L8 14.2 2.5 11.2V4.8z" /><path d="M2.5 4.8 8 7.8l5.5-3M8 7.8v6.4" /></Svg>
+);
+
 export const AssetSetsRailIcon = () => (
   <Svg><rect x="1.8" y="1.8" width="5" height="5" rx="1" /><rect x="9.2" y="1.8" width="5" height="5" rx="1" /><rect x="1.8" y="9.2" width="5" height="5" rx="1" /><path d="M9.8 11.7l1.4 1.4 2.8-3" /></Svg>
 );

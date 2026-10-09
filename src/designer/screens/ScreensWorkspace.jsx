@@ -11,6 +11,8 @@
 // survives leaving the area), this draws it. `queries` are the saved
 // copies of queries pages use, which bindings name; `connections` are what
 // the Data tab browses live, and `onSaveQuery` saves a browsed query's copy.
+// `objectTypes` are what the Data tab's Objects mode lists; dropping one on a
+// widget opens ObjectDropPopover.
 // `selectedModel` is the title bar's industry model: this area loads it
 // (the same way the Operator side does) for the Data tab's Model view, the
 // Create wizard, and screens that are about a type (their asset bindings
@@ -28,6 +30,8 @@ import { findContainerById } from '../../containerTree';
 import { getWidgetPropertyDef } from '../widgets/widgetPropertyDefs';
 import { ScreensLeftPanel } from './ScreensLeftPanel';
 import { ScreenCanvas } from './ScreenCanvas';
+import { ObjectDropPopover } from './ObjectDropPopover';
+import { ObjectDropContext } from './objectDropContext';
 import { ScreenDetailsPanel } from './ScreenDetailsPanel';
 import { useLoadedModel } from '../../model/useLoadedModel';
 import { screenSelfOf } from './screenAsset';
@@ -196,20 +200,22 @@ function InputBindingEditor({ editor }) {
   );
 }
 
-export function ScreensWorkspace({ editor, queries, connections, onSaveQuery, assetSets, selectedModel }) {
+export function ScreensWorkspace({ editor, queries, connections, objectTypes, onSaveQuery, assetSets, selectedModel }) {
   const model = useLoadedModel(selectedModel);
   const self = screenSelfOf(editor, model);
   useCanvasShortcuts(editor);
   usePublishUnsaved(editor.isDirty);
   const wizard = useCreateWizard();
+  const [objectDrop, setObjectDrop] = useState(null);   // { containerId, object, x, y }
   return (
     // A repeater on the canvas needs the saved screens and asset sets, and
     // the chain of screens already being drawn (this one) to stop a screen
     // repeating itself.
     <ScreenDataProvider assetSets={assetSets} pages={editor.pages} chain={editor.activePageId ? [editor.activePageId] : []}>
+      <ObjectDropContext.Provider value={setObjectDrop}>
       <Splitter orientation="horizontal" style={{ height: '100%' }}>
         <SplitterItem size="220px" minSize="120px" resizable={true}>
-          <ScreensLeftPanel editor={editor} queries={queries} connections={connections} onSaveQuery={onSaveQuery} model={model} self={self} />
+          <ScreensLeftPanel editor={editor} queries={queries} connections={connections} objectTypes={objectTypes} onSaveQuery={onSaveQuery} model={model} self={self} />
         </SplitterItem>
         <SplitterItem resizable={true}>
           <ScreenCanvas editor={editor} self={self} />
@@ -221,6 +227,18 @@ export function ScreensWorkspace({ editor, queries, connections, onSaveQuery, as
       <CreateWizardPopup wizard={wizard} model={model} />
       <WidgetBindingEditor editor={editor} queries={queries} self={self} />
       <InputBindingEditor editor={editor} />
+      {objectDrop && (
+        <ObjectDropPopover
+          drop={objectDrop}
+          editor={editor}
+          objectTypes={objectTypes}
+          connections={connections}
+          queries={queries}
+          onSaveQuery={onSaveQuery}
+          onClose={() => setObjectDrop(null)}
+        />
+      )}
+      </ObjectDropContext.Provider>
     </ScreenDataProvider>
   );
 }

@@ -1,0 +1,83 @@
+/* designer/objectTypes/objectTypes.css — the Object Types editor, and the
+   object drop highlight / popover on the Screens canvas. */
+
+.ot-editor { height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.ot-head { padding: 8px 14px; border-bottom: 1px solid #e0e0e0; background: #fafafa; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.ot-title { font-size: 13px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ot-body { flex: 1; overflow: auto; padding: 12px 14px; }
+
+.ot-section { margin-bottom: 18px; }
+.ot-section-title { font-size: 12px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ot-n { width: 18px; height: 18px; border-radius: 50%; background: #eef1f4; color: #555; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; }
+.ot-hint { font-weight: 400; color: #999; font-size: 11px; }
+.ot-section-body { padding-left: 26px; }
+
+.ot-grid { display: grid; grid-template-columns: 110px minmax(0, 420px); gap: 6px 10px; align-items: center; }
+.ot-grid > label { font-size: 11px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ot-grid-sub { grid-column: 1 / -1; font-size: 11px; font-weight: 600; color: #555; margin-top: 6px; }
+.ot-textarea { width: 100%; font-family: Consolas, Monaco, monospace; font-size: 11px; resize: vertical; }
+.ot-pair { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ot-pair > .dx-selectbox { flex: 1; min-width: 150px; }
+.ot-chip { font-size: 11px; background: #e8f5e9; color: #2e7d32; border-radius: 10px; padding: 2px 10px; }
+
+.ot-muted { font-size: 11px; color: #888; }
+.ot-error { font-size: 11px; color: #c62828; }
+.ot-empty { padding: 4px 0 8px; }
+.ot-small { font-size: 11px !important; padding: 2px 8px !important; }
+.ot-preview { margin-top: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+
+.ot-table { width: 100%; max-width: 760px; border-collapse: collapse; font-size: 12px; margin-bottom: 8px; }
+.ot-table td { padding: 5px 6px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.ot-src { white-space: nowrap; color: #555; font-size: 11px; width: 1%; }
+.ot-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 0; }
+.ot-right { text-align: right; white-space: nowrap; width: 1%; }
+.ot-x { border: 0; background: none; color: #999; font-size: 15px; cursor: pointer; line-height: 1; }
+.ot-x:hover { color: #c62828; }
+.ot-side { font-size: 10px; border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+.ot-side--input { background: #e3f0fb; color: #0f6cbd; }
+.ot-side--output { background: #f3e5f5; color: #8e44ad; }
+.ot-side--thing { background: #e8f5e9; color: #2e7d32; }
+.ot-why { font-size: 10px; color: #888; }
+.ot-suggested td { background: #fffdf5; }
+.ot-accept { color: #0f6cbd !important; border-color: #9cc3e8 !important; margin-right: 4px; }
+.ot-sub { font-size: 11px; font-weight: 600; color: #7a5b00; margin: 12px 0 4px; }
+
+.ot-add { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; max-width: 760px; }
+.ot-add-query { flex: 1; min-width: 200px; }
+
+.ot-placeholder-icon { display: inline-flex; width: 28px; height: 28px; color: #999; }
+.ot-placeholder-icon svg { width: 28px; height: 28px; }
+
+/* ── Screens: dropping an object on a widget ─────────────────────────────── */
+.container-card--object-over { outline: 2px solid #0f6cbd !important; outline-offset: -2px; box-shadow: 0 0 0 4px rgba(15, 108, 189, 0.15) !important; }
+
+.object-list-item { display: flex; align-items: center; gap: 7px; padding: 5px 12px; border-bottom: 1px solid #f3f3f3; cursor: grab; user-select: none; font-size: 12px; }
+.object-list-item:hover { background: #f7fafd; }
+.object-list-item .grip { color: #c4c4c4; font-size: 10px; letter-spacing: -2px; }
+.object-list-item .label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.object-list-item .key { font-size: 10px; color: #999; font-family: Consolas, Monaco, monospace; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.od-option { border: 1px solid #e3e5e8; border-radius: 5px; padding: 6px 8px; margin-bottom: 5px; cursor: pointer; display: flex; gap: 8px; align-items: flex-start; }
+.od-option:hover { border-color: #0f6cbd; background: #f7fafd; }
+.od-option.on { border-color: #0f6cbd; background: #ebf3fc; }
+.od-option .q { font-weight: 600; font-size: 12px; }
+.od-option .src { font-weight: 400; color: #888; font-size: 10px; }
+.od-option .how { font-size: 10px; color: #666; }
+.od-fit { font-size: 9px; border-radius: 3px; padding: 1px 6px; margin-left: auto; flex-shrink: 0; white-space: nowrap; }
+.od-fit--good { background: #e8f5e9; color: #2e7d32; }
+.od-fit--other { background: #fff4e5; color: #b26a00; }
+.od-foot { display: flex; gap: 6px; align-items: center; margin-top: 8px; font-size: 11px; color: #555; }
+
+/* The drop popover never outgrows the window: the list scrolls between a
+   fixed header/search and a pinned Add & bind footer. */
+.od-popover { display: flex; flex-direction: column; overflow: hidden; }
+.od-popover > .binding-popover-header { flex-shrink: 0; }
+.od-search { padding: 8px 10px 0; flex-shrink: 0; }
+.od-search input { width: 100%; }
+.od-list { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 10px; }
+.od-group { font-size: 11px; font-weight: 600; color: #555; cursor: pointer; padding: 8px 2px 6px; user-select: none; }
+.od-needs { color: #b26a00; }
+.od-used { color: #2e7d32; }
+.od-foot { flex-shrink: 0; margin-top: 0; padding: 8px 10px; border-top: 1px solid #e6e6e6; background: #fafafa; }
+.od-foot-note { flex: 1; line-height: 1.4; }
+.od-apply { margin-left: auto; font-size: 11px !important; padding: 3px 10px !important; flex-shrink: 0; }

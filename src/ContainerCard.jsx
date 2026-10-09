@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { ROOT_CONTAINER_ID, DEFAULT_COORD, DEFAULT_SLOT, BASE_TIER_ID } from './containerModel';
 import { getLayoutStyle, getCoordStyle, getSlotStyle, getPageTypeStyle } from './containerStyles';
 import { buildDefaultCells } from './GridEditor';
@@ -12,6 +12,7 @@ import { viewportScale } from './viewport/FitViewport';
 import { beginCoordinateMove, beginMarquee } from './coordinate/coordinateCanvasDom';
 import './coordinate/coordinateCanvas.css';
 import { RepeaterBody, isRepeater } from './designer/screens/screenRepeat';
+import { ObjectDropContext, OBJECT_MIME } from './designer/screens/objectDropContext';
 
 function DropZone({ beforeId, parentId, dragState, onDragOver, onDrop, isDragging }) {
   const isActive = dragState.beforeId === beforeId && dragState.overParentId === parentId;
@@ -155,6 +156,13 @@ function ContainerCard({
   interactive = true,
   depth = 0,
 }) {
+  // A widget accepts an object dragged from the Data tab's Objects mode
+  // (ObjectDropPopover); only in the editor, where the context is provided.
+  const onObjectDrop = useContext(ObjectDropContext);
+  const [objectOver, setObjectOver] = useState(false);
+  const acceptsObjects = container.isWidget && interactive && !!onObjectDrop;
+  const isObjectDrag = (e) => Array.from(e.dataTransfer?.types || []).includes(OBJECT_MIME);
+
   const isSelected = selectedIds ? selectedIds.includes(container.id) : false;
   const isMultiSelected = selectedIds && selectedIds.length > 1 && isSelected;
   const isRoot = container.id === ROOT_CONTAINER_ID;
@@ -330,6 +338,7 @@ function ContainerCard({
         isMultiSelected                 ? 'container-card--multi-selected' : '',
         isDragOver                      ? 'container-card--drag-over' : '',
         container.isWidget              ? 'container-card--widget' : '',
+        objectOver                      ? 'container-card--object-over' : '',
         isCoordChild                    ? 'container-card--coord' : '',
         isEffectivelyLocked             ? 'container-card--locked' : '',
       ].filter(Boolean).join(' ')}
@@ -349,13 +358,22 @@ function ContainerCard({
         if (marqueeEndedRef.current) { marqueeEndedRef.current = false; return; }
         if (!isEffectivelyLocked) onSelect(container.id, e);
       }}
-      onDragOver={!container.isWidget && interactive ? (e) => { e.preventDefault(); e.stopPropagation(); onDragOver(container.id, null, null); } : undefined}
+      onDragOver={!container.isWidget && interactive ? (e) => { e.preventDefault(); e.stopPropagation(); onDragOver(container.id, null, null); }
+        : acceptsObjects ? (e) => { if (!isObjectDrag(e)) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; if (!objectOver) setObjectOver(true); }
+        : undefined}
       onDrop={!container.isWidget && interactive ? (e) => {
         e.preventDefault(); e.stopPropagation();
         const widgetName = e.dataTransfer.getData('dx-widget-name');
         if (widgetName) { onWidgetDrop(container.id, widgetName); } else { onDrop(container.id, null); }
+      } : acceptsObjects ? (e) => {
+        if (!isObjectDrag(e)) return;
+        e.preventDefault(); e.stopPropagation();
+        setObjectOver(false);
+        try {
+          onObjectDrop({ containerId: container.id, object: JSON.parse(e.dataTransfer.getData(OBJECT_MIME)), x: e.clientX, y: e.clientY });
+        } catch { /* not a payload we made */ }
       } : undefined}
-      onDragLeave={(e) => { e.stopPropagation(); }}
+      onDragLeave={(e) => { e.stopPropagation(); if (objectOver && !e.currentTarget.contains(e.relatedTarget)) setObjectOver(false); }}
     >
       <div
         className={`container-card-body${showDotGrid ? ' coord-dots' : ''}`}

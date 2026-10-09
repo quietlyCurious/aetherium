@@ -37,6 +37,9 @@ import './operator/styles/configurator.css';
 import './operator/styles/operatorViews.css';
 import './operator/styles/chrome.css';
 import ConnectionsWorkspace from './connections/ConnectionsWorkspace';
+import ObjectTypesWorkspace from './designer/objectTypes/ObjectTypesWorkspace';
+import { loadObjectTypes, saveObjectTypes } from './objectTypesStorage';
+import { makeObjectType } from './designer/objectTypes/objectTypes';
 import RuntimeView from './RuntimeView';
 import { loadConnections, saveConnections } from './connectionsStorage';
 import { loadQueries, saveQueries } from './queriesStorage';
@@ -141,7 +144,7 @@ function AetheriumEditor() {
     navigateTo(area);
   };
 
-  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'connections'|'assetsets'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
+  const [currentView, setCurrentView] = useState('operator'); // 'screens'|'widgets'|'theme'|'connections'|'objecttypes'|'assetsets'|'operator' — defaults to 'operator' while Screens/Widgets/etc. are hidden from the nav (see TODO.md)
   // Read once on mount from the URL — a deep link there (if present)
   // takes priority over the persisted last-used persona below. Also
   // reused (via setInitialDeepLink) for in-app navigation that switches
@@ -184,6 +187,9 @@ function AetheriumEditor() {
   // System-scoped (shared across all pages of this project):
   const connections = useStoredDefinitions({ load: loadConnections, save: saveConnections, makeNew: makeConnection });
   const connectionsWorkspaceRef = React.useRef(null);
+  // Kinds of things screens can be built from by dragging (Object Types area).
+  const objectTypes = useStoredDefinitions({ load: loadObjectTypes, save: saveObjectTypes, makeNew: makeObjectType });
+  const objectTypesWorkspaceRef = React.useRef(null);
   const assetSetsWorkspaceRef = React.useRef(null);
   const widgetsWorkspaceRef = React.useRef(null);
   const operatorWorkspaceRef = React.useRef(null); // lets the title-bar Save button trigger a type's display template save, configurator persona only
@@ -213,6 +219,7 @@ function AetheriumEditor() {
   const areaHandles = {
     screens: { current: screensHandle },
     connections: connectionsWorkspaceRef,
+    objecttypes: objectTypesWorkspaceRef,
     assetsets: assetSetsWorkspaceRef,
     widgets: widgetsWorkspaceRef,
     operator: operatorWorkspaceRef,
@@ -440,6 +447,18 @@ function AetheriumEditor() {
             onDelete={handleDeleteConnection}
           />
 
+        ) : currentView === 'objecttypes' ? (
+          <ObjectTypesWorkspace
+            ref={objectTypesWorkspaceRef}
+            objectTypes={objectTypes.items}
+            connections={connections.items}
+            queries={queries}
+            onAdd={objectTypes.add}
+            onUpdate={objectTypes.update}
+            onDelete={objectTypes.remove}
+            onSaveQuery={handleSaveQueryCopy}
+          />
+
         ) : currentView === 'assetsets' ? (
           <AssetSetsWorkspace
             ref={assetSetsWorkspaceRef}
@@ -470,7 +489,7 @@ function AetheriumEditor() {
 
 
         ) : (
-          <ScreensWorkspace editor={screens} queries={queries} connections={connections.items} onSaveQuery={handleSaveQueryCopy} assetSets={assetSets.items} selectedModel={selectedModel} />
+          <ScreensWorkspace editor={screens} queries={queries} connections={connections.items} objectTypes={objectTypes.items} onSaveQuery={handleSaveQueryCopy} assetSets={assetSets.items} selectedModel={selectedModel} />
         )}
         </div>
         </div>

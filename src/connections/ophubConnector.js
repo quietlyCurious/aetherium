@@ -51,12 +51,21 @@ function mapOutputs(ioOutputs = []) {
   return outputs;
 }
 
-// Only what the result shape depends on. The rest of a flow's settings live
-// in OpHub, which runs it.
+// Only what the result shape depends on, plus an entity query's filter
+// conditions (which input filters which column — Object Types uses them to
+// suggest references). The rest of a flow's settings live in OpHub, which
+// runs it.
 function mapConfig(flow, type) {
   const qc = flow.query_contents || {};
   if (type === 'opcua_read' || type === 'opcua_write') {
     return { samplingMode: qc.ext_query?.samplingMode || 'currentvalue' };
+  }
+  if (type === 'entity_read') {
+    return {
+      conditions: (qc.conditions || [])
+        .map(c => ({ fieldName: c.field?.column_name, paramName: c.comparer?.value, operator: c.operator }))
+        .filter(c => c.fieldName && c.paramName),
+    };
   }
   return {};
 }

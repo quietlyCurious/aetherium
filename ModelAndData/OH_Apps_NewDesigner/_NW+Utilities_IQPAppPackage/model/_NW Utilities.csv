@@ -1,0 +1,781 @@
+# Model Export 2026-10-09T02-13-25__NW%20Utilities.csv
+
+DateTime,2026-10-09T14:13:26.348791400Z
+ImportVersion,1.1
+Locale,En
+
+# HierarchyFlags,OverwriteHierarchy,OverwriteAssetChildren
+HierarchyFlags,TRUE,TRUE
+
+# ServerDetails,Name,DataSourceName,ConnectionType,ProductType,userIdentityForPlugins
+ServerDetails,Historian,ASVHAS01,HISTORIAN,Proficy Historian,token
+ServerDetails,historiador,asvhas01,HISTORIAN,Proficy Historian,token
+ServerDetails,Local_IGS,urn:demovm.gedemo.io:Intellution.IntellutionGatewayOPCServer:UA%20Server,OPCUA,OPC UA,use-read-cred
+ServerDetails,Batch_Datasource,https://mes.gedemo.io:4867/BatchRestAPI,BATCH,Proficy Batch,token
+ServerDetails,iFIX,urn:demovm:MyCompany:iFix:FIX,OPCUA,Proficy iFIX,use-read-cred
+ServerDetails,Site 1,demovm,HISTORIAN,Proficy Historian,token
+
+# NameSpaceTableHeader,ServerAlias,NameSpaceIndex,NameSpaceUri
+
+# AssetTypeHeader,Asset Type Name,Description,Property Groups of the Asset Type
+# ,(ThingTemplate name),,(ThingShape names)
+AssetType,Filler,,FillerShape
+AssetType,GasTurbine,,GasTurbineShape
+AssetType,InjectionMolder,,InjectionMolderShape
+AssetType,Mixer,,MixerShape
+AssetType,PowerCondenser,,PowerCondenserShape
+AssetType,Pump,,PumpShape
+AssetType,PumpStation,,PumpStationShape
+AssetType,SteamTurbine,,SteamTurbineShape
+AssetType,Transformer,,TransformerShape
+AssetType,WaterPump,,WaterPumpShape
+AssetType,WindTurbine,,WindTurbineShape
+AssetType,WoodwardGasTurbine,,WoodwardGasTurbineShape
+
+# PropertyGroupHeader,Property Group Name,Description,Tag
+PropertyGroup,FillerShape,,
+PropertyGroup,GasTurbineShape,,
+PropertyGroup,InjectionMolderShape,,
+PropertyGroup,MixerShape,,
+PropertyGroup,PowerCondenserShape,,
+PropertyGroup,PumpShape,,
+PropertyGroup,PumpStationShape,,
+PropertyGroup,SteamTurbineShape,,
+PropertyGroup,TransformerShape,Transformer,
+PropertyGroup,WaterPumpShape,,
+PropertyGroup,WindTurbineShape,,
+PropertyGroup,WoodwardGasTurbineShape,,
+
+# PropertyDefinitionHeader,Property Group Name,Property Name,Property Type,AssetType (if the property type is Asset),Trendable,ControlGroupId,ControlPoint,HmiDataType,DataSource,Attributes,Description
+# ,,,"Can be name of the primitive type, or name of child asset (ThingName in TW)",Name of the child asset's type
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_4,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_5,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_6,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,FUEL_GAS_INLET_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,FUEL_GAS_INLET_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,FUEL_GAS_INTERSTAGE_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,GROSS_LOAD,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,GROSS_VARS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,INLET_BLEED_HEAT_VLV_POS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,LUBE_OIL_OUTLET_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,RELATIVE_HUMIDITY,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,TURBINE_EXHAUST_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,TURBINE_SPEED,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,CT_BRG_1_VIB_2,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,AMBIENT_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,AVERAGE_EXHAUST_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,BAROMETRIC_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMBUSTION_REF_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_INLET_PRESS_PSI,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_INLET_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_INLET_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_INLET_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_OUTLET_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_OUTLET_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_OUTLET_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,COMPRESSOR_OUTLET_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,CT_BRG_1_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,CT_BRG_1_MTL_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,CT_BRG_1_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,CT_BRG_1_VIB_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_SPREAD_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,GasTurbineShape,EXHAUST_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,PumpStationShape,WetWellLevelA,NUMBER,,false,,,,,,
+PropertyDefinition,PumpStationShape,WetWellLevelB,NUMBER,,false,,,,,,
+PropertyDefinition,PumpStationShape,Pump2,Asset,WaterPump,,,,,,,
+PropertyDefinition,PumpStationShape,Pump1,Asset,WaterPump,,,,,,,
+PropertyDefinition,InjectionMolderShape,Waste,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,CoolingTime,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,CycleTime,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,HoldPressure,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,HoldTime,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,Cushion,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,InjectionTime,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,MeltTemperature,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,MoldTemperature,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,PeakPressure,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,RecoveryTime,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,ShotSize,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,OverTemperature,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,Status,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,FaultCode,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,CycleCount,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,ProductID,STRING,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,WTFaultCode,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,ProductCount,NUMBER,,false,,,,,,
+PropertyDefinition,InjectionMolderShape,ProductCode,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,HP_INLET_TEMPERATURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,HP_SPEED,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,INLET_TEMPERATURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,LP_COMPRESSOR_INLET_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,LP_SPEED,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,HP_INLET_COMPRESSOR_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,LP_TURBINE_INLET_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,MW,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,THRUST_BALANCE_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,TURBINE_EXHAUST_TEMPERATURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,Variable_Stator_Vane,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,GAS_FUEL_SUPPLY_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,FUEL_DEMAND,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,FC6246,NUMBER,,false,,,,,,
+PropertyDefinition,WoodwardGasTurbineShape,HP_COMPRESSOR_DISCHARGE_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WaterPumpShape,PUMP_VIBRATION,NUMBER,,false,,,,,,
+PropertyDefinition,WaterPumpShape,AMPS,NUMBER,,false,,,,,,
+PropertyDefinition,WaterPumpShape,DISCHARGEFLOW,NUMBER,,false,,,,,,
+PropertyDefinition,WaterPumpShape,DISCHARGEPRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,WaterPumpShape,MOTOR_VIBRATION,NUMBER,,false,,,,,,
+PropertyDefinition,FillerShape,ValveIn_State,BOOLEAN,,false,,,,,,
+PropertyDefinition,FillerShape,Motor_State,BOOLEAN,,false,,,,,,
+PropertyDefinition,FillerShape,Pump,Asset,Pump,,,,,,,
+PropertyDefinition,FillerShape,Motor_Oil,NUMBER,,false,,,,,,
+PropertyDefinition,FillerShape,Motor_Speed,NUMBER,,false,,,,,,
+PropertyDefinition,FillerShape,Motor_Temp,NUMBER,,false,,,,,,
+PropertyDefinition,FillerShape,Name,STRING,,false,,,,,,
+PropertyDefinition,FillerShape,Total,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,PRESSURE_BEFORE_HP_LOWER_SV,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CEP_COMMON_SUCTION_WATER_TEMPERATURE,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CONDENSATE_EXTRACTION_FLOW,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CONDENSER_LEVEL,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CONDENSER_VACUUM,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CW_COND_INLET_WATER_BOX_1A,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CW_COND_INLETWATER_BOX_1B,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CW_COND_OUTLET_WATER_BOX_1A,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,CW_COND_OUTLET_WATER_BOX_1B,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,INLET_TEMP1,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,INLET_TEMP2,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,IP_EXHAUST_PRESSURE_LHS,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,IP_EXHAUST_STEAM_TEMP_LH_SIDE,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,LP2_EXHAUST_PRESSURE,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,LP2_FRONT_EXH_STEAM_TEMP_RHS,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,LP2_REAR_EXH_STEAM_TEMP_LHS,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,MEASURED_MW_GROSS,NUMBER,,false,,,,,,
+PropertyDefinition,PowerCondenserShape,PRESSURE_BEFORE_HP_UPPER_SV,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_PRESS_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_1_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_1_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_1_VIB_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_2_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_2_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_2_VIB_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_BRG_4_VIB_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GEN_GROSS_VARS,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GLAND_STEAM_SEAL_HDR_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GLAND_STEAM_SEAL_HDR_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,GROSS_LOAD,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_CONTROL_VALVE1_DMD_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_CONTROL_VALVE1_POS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_CONTROL_VALVE1_POS_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_EXHAUST_STM_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_EXHAUST_STM_PRESS_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_EXHAUST_STM_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_EXHAUST_STM_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_EXHAUST_STM_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_FIRST_STAGE_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_CONTROL_VALVE1_DMD_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_INLET_STM_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_INLET_STM_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_INLET_STM_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,HPT_MSV_VALVE1_POS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,IPT_INLET_STM_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,IPT_INLET_STM_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,IPT_INLET_STM_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_EXHAUST_STM_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_EXHAUST_STM_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_EXHAUST_STM_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_INLET_STM_PRESS_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_INLET_STM_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LPT_INLET_STM_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LUBE_OIL_COOLER_OIL_DISCH_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LUBE_OIL_COOLER_OIL_OUTLET_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_ACTIVE_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_ACTIVE_MTL_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_ACTIVE_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_INACTIVE_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_INACTIVE_MTL_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,THRUST_BRG_INACTIVE_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,TURBINE_SPEED_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,LUBE_OIL_COOLER_OIL_INLET_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,AMBIENT_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_1_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_1_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_2_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_2_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_3_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_3_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_4_MTL_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,BRG_4_OIL_DRAIN_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_CONDENSATE_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_CONDENSATE_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_COOLING_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,SteamTurbineShape,CONDENSER_COOLING_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Tank_Level,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Motor_Oil,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,ValveIn_State,BOOLEAN,,false,,,,,,
+PropertyDefinition,MixerShape,Motor_SP,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Motor_Speed,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Motor_State,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Motor_Temp,NUMBER,,false,,,,,,
+PropertyDefinition,MixerShape,Name,STRING,,false,,,,,,
+PropertyDefinition,MixerShape,ValveOut_State,BOOLEAN,,false,,,,,,
+PropertyDefinition,PumpShape,Speed,NUMBER,,false,,,,,,
+PropertyDefinition,PumpShape,State,BOOLEAN,,false,,,,,,
+PropertyDefinition,PumpShape,Runtime,NUMBER,,false,,,,,,
+PropertyDefinition,PumpShape,Vibration,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_CURRENT_C,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_VOLTAGE_C,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,ACTIVE_POWER,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,ACTIVE_POWER_CORRECTED_CV,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,AMBIENT_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_1_POS,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_1_POS_SP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_2_POS,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_2_POS_SP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_3_POS,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,BLADE_3_POS_SP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GEN_BRG_DE_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GEN_BRG_NDE_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GEN_COOLING_AIR_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GEN_SPEED_1,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GENERATOR_WINDING_TEMP_A,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,GENERATOR_WINDING_TEMP_B,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,HS_GEAR_BRG_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,HUB_SPEED,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,HYDRAULIC_PRESS,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,MODE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,NACELLE_COOLING_DELTA_CV,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,NACELLE_POS,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,NACELLE_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PERCENT_DESIGN_EFFICIENCY_CV,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_CURRENT_A,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_CURRENT_B,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_VOLTAGE_A,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,PHASE_VOLTAGE_B,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,REACTIVE_POWER,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,SHAFT_BRG_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,TOWER_DEFLECTION,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,TRANSFORMER_TEMP_1,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,TRANSFORMER_TEMP_2,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,TRANSFORMER_TEMP_3,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,WIND_DIRECTION,NUMBER,,false,,,,,,
+PropertyDefinition,WindTurbineShape,WIND_SPEED,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,H2_GAS,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_CURRENT,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_PHASE_A_WINDING_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_POWERFACTOR,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_VA,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_VOLTS_PHASE_A,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_VOLTS_PHASE_B,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_VOLTS_PHASE_C,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_VOLTS_PHASE_IMBALANCE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_WATTS,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_WINDING_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_WINDING_TEMP_RISE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,AMBIENT_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_POWERFACTOR,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_VOLTS_PHASE_A,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_VOLTS_PHASE_B,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_VOLTS_PHASE_C,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_VOLTS_PHASE_IMBALANCE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_WATTS,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,SECONDARY_WINDING_TEMP_RISE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,TOP_OIL_TEMP,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,TOP_OIL_TEMP_RISE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_CURRENT,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_CURRENT_PHASE_A,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_CURRENT_PHASE_B,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_CURRENT_PHASE_C,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_CURRENT_PHASE_IMBALANCE_CV,NUMBER,,false,,,,,,
+PropertyDefinition,TransformerShape,PRIMARY_FREQUENCY,NUMBER,,false,,,,,,
+
+# Note: Any asset listed here must be preceded in the list by any parent assets it may have
+# AssetHeader,Asset Name,Description,Asset Type Name,Parent Asset Name (\ - root),Parent Property Name (if parent asset type is defined)
+Asset,Proficy Model,Top node of an extraneous model Proficy,Asset,,
+Asset,NW Utilites,Top node of an extraneous model Proficy,Asset,Proficy Model,
+Asset,NW Power,Top node of an extraneous model Proficy,Asset,NW Utilites,
+Asset,Generation,Top node of an extraneous model Proficy,Asset,NW Power,
+Asset,Power Plant,Top node of an extraneous model Proficy,Asset,Generation,
+Asset,Gas Turbine 1,SouthPark Power Plant - Gas Turbine 01,GasTurbine,Power Plant,
+Asset,Power Condenser 1,SouthPark Power Condenser - Power Condenser 01,PowerCondenser,Power Plant,
+Asset,Steam Turbine 1,SouthPark Plant ST - Steam Turbine 01,SteamTurbine,Power Plant,
+Asset,Woodward Gas Turbine 1,Springfield Power Station - Woodward Gas Turbine 01,WoodwardGasTurbine,Power Plant,
+Asset,Wind Farm,Top node of an extraneous model Proficy,Asset,Generation,
+Asset,WT 1,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,WT 2,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,WT 3,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,WT 4,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,WT 5,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,WT 6,Springfield Wind Farm - WindTurbine 06,WindTurbine,Wind Farm,
+Asset,Grid,Top node of an extraneous model Proficy,Asset,NW Power,
+Asset,North,Top node of an extraneous model Proficy,Asset,Grid,
+Asset,Transformer 1,SouthPark Substation - Transformer 01,Transformer,North,
+Asset,South,Top node of an extraneous model Proficy,Asset,Grid,
+Asset,NW Water,Top node of an extraneous model Proficy,Asset,NW Utilites,
+Asset,East,Top node of an extraneous model Proficy,Asset,NW Water,
+Asset,Filler 1,,Filler,East,
+Asset,Pump 1_1,Pump,Pump,Filler 1,
+Asset,Pump 1_2,Pump,Pump,Filler 1,
+Asset,West,Top node of an extraneous model Proficy,Asset,NW Water,
+Asset,Filler 2,,Filler,West,
+Asset,Pump 2_1,Pump,Pump,Filler 2,
+Asset,Pump 2_2,Pump,Pump,Filler 2,
+Asset,__GlobalRoot__,Global root node of the navigational hierarchy of the model.,Asset,-,
+
+# ContainedAssetHeader,Asset Name,Contained Asset Parent Asset Name,Parent Property Name
+
+
+# TagSourceHeader,Parent Asset Name,Property Name,RealtimeServerAlias,RealtimeDataSourceName (iFix tag Id),HistoricalServerAlias,HistoricalDataSourceName
+TagSource,WT 1,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 1,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 1,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 1,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 1,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 1,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 1,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 1,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 1,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 1,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 1,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 1,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 1,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 1,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 1,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 1,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 1,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 1,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 1,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 1,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 1,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 1,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 1,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 1,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 1,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 1,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 1,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 1,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 1,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 1,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 1,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 1,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 1,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 1,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 1,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 1,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 1,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,WT 2,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 2,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 2,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 2,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 2,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 2,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 2,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 2,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 2,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 2,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 2,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 2,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 2,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 2,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 2,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 2,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 2,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 2,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 2,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 2,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 2,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 2,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 2,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 2,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 2,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 2,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 2,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 2,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 2,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 2,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 2,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 2,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 2,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 2,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 2,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 2,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 2,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,Filler 1,Motor_Oil,iFIX,ns=2;s=13$Filler01>Motor_Oil.CV,,
+TagSource,Filler 1,Motor_Speed,iFIX,ns=2;s=13$Filler01>Motor_Speed.CV,,
+TagSource,Filler 1,Motor_State,iFIX,ns=2;s=13$Filler01>Motor_State.CV,,
+TagSource,Filler 1,Motor_Temp,iFIX,ns=2;s=13$Filler01>Motor_Temp.CV,,
+TagSource,Filler 1,Name,iFIX,ns=2;s=13$Filler01>Name.CV,,
+TagSource,Filler 1,Total,iFIX,ns=2;s=13$Filler01>Total.CV,Site 1,FIX.Filler01>Total.F_CV
+TagSource,Filler 1,ValveIn_State,iFIX,ns=2;s=13$Filler01>ValveIn_State.CV,,
+TagSource,Filler 2,Motor_Oil,iFIX,ns=2;s=13$Filler02>Motor_Oil.CV,,
+TagSource,Filler 2,Motor_Speed,iFIX,ns=2;s=13$Filler02>Motor_Speed.CV,,
+TagSource,Filler 2,Motor_State,iFIX,ns=2;s=13$Filler02>Motor_State.CV,,
+TagSource,Filler 2,Motor_Temp,iFIX,ns=2;s=13$Filler02>Motor_Temp.CV,,
+TagSource,Filler 2,Name,iFIX,ns=2;s=13$Filler02>Name.CV,,
+TagSource,Filler 2,Total,iFIX,ns=2;s=13$Filler02>Total.CV,,
+TagSource,Filler 2,ValveIn_State,iFIX,ns=2;s=13$Filler02>ValveIn_State.CV,,
+TagSource,Power Condenser 1,CEP_COMMON_SUCTION_WATER_TEMPERATURE,iFIX,ns=2;s=13$SP_PowerCondenser01>CEP_COMMON_SUCTION_WATER_TEMPERATURE.CV,Site 1,FIX.SP_PowerCondenser01>CEP_COMMON_SUCTION_WATER_TEMPERATURE.F_CV
+TagSource,Power Condenser 1,CONDENSATE_EXTRACTION_FLOW,iFIX,ns=2;s=13$SP_PowerCondenser01>CONDENSATE_EXTRACTION_FLOW.CV,Site 1,FIX.SP_PowerCondenser01>CONDENSATE_EXTRACTION_FLOW.F_CV
+TagSource,Power Condenser 1,CONDENSER_LEVEL,iFIX,ns=2;s=13$SP_PowerCondenser01>CONDENSER_LEVEL.CV,Site 1,FIX.SP_PowerCondenser01>CONDENSER_LEVEL.F_CV
+TagSource,Power Condenser 1,CONDENSER_VACUUM,iFIX,ns=2;s=13$SP_PowerCondenser01>CONDENSER_VACUUM.CV,Site 1,FIX.SP_PowerCondenser01>CONDENSER_VACUUM.F_CV
+TagSource,Power Condenser 1,CW_COND_INLET_WATER_BOX_1A,iFIX,ns=2;s=13$SP_PowerCondenser01>CW_COND_INLET_WATER_BOX_1A.CV,Site 1,FIX.SP_PowerCondenser01>CW_COND_INLET_WATER_BOX_1A.F_CV
+TagSource,Power Condenser 1,CW_COND_INLETWATER_BOX_1B,iFIX,ns=2;s=13$SP_PowerCondenser01>CW_COND_INLETWATER_BOX_1B.CV,Site 1,FIX.SP_PowerCondenser01>CW_COND_INLETWATER_BOX_1B.F_CV
+TagSource,Power Condenser 1,CW_COND_OUTLET_WATER_BOX_1A,iFIX,ns=2;s=13$SP_PowerCondenser01>CW_COND_OUTLET_WATER_BOX_1A.CV,Site 1,FIX.SP_PowerCondenser01>CW_COND_OUTLET_WATER_BOX_1A.F_CV
+TagSource,Power Condenser 1,CW_COND_OUTLET_WATER_BOX_1B,iFIX,ns=2;s=13$SP_PowerCondenser01>CW_COND_OUTLET_WATER_BOX_1B.CV,Site 1,FIX.SP_PowerCondenser01>CW_COND_OUTLET_WATER_BOX_1B.F_CV
+TagSource,Power Condenser 1,INLET_TEMP1,iFIX,ns=2;s=13$SP_PowerCondenser01>INLET_TEMP1.CV,Site 1,FIX.SP_PowerCondenser01>INLET_TEMP1.F_CV
+TagSource,Power Condenser 1,INLET_TEMP2,iFIX,ns=2;s=13$SP_PowerCondenser01>INLET_TEMP2.CV,Site 1,FIX.SP_PowerCondenser01>INLET_TEMP2.F_CV
+TagSource,Power Condenser 1,IP_EXHAUST_PRESSURE_LHS,iFIX,ns=2;s=13$SP_PowerCondenser01>IP_EXHAUST_PRESSURE_LHS.CV,Site 1,FIX.SP_PowerCondenser01>IP_EXHAUST_PRESSURE_LHS.F_CV
+TagSource,Power Condenser 1,IP_EXHAUST_STEAM_TEMP_LH_SIDE,iFIX,ns=2;s=13$SP_PowerCondenser01>IP_EXHAUST_STEAM_TEMP_LH_SIDE.CV,Site 1,FIX.SP_PowerCondenser01>IP_EXHAUST_STEAM_TEMP_LH_SIDE.F_CV
+TagSource,Power Condenser 1,LP2_EXHAUST_PRESSURE,iFIX,ns=2;s=13$SP_PowerCondenser01>LP2_EXHAUST_PRESSURE.CV,Site 1,FIX.SP_PowerCondenser01>LP2_EXHAUST_PRESSURE.F_CV
+TagSource,Power Condenser 1,LP2_FRONT_EXH_STEAM_TEMP_RHS,iFIX,ns=2;s=13$SP_PowerCondenser01>LP2_FRONT_EXH_STEAM_TEMP_RHS.CV,Site 1,FIX.SP_PowerCondenser01>LP2_FRONT_EXH_STEAM_TEMP_RHS.F_CV
+TagSource,Power Condenser 1,LP2_REAR_EXH_STEAM_TEMP_LHS,iFIX,ns=2;s=13$SP_PowerCondenser01>LP2_REAR_EXH_STEAM_TEMP_LHS.CV,Site 1,FIX.SP_PowerCondenser01>LP2_REAR_EXH_STEAM_TEMP_LHS.F_CV
+TagSource,Power Condenser 1,MEASURED_MW_GROSS,iFIX,ns=2;s=13$SP_PowerCondenser01>MEASURED_MW_GROSS.CV,Site 1,FIX.SP_PowerCondenser01>MEASURED_MW_GROSS.F_CV
+TagSource,Power Condenser 1,PRESSURE_BEFORE_HP_LOWER_SV,iFIX,ns=2;s=13$SP_PowerCondenser01>PRESSURE_BEFORE_HP_LOWER_SV.CV,Site 1,FIX.SP_PowerCondenser01>PRESSURE_BEFORE_HP_LOWER_SV.F_CV
+TagSource,Power Condenser 1,PRESSURE_BEFORE_HP_UPPER_SV,iFIX,ns=2;s=13$SP_PowerCondenser01>PRESSURE_BEFORE_HP_UPPER_SV.CV,Site 1,FIX.SP_PowerCondenser01>PRESSURE_BEFORE_HP_UPPER_SV.F_CV
+TagSource,WT 3,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 3,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 3,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 3,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 3,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 3,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 3,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 3,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 3,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 3,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 3,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 3,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 3,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 3,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 3,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 3,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 3,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 3,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 3,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 3,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 3,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 3,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 3,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 3,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 3,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 3,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 3,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 3,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 3,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 3,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 3,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 3,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 3,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 3,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 3,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 3,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 3,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,WT 4,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 4,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 4,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 4,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 4,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 4,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 4,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 4,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 4,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 4,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 4,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 4,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 4,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 4,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 4,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 4,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 4,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 4,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 4,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 4,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 4,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 4,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 4,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 4,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 4,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 4,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 4,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 4,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 4,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 4,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 4,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 4,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 4,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 4,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 4,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 4,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 4,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,WT 5,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 5,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 5,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 5,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 5,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 5,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 5,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 5,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 5,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 5,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 5,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 5,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 5,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 5,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 5,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 5,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 5,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 5,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 5,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 5,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 5,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 5,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 5,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 5,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 5,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 5,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 5,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 5,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 5,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 5,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 5,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 5,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 5,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 5,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 5,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 5,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 5,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,Pump 1_1,Runtime,iFIX,ns=2;s=13$Filler01>Pump>Runtime.CV,,
+TagSource,Pump 1_1,Speed,iFIX,ns=2;s=13$Filler01>Pump>Speed.CV,,
+TagSource,Pump 1_1,State,iFIX,ns=2;s=13$Filler01>Pump>State.CV,,
+TagSource,Pump 1_1,Vibration,iFIX,ns=2;s=13$Filler01>Pump>Vibration.CV,,
+TagSource,Transformer 1,AMBIENT_TEMP,iFIX,ns=2;s=13$SP_Transformer01>AMBIENT_TEMP.CV,Site 1,FIX.SP_Transformer01>AMBIENT_TEMP.F_CV
+TagSource,Transformer 1,H2_GAS,iFIX,ns=2;s=13$SP_Transformer01>H2_GAS.CV,Site 1,FIX.SP_Transformer01>H2_GAS.F_CV
+TagSource,Transformer 1,PRIMARY_CURRENT,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_CURRENT.CV,Site 1,FIX.SP_Transformer01>PRIMARY_CURRENT.F_CV
+TagSource,Transformer 1,PRIMARY_CURRENT_PHASE_A,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_CURRENT_PHASE_A.CV,Site 1,FIX.SP_Transformer01>PRIMARY_CURRENT_PHASE_A.F_CV
+TagSource,Transformer 1,PRIMARY_CURRENT_PHASE_B,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_CURRENT_PHASE_B.CV,Site 1,FIX.SP_Transformer01>PRIMARY_CURRENT_PHASE_B.F_CV
+TagSource,Transformer 1,PRIMARY_CURRENT_PHASE_C,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_CURRENT_PHASE_C.CV,Site 1,FIX.SP_Transformer01>PRIMARY_CURRENT_PHASE_C.F_CV
+TagSource,Transformer 1,PRIMARY_CURRENT_PHASE_IMBALANCE_CV,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_CURRENT_PHASE_IMBALANCE_CV.CV,Site 1,FIX.SP_Transformer01>PRIMARY_CURRENT_PHASE_IMBALANCE_CV.F_CV
+TagSource,Transformer 1,PRIMARY_FREQUENCY,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_FREQUENCY.CV,Site 1,FIX.SP_Transformer01>PRIMARY_FREQUENCY.F_CV
+TagSource,Transformer 1,PRIMARY_POWERFACTOR,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_POWERFACTOR.CV,Site 1,FIX.SP_Transformer01>PRIMARY_POWERFACTOR.F_CV
+TagSource,Transformer 1,PRIMARY_VA,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_VA.CV,Site 1,FIX.SP_Transformer01>PRIMARY_VA.F_CV
+TagSource,Transformer 1,PRIMARY_VOLTS_PHASE_A,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_VOLTS_PHASE_A.CV,Site 1,FIX.SP_Transformer01>PRIMARY_VOLTS_PHASE_A.F_CV
+TagSource,Transformer 1,PRIMARY_VOLTS_PHASE_B,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_VOLTS_PHASE_B.CV,Site 1,FIX.SP_Transformer01>PRIMARY_VOLTS_PHASE_B.F_CV
+TagSource,Transformer 1,PRIMARY_VOLTS_PHASE_C,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_VOLTS_PHASE_C.CV,Site 1,FIX.SP_Transformer01>PRIMARY_VOLTS_PHASE_C.F_CV
+TagSource,Transformer 1,PRIMARY_VOLTS_PHASE_IMBALANCE_CV,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_VOLTS_PHASE_IMBALANCE_CV.CV,Site 1,FIX.SP_Transformer01>PRIMARY_VOLTS_PHASE_IMBALANCE_CV.F_CV
+TagSource,Transformer 1,PRIMARY_WATTS,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_WATTS.CV,Site 1,FIX.SP_Transformer01>PRIMARY_WATTS.F_CV
+TagSource,Transformer 1,PRIMARY_WINDING_TEMP,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_WINDING_TEMP.CV,Site 1,FIX.SP_Transformer01>PRIMARY_WINDING_TEMP.F_CV
+TagSource,Transformer 1,PRIMARY_WINDING_TEMP_RISE_CV,iFIX,ns=2;s=13$SP_Transformer01>PRIMARY_WINDING_TEMP_RISE_CV.CV,Site 1,FIX.SP_Transformer01>PRIMARY_WINDING_TEMP_RISE_CV.F_CV
+TagSource,Transformer 1,SECONDARY_CURRENT,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_CURRENT.CV,Site 1,FIX.SP_Transformer01>SECONDARY_CURRENT.F_CV
+TagSource,Transformer 1,SECONDARY_PHASE_A_WINDING_TEMP,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_PHASE_A_WINDING_TEMP.CV,Site 1,FIX.SP_Transformer01>SECONDARY_PHASE_A_WINDING_TEMP.F_CV
+TagSource,Transformer 1,SECONDARY_POWERFACTOR,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_POWERFACTOR.CV,Site 1,FIX.SP_Transformer01>SECONDARY_POWERFACTOR.F_CV
+TagSource,Transformer 1,SECONDARY_VOLTS_PHASE_A,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_VOLTS_PHASE_A.CV,Site 1,FIX.SP_Transformer01>SECONDARY_VOLTS_PHASE_A.F_CV
+TagSource,Transformer 1,SECONDARY_VOLTS_PHASE_B,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_VOLTS_PHASE_B.CV,Site 1,FIX.SP_Transformer01>SECONDARY_VOLTS_PHASE_B.F_CV
+TagSource,Transformer 1,SECONDARY_VOLTS_PHASE_C,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_VOLTS_PHASE_C.CV,Site 1,FIX.SP_Transformer01>SECONDARY_VOLTS_PHASE_C.F_CV
+TagSource,Transformer 1,SECONDARY_VOLTS_PHASE_IMBALANCE_CV,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_VOLTS_PHASE_IMBALANCE_CV.CV,Site 1,FIX.SP_Transformer01>SECONDARY_VOLTS_PHASE_IMBALANCE_CV.F_CV
+TagSource,Transformer 1,SECONDARY_WATTS,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_WATTS.CV,Site 1,FIX.SP_Transformer01>SECONDARY_WATTS.F_CV
+TagSource,Transformer 1,SECONDARY_WINDING_TEMP_RISE_CV,iFIX,ns=2;s=13$SP_Transformer01>SECONDARY_WINDING_TEMP_RISE_CV.CV,Site 1,FIX.SP_Transformer01>SECONDARY_WINDING_TEMP_RISE_CV.F_CV
+TagSource,Transformer 1,TOP_OIL_TEMP,iFIX,ns=2;s=13$SP_Transformer01>TOP_OIL_TEMP.CV,Site 1,FIX.SP_Transformer01>TOP_OIL_TEMP.F_CV
+TagSource,Transformer 1,TOP_OIL_TEMP_RISE_CV,iFIX,ns=2;s=13$SP_Transformer01>TOP_OIL_TEMP_RISE_CV.CV,Site 1,FIX.SP_Transformer01>TOP_OIL_TEMP_RISE_CV.F_CV
+TagSource,WT 6,ACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER.F_CV
+TagSource,WT 6,ACTIVE_POWER_CORRECTED_CV,iFIX,ns=2;s=13$SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.CV,Site 1,FIX.SF_WindTurbine06>ACTIVE_POWER_CORRECTED_CV.F_CV
+TagSource,WT 6,AMBIENT_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>AMBIENT_TEMP.CV,Site 1,FIX.SF_WindTurbine06>AMBIENT_TEMP.F_CV
+TagSource,WT 6,BLADE_1_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS.F_CV
+TagSource,WT 6,BLADE_1_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_1_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_1_POS_SP.F_CV
+TagSource,WT 6,BLADE_2_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS.F_CV
+TagSource,WT 6,BLADE_2_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_2_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_2_POS_SP.F_CV
+TagSource,WT 6,BLADE_3_POS,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS.F_CV
+TagSource,WT 6,BLADE_3_POS_SP,iFIX,ns=2;s=13$SF_WindTurbine06>BLADE_3_POS_SP.CV,Site 1,FIX.SF_WindTurbine06>BLADE_3_POS_SP.F_CV
+TagSource,WT 6,GEN_BRG_DE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_DE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_DE_TEMP.F_CV
+TagSource,WT 6,GEN_BRG_NDE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_BRG_NDE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_BRG_NDE_TEMP.F_CV
+TagSource,WT 6,GEN_COOLING_AIR_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_COOLING_AIR_TEMP.CV,Site 1,FIX.SF_WindTurbine06>GEN_COOLING_AIR_TEMP.F_CV
+TagSource,WT 6,GEN_SPEED_1,iFIX,ns=2;s=13$SF_WindTurbine06>GEN_SPEED_1.CV,Site 1,FIX.SF_WindTurbine06>GEN_SPEED_1.F_CV
+TagSource,WT 6,GENERATOR_WINDING_TEMP_A,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_A.F_CV
+TagSource,WT 6,GENERATOR_WINDING_TEMP_B,iFIX,ns=2;s=13$SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.CV,Site 1,FIX.SF_WindTurbine06>GENERATOR_WINDING_TEMP_B.F_CV
+TagSource,WT 6,HS_GEAR_BRG_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>HS_GEAR_BRG_TEMP_1.F_CV
+TagSource,WT 6,HUB_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>HUB_SPEED.CV,Site 1,FIX.SF_WindTurbine06>HUB_SPEED.F_CV
+TagSource,WT 6,HYDRAULIC_PRESS,iFIX,ns=2;s=13$SF_WindTurbine06>HYDRAULIC_PRESS.CV,Site 1,FIX.SF_WindTurbine06>HYDRAULIC_PRESS.F_CV
+TagSource,WT 6,MODE_CV,iFIX,ns=2;s=13$SF_WindTurbine06>MODE_CV.CV,Site 1,FIX.SF_WindTurbine06>MODE_CV.F_CV
+TagSource,WT 6,NACELLE_COOLING_DELTA_CV,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_COOLING_DELTA_CV.F_CV
+TagSource,WT 6,NACELLE_POS,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_POS.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_POS.F_CV
+TagSource,WT 6,NACELLE_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>NACELLE_TEMP.CV,Site 1,FIX.SF_WindTurbine06>NACELLE_TEMP.F_CV
+TagSource,WT 6,PERCENT_DESIGN_EFFICIENCY_CV,iFIX,ns=2;s=13$SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.CV,Site 1,FIX.SF_WindTurbine06>PERCENT_DESIGN_EFFICIENCY_CV.F_CV
+TagSource,WT 6,PHASE_CURRENT_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_A.F_CV
+TagSource,WT 6,PHASE_CURRENT_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_B.F_CV
+TagSource,WT 6,PHASE_CURRENT_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_CURRENT_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_CURRENT_C.F_CV
+TagSource,WT 6,PHASE_VOLTAGE_A,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_A.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_A.F_CV
+TagSource,WT 6,PHASE_VOLTAGE_B,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_B.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_B.F_CV
+TagSource,WT 6,PHASE_VOLTAGE_C,iFIX,ns=2;s=13$SF_WindTurbine06>PHASE_VOLTAGE_C.CV,Site 1,FIX.SF_WindTurbine06>PHASE_VOLTAGE_C.F_CV
+TagSource,WT 6,REACTIVE_POWER,iFIX,ns=2;s=13$SF_WindTurbine06>REACTIVE_POWER.CV,Site 1,FIX.SF_WindTurbine06>REACTIVE_POWER.F_CV
+TagSource,WT 6,SHAFT_BRG_TEMP,iFIX,ns=2;s=13$SF_WindTurbine06>SHAFT_BRG_TEMP.CV,Site 1,FIX.SF_WindTurbine06>SHAFT_BRG_TEMP.F_CV
+TagSource,WT 6,TOWER_DEFLECTION,iFIX,ns=2;s=13$SF_WindTurbine06>TOWER_DEFLECTION.CV,Site 1,FIX.SF_WindTurbine06>TOWER_DEFLECTION.F_CV
+TagSource,WT 6,TRANSFORMER_TEMP_1,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_1.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_1.F_CV
+TagSource,WT 6,TRANSFORMER_TEMP_2,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_2.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_2.F_CV
+TagSource,WT 6,TRANSFORMER_TEMP_3,iFIX,ns=2;s=13$SF_WindTurbine06>TRANSFORMER_TEMP_3.CV,Site 1,FIX.SF_WindTurbine06>TRANSFORMER_TEMP_3.F_CV
+TagSource,WT 6,WIND_DIRECTION,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_DIRECTION.CV,Site 1,FIX.SF_WindTurbine06>WIND_DIRECTION.F_CV
+TagSource,WT 6,WIND_SPEED,iFIX,ns=2;s=13$SF_WindTurbine06>WIND_SPEED.CV,Site 1,FIX.SF_WindTurbine06>WIND_SPEED.F_CV
+TagSource,Pump 1_2,Runtime,iFIX,ns=2;s=13$Filler01>Pump>Runtime.CV,,
+TagSource,Pump 1_2,Speed,iFIX,ns=2;s=13$Filler01>Pump>Speed.CV,,
+TagSource,Pump 1_2,State,iFIX,ns=2;s=13$Filler01>Pump>State.CV,,
+TagSource,Pump 1_2,Vibration,iFIX,ns=2;s=13$Filler01>Pump>Vibration.CV,,
+TagSource,Pump 2_1,Runtime,iFIX,ns=2;s=13$Filler02>Pump>Runtime.CV,,
+TagSource,Pump 2_1,Speed,iFIX,ns=2;s=13$Filler02>Pump>Speed.CV,,
+TagSource,Pump 2_1,State,iFIX,ns=2;s=13$Filler02>Pump>State.CV,,
+TagSource,Pump 2_1,Vibration,iFIX,ns=2;s=13$Filler02>Pump>Vibration.CV,,
+TagSource,Steam Turbine 1,AMBIENT_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>AMBIENT_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>AMBIENT_TEMP.F_CV
+TagSource,Steam Turbine 1,BRG_1_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_1_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>BRG_1_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,BRG_1_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_1_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>BRG_1_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,BRG_2_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_2_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>BRG_2_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,BRG_2_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_2_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>BRG_2_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,BRG_3_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_3_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>BRG_3_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,BRG_3_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_3_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>BRG_3_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,BRG_4_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_4_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>BRG_4_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,BRG_4_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>BRG_4_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>BRG_4_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,CONDENSER_CONDENSATE_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_CONDENSATE_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_CONDENSATE_TEMP_1.F_CV
+TagSource,Steam Turbine 1,CONDENSER_CONDENSATE_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_CONDENSATE_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_CONDENSATE_TEMP_2.F_CV
+TagSource,Steam Turbine 1,CONDENSER_COOLING_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_COOLING_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_COOLING_TEMP_1.F_CV
+TagSource,Steam Turbine 1,CONDENSER_COOLING_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_COOLING_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_COOLING_TEMP_2.F_CV
+TagSource,Steam Turbine 1,CONDENSER_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_PRESS_1.F_CV
+TagSource,Steam Turbine 1,CONDENSER_PRESS_2,iFIX,ns=2;s=13$SP_SteamTurbine01>CONDENSER_PRESS_2.CV,Site 1,FIX.SP_SteamTurbine01>CONDENSER_PRESS_2.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_1_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_1_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_1_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_1_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_1_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_1_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_1_VIB_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_1_VIB_1.CV,,
+TagSource,Steam Turbine 1,GEN_BRG_2_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_2_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_2_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_2_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_2_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_2_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_2_VIB_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_2_VIB_1.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_2_VIB_1.F_CV
+TagSource,Steam Turbine 1,GEN_BRG_4_VIB_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_BRG_4_VIB_1.CV,Site 1,FIX.SP_SteamTurbine01>GEN_BRG_4_VIB_1.F_CV
+TagSource,Steam Turbine 1,GEN_GROSS_VARS,iFIX,ns=2;s=13$SP_SteamTurbine01>GEN_GROSS_VARS.CV,Site 1,FIX.SP_SteamTurbine01>GEN_GROSS_VARS.F_CV
+TagSource,Steam Turbine 1,GLAND_STEAM_SEAL_HDR_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GLAND_STEAM_SEAL_HDR_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>GLAND_STEAM_SEAL_HDR_PRESS_1.F_CV
+TagSource,Steam Turbine 1,GLAND_STEAM_SEAL_HDR_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>GLAND_STEAM_SEAL_HDR_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>GLAND_STEAM_SEAL_HDR_TEMP_1.F_CV
+TagSource,Steam Turbine 1,GROSS_LOAD,iFIX,ns=2;s=13$SP_SteamTurbine01>GROSS_LOAD.CV,Site 1,FIX.SP_SteamTurbine01>GROSS_LOAD.F_CV
+TagSource,Steam Turbine 1,HPT_CONTROL_VALVE1_DMD_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_CONTROL_VALVE1_DMD_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_CONTROL_VALVE1_DMD_1.F_CV
+TagSource,Steam Turbine 1,HPT_CONTROL_VALVE1_DMD_2,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_CONTROL_VALVE1_DMD_2.CV,Site 1,FIX.SP_SteamTurbine01>HPT_CONTROL_VALVE1_DMD_2.F_CV
+TagSource,Steam Turbine 1,HPT_CONTROL_VALVE1_POS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_CONTROL_VALVE1_POS_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_CONTROL_VALVE1_POS_1.F_CV
+TagSource,Steam Turbine 1,HPT_CONTROL_VALVE1_POS_2,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_CONTROL_VALVE1_POS_2.CV,Site 1,FIX.SP_SteamTurbine01>HPT_CONTROL_VALVE1_POS_2.F_CV
+TagSource,Steam Turbine 1,HPT_EXHAUST_STM_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_EXHAUST_STM_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_EXHAUST_STM_PRESS_1.F_CV
+TagSource,Steam Turbine 1,HPT_EXHAUST_STM_PRESS_2,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_EXHAUST_STM_PRESS_2.CV,Site 1,FIX.SP_SteamTurbine01>HPT_EXHAUST_STM_PRESS_2.F_CV
+TagSource,Steam Turbine 1,HPT_EXHAUST_STM_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_1.F_CV
+TagSource,Steam Turbine 1,HPT_EXHAUST_STM_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_2.F_CV
+TagSource,Steam Turbine 1,HPT_EXHAUST_STM_TEMP_3,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_3.CV,Site 1,FIX.SP_SteamTurbine01>HPT_EXHAUST_STM_TEMP_3.F_CV
+TagSource,Steam Turbine 1,HPT_FIRST_STAGE_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_FIRST_STAGE_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_FIRST_STAGE_PRESS_1.F_CV
+TagSource,Steam Turbine 1,HPT_INLET_STM_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_INLET_STM_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_INLET_STM_PRESS_1.F_CV
+TagSource,Steam Turbine 1,HPT_INLET_STM_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_INLET_STM_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_INLET_STM_TEMP_1.F_CV
+TagSource,Steam Turbine 1,HPT_INLET_STM_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_INLET_STM_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>HPT_INLET_STM_TEMP_2.F_CV
+TagSource,Steam Turbine 1,HPT_MSV_VALVE1_POS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>HPT_MSV_VALVE1_POS_1.CV,Site 1,FIX.SP_SteamTurbine01>HPT_MSV_VALVE1_POS_1.F_CV
+TagSource,Steam Turbine 1,IPT_INLET_STM_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>IPT_INLET_STM_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>IPT_INLET_STM_PRESS_1.F_CV
+TagSource,Steam Turbine 1,IPT_INLET_STM_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>IPT_INLET_STM_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>IPT_INLET_STM_TEMP_1.F_CV
+TagSource,Steam Turbine 1,IPT_INLET_STM_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>IPT_INLET_STM_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>IPT_INLET_STM_TEMP_2.F_CV
+TagSource,Steam Turbine 1,LPT_EXHAUST_STM_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_1.F_CV
+TagSource,Steam Turbine 1,LPT_EXHAUST_STM_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_2.F_CV
+TagSource,Steam Turbine 1,LPT_EXHAUST_STM_TEMP_3,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_3.CV,Site 1,FIX.SP_SteamTurbine01>LPT_EXHAUST_STM_TEMP_3.F_CV
+TagSource,Steam Turbine 1,LPT_INLET_STM_PRESS_1,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_INLET_STM_PRESS_1.CV,Site 1,FIX.SP_SteamTurbine01>LPT_INLET_STM_PRESS_1.F_CV
+TagSource,Steam Turbine 1,LPT_INLET_STM_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_INLET_STM_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>LPT_INLET_STM_TEMP_1.F_CV
+TagSource,Steam Turbine 1,LPT_INLET_STM_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>LPT_INLET_STM_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>LPT_INLET_STM_TEMP_2.F_CV
+TagSource,Steam Turbine 1,LUBE_OIL_COOLER_OIL_DISCH_PRESS,iFIX,ns=2;s=13$SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_DISCH_PRESS.CV,Site 1,FIX.SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_DISCH_PRESS.F_CV
+TagSource,Steam Turbine 1,LUBE_OIL_COOLER_OIL_INLET_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_INLET_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_INLET_TEMP.F_CV
+TagSource,Steam Turbine 1,LUBE_OIL_COOLER_OIL_OUTLET_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_OUTLET_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>LUBE_OIL_COOLER_OIL_OUTLET_TEMP.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_ACTIVE_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_ACTIVE_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_ACTIVE_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_ACTIVE_MTL_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_ACTIVE_MTL_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_ACTIVE_MTL_TEMP_2.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_ACTIVE_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_ACTIVE_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_ACTIVE_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_INACTIVE_MTL_TEMP_1,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_INACTIVE_MTL_TEMP_1.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_INACTIVE_MTL_TEMP_1.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_INACTIVE_MTL_TEMP_2,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_INACTIVE_MTL_TEMP_2.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_INACTIVE_MTL_TEMP_2.F_CV
+TagSource,Steam Turbine 1,THRUST_BRG_INACTIVE_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_SteamTurbine01>THRUST_BRG_INACTIVE_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_SteamTurbine01>THRUST_BRG_INACTIVE_OIL_DRAIN_TEMP.F_CV
+TagSource,Steam Turbine 1,TURBINE_SPEED_1,iFIX,ns=2;s=13$SP_SteamTurbine01>TURBINE_SPEED_1.CV,Site 1,FIX.SP_SteamTurbine01>TURBINE_SPEED_1.F_CV
+TagSource,Pump 2_2,Runtime,iFIX,ns=2;s=13$Filler02>Pump>Runtime.CV,,
+TagSource,Pump 2_2,Speed,iFIX,ns=2;s=13$Filler02>Pump>Speed.CV,,
+TagSource,Pump 2_2,State,iFIX,ns=2;s=13$Filler02>Pump>State.CV,,
+TagSource,Pump 2_2,Vibration,iFIX,ns=2;s=13$Filler02>Pump>Vibration.CV,,
+TagSource,Gas Turbine 1,AMBIENT_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>AMBIENT_TEMP.CV,Site 1,FIX.SP_GasTurbine01>AMBIENT_TEMP.F_CV
+TagSource,Gas Turbine 1,AVERAGE_EXHAUST_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>AVERAGE_EXHAUST_TEMP.CV,Site 1,FIX.SP_GasTurbine01>AVERAGE_EXHAUST_TEMP.F_CV
+TagSource,Gas Turbine 1,BAROMETRIC_PRESSURE,iFIX,ns=2;s=13$SP_GasTurbine01>BAROMETRIC_PRESSURE.CV,Site 1,FIX.SP_GasTurbine01>BAROMETRIC_PRESSURE.F_CV
+TagSource,Gas Turbine 1,COMBUSTION_REF_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>COMBUSTION_REF_TEMP.CV,Site 1,FIX.SP_GasTurbine01>COMBUSTION_REF_TEMP.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_INLET_PRESS_PSI,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_INLET_PRESS_PSI.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_INLET_PRESS_PSI.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_INLET_TEMP_1,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_INLET_TEMP_1.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_INLET_TEMP_1.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_INLET_TEMP_2,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_INLET_TEMP_2.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_INLET_TEMP_2.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_INLET_TEMP_3,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_INLET_TEMP_3.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_INLET_TEMP_3.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_OUTLET_PRESS,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_OUTLET_PRESS.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_OUTLET_PRESS.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_OUTLET_TEMP_1,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_1.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_1.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_OUTLET_TEMP_2,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_2.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_2.F_CV
+TagSource,Gas Turbine 1,COMPRESSOR_OUTLET_TEMP_3,iFIX,ns=2;s=13$SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_3.CV,Site 1,FIX.SP_GasTurbine01>COMPRESSOR_OUTLET_TEMP_3.F_CV
+TagSource,Gas Turbine 1,CT_BRG_1_MTL_TEMP_1,iFIX,ns=2;s=13$SP_GasTurbine01>CT_BRG_1_MTL_TEMP_1.CV,Site 1,FIX.SP_GasTurbine01>CT_BRG_1_MTL_TEMP_1.F_CV
+TagSource,Gas Turbine 1,CT_BRG_1_MTL_TEMP_2,iFIX,ns=2;s=13$SP_GasTurbine01>CT_BRG_1_MTL_TEMP_2.CV,Site 1,FIX.SP_GasTurbine01>CT_BRG_1_MTL_TEMP_2.F_CV
+TagSource,Gas Turbine 1,CT_BRG_1_OIL_DRAIN_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>CT_BRG_1_OIL_DRAIN_TEMP.CV,Site 1,FIX.SP_GasTurbine01>CT_BRG_1_OIL_DRAIN_TEMP.F_CV
+TagSource,Gas Turbine 1,CT_BRG_1_VIB_1,iFIX,ns=2;s=13$SP_GasTurbine01>CT_BRG_1_VIB_1.CV,Site 1,FIX.SP_GasTurbine01>CT_BRG_1_VIB_1.F_CV
+TagSource,Gas Turbine 1,CT_BRG_1_VIB_2,iFIX,ns=2;s=13$SP_GasTurbine01>CT_BRG_1_VIB_2.CV,Site 1,FIX.SP_GasTurbine01>CT_BRG_1_VIB_2.F_CV
+TagSource,Gas Turbine 1,EXHAUST_SPREAD_1,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_SPREAD_1.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_SPREAD_1.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_1,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_1.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_1.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_2,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_2.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_2.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_3,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_3.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_3.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_4,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_4.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_4.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_5,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_5.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_5.F_CV
+TagSource,Gas Turbine 1,EXHAUST_TEMP_6,iFIX,ns=2;s=13$SP_GasTurbine01>EXHAUST_TEMP_6.CV,Site 1,FIX.SP_GasTurbine01>EXHAUST_TEMP_6.F_CV
+TagSource,Gas Turbine 1,FUEL_GAS_INLET_PRESS,iFIX,ns=2;s=13$SP_GasTurbine01>FUEL_GAS_INLET_PRESS.CV,Site 1,FIX.SP_GasTurbine01>FUEL_GAS_INLET_PRESS.F_CV
+TagSource,Gas Turbine 1,FUEL_GAS_INLET_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>FUEL_GAS_INLET_TEMP.CV,Site 1,FIX.SP_GasTurbine01>FUEL_GAS_INLET_TEMP.F_CV
+TagSource,Gas Turbine 1,FUEL_GAS_INTERSTAGE_PRESS,iFIX,ns=2;s=13$SP_GasTurbine01>FUEL_GAS_INTERSTAGE_PRESS.CV,Site 1,FIX.SP_GasTurbine01>FUEL_GAS_INTERSTAGE_PRESS.F_CV
+TagSource,Gas Turbine 1,GROSS_LOAD,iFIX,ns=2;s=13$SP_GasTurbine01>GROSS_LOAD.CV,Site 1,FIX.SP_GasTurbine01>GROSS_LOAD.F_CV
+TagSource,Gas Turbine 1,GROSS_VARS,iFIX,ns=2;s=13$SP_GasTurbine01>GROSS_VARS.CV,Site 1,FIX.SP_GasTurbine01>GROSS_VARS.F_CV
+TagSource,Gas Turbine 1,INLET_BLEED_HEAT_VLV_POS,iFIX,ns=2;s=13$SP_GasTurbine01>INLET_BLEED_HEAT_VLV_POS.CV,Site 1,FIX.SP_GasTurbine01>INLET_BLEED_HEAT_VLV_POS.F_CV
+TagSource,Gas Turbine 1,LUBE_OIL_OUTLET_TEMP,iFIX,ns=2;s=13$SP_GasTurbine01>LUBE_OIL_OUTLET_TEMP.CV,Site 1,FIX.SP_GasTurbine01>LUBE_OIL_OUTLET_TEMP.F_CV
+TagSource,Gas Turbine 1,RELATIVE_HUMIDITY,iFIX,ns=2;s=13$SP_GasTurbine01>RELATIVE_HUMIDITY.CV,Site 1,FIX.SP_GasTurbine01>RELATIVE_HUMIDITY.F_CV
+TagSource,Gas Turbine 1,TURBINE_EXHAUST_PRESS,iFIX,ns=2;s=13$SP_GasTurbine01>TURBINE_EXHAUST_PRESS.CV,Site 1,FIX.SP_GasTurbine01>TURBINE_EXHAUST_PRESS.F_CV
+TagSource,Gas Turbine 1,TURBINE_SPEED,iFIX,ns=2;s=13$SP_GasTurbine01>TURBINE_SPEED.CV,Site 1,FIX.SP_GasTurbine01>TURBINE_SPEED.F_CV
+TagSource,Woodward Gas Turbine 1,FC6246,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>FC6246.CV,Site 1,FIX.SF_WoodwardGasTurbine01>FC6246.F_CV
+TagSource,Woodward Gas Turbine 1,FUEL_DEMAND,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>FUEL_DEMAND.CV,Site 1,FIX.SF_WoodwardGasTurbine01>FUEL_DEMAND.F_CV
+TagSource,Woodward Gas Turbine 1,GAS_FUEL_SUPPLY_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>GAS_FUEL_SUPPLY_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>GAS_FUEL_SUPPLY_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,HP_COMPRESSOR_DISCHARGE_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>HP_COMPRESSOR_DISCHARGE_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>HP_COMPRESSOR_DISCHARGE_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,HP_INLET_COMPRESSOR_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>HP_INLET_COMPRESSOR_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>HP_INLET_COMPRESSOR_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,HP_INLET_TEMPERATURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>HP_INLET_TEMPERATURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>HP_INLET_TEMPERATURE.F_CV
+TagSource,Woodward Gas Turbine 1,HP_SPEED,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>HP_SPEED.CV,Site 1,FIX.SF_WoodwardGasTurbine01>HP_SPEED.F_CV
+TagSource,Woodward Gas Turbine 1,INLET_TEMPERATURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>INLET_TEMPERATURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>INLET_TEMPERATURE.F_CV
+TagSource,Woodward Gas Turbine 1,LP_COMPRESSOR_INLET_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>LP_COMPRESSOR_INLET_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>LP_COMPRESSOR_INLET_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,LP_SPEED,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>LP_SPEED.CV,Site 1,FIX.SF_WoodwardGasTurbine01>LP_SPEED.F_CV
+TagSource,Woodward Gas Turbine 1,LP_TURBINE_INLET_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>LP_TURBINE_INLET_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>LP_TURBINE_INLET_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,MW,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>MW.CV,Site 1,FIX.SF_WoodwardGasTurbine01>MW.F_CV
+TagSource,Woodward Gas Turbine 1,THRUST_BALANCE_PRESSURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>THRUST_BALANCE_PRESSURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>THRUST_BALANCE_PRESSURE.F_CV
+TagSource,Woodward Gas Turbine 1,TURBINE_EXHAUST_TEMPERATURE,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>TURBINE_EXHAUST_TEMPERATURE.CV,Site 1,FIX.SF_WoodwardGasTurbine01>TURBINE_EXHAUST_TEMPERATURE.F_CV
+TagSource,Woodward Gas Turbine 1,Variable_Stator_Vane,iFIX,ns=2;s=13$SF_WoodwardGasTurbine01>Variable_Stator_Vane.CV,Site 1,FIX.SF_WoodwardGasTurbine01>Variable_Stator_Vane.F_CV
+
+# AssetAdditionalDetailsHeader,Asset Name,Property Name,Property Value
+
+# AssetInstanceEntityMetadata,EntityName,EntityType,PropertyName,Category,Key,Value
+AssetInstanceEntityMetadata,Woodward Gas Turbine 1,Asset,THRUST_BALANCE_PRESSURE,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Woodward Gas Turbine 1,Asset,TURBINE_EXHAUST_TEMPERATURE,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Woodward Gas Turbine 1,Asset,FUEL_DEMAND,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,AMBIENT_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,WIND_SPEED,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,SHAFT_BRG_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,HS_GEAR_BRG_TEMP_1,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,GEN_BRG_NDE_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 6,Asset,GEN_BRG_DE_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 2,Asset,PHASE_CURRENT_B,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 2,Asset,PHASE_CURRENT_C,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 2,Asset,PHASE_CURRENT_A,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 4,Asset,AMBIENT_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 4,Asset,ACTIVE_POWER,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 1,Asset,BLADE_1_POS,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 1,Asset,BLADE_2_POS,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 1,Asset,BLADE_3_POS,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 5,Asset,TRANSFORMER_TEMP_2,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 5,Asset,TRANSFORMER_TEMP_3,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 5,Asset,TRANSFORMER_TEMP_1,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 3,Asset,PHASE_VOLTAGE_C,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 3,Asset,PHASE_VOLTAGE_B,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,WT 3,Asset,PHASE_VOLTAGE_A,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Transformer 1,Asset,TOP_OIL_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Transformer 1,Asset,AMBIENT_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Transformer 1,Asset,PRIMARY_WATTS,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Steam Turbine 1,Asset,GEN_BRG_1_OIL_DRAIN_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Steam Turbine 1,Asset,TURBINE_SPEED_1,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Steam Turbine 1,Asset,AMBIENT_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 2_1,Asset,Speed,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 2_1,Asset,State,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 1_1,Asset,Runtime,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 1_2,Asset,Vibration,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 2_2,Asset,Runtime,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Pump 2_2,Asset,Vibration,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Power Condenser 1,Asset,INLET_TEMP1,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Power Condenser 1,Asset,INLET_TEMP2,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Power Condenser 1,Asset,CONDENSER_LEVEL,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Gas Turbine 1,Asset,AMBIENT_TEMP,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Gas Turbine 1,Asset,RELATIVE_HUMIDITY,Trend_geWebHMI,Trendable,true
+AssetInstanceEntityMetadata,Gas Turbine 1,Asset,TURBINE_SPEED,Trend_geWebHMI,Trendable,true
+

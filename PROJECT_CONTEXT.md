@@ -625,6 +625,35 @@ the runtime read, so a screen keeps working if the source is offline.
 re-fetch). `dataMigration.js` converted the old Data Sources/Queries data
 once; local (non-OpHub) queries were dropped by decision.
 
+
+### Object types: browse things, drop them on widgets (Oct 2026)
+
+An **object type** (Data → Object Types, `src/designer/objectTypes/`) is a
+kind of thing — Equipment, Car model — defined once and usable across
+sources: where its list comes from (a query + key field + display field, or
+a ThingWorx connection's Things), and its **references**: every place
+another query means its key — an input that takes it, an output that
+returns it, or "each object is a Thing" on a ThingWorx connection. One field
+may reference several types; types stand alone (not owned by a connection).
+Suggested references come from the live catalog: same-named inputs/outputs
+and OpHub entity filter conditions (`config.conditions`, kept by
+`ophubConnector`). The Screens Data tab's **Objects** mode lists a type's
+objects (`ObjectBrowser`); dropping one on a widget opens
+`ObjectDropPopover`, which ranks the related queries (`rankDropOptions`:
+fits the widget, reads rather than changes — by the name's leading verb —,
+no required inputs left empty, used before; non-fitting ones stay listed,
+and services that change something sit in a collapsed "Actions" group),
+with search and a scrolling list, then adds
+the instance with the key in its input and binds the widget's main
+property (`dropTargetOf`, `bindingFor` in `objectTypes.js`). Widgets learn
+about drops through `objectDropContext` (editor only). A list query's
+input values (e.g. the ThingWorx Apps equipment search's TypeJSON and
+Limit) are set on the type (`listedBy.inputValues`). Not built yet:
+built-in Tag / Thing property / Asset property types (rules instead of
+listed references), a per-reference "set count to 1 on a single-value
+widget" hint, binding an input to "this asset", searching big lists at the
+source, and a calmer visual design.
+
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
