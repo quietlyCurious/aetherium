@@ -1,0 +1,23 @@
+{
+  "name": "ophub-classic-app-migrator",
+  "version": "0.1.0",
+  "description": "Converts Operations Hub classic-designer apps to the new designer",
+  "scripts": {
+    "test": "node test/convertSamples.mjs",
+    "build": "node scripts/build.mjs",
+    "test:browser": "node test/browserE2E.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.12",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@sparticuz/chromium": "^153.0.0",
+    "esbuild": "^0.28.2",
+    "playwright": "^1.64.0"
+  },
+  "type": "module"
+}

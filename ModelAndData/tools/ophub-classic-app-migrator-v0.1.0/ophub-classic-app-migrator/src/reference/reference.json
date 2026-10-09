@@ -1,0 +1,4575 @@
+{
+ "rootContainer": {
+  "typeName": "Coordinated Container",
+  "type": "coordinated_container",
+  "name": "",
+  "container": true,
+  "renderingType": "lazy",
+  "isX": false,
+  "components": [],
+  "style": {
+   "columns": 1,
+   "rows": 1
+  },
+  "responsiveStyle": {
+   "desktop": {
+    "css": {
+     "display": "block",
+     "marginTop": "5",
+     "marginLeft": "0",
+     "marginRight": "0",
+     "marginBottom": "5",
+     "paddingTop": "0",
+     "paddingLeft": "0",
+     "paddingRight": "0",
+     "paddingBottom": "0"
+    },
+    "isVisible": true
+   },
+   "tablet": {
+    "css": {
+     "display": "block",
+     "marginTop": "5",
+     "marginLeft": "0",
+     "marginRight": "0",
+     "marginBottom": "5",
+     "paddingTop": "0",
+     "paddingLeft": "0",
+     "paddingRight": "0",
+     "paddingBottom": "0"
+    },
+    "isVisible": true
+   },
+   "mobile": {
+    "css": {
+     "display": "block",
+     "marginTop": "5",
+     "marginLeft": "0",
+     "marginRight": "0",
+     "marginBottom": "5",
+     "paddingTop": "0",
+     "paddingLeft": "0",
+     "paddingRight": "0",
+     "paddingBottom": "0"
+    },
+    "isVisible": true
+   }
+  },
+  "conditions": {
+   "conditions": {
+    "showOnlyOnCondition": true,
+    "conditionsList": []
+   }
+  },
+  "customStyle": false,
+  "isRootContainer": true,
+  "enableContBasedHeight": false,
+  "containerContentPos": "top",
+  "template": "component.container",
+  "isHidden": false,
+  "basePageLayoutType": "Grid"
+ },
+ "gridContainer": {
+  "grid": {
+   "columns": 1,
+   "rows": 1
+  },
+  "isRightEdge": true,
+  "components": [],
+  "style": {
+   "css": {
+    "position": "relative",
+    "width": "100%",
+    "height": "100%",
+    "overflow": "auto"
+   }
+  },
+  "type": "coordinated_container",
+  "typeName": "Coordinated Container",
+  "gridsterOptions": {
+   "options": {
+    "gridType": "fit",
+    "compactType": "none",
+    "margin": 15,
+    "outerMargin": true,
+    "outerMarginTop": null,
+    "outerMarginRight": null,
+    "outerMarginBottom": null,
+    "outerMarginLeft": null,
+    "useTransformPositioning": true,
+    "mobileBreakpoint": 200,
+    "minCols": 5,
+    "maxCols": 50,
+    "minRows": 5,
+    "maxRows": 50,
+    "maxItemCols": 100,
+    "minItemCols": 1,
+    "maxItemRows": 100,
+    "minItemRows": 1,
+    "maxItemArea": 2500,
+    "minItemArea": 1,
+    "defaultItemCols": 1,
+    "defaultItemRows": 1,
+    "fixedColWidth": 100,
+    "fixedRowHeight": 100,
+    "rowHeightRatio": 1,
+    "swap": false,
+    "allowMultiLayer": true,
+    "defaultLayerIndex": 1,
+    "baseLayerIndex": 2,
+    "maxLayerIndex": 2,
+    "keepFixedHeightInMobile": false,
+    "keepFixedWidthInMobile": false,
+    "scrollSensitivity": 10,
+    "scrollSpeed": 20,
+    "enableEmptyCellClick": false,
+    "enableEmptyCellContextMenu": false,
+    "enableEmptyCellDrop": true,
+    "enableOccupiedCellDrop": true,
+    "enableEmptyCellDrag": false,
+    "emptyCellDragMaxCols": 50,
+    "emptyCellDragMaxRows": 50,
+    "ignoreMarginInRow": false,
+    "draggable": {
+     "enabled": true,
+     "ignoreContent": false,
+     "ignoreContentClass": "gridster-item-content"
+    },
+    "resizable": {
+     "enabled": true
+    },
+    "pushItems": false,
+    "disablePushOnDrag": false,
+    "disablePushOnResize": false,
+    "pushDirections": {
+     "north": true,
+     "east": true,
+     "south": true,
+     "west": true
+    },
+    "pushResizeItems": false,
+    "displayGrid": "always",
+    "disableWindowResize": false,
+    "disableWarnings": false,
+    "scrollToNewItems": false,
+    "disableAutoPositionOnConflict": false,
+    "setGridSize": false,
+    "api": {}
+   }
+  }
+ },
+ "flexCard": {
+  "type": "flex_container",
+  "typeName": "Flex Container",
+  "cols": 1,
+  "rows": 1,
+  "x": 0,
+  "y": 0,
+  "components": [],
+  "groups": {},
+  "groupProperties": {},
+  "flexDirection": "row",
+  "flexWrap": "nowrap",
+  "justifyContent": "flex-start",
+  "alignItems": "stretch",
+  "alignContent": "stretch",
+  "layoutType": "flexbox",
+  "contentAlignment": "vertical-left",
+  "rowGap": 0,
+  "columnGap": 0,
+  "unit": "px",
+  "container": true,
+  "function": "Card",
+  "style": {
+   "css": {
+    "width": "99.9581301649738%",
+    "height": "100.08169809875366%",
+    "position": "absolute",
+    "top": "0%",
+    "left": "0%",
+    "box-sizing": "border-box",
+    "overflow": "auto",
+    "display": "flex",
+    "flex-direction": "row",
+    "flex-wrap": "nowrap",
+    "justify-content": "flex-start",
+    "align-items": "stretch",
+    "align-content": "stretch",
+    "row-gap": "0px",
+    "column-gap": "0px"
+   }
+  },
+  "scaleLineConnector": false,
+  "preserveAspectRatio": {
+   "preserveAspectRatio": true,
+   "widthHeightRatio": "16/9",
+   "horizontalAlignment": "Left",
+   "verticalAlignment": "Top"
+  },
+  "bgImage": {
+   "bgImage": false
+  },
+  "lineConnectors": {}
+ },
+ "pluginUiSchemaAugment": {
+  "conditions": {
+   "ui:field": "conditionsButton"
+  },
+  "responsiveStyle": {
+   "desktop": {
+    "ui:section": {
+     "collapsible": true,
+     "collapsed": true
+    },
+    "css": {
+     "display": {
+      "ui:widget": "hidden"
+     }
+    },
+    "isVisible": {
+     "ui:widget": "hidden"
+    }
+   },
+   "tablet": {
+    "ui:widget": "hidden",
+    "ui:section": {
+     "collapsible": true,
+     "collapsed": true
+    },
+    "css": {
+     "display": {
+      "ui:widget": "hidden"
+     }
+    },
+    "isVisible": {
+     "ui:widget": "hidden"
+    }
+   },
+   "mobile": {
+    "ui:widget": "hidden",
+    "ui:section": {
+     "collapsible": true,
+     "collapsed": true
+    },
+    "css": {
+     "display": {
+      "ui:widget": "hidden"
+     }
+    },
+    "isVisible": {
+     "ui:widget": "hidden"
+    }
+   }
+  },
+  "widget": {
+   "zIndex": {
+    "ui:widget": "hidden"
+   },
+   "style": {
+    "color": {
+     "ui:widget": "color",
+     "ui:hideError": true
+    },
+    "backgroundColor": {
+     "ui:widget": "color",
+     "ui:hideError": true
+    },
+    "borderColor": {
+     "ui:widget": "color",
+     "ui:hideError": true
+    }
+   },
+   "ui:order": [
+    "height",
+    "width",
+    "*",
+    "style"
+   ]
+  },
+  "ui:order": [
+   "*",
+   "conditions",
+   "isHidden",
+   "scopedCSS",
+   "widget",
+   "responsiveStyle"
+  ]
+ },
+ "manifests": {
+  "button": {
+   "typeName": "button",
+   "pluginId": "button",
+   "category": "Inputs",
+   "system": true,
+   "description": {
+    "title": "Button",
+    "overview": "Operations Hub Button plugin"
+   },
+   "info": {
+    "version": "1.1.2",
+    "updated": "05/25/2023",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/button/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/button/customIcon.png",
+   "preview": "/custom/default/button/preview.png",
+   "previewData": true,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": false,
+    "JSONSchema": {
+     "label": {
+      "title": "Label",
+      "type": "string",
+      "default": "Submit"
+     },
+     "icon": {
+      "title": "Icon",
+      "type": "string"
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "styling": {
+        "title": "Label Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#FFFFFF",
+           "rgb": {
+            "r": 255,
+            "g": 255,
+            "b": 255,
+            "a": 1
+           }
+          }
+         },
+         "backgroundColor": {
+          "type": "string",
+          "title": "Background Color",
+          "default": {
+           "hex": "#016AB2",
+           "rgb": {
+            "r": 1,
+            "g": 106,
+            "b": 178,
+            "a": 1
+           }
+          }
+         },
+         "backgroundHoverColor": {
+          "type": "string",
+          "title": "Background Hover Color",
+          "default": {
+           "hex": "#013B63",
+           "rgb": {
+            "r": 1,
+            "g": 59,
+            "b": 99,
+            "a": 1
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "advanced": {
+      "styling": {
+       "backgroundColor": {
+        "ui:widget": "color"
+       },
+       "backgroundHoverColor": {
+        "ui:widget": "color"
+       },
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "commands": [
+    {
+     "title": "Click Event",
+     "id": "onClicked"
+    }
+   ],
+   "defaultConfiguration": {
+    "minHeight": 35,
+    "minWidth": 40,
+    "defaultHeight": 40,
+    "defaultWidth": 200
+   }
+  },
+  "text": {
+   "typeName": "text",
+   "pluginId": "text",
+   "category": "Display",
+   "system": true,
+   "description": {
+    "title": "Text Display",
+    "overview": "Operations Hub Text Display plugin"
+   },
+   "info": {
+    "version": "1.3.5",
+    "updated": "01/10/2025",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/text/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/text/customIcon.png",
+   "preview": "/custom/default/text/preview.png",
+   "previewData": true,
+   "scripts": "",
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": true,
+    "JSONSchema": {
+     "label": {
+      "type": "string",
+      "title": "Label",
+      "$ref": "#/definitions/dataSource"
+     },
+     "inputValue": {
+      "title": "Input Value",
+      "type": "number",
+      "$ref": "#/definitions/dataSource"
+     },
+     "textAlignment": {
+      "title": "Align",
+      "type": "string",
+      "default": "Left",
+      "enum": [
+       "Left",
+       "Center",
+       "Right"
+      ],
+      "enumNames": [
+       "Left",
+       "Center",
+       "Right"
+      ]
+     },
+     "lineHeight": {
+      "title": "Line Height",
+      "type": "number"
+     },
+     "numberFormat": {
+      "title": "Number Format",
+      "$ref": "#/definitions/numberFormat"
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "styling": {
+        "title": "Label Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontUnits": {
+          "title": "Font Units",
+          "type": "string",
+          "default": "pt",
+          "enum": [
+           "pt",
+           "px",
+           "em",
+           "vh",
+           "vw",
+           "vmin",
+           "vmax"
+          ],
+          "enumNames": [
+           "pt",
+           "px",
+           "em",
+           "vh",
+           "vw",
+           "vmin",
+           "vmax"
+          ]
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "outputValue": {
+      "ui:field": "dataTarget"
+     },
+     "inputValue": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "single": [
+        "value"
+       ]
+      },
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "value"
+        }
+       ],
+       "dataSet": [
+        {
+         "value": "Preview value"
+        }
+       ]
+      }
+     },
+     "label": {
+      "ui:field": "dataSource",
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "label"
+        }
+       ],
+       "dataSet": [
+        {
+         "label": "Preview label"
+        }
+       ]
+      }
+     },
+     "advanced": {
+      "styling": {
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 20,
+    "minWidth": 20,
+    "defaultHeight": 40,
+    "defaultWidth": 250
+   }
+  },
+  "DataGrid": {
+   "typeName": "DataGrid",
+   "pluginId": "DataGrid",
+   "category": "Display",
+   "system": true,
+   "description": {
+    "title": "Grid - Data",
+    "overview": "This control is used to display data.  It supports grouping, filtering and sorting column data. Additionally, cells can be animated."
+   },
+   "info": {
+    "version": "1.5.9",
+    "updated": "01/14/2026",
+    "size": "",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/DataGrid/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/DataGrid/preview.png",
+   "preview": "/custom/default/DataGrid/preview.png",
+   "previewData": false,
+   "scripts": [],
+   "schema": {
+    "draggable": true,
+    "JSONSchema": {
+     "input": {
+      "title": "Input",
+      "manual": {
+       "type": "string"
+      },
+      "global": {
+       "type": "string"
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "numberFormat": {
+      "title": "Number Format",
+      "$ref": "#/definitions/numberFormat"
+     },
+     "general": {
+      "title": "General",
+      "type": "object",
+      "properties": {
+       "height": {
+        "title": "Height (px) - 0 equals dynamic",
+        "type": "integer",
+        "default": 0
+       },
+       "borderColor": {
+        "title": "Border Color",
+        "type": "string",
+        "default": {
+         "hex": "#9B9B9B",
+         "rgb": {
+          "r": 155,
+          "g": 155,
+          "b": 155,
+          "a": 1
+         }
+        }
+       },
+       "borderWidth": {
+        "title": "Border, Row and Column Lines Width (px)",
+        "type": "integer",
+        "default": 1
+       },
+       "showBorders": {
+        "title": "Show Borders",
+        "type": "boolean",
+        "default": false
+       },
+       "showColumnLines": {
+        "title": "Show Column Lines",
+        "type": "boolean",
+        "default": true
+       },
+       "showRowLines": {
+        "title": "Show Row Lines",
+        "type": "boolean",
+        "default": true
+       },
+       "enableSearch": {
+        "title": "Enable Search",
+        "type": "boolean",
+        "default": true
+       },
+       "allowGrouping": {
+        "title": "Allow Grouping",
+        "type": "boolean",
+        "default": false
+       },
+       "allowFiltering": {
+        "title": "Enable Filter Row",
+        "type": "boolean",
+        "default": false
+       },
+       "allowEditing": {
+        "title": "Allow Edit",
+        "type": "boolean",
+        "default": false
+       },
+       "allowExport": {
+        "title": "Allow Export",
+        "type": "boolean",
+        "default": true
+       },
+       "allowColumnPicker": {
+        "title": "Allow Show/Hide Columns",
+        "type": "boolean",
+        "default": true
+       },
+       "allowColumnFilter": {
+        "title": "Allow Column Filtering",
+        "type": "boolean",
+        "default": true
+       },
+       "allowColumnResizing": {
+        "title": "Allow Column Resizing",
+        "type": "boolean",
+        "default": true
+       },
+       "enableStatePersistence": {
+        "title": "Enable State Persistence",
+        "type": "boolean",
+        "default": false
+       },
+       "scrollOrPage": {
+        "type": "string",
+        "title": "Pages or scroll",
+        "enum": [
+         "Pages",
+         "Scroll"
+        ],
+        "default": "Pages"
+       },
+       "pageSize": {
+        "title": "Page Size",
+        "type": "integer",
+        "default": 10
+       },
+       "columnAutoWidth": {
+        "title": "Column Auto Width",
+        "type": "boolean",
+        "default": true
+       },
+       "columnMinWidth": {
+        "title": "Column Min Width",
+        "type": "integer",
+        "default": 50
+       }
+      }
+     },
+     "rows": {
+      "title": "Rows",
+      "type": "object",
+      "properties": {
+       "alternatingRowColor": {
+        "title": "Alternating Row Color",
+        "type": "boolean",
+        "default": false
+       },
+       "padding": {
+        "title": "Additional row padding",
+        "type": "number",
+        "placeholder": "px"
+       },
+       "headerAlignment": {
+        "title": "Header Alignment",
+        "type": "string",
+        "enum": [
+         "Default",
+         "Left",
+         "Center",
+         "Right"
+        ],
+        "default": "Default"
+       },
+       "headerFontFamily": {
+        "title": "Header Font Family",
+        "type": "string",
+        "default": "Arial",
+        "enum": [
+         "Arial",
+         "Times New Roman",
+         "Verdana",
+         "Georgia",
+         "Comic Sans MS",
+         "Candara",
+         "Impact"
+        ],
+        "enumNames": [
+         "Arial",
+         "Times New Roman",
+         "Verdana",
+         "Georgia",
+         "Comic Sans MS",
+         "Candara",
+         "Impact"
+        ]
+       },
+       "headerFontSize": {
+        "title": "Header Font Size",
+        "type": "integer",
+        "minimum": 0,
+        "default": 12
+       },
+       "headerFontWeight": {
+        "title": "Header Font Weight",
+        "type": "string",
+        "enum": [
+         "Normal",
+         "Bold",
+         "Italic"
+        ],
+        "default": "Normal"
+       },
+       "headerFontColor": {
+        "title": "Header Font Color",
+        "type": "string",
+        "default": {
+         "hex": "#000000",
+         "rgb": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 1
+         }
+        }
+       },
+       "headerBackgroundColor": {
+        "title": "Header Background Color",
+        "type": "string",
+        "default": {
+         "hex": "#FFFFFF",
+         "rgb": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 1
+         }
+        }
+       },
+       "fontFamily": {
+        "title": "Body Font Family",
+        "type": "string",
+        "default": "Arial",
+        "enum": [
+         "Arial",
+         "Times New Roman",
+         "Verdana",
+         "Georgia",
+         "Comic Sans MS",
+         "Candara",
+         "Impact"
+        ],
+        "enumNames": [
+         "Arial",
+         "Times New Roman",
+         "Verdana",
+         "Georgia",
+         "Comic Sans MS",
+         "Candara",
+         "Impact"
+        ]
+       },
+       "fontSize": {
+        "title": "Body Font Size",
+        "type": "number",
+        "minimum": 0,
+        "default": 12
+       },
+       "fontWeight": {
+        "title": "Body Font Weight",
+        "type": "string",
+        "enum": [
+         "Italic",
+         "Bold",
+         "Normal"
+        ],
+        "default": "Normal"
+       },
+       "fontColor": {
+        "title": "Body Font Color",
+        "type": "string",
+        "default": {
+         "hex": "#000000",
+         "rgb": {
+          "r": 0,
+          "g": 0,
+          "b": 0,
+          "a": 1
+         }
+        }
+       },
+       "rowsBackgroundColor": {
+        "title": "Body Background Color",
+        "type": "string",
+        "default": {
+         "hex": "#FFFFFF",
+         "rgb": {
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 1
+         }
+        }
+       },
+       "iconSize": {
+        "title": "Icon or Image size (px)",
+        "type": "number",
+        "default": 40
+       },
+       "selectionMode": {
+        "title": "Selection Mode",
+        "type": "string",
+        "enum": [
+         "None",
+         "Single",
+         "Multiple"
+        ],
+        "default": "Single"
+       },
+       "selectionOnNew": {
+        "title": "Selection on new data",
+        "type": "string",
+        "enum": [
+         "First row",
+         "No selection",
+         "No selection (Clear Globals)"
+        ],
+        "default": "No selection"
+       },
+       "animations": {
+        "type": "array",
+        "title": "Add Animation",
+        "items": {
+         "type": "object",
+         "properties": {
+          "conditionColumn": {
+           "title": "Column",
+           "type": "string",
+           "enum": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+           ],
+           "enumNames": [
+            "Column 1",
+            "Column 2",
+            "Column 3",
+            "Column 4",
+            "Column 5",
+            "Column 6",
+            "Column 7",
+            "Column 8",
+            "Column 9",
+            "Column 10"
+           ],
+           "default": "0"
+          },
+          "condition": {
+           "title": " ",
+           "type": "string",
+           "enum": [
+            "<",
+            "=",
+            ">"
+           ],
+           "default": "="
+          },
+          "conditionValue": {
+           "title": " ",
+           "type": "string"
+          },
+          "fontColor": {
+           "title": "Font Color",
+           "type": "string",
+           "default": {
+            "hex": "#000000",
+            "rgb": {
+             "r": 0,
+             "g": 0,
+             "b": 0,
+             "a": 1
+            }
+           }
+          },
+          "backgroundColor": {
+           "title": "Background Color",
+           "type": "string",
+           "default": {
+            "hex": "#FFFFFF",
+            "rgb": {
+             "r": 255,
+             "g": 255,
+             "b": 255,
+             "a": 1
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "columns": {
+      "title": "Add Table Column",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "title": "Column",
+       "properties": {
+        "dataField": {
+         "title": "Data Field",
+         "type": "string"
+        },
+        "dataType": {
+         "type": "string",
+         "title": "Data Type",
+         "enum": [
+          "String",
+          "Boolean",
+          "Number",
+          "Date",
+          "Datetime",
+          "Picture"
+         ],
+         "default": "String"
+        },
+        "width": {
+         "title": "Width",
+         "type": "integer",
+         "default": 50
+        },
+        "minWidth": {
+         "title": "Min Width (px)",
+         "type": "integer"
+        },
+        "alignment": {
+         "title": "Alignment",
+         "type": "string",
+         "enum": [
+          "Default",
+          "Left",
+          "Center",
+          "Right"
+         ],
+         "default": "Default"
+        },
+        "dateFormat": {
+         "type": "string",
+         "title": "Date Format",
+         "enum": [
+          "Timestamp",
+          "From now"
+         ],
+         "default": "Timestamp"
+        },
+        "visible": {
+         "title": "Visible",
+         "type": "boolean",
+         "default": true
+        },
+        "translateQualityCode": {
+         "title": "Map Data Quality Code to Description",
+         "type": "boolean",
+         "default": false
+        },
+        "hideIfEmpty": {
+         "title": "Hide Row if Empty",
+         "type": "boolean",
+         "default": false
+        },
+        "showHeaderName": {
+         "title": "Show Header Name",
+         "type": "boolean",
+         "default": true
+        },
+        "allowFiltering": {
+         "title": "Allow Filtering",
+         "type": "boolean",
+         "default": true
+        },
+        "allowSorting": {
+         "title": "Allow Sorting",
+         "type": "boolean",
+         "default": true
+        },
+        "allowEditing": {
+         "title": "Allow Edit",
+         "type": "boolean",
+         "default": false
+        },
+        "allowSummary": {
+         "title": "Enable Summary",
+         "type": "boolean",
+         "default": false
+        },
+        "summaryType": {
+         "title": "Summary Type",
+         "enum": [
+          "sum",
+          "min",
+          "max",
+          "avg",
+          "count"
+         ],
+         "enumNames": [
+          "Sum",
+          "Minimum",
+          "Maximum",
+          "Average",
+          "Count"
+         ],
+         "default": "sum"
+        },
+        "outputTarget": {
+         "type": "array",
+         "title": "Output Target",
+         "maxItems": 1,
+         "items": {
+          "type": "object",
+          "title": "Target Configuration",
+          "properties": {
+           "target": {
+            "title": "Config",
+            "$ref": "#/definitions/dataTarget"
+           },
+           "format": {
+            "title": "Format",
+            "type": "string",
+            "enum": [
+             "none",
+             "unixTimestamp"
+            ],
+            "enumNames": [
+             "None",
+             "Unix Timestamp"
+            ],
+            "default": "none"
+           }
+          }
+         }
+        },
+        "images": {
+         "title": "Add Image",
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "condition": {
+            "title": "Condition",
+            "type": "string",
+            "enum": [
+             "<",
+             "=",
+             ">"
+            ],
+            "default": "="
+           },
+           "conditionValue": {
+            "title": " ",
+            "type": "string"
+           },
+           "urlOrIcon": {
+            "type": "string",
+            "title": "Image or Font Awesome Icon",
+            "enum": [
+             "Image",
+             "Icon"
+            ],
+            "default": "Image"
+           },
+           "imageURL": {
+            "title": "URL or Icon name",
+            "type": "string"
+           },
+           "iconColor": {
+            "title": "Icon Color",
+            "type": "string",
+            "default": {
+             "hex": "#9B9B9B",
+             "rgb": {
+              "r": 155,
+              "g": 155,
+              "b": 155,
+              "a": 1
+             }
+            }
+           }
+          }
+         }
+        },
+        "cellAnimation": {
+         "title": "Add Cell Animation",
+         "type": "array",
+         "items": {
+          "type": "object",
+          "properties": {
+           "conditionColumn": {
+            "title": "Column",
+            "type": "string",
+            "enum": [
+             "0",
+             "1",
+             "2",
+             "3",
+             "4",
+             "5",
+             "6",
+             "7",
+             "8",
+             "9"
+            ],
+            "enumNames": [
+             "Column 1",
+             "Column 2",
+             "Column 3",
+             "Column 4",
+             "Column 5",
+             "Column 6",
+             "Column 7",
+             "Column 8",
+             "Column 9",
+             "Column 10"
+            ],
+            "default": "0"
+           },
+           "condition": {
+            "title": " ",
+            "type": "string",
+            "enum": [
+             "<",
+             "=",
+             ">",
+             "For All Values"
+            ],
+            "default": "="
+           }
+          },
+          "dependencies": {
+           "condition": {
+            "oneOf": [
+             {
+              "properties": {
+               "condition": {
+                "enum": [
+                 "<",
+                 ">",
+                 "="
+                ]
+               },
+               "conditionValue": {
+                "title": " ",
+                "type": "string"
+               },
+               "fontColor": {
+                "title": "Font Color",
+                "type": "string",
+                "default": {
+                 "hex": "#000000",
+                 "rgb": {
+                  "r": 0,
+                  "g": 0,
+                  "b": 0,
+                  "a": 1
+                 }
+                }
+               },
+               "backgroundColor": {
+                "title": "Background Color",
+                "type": "string",
+                "default": {
+                 "hex": "#FFFFFF",
+                 "rgb": {
+                  "r": 255,
+                  "g": 255,
+                  "b": 255,
+                  "a": 1
+                 }
+                }
+               }
+              }
+             },
+             {
+              "properties": {
+               "condition": {
+                "enum": [
+                 "For All Values"
+                ]
+               },
+               "fontColor": {
+                "title": "Font Color",
+                "type": "string",
+                "default": {
+                 "hex": "#000000",
+                 "rgb": {
+                  "r": 0,
+                  "g": 0,
+                  "b": 0,
+                  "a": 1
+                 }
+                }
+               },
+               "backgroundColor": {
+                "title": "Background Color",
+                "type": "string",
+                "default": {
+                 "hex": "#FFFFFF",
+                 "rgb": {
+                  "r": 255,
+                  "g": 255,
+                  "b": 255,
+                  "a": 1
+                 }
+                }
+               }
+              }
+             }
+            ]
+           }
+          }
+         }
+        },
+        "bulletConfig": {
+         "type": "array",
+         "maxItems": 1,
+         "title": "Bullet Configuration",
+         "items": {
+          "type": "object",
+          "properties": {
+           "color": {
+            "title": "Color",
+            "type": "string",
+            "default": {
+             "hex": "#FF5733",
+             "rgb": {
+              "r": 255,
+              "g": 87,
+              "b": 51,
+              "a": 1
+             }
+            }
+           },
+           "high": {
+            "title": "High",
+            "type": "number",
+            "default": 100
+           },
+           "low": {
+            "title": "Low",
+            "type": "number",
+            "default": 0
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "groupBy": {
+      "type": "array",
+      "title": "Group By",
+      "items": {
+       "type": "object",
+       "properties": {
+        "column": {
+         "title": "Columns",
+         "type": "string",
+         "enum": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+         ],
+         "enumNames": [
+          "Column 1",
+          "Column 2",
+          "Column 3",
+          "Column 4",
+          "Column 5",
+          "Column 6",
+          "Column 7",
+          "Column 8",
+          "Column 9",
+          "Column 10"
+         ],
+         "default": "0"
+        },
+        "expanded": {
+         "type": "boolean",
+         "title": "Expanded"
+        }
+       }
+      }
+     },
+     "sortBy": {
+      "type": "array",
+      "title": "Sort By",
+      "items": {
+       "type": "object",
+       "properties": {
+        "column": {
+         "title": "Columns",
+         "type": "string",
+         "enum": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+         ],
+         "enumNames": [
+          "Column 1",
+          "Column 2",
+          "Column 3",
+          "Column 4",
+          "Column 5",
+          "Column 6",
+          "Column 7",
+          "Column 8",
+          "Column 9",
+          "Column 10"
+         ],
+         "default": "0"
+        },
+        "order": {
+         "title": "Order",
+         "type": "string",
+         "enum": [
+          "Ascending",
+          "Descending"
+         ],
+         "default": "Descending"
+        }
+       }
+      }
+     },
+     "outputSelected": {
+      "title": "Selected Rows Output",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "properties": {
+        "target": {
+         "title": "Target",
+         "$ref": "#/definitions/dataTarget"
+        },
+        "column": {
+         "title": "Column",
+         "type": "string",
+         "enum": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9"
+         ],
+         "enumNames": [
+          "Column 1",
+          "Column 2",
+          "Column 3",
+          "Column 4",
+          "Column 5",
+          "Column 6",
+          "Column 7",
+          "Column 8",
+          "Column 9",
+          "Column 10"
+         ],
+         "default": "0"
+        },
+        "format": {
+         "title": "Format",
+         "type": "string",
+         "enum": [
+          "Array",
+          "Separated string"
+         ],
+         "default": "Separated string"
+        },
+        "separator": {
+         "type": "string",
+         "title": "Output Separator",
+         "default": ","
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "input": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "array": [
+        [
+         "timestamp"
+        ],
+        [
+         "name"
+        ],
+        [
+         "value"
+        ],
+        [
+         "quality"
+        ]
+       ]
+      },
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "timestamp",
+         "fieldType": "datetime"
+        },
+        {
+         "fieldName": "name",
+         "fieldType": "string"
+        },
+        {
+         "fieldName": "value",
+         "fieldType": "real"
+        },
+        {
+         "fieldName": "quality",
+         "fieldType": "long"
+        }
+       ],
+       "dataSet": [
+        {
+         "timestamp": "2022-10-06T23:59:59",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "103659.171875"
+        },
+        {
+         "timestamp": "2022-10-06T23:59:59",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "18726.158203125"
+        },
+        {
+         "timestamp": "2022-10-06T23:59:59",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "198644.984375"
+        },
+        {
+         "timestamp": "2022-10-06T23:59:59",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "167796.875"
+        },
+        {
+         "timestamp": "2022-10-06T21:35:59.1",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "136262.703125"
+        },
+        {
+         "timestamp": "2022-10-06T21:35:59.1",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "63181.84375"
+        },
+        {
+         "timestamp": "2022-10-06T21:35:59.1",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "107574.078125"
+        },
+        {
+         "timestamp": "2022-10-06T21:35:59.1",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "76780.90625"
+        },
+        {
+         "timestamp": "2022-10-06T19:11:59.2",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "66795.25"
+        },
+        {
+         "timestamp": "2022-10-06T19:11:59.2",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "137968.078125"
+        },
+        {
+         "timestamp": "2022-10-06T19:11:59.2",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "24414.796875"
+        },
+        {
+         "timestamp": "2022-10-06T19:11:59.2",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "71656.2421875"
+        },
+        {
+         "timestamp": "2022-10-06T16:47:59.3",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "65781.375"
+        },
+        {
+         "timestamp": "2022-10-06T16:47:59.3",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "61444.75"
+        },
+        {
+         "timestamp": "2022-10-06T16:47:59.3",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "179799.203125"
+        },
+        {
+         "timestamp": "2022-10-06T16:47:59.3",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "116635.65625"
+        },
+        {
+         "timestamp": "2022-10-06T14:23:59.4",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "75881.2265625"
+        },
+        {
+         "timestamp": "2022-10-06T14:23:59.4",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "54288.75"
+        },
+        {
+         "timestamp": "2022-10-06T14:23:59.4",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "142228.4375"
+        },
+        {
+         "timestamp": "2022-10-06T14:23:59.4",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "145381.625"
+        },
+        {
+         "timestamp": "2022-10-06T11:59:59.5",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "70357.375"
+        },
+        {
+         "timestamp": "2022-10-06T11:59:59.5",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "150370.796875"
+        },
+        {
+         "timestamp": "2022-10-06T11:59:59.5",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "51509.125"
+        },
+        {
+         "timestamp": "2022-10-06T11:59:59.5",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "86806.875"
+        },
+        {
+         "timestamp": "2022-10-06T09:35:59.6",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "80178.234375"
+        },
+        {
+         "timestamp": "2022-10-06T09:35:59.6",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "31863.765625"
+        },
+        {
+         "timestamp": "2022-10-06T09:35:59.6",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "23438.21484375"
+        },
+        {
+         "timestamp": "2022-10-06T09:35:59.6",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "103859.375"
+        },
+        {
+         "timestamp": "2022-10-06T07:11:59.7",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "17736.75"
+        },
+        {
+         "timestamp": "2022-10-06T07:11:59.7",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "155523.546875"
+        },
+        {
+         "timestamp": "2022-10-06T07:11:59.7",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "184968.40625"
+        },
+        {
+         "timestamp": "2022-10-06T07:11:59.7",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "177233.1875"
+        },
+        {
+         "timestamp": "2022-10-06T04:47:59.8",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "147558.21875"
+        },
+        {
+         "timestamp": "2022-10-06T04:47:59.8",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "101428.875"
+        },
+        {
+         "timestamp": "2022-10-06T04:47:59.8",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "93031.40625"
+        },
+        {
+         "timestamp": "2022-10-06T04:47:59.8",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "100176.40625"
+        },
+        {
+         "timestamp": "2022-10-06T02:23:59.9",
+         "name": "Simulation00001",
+         "quality": 0,
+         "value": "78516.796875"
+        },
+        {
+         "timestamp": "2022-10-06T02:23:59.9",
+         "name": "Simulation00002",
+         "quality": 0,
+         "value": "35940.421875"
+        },
+        {
+         "timestamp": "2022-10-06T02:23:59.9",
+         "name": "Simulation00003",
+         "quality": 0,
+         "value": "80789.8203125"
+        },
+        {
+         "timestamp": "2022-10-06T02:23:59.9",
+         "name": "Simulation00004",
+         "quality": 0,
+         "value": "172506.484375"
+        }
+       ]
+      }
+     },
+     "general": {
+      "borderColor": {
+       "ui:widget": "color"
+      },
+      "enableStatePersistence": {
+       "ui:widget": "hidden"
+      },
+      "scrollOrPage": {
+       "ui:widget": "radio",
+       "ui:options": {
+        "inline": true
+       }
+      },
+      "columnAutoWidth": {
+       "ui:widget": "hidden"
+      },
+      "columnMinWidth": {
+       "ui:widget": "hidden"
+      }
+     },
+     "rows": {
+      "alternatingRowColor": {
+       "ui:widget": "hidden"
+      },
+      "padding": {
+       "ui:widget": "hidden"
+      },
+      "headerFontColor": {
+       "ui:widget": "color"
+      },
+      "headerBackgroundColor": {
+       "ui:widget": "color"
+      },
+      "fontColor": {
+       "ui:widget": "color"
+      },
+      "rowsBackgroundColor": {
+       "ui:widget": "color"
+      },
+      "selectionOnNew": {
+       "ui:widget": "hidden"
+      },
+      "animations": {
+       "items": {
+        "fontColor": {
+         "ui:widget": "color"
+        },
+        "backgroundColor": {
+         "ui:widget": "color"
+        }
+       },
+       "ui:options": {
+        "buttonText": "Add Animation"
+       }
+      }
+     },
+     "columns": {
+      "items": {
+       "width": {
+        "ui:widget": "hidden"
+       },
+       "dateFormat": {
+        "ui:widget": "hidden"
+       },
+       "cellAnimation": {
+        "items": {
+         "fontColor": {
+          "ui:widget": "color"
+         },
+         "backgroundColor": {
+          "ui:widget": "color"
+         }
+        },
+        "ui:options": {
+         "buttonText": "Add Cell Animation"
+        }
+       },
+       "outputTarget": {
+        "items": {
+         "target": {
+          "ui:field": "dataTarget"
+         }
+        },
+        "ui:options": {
+         "buttonText": "Add Output Target"
+        }
+       },
+       "bulletConfig": {
+        "ui:widget": "hidden",
+        "items": {
+         "color": {
+          "ui:widget": "color"
+         }
+        },
+        "ui:options": {
+         "buttonText": "Add Bullet"
+        }
+       },
+       "images": {
+        "items": {
+         "iconColor": {
+          "ui:widget": "color"
+         }
+        },
+        "ui:options": {
+         "buttonText": "Add Image"
+        }
+       }
+      },
+      "ui:options": {
+       "buttonText": "Add Column"
+      }
+     },
+     "groupBy": {
+      "ui:options": {
+       "buttonText": "Add Group By"
+      }
+     },
+     "sortBy": {
+      "ui:options": {
+       "buttonText": "Add Sort By"
+      }
+     },
+     "outputSelected": {
+      "items": {
+       "target": {
+        "ui:field": "dataTarget"
+       }
+      },
+      "ui:options": {
+       "buttonText": "Add Selected Rows Output"
+      }
+     }
+    }
+   },
+   "commands": [
+    {
+     "title": "Selected Items Changed",
+     "id": "selectedChanged"
+    },
+    {
+     "title": "Edited Rows Updated",
+     "id": "editedUpdated"
+    }
+   ],
+   "defaultConfiguration": {
+    "minHeight": 160,
+    "minWidth": 300,
+    "defaultHeight": 450,
+    "defaultWidth": 600
+   }
+  },
+  "GEHtmlEditor": {
+   "typeName": "GEHtmlEditor",
+   "pluginId": "GEHtmlEditor",
+   "category": "General",
+   "description": {
+    "title": "Html Editor",
+    "overview": "Operations Hub Html plugin"
+   },
+   "system": true,
+   "info": {
+    "version": "1.1.4",
+    "updated": "10/18/2024",
+    "size": "404 KB",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/GEHtmlEditor/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/GEHtmlEditor/preview.png",
+   "preview": "/custom/default/GEHtmlEditor/preview.png",
+   "scripts": [],
+   "schema": {
+    "draggable": false,
+    "JSONSchema": {
+     "codeEditor": {
+      "title": "Code Editor",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "$ref": "#/definitions/dataSource"
+     },
+     "targets": {
+      "title": "DataTarget Values",
+      "type": "array",
+      "items": {
+       "type": "object",
+       "title": "Target Configuration",
+       "properties": {
+        "name": {
+         "type": "string",
+         "title": "Target Name"
+        },
+        "target": {
+         "title": "Data Target",
+         "$ref": "#/definitions/dataTarget"
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "codeEditor": {
+      "ui:widget": "htmlWidget",
+      "ui:options": {
+       "label": false
+      }
+     },
+     "value": {
+      "ui:field": "dataSource",
+      "ui:contents": [
+       "query",
+       "global",
+       "manual",
+       "formula"
+      ]
+     },
+     "targets": {
+      "items": {
+       "target": {
+        "ui:field": "dataTarget"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "defaultHeight": 400,
+    "defaultWidth": 400
+   }
+  },
+  "chartLine": {
+   "typeName": "chartLine",
+   "pluginId": "chartLine",
+   "category": "Charts",
+   "system": true,
+   "description": {
+    "title": "Line Chart",
+    "overview": "Operations Hub Line Chart plugin"
+   },
+   "info": {
+    "version": "1.8.0",
+    "updated": "07/02/2025",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/chartLine/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/chartLine/preview.png",
+   "preview": "/custom/default/chartLine/preview.png",
+   "previewData": true,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": true,
+    "JSONSchema": {
+     "lineMode": {
+      "title": "Line Type",
+      "type": "string",
+      "default": "line",
+      "enum": [
+       "line",
+       "spline",
+       "stepline",
+       "bar",
+       "bar2",
+       "area",
+       "splinearea",
+       "steparea"
+      ],
+      "enumNames": [
+       "Line (Regular)",
+       "Line (Spline)",
+       "Line (Step)",
+       "Bar (Vertical)",
+       "Bar (Horizontal)",
+       "Area (Regular)",
+       "Area (Spline)",
+       "Area (Step)"
+      ]
+     },
+     "inputValue": {
+      "title": "Data Source",
+      "type": "string",
+      "$ref": "#/definitions/dataSource"
+     },
+     "numberFormat": {
+      "title": "Number Format",
+      "$ref": "#/definitions/numberFormat"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string",
+      "default": "Title"
+     },
+     "subtitle": {
+      "title": "Subtitle",
+      "type": "string"
+     },
+     "yAxisTitle": {
+      "title": "Y Axis Title",
+      "type": "string"
+     },
+     "yAxisLimits": {
+      "title": "Y Axis Limits",
+      "type": "object",
+      "properties": {
+       "yAxisLimits": {
+        "title": "Enable Limits",
+        "type": "boolean"
+       }
+      },
+      "dependencies": {
+       "yAxisLimits": {
+        "oneOf": [
+         {
+          "properties": {
+           "yAxisLimits": {
+            "enum": [
+             false
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "yAxisLimits": {
+            "enum": [
+             true
+            ]
+           },
+           "min": {
+            "title": "Min",
+            "manual": {
+             "type": "number",
+             "default": 0
+            },
+            "$ref": "#/definitions/dataSource"
+           },
+           "max": {
+            "title": "Max",
+            "manual": {
+             "type": "number",
+             "default": 100
+            },
+            "$ref": "#/definitions/dataSource"
+           }
+          }
+         }
+        ]
+       }
+      }
+     },
+     "xAxisTitle": {
+      "title": "X Axis Title",
+      "type": "string"
+     },
+     "xAxisDisplayMode": {
+      "title": "X Axis Mode",
+      "type": "string",
+      "default": "standard",
+      "enum": [
+       "standard",
+       "stagger",
+       "rotate"
+      ],
+      "enumNames": [
+       "Standard",
+       "Stagger",
+       "Rotate"
+      ]
+     },
+     "xAxisRot": {
+      "title": "X Axis Rotation",
+      "type": "number",
+      "default": 0
+     },
+     "xAxisDataFormat": {
+      "title": "X Axis Data Format",
+      "type": "string",
+      "default": "date",
+      "enum": [
+       "date",
+       "string"
+      ],
+      "enumNames": [
+       "Date",
+       "String"
+      ]
+     },
+     "xAxisDateFormat": {
+      "title": "X Axis Date Format",
+      "type": "string",
+      "default": "yyyy-MM-dd HH:mm:ss"
+     },
+     "limits": {
+      "title": "Line Limits",
+      "type": "object",
+      "properties": {
+       "enabled": {
+        "title": "Enable Line Limits",
+        "type": "boolean",
+        "default": false
+       },
+       "outside": {
+        "title": "Labels External",
+        "type": "boolean",
+        "default": false
+       },
+       "hihiLabel": {
+        "title": "HiHi Label",
+        "type": "string",
+        "default": "HiHi Limit"
+       },
+       "hihi": {
+        "title": "HiHi",
+        "type": "number",
+        "manual": {
+         "type": "number",
+         "default": 90
+        },
+        "$ref": "#/definitions/dataSource"
+       },
+       "hihiColor": {
+        "title": "HiHi Color",
+        "type": "string",
+        "default": {
+         "hex": "#FF0000",
+         "rgb": {
+          "r": 255,
+          "g": 0,
+          "b": 0,
+          "a": 1
+         }
+        }
+       },
+       "hiLabel": {
+        "title": "Hi Label",
+        "type": "string",
+        "default": "Hi Limit"
+       },
+       "hi": {
+        "title": "Hi",
+        "type": "number",
+        "manual": {
+         "type": "number",
+         "default": 80
+        },
+        "$ref": "#/definitions/dataSource"
+       },
+       "hiColor": {
+        "title": "Hi Color",
+        "type": "string",
+        "default": {
+         "hex": "#f5a623",
+         "rgb": {
+          "r": 245,
+          "g": 166,
+          "b": 35,
+          "a": 1
+         }
+        }
+       },
+       "loLabel": {
+        "title": "Lo Label",
+        "type": "string",
+        "default": "Lo Limit"
+       },
+       "lo": {
+        "title": "Lo",
+        "type": "number",
+        "manual": {
+         "type": "number",
+         "default": 20
+        },
+        "$ref": "#/definitions/dataSource"
+       },
+       "loColor": {
+        "title": "Lo Color",
+        "type": "string",
+        "default": {
+         "hex": "#f5a623",
+         "rgb": {
+          "r": 245,
+          "g": 166,
+          "b": 35,
+          "a": 1
+         }
+        }
+       },
+       "loloLabel": {
+        "title": "LoLo Label",
+        "type": "string",
+        "default": "LoLo Limit"
+       },
+       "lolo": {
+        "title": "LoLo",
+        "type": "number",
+        "manual": {
+         "type": "number",
+         "default": 10
+        },
+        "$ref": "#/definitions/dataSource"
+       },
+       "loloColor": {
+        "title": "LoLo Color",
+        "type": "string",
+        "default": {
+         "hex": "#FF0000",
+         "rgb": {
+          "r": 255,
+          "g": 0,
+          "b": 0,
+          "a": 1
+         }
+        }
+       }
+      }
+     },
+     "seriesColors": {
+      "title": "Series color configuration - manual",
+      "type": "array",
+      "items": {
+       "title": "Series color",
+       "type": "object",
+       "properties": {
+        "label": {
+         "title": "Label",
+         "type": "string",
+         "default": ""
+        },
+        "color": {
+         "title": "Color",
+         "type": "string",
+         "default": {
+          "hex": "#000000",
+          "rgb": {
+           "r": 0,
+           "g": 0,
+           "b": 0,
+           "a": 1
+          }
+         }
+        }
+       }
+      }
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "xAxisStyling": {
+        "title": "X Axis Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 16
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       },
+       "yAxisStyling": {
+        "title": "Y Axis Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 16
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       },
+       "legend": {
+        "title": "Legend",
+        "type": "object",
+        "properties": {
+         "visible": {
+          "title": "Visible",
+          "type": "boolean",
+          "default": true
+         },
+         "posVert": {
+          "title": "Vertical Position",
+          "type": "string",
+          "default": "bottom",
+          "enum": [
+           "top",
+           "bottom"
+          ],
+          "enumNames": [
+           "Top",
+           "Bottom"
+          ]
+         },
+         "posHor": {
+          "title": "Horizontal Position",
+          "type": "string",
+          "default": "center",
+          "enum": [
+           "center",
+           "left",
+           "right"
+          ],
+          "enumNames": [
+           "Center",
+           "Left",
+           "Right"
+          ]
+         },
+         "textPos": {
+          "title": "Text Position",
+          "type": "string",
+          "default": "bottom",
+          "enum": [
+           "top",
+           "bottom",
+           "left",
+           "right"
+          ],
+          "enumNames": [
+           "Top",
+           "Bottom",
+           "Left",
+           "Right"
+          ]
+         }
+        }
+       },
+       "crosshair": {
+        "title": "Crosshair",
+        "type": "boolean",
+        "default": true
+       },
+       "point": {
+        "title": "Show Points",
+        "type": "boolean",
+        "default": true
+       },
+       "symbol": {
+        "title": "Point Symbol",
+        "type": "string",
+        "default": "circle",
+        "enum": [
+         "circle",
+         "square",
+         "cross",
+         "polygon",
+         "triangleDown",
+         "triangleUp"
+        ],
+        "enumNames": [
+         "Circle",
+         "Square",
+         "Cross",
+         "Polygon",
+         "Triangle Down",
+         "Triangle Up"
+        ]
+       },
+       "stacked": {
+        "title": "Stacking",
+        "type": "string",
+        "default": "none",
+        "enum": [
+         "none",
+         "stacked",
+         "fullstacked"
+        ],
+        "enumNames": [
+         "None",
+         "Stacked",
+         "Full Stacked"
+        ]
+       },
+       "truncate": {
+        "title": "Truncate X-Axis",
+        "type": "boolean",
+        "default": true
+       },
+       "showlabels": {
+        "title": "Show Labels",
+        "type": "boolean",
+        "default": false
+       },
+       "palette": {
+        "title": "Palette",
+        "type": "string",
+        "default": "Material",
+        "enum": [
+         "Bright",
+         "Carmine",
+         "Dark Moon",
+         "Dark Violet",
+         "Green Mist",
+         "Harmony Light",
+         "Material",
+         "Ocean",
+         "Office",
+         "Pastel",
+         "Soft",
+         "Soft Blue",
+         "Soft Pastel",
+         "Vintage",
+         "Violet"
+        ],
+        "enumNames": [
+         "Bright",
+         "Carmine",
+         "Dark Moon",
+         "Dark Violet",
+         "Green Mist",
+         "Harmony Light",
+         "Material",
+         "Ocean",
+         "Office",
+         "Pastel",
+         "Soft",
+         "Soft Blue",
+         "Soft Pastel",
+         "Vintage",
+         "Violet"
+        ]
+       }
+      }
+     },
+     "autoBindStockProps": {
+      "title": "Auto Bind Stock Properties",
+      "type": "boolean",
+      "default": true
+     }
+    },
+    "UISchema": {
+     "autoBindStockProps": {
+      "ui:widget": "hidden"
+     },
+     "inputValue": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "array": [
+        [
+         "timestamp"
+        ],
+        [
+         "value"
+        ],
+        [
+         "name"
+        ]
+       ]
+      },
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "timestamp"
+        },
+        {
+         "fieldName": "value"
+        },
+        {
+         "fieldName": "name"
+        }
+       ],
+       "dataSet": [
+        {
+         "timestamp": "2022-10-06T12:15:00",
+         "value": "149687.1875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:55",
+         "value": "148258.921875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:50",
+         "value": "135618.15625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:45",
+         "value": "134562.21875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:40",
+         "value": "15411.84765625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:35",
+         "value": "186877.046875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:30",
+         "value": "86227",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:25",
+         "value": "66182.4375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:20",
+         "value": "35383.16015625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:15",
+         "value": "192699.96875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:10",
+         "value": "73732.71875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:05",
+         "value": "176885.28125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:14:00",
+         "value": "45735.0390625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:55",
+         "value": "86007.265625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:50",
+         "value": "17719.046875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:45",
+         "value": "120310.0703125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:40",
+         "value": "125992.6171875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:35",
+         "value": "20221.564453125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:30",
+         "value": "7104.708984375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:25",
+         "value": "199884.03125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:20",
+         "value": "13183.99609375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:15",
+         "value": "64314.70703125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:10",
+         "value": "128397.4765625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:05",
+         "value": "44288.4609375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:13:00",
+         "value": "77492.6015625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:55",
+         "value": "10455.6416015625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:50",
+         "value": "25519.578125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:45",
+         "value": "155882.4375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:40",
+         "value": "42207.09765625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:35",
+         "value": "31342.509765625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:30",
+         "value": "62440.87109375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:25",
+         "value": "58351.390625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:20",
+         "value": "88418.2265625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:15",
+         "value": "35999.6328125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:10",
+         "value": "138377.03125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:05",
+         "value": "68367.5625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:12:00",
+         "value": "7538.07177734375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:55",
+         "value": "116043.578125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:50",
+         "value": "176873.078125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:45",
+         "value": "151585.4375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:40",
+         "value": "44465.46875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:35",
+         "value": "172344.125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:30",
+         "value": "108505.5078125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:25",
+         "value": "59248.6328125",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:20",
+         "value": "27808.466796875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:15",
+         "value": "10321.3603515625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:10",
+         "value": "72640.15625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:05",
+         "value": "164354.375",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:11:00",
+         "value": "28510.390625",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:10:55",
+         "value": "170433.671875",
+         "name": "Simulation00001"
+        }
+       ]
+      }
+     },
+     "yAxisLimits": {
+      "min": {
+       "ui:field": "dataSource",
+       "default": "manual"
+      },
+      "max": {
+       "ui:field": "dataSource",
+       "default": "manual"
+      }
+     },
+     "limits": {
+      "hihi": {
+       "ui:field": "dataSource",
+       "ui:contents": [
+        "manual",
+        "query",
+        "global",
+        "formula"
+       ]
+      },
+      "hihiColor": {
+       "ui:widget": "color"
+      },
+      "hi": {
+       "ui:field": "dataSource",
+       "ui:contents": [
+        "manual",
+        "query",
+        "global",
+        "formula"
+       ]
+      },
+      "hiColor": {
+       "ui:widget": "color"
+      },
+      "lo": {
+       "ui:field": "dataSource",
+       "ui:contents": [
+        "manual",
+        "query",
+        "global",
+        "formula"
+       ]
+      },
+      "loColor": {
+       "ui:widget": "color"
+      },
+      "lolo": {
+       "ui:field": "dataSource",
+       "ui:contents": [
+        "manual",
+        "query",
+        "global",
+        "formula"
+       ]
+      },
+      "loloColor": {
+       "ui:widget": "color"
+      }
+     },
+     "seriesColors": {
+      "items": {
+       "color": {
+        "ui:widget": "color"
+       }
+      }
+     },
+     "advanced": {
+      "xAxisStyling": {
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      },
+      "yAxisStyling": {
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 400,
+    "minWidth": 350,
+    "defaultHeight": 400,
+    "defaultWidth": 600
+   }
+  },
+  "gaugeLinear": {
+   "typeName": "gaugeLinear",
+   "pluginId": "gaugeLinear",
+   "category": "Display",
+   "system": true,
+   "description": {
+    "title": "Gauge - Linear",
+    "overview": "Operations Hub Linear Gauge plugin"
+   },
+   "info": {
+    "version": "1.3.2",
+    "updated": "12/13/2024",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/gaugeLinear/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/gaugeLinear/customIcon.png",
+   "preview": "/custom/default/gaugeLinear/preview.png",
+   "previewData": true,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": true,
+    "JSONSchema": {
+     "inputValue": {
+      "title": "Input Value",
+      "type": "number",
+      "manual": {
+       "type": "number"
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "min": {
+      "title": "Minimum Value",
+      "type": "number",
+      "manual": {
+       "type": "number",
+       "default": 0
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "max": {
+      "title": "Maximum Value",
+      "type": "number",
+      "manual": {
+       "type": "number",
+       "default": 100
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "numberFormat": {
+      "title": "Number Format",
+      "$ref": "#/definitions/numberFormat"
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "orientation": {
+        "title": "Orientation",
+        "type": "string",
+        "default": "horizontal",
+        "enum": [
+         "horizontal",
+         "vertical"
+        ],
+        "enumNames": [
+         "Horizontal",
+         "Vertical"
+        ]
+       },
+       "showAnimation": {
+        "title": "Show Animation",
+        "type": "boolean",
+        "default": false
+       },
+       "showRangeBar": {
+        "title": "Show Range Bar",
+        "type": "boolean"
+       },
+       "defaultColor": {
+        "title": "Default Color",
+        "type": "string",
+        "default": {
+         "hex": "#7F7F7F",
+         "rgb": {
+          "r": 128,
+          "g": 128,
+          "b": 128,
+          "a": 100
+         }
+        }
+       },
+       "colorLimits": {
+        "title": "Range(s)",
+        "type": "array",
+        "items": {
+         "type": "object",
+         "properties": {
+          "start": {
+           "title": "Start of Range",
+           "type": "number",
+           "default": 0
+          },
+          "end": {
+           "title": "End of Range",
+           "type": "number",
+           "default": 100
+          },
+          "color": {
+           "title": "Color in Range",
+           "type": "string",
+           "default": {
+            "hex": "#7cb5ec",
+            "rgb": {
+             "r": 124,
+             "g": 181,
+             "b": 236,
+             "a": 100
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "autoBindStockProps": {
+      "title": "Auto Bind Stock Properties",
+      "type": "boolean",
+      "default": true
+     }
+    },
+    "UISchema": {
+     "autoBindStockProps": {
+      "ui:widget": "hidden"
+     },
+     "inputValue": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "single": [
+        "value"
+       ]
+      },
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "value"
+        }
+       ],
+       "dataSet": [
+        {
+         "value": 100
+        }
+       ]
+      }
+     },
+     "min": {
+      "ui:field": "dataSource",
+      "default": "manual",
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "minValue"
+        }
+       ],
+       "dataSet": [
+        {
+         "minValue": 0
+        }
+       ]
+      }
+     },
+     "max": {
+      "ui:field": "dataSource",
+      "default": "manual",
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "maxValue"
+        }
+       ],
+       "dataSet": [
+        {
+         "maxValue": 200
+        }
+       ]
+      }
+     },
+     "advanced": {
+      "defaultColor": {
+       "ui:widget": "color"
+      },
+      "colorLimits": {
+       "items": {
+        "color": {
+         "ui:widget": "color"
+        }
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 100,
+    "minWidth": 100,
+    "defaultHeight": 100,
+    "defaultWidth": 260
+   }
+  },
+  "image": {
+   "typeName": "image",
+   "pluginId": "image",
+   "category": "Display",
+   "system": true,
+   "description": {
+    "title": "Image",
+    "overview": "Operations Hub Image plugin"
+   },
+   "info": {
+    "version": "1.4.0",
+    "updated": "01/27/2025",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/image/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/image/customIcon.png",
+   "preview": "/custom/default/image/preview.png",
+   "scripts": [],
+   "previewData": true,
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": false,
+    "JSONSchema": {
+     "backgroundImage": {
+      "title": "Image Source",
+      "type": "object",
+      "properties": {
+       "type": {
+        "title": "Type",
+        "type": "string",
+        "enum": [
+         "Data",
+         "file",
+         "url"
+        ],
+        "enumNames": [
+         "Data",
+         "File",
+         "URL"
+        ],
+        "default": "Data"
+       }
+      },
+      "required": [
+       "type"
+      ],
+      "dependencies": {
+       "type": {
+        "oneOf": [
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "Data"
+            ]
+           },
+           "inputValue": {
+            "title": "Input Value",
+            "$ref": "#/definitions/dataSource"
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "file"
+            ]
+           },
+           "file": {
+            "title": "Browse to File",
+            "$ref": "#/definitions/imageUpload"
+           },
+           "fileFit": {
+            "title": "Image Fit",
+            "type": "string",
+            "default": "contain",
+            "anyOf": [
+             {
+              "type": "string",
+              "enum": [
+               "cover"
+              ],
+              "title": "Vertically"
+             },
+             {
+              "type": "string",
+              "enum": [
+               "contain"
+              ],
+              "title": "Horizontally"
+             }
+            ]
+           }
+          },
+          "required": [
+           ""
+          ]
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "url"
+            ]
+           },
+           "url": {
+            "type": "string",
+            "title": "URL to image"
+           },
+           "urlFit": {
+            "title": "Image Fit",
+            "type": "string",
+            "default": "contain",
+            "anyOf": [
+             {
+              "type": "string",
+              "enum": [
+               "cover"
+              ],
+              "title": "Vertically"
+             },
+             {
+              "type": "string",
+              "enum": [
+               "contain"
+              ],
+              "title": "Horizontally"
+             }
+            ]
+           }
+          },
+          "required": [
+           "url"
+          ]
+         }
+        ]
+       }
+      }
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "height": {
+        "title": "Image Height",
+        "type": "string",
+        "default": "250"
+       },
+       "renderMethod": {
+        "title": "Render Method",
+        "type": "string",
+        "default": "Normal",
+        "enum": [
+         "normal",
+         "fit",
+         "fill",
+         "stretch"
+        ],
+        "enumNames": [
+         "Normal",
+         "Fit",
+         "Fill",
+         "Stretch"
+        ]
+       },
+       "horizontalAlignment": {
+        "title": "Horizontal Alignment",
+        "type": "string",
+        "default": "Left",
+        "enum": [
+         "left",
+         "center",
+         "right"
+        ],
+        "enumNames": [
+         "Left",
+         "Center",
+         "Right"
+        ]
+       },
+       "verticalAlignment": {
+        "title": "Vertical Alignment",
+        "type": "string",
+        "default": "Top",
+        "enum": [
+         "top",
+         "middle",
+         "bottom"
+        ],
+        "enumNames": [
+         "Top",
+         "Center",
+         "Bottom"
+        ]
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "backgroundImage": {
+      "file": {
+       "ui:field": "imageUpload"
+      },
+      "inputValue": {
+       "ui:field": "dataSource",
+       "ui:binding": {
+        "single": [
+         "value"
+        ]
+       },
+       "ui:preview": {
+        "dataSetName": "preview",
+        "outputFields": [
+         {
+          "fieldName": "inputValue"
+         }
+        ],
+        "dataSet": [
+         {
+          "inputValue": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNjQgNjQiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDY0IDY0IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGQ9Ik01MiwyNWMtNC40LDAtOC0zLjYtOC04czMuNi04LDgtOHM4LDMuNiw4LDhTNTYuNCwyNSw1MiwyNXogTTUyLDEzYy0yLjIsMC00LDEuOC00LDRzMS44LDQsNCw0czQtMS44LDQtNFM1NC4yLDEzLDUyLDEzDQoJCQkJeiIvPg0KCQk8L2c+DQoJPC9nPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGQ9Ik02NCw1NUgwLjNsMjMuNi0zNS40bDE0LjIsMTguM2w3LTguMkw2NCw1NXogTTcuNyw1MUg1Nkw0NC45LDM2bC03LDguMkwyNC4xLDI2LjRMNy43LDUxeiIvPg0KCQk8L2c+DQoJPC9nPg0KPC9nPg0KPC9zdmc+DQo="
+         }
+        ]
+       }
+      }
+     }
+    }
+   },
+   "commands": [
+    {
+     "title": "Click Event",
+     "id": "onClicked"
+    }
+   ],
+   "defaultConfiguration": {
+    "minHeight": 16,
+    "minWidth": 16,
+    "defaultHeight": 250,
+    "defaultWidth": 400
+   }
+  },
+  "GEDropdown": {
+   "typeName": "GEDropdown",
+   "pluginId": "Dropdown",
+   "category": "Inputs",
+   "system": true,
+   "description": {
+    "title": "Dropdown",
+    "overview": "A control to provide a menu of options in a list format."
+   },
+   "info": {
+    "version": "1.4.5",
+    "updated": "05/05/2025",
+    "size": "",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/GEDropdown/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/GEDropdown/preview.png",
+   "preview": "/custom/default/GEDropdown/preview.png",
+   "previewData": false,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "inherit",
+      "enum": [
+       "inherit",
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "inherit",
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": false,
+    "JSONSchema": {
+     "values": {
+      "title": "Dropdown Data",
+      "manual": {
+       "type": "string"
+      },
+      "global": {
+       "type": "string"
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "dependentField": {
+      "title": "Dependency (Optional)",
+      "global": {
+       "type": "string"
+      },
+      "$ref": "#/definitions/dataSource"
+     },
+     "preselect": {
+      "title": "Preselect",
+      "type": "object",
+      "properties": {
+       "mode": {
+        "title": "Mode",
+        "type": "string",
+        "enum": [
+         "none",
+         "first",
+         "data"
+        ],
+        "enumNames": [
+         "None",
+         "First",
+         "Data"
+        ],
+        "default": "first"
+       }
+      },
+      "required": [
+       "mode"
+      ],
+      "dependencies": {
+       "mode": {
+        "oneOf": [
+         {
+          "properties": {
+           "mode": {
+            "enum": [
+             "none"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "mode": {
+            "enum": [
+             "first"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "mode": {
+            "enum": [
+             "data"
+            ]
+           },
+           "data": {
+            "title": "Data Source",
+            "manual": {
+             "type": "string"
+            },
+            "global": {
+             "type": "string"
+            },
+            "$ref": "#/definitions/dataSource"
+           }
+          },
+          "required": [
+           "data"
+          ]
+         }
+        ]
+       }
+      }
+     },
+     "dropTarget": {
+      "title": "Dropdown Target",
+      "$ref": "#/definitions/dataTarget"
+     },
+     "format": {
+      "title": "Output Format",
+      "type": "string",
+      "enum": [
+       "Array",
+       "Separated string"
+      ],
+      "default": "Separated string"
+     },
+     "manualInputs": {
+      "type": "array",
+      "title": "Manual Input",
+      "items": {
+       "type": "object",
+       "properties": {
+        "displayName": {
+         "title": "Display Name",
+         "type": "string"
+        },
+        "value": {
+         "title": "Value",
+         "type": "string"
+        }
+       }
+      }
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "placeholder": {
+      "type": "string",
+      "title": "Dropdown Placeholder",
+      "default": "Select"
+     },
+     "height": {
+      "title": "Dropdown height (px)",
+      "type": "number",
+      "default": 400
+     },
+     "selectBoxWidth": {
+      "title": "Dropdown Width (px) - 0 equals dynamic",
+      "type": "number",
+      "default": 0
+     },
+     "multipleSelect": {
+      "type": "boolean",
+      "title": "Multiple selection"
+     },
+     "maxSelections": {
+      "type": "number",
+      "title": "Max Selections",
+      "default": 10
+     },
+     "searchEnabled": {
+      "type": "boolean",
+      "title": "Enable search",
+      "default": true
+     },
+     "outputSeparator": {
+      "type": "string",
+      "title": "Output Separator",
+      "default": ","
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "labelStyling": {
+        "title": "Label Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       },
+       "inputStyling": {
+        "title": "Input Styling",
+        "type": "object",
+        "properties": {
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "values": {
+      "ui:field": "dataSource",
+      "ui:contents": [
+       "query"
+      ],
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "value"
+        }
+       ],
+       "dataSet": [
+        {
+         "value": 10
+        },
+        {
+         "value": 20
+        },
+        {
+         "value": 30
+        },
+        {
+         "value": 40
+        },
+        {
+         "value": 50
+        }
+       ]
+      }
+     },
+     "dependentField": {
+      "ui:field": "dataSource",
+      "ui:contents": [
+       "global"
+      ]
+     },
+     "preselect": {
+      "data": {
+       "ui:field": "dataSource"
+      }
+     },
+     "dropTarget": {
+      "ui:field": "dataTarget"
+     },
+     "advanced": {
+      "labelStyling": {
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      },
+      "inputStyling": {
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 50,
+    "minWidth": 150,
+    "defaultHeight": 48,
+    "defaultWidth": 250
+   }
+  },
+  "textbox": {
+   "typeName": "textbox",
+   "pluginId": "textbox",
+   "category": "Inputs",
+   "system": true,
+   "description": {
+    "title": "Text Input",
+    "overview": "Operations Hub Text Input plugin"
+   },
+   "info": {
+    "version": "1.4.0",
+    "updated": "04/30/2025",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/textbox/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/textbox/customIcon.png",
+   "preview": "/custom/default/textbox/preview.png",
+   "previewData": true,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": true,
+    "JSONSchema": {
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "outputValue": {
+      "title": "Output Value",
+      "type": "number",
+      "$ref": "#/definitions/dataTarget"
+     },
+     "inputValue": {
+      "title": "Input Value",
+      "type": "number",
+      "$ref": "#/definitions/dataSource"
+     },
+     "numberFormat": {
+      "title": "Number Format",
+      "$ref": "#/definitions/numberFormat"
+     },
+     "displayMode": {
+      "title": "Display Mode",
+      "type": "object",
+      "properties": {
+       "type": {
+        "title": "Type",
+        "type": "string",
+        "default": "text",
+        "enum": [
+         "text",
+         "password",
+         "email",
+         "url",
+         "integer",
+         "real",
+         "percent"
+        ],
+        "enumNames": [
+         "Default",
+         "Password",
+         "Email",
+         "URL",
+         "Integer",
+         "Real",
+         "Percentage"
+        ]
+       }
+      },
+      "required": [
+       "type"
+      ],
+      "dependencies": {
+       "type": {
+        "oneOf": [
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "text"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "password"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "email"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "url"
+            ]
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "integer"
+            ]
+           },
+           "limits": {
+            "title": "Limits",
+            "type": "object",
+            "properties": {
+             "limits": {
+              "title": "Enable Limits",
+              "type": "boolean"
+             }
+            },
+            "dependencies": {
+             "limits": {
+              "oneOf": [
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   false
+                  ]
+                 }
+                }
+               },
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   true
+                  ]
+                 },
+                 "min": {
+                  "title": "Min",
+                  "type": "integer",
+                  "default": 0
+                 },
+                 "max": {
+                  "title": "Max",
+                  "type": "integer",
+                  "default": 100
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "real"
+            ]
+           },
+           "limits": {
+            "title": "Limits",
+            "type": "object",
+            "properties": {
+             "limits": {
+              "title": "Enable Limits",
+              "type": "boolean"
+             }
+            },
+            "dependencies": {
+             "limits": {
+              "oneOf": [
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   false
+                  ]
+                 }
+                }
+               },
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   true
+                  ]
+                 },
+                 "min": {
+                  "title": "Min",
+                  "type": "integer",
+                  "default": 0
+                 },
+                 "max": {
+                  "title": "Max",
+                  "type": "integer",
+                  "default": 100
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         },
+         {
+          "properties": {
+           "type": {
+            "enum": [
+             "percent"
+            ]
+           },
+           "limits": {
+            "title": "Limits",
+            "type": "object",
+            "properties": {
+             "limits": {
+              "title": "Enable Limits",
+              "type": "boolean"
+             }
+            },
+            "dependencies": {
+             "limits": {
+              "oneOf": [
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   false
+                  ]
+                 }
+                }
+               },
+               {
+                "properties": {
+                 "limits": {
+                  "enum": [
+                   true
+                  ]
+                 },
+                 "min": {
+                  "title": "Min",
+                  "type": "integer",
+                  "default": 0
+                 },
+                 "max": {
+                  "title": "Max",
+                  "type": "integer",
+                  "default": 100
+                 }
+                }
+               }
+              ]
+             }
+            }
+           }
+          }
+         }
+        ]
+       }
+      }
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "clear": {
+        "title": "Enable Clear Field Action",
+        "type": "boolean",
+        "default": true
+       },
+       "labelStyling": {
+        "title": "Label Styling",
+        "type": "object",
+        "properties": {
+         "fontFamily": {
+          "title": "Font Family",
+          "$ref": "#/definitions/fontFamily"
+         },
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       },
+       "inputStyling": {
+        "title": "Input Styling",
+        "type": "object",
+        "properties": {
+         "fontSize": {
+          "title": "Font Size",
+          "type": "integer",
+          "minimum": 0,
+          "default": 12
+         },
+         "fontColor": {
+          "type": "string",
+          "title": "Font Color",
+          "default": {
+           "hex": "#000000",
+           "rgb": {
+            "r": 0,
+            "g": 0,
+            "b": 0,
+            "a": 1
+           }
+          }
+         }
+        }
+       }
+      }
+     },
+     "tooltip": {
+      "title": "Tooltip",
+      "type": "string"
+     }
+    },
+    "UISchema": {
+     "outputValue": {
+      "ui:field": "dataTarget"
+     },
+     "inputValue": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "single": [
+        "value"
+       ]
+      }
+     },
+     "advanced": {
+      "labelStyling": {
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      },
+      "inputStyling": {
+       "borderColor": {
+        "ui:widget": "color"
+       },
+       "fontColor": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 40,
+    "minWidth": 50,
+    "defaultHeight": 48,
+    "defaultWidth": 200
+   }
+  },
+  "chartPie": {
+   "typeName": "chartPie",
+   "pluginId": "chartPie",
+   "category": "Charts",
+   "system": true,
+   "description": {
+    "title": "Pie Chart",
+    "overview": "Operations Hub Pie Chart plugin"
+   },
+   "info": {
+    "version": "2.1.1",
+    "updated": "12/18/2024",
+    "size": "4,000 bytes",
+    "developer": "GE Vernova"
+   },
+   "customIcon": "/custom/default/chartPie/customIcon.png",
+   "origin": "custom",
+   "placeholder": "/custom/default/chartPie/preview.png",
+   "preview": "/custom/default/chartPie/preview.png",
+   "previewData": true,
+   "scripts": [],
+   "schema": {
+    "definitions": {
+     "fontFamily": {
+      "title": "Font Family",
+      "type": "string",
+      "default": "Arial",
+      "enum": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ],
+      "enumNames": [
+       "Arial",
+       "Times New Roman",
+       "Verdana",
+       "Georgia",
+       "Comic Sans MS",
+       "Candara",
+       "Impact"
+      ]
+     }
+    },
+    "draggable": true,
+    "JSONSchema": {
+     "pieMode": {
+      "title": "Pie Type",
+      "type": "string",
+      "default": "pie",
+      "enum": [
+       "pie",
+       "donut"
+      ],
+      "enumNames": [
+       "Pie",
+       "Donut"
+      ]
+     },
+     "inputValue": {
+      "title": "Data Source",
+      "type": "string",
+      "$ref": "#/definitions/dataSource"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string",
+      "default": "Title"
+     },
+     "subtitle": {
+      "title": "Subtitle",
+      "type": "string"
+     },
+     "seriesColors": {
+      "title": "Series color configuration - manual",
+      "type": "array",
+      "items": {
+       "title": "Series color",
+       "type": "object",
+       "properties": {
+        "label": {
+         "title": "Label",
+         "type": "string",
+         "default": ""
+        },
+        "color": {
+         "title": "Color",
+         "type": "string",
+         "default": {
+          "hex": "#000000",
+          "rgb": {
+           "r": 0,
+           "g": 0,
+           "b": 0,
+           "a": 1
+          }
+         }
+        }
+       }
+      }
+     },
+     "advanced": {
+      "title": "Advanced Settings",
+      "type": "object",
+      "properties": {
+       "legend": {
+        "title": "Legend",
+        "type": "object",
+        "properties": {
+         "visible": {
+          "title": "Visible",
+          "type": "boolean",
+          "default": true
+         },
+         "posVert": {
+          "title": "Vertical Position",
+          "type": "string",
+          "default": "bottom",
+          "enum": [
+           "top",
+           "bottom"
+          ],
+          "enumNames": [
+           "Top",
+           "Bottom"
+          ]
+         },
+         "posHor": {
+          "title": "Horizontal Position",
+          "type": "string",
+          "default": "center",
+          "enum": [
+           "center",
+           "left",
+           "right"
+          ],
+          "enumNames": [
+           "Center",
+           "Left",
+           "Right"
+          ]
+         },
+         "textPos": {
+          "title": "Text Position",
+          "type": "string",
+          "default": "bottom",
+          "enum": [
+           "top",
+           "bottom",
+           "left",
+           "right"
+          ],
+          "enumNames": [
+           "Top",
+           "Bottom",
+           "Left",
+           "Right"
+          ]
+         }
+        }
+       },
+       "palette": {
+        "title": "Palette",
+        "type": "string",
+        "default": "Material",
+        "enum": [
+         "Bright",
+         "Carmine",
+         "Dark Moon",
+         "Dark Violet",
+         "Green Mist",
+         "Harmony Light",
+         "Material",
+         "Ocean",
+         "Office",
+         "Pastel",
+         "Soft",
+         "Soft Blue",
+         "Soft Pastel",
+         "Vintage",
+         "Violet"
+        ],
+        "enumNames": [
+         "Bright",
+         "Carmine",
+         "Dark Moon",
+         "Dark Violet",
+         "Green Mist",
+         "Harmony Light",
+         "Material",
+         "Ocean",
+         "Office",
+         "Pastel",
+         "Soft",
+         "Soft Blue",
+         "Soft Pastel",
+         "Vintage",
+         "Violet"
+        ]
+       },
+       "showLabels": {
+        "title": "Show Labels",
+        "type": "boolean",
+        "default": true
+       },
+       "showTooltips": {
+        "title": "Show Tooltips",
+        "type": "boolean",
+        "default": true
+       },
+       "labelOptions": {
+        "title": "Label and Tooltip Format",
+        "type": "object",
+        "properties": {
+         "showName": {
+          "title": "Show Name",
+          "type": "boolean",
+          "default": true
+         },
+         "showValue": {
+          "title": "Show Value",
+          "type": "boolean",
+          "default": true
+         },
+         "showPercent": {
+          "title": "Show Percentage",
+          "type": "boolean",
+          "default": false
+         }
+        }
+       }
+      }
+     }
+    },
+    "UISchema": {
+     "inputValue": {
+      "ui:field": "dataSource",
+      "ui:binding": {
+       "array": [
+        [
+         "value"
+        ],
+        [
+         "name"
+        ],
+        [
+         "timestamp"
+        ]
+       ]
+      },
+      "ui:preview": {
+       "dataSetName": "preview",
+       "outputFields": [
+        {
+         "fieldName": "timestamp"
+        },
+        {
+         "fieldName": "value"
+        },
+        {
+         "fieldName": "name"
+        }
+       ],
+       "dataSet": [
+        {
+         "timestamp": "2022-10-06T12:15:00",
+         "value": "149687.1875",
+         "name": "Simulation00001"
+        },
+        {
+         "timestamp": "2022-10-06T12:15:00",
+         "value": "148258.921875",
+         "name": "Simulation00002"
+        },
+        {
+         "timestamp": "2022-10-06T12:15:00",
+         "value": "135618.15625",
+         "name": "Simulation00003"
+        },
+        {
+         "timestamp": "2022-10-06T12:15:00",
+         "value": "134562.21875",
+         "name": "Simulation00004"
+        }
+       ]
+      }
+     },
+     "seriesColors": {
+      "items": {
+       "color": {
+        "ui:widget": "color"
+       }
+      }
+     }
+    }
+   },
+   "defaultConfiguration": {
+    "minHeight": 250,
+    "minWidth": 250,
+    "defaultHeight": 400,
+    "defaultWidth": 600
+   }
+  }
+ }
+}

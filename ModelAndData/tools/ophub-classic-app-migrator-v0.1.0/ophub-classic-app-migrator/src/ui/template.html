@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classic App Migrator</title>
+<style id="app-styles">
+{{FONT_FACES}}
+{{STYLES}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <h1>Classic app migrator</h1>
+  <p class="lede">Turns an Operations Hub app built in the classic designer into one you can open in the new designer. Your queries, globals and widgets come across, grouped into cards; arranging the cards is left to you.</p>
+
+  <ol class="process" id="process" aria-label="Progress">
+    <li data-state="active">Choose a classic app package</li>
+    <li data-state="idle">Convert</li>
+    <li data-state="idle">Download and review</li>
+  </ol>
+
+  <section class="panel" id="input-panel" aria-labelledby="choose-heading">
+    <h2 id="choose-heading" class="visually-hidden">Choose a package</h2>
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept=".zip,application/zip">
+      <strong>Drop a classic app package here</strong>
+      <span class="muted">or click to choose the .zip you exported from Operations Hub</span>
+    </label>
+    <div class="chosen" id="chosen" hidden>
+      <span>Selected: <span class="file" id="chosen-name"></span> <span class="muted" id="chosen-size"></span></span>
+      <button type="button" class="linkish" id="choose-other">Choose a different file</button>
+    </div>
+
+    <label class="option">
+      <input type="checkbox" id="as-new-app" checked>
+      <span>Import as a separate app
+        <small>Adds “(New Designer)” to the name and gives the app new ids, so importing it can never replace the classic app on the same server.</small>
+      </span>
+    </label>
+
+    <div class="actions">
+      <button type="button" id="convert" disabled>Convert app</button>
+    </div>
+
+    <div class="progress" id="progress" hidden aria-live="polite">
+      <div class="bar"><span id="bar"></span></div>
+      <div class="stage" id="stage"></div>
+    </div>
+    <div class="error" id="error" role="alert" hidden></div>
+  </section>
+
+  <section class="result" id="result" hidden aria-live="polite">
+    <div class="result-head">
+      <div>
+        <h2 id="result-title"></h2>
+        <p class="muted" id="result-sub"></p>
+      </div>
+      <div class="actions">
+        <a class="button" id="download-package" download>Download new package</a>
+        <a class="button secondary" id="download-report" download>Download report</a>
+      </div>
+    </div>
+    <label class="filter"><input type="checkbox" id="only-warn"> Only show pages with something to check</label>
+    <div id="report"></div>
+    <div class="actions">
+      <button type="button" class="secondary" id="again">Convert another app</button>
+      <a class="linkish" href="#" id="download-json">Download report data (JSON)</a>
+    </div>
+  </section>
+
+  <footer class="foot">Runs entirely in this browser window; the package never leaves your computer. Version {{VERSION}}.</footer>
+</main>
+<script>
+{{SCRIPT}}
+</script>
+</body>
+</html>
