@@ -18,7 +18,12 @@ function resolveQueryType(flow) {
   if (qc.ext_query) return qc.ext_query.requestType === 'write' ? 'opcua_write' : 'opcua_read';
   if (qc.query_type === 'StoredProcedure') return 'sql_sproc';
   if (qc.dataSource?.dataSourceUuid) return 'rest_get';
-  if (qc.source?.source_id && qc.source.source_id !== 'custom') return 'entity_read';
+  if (qc.source?.source_id && qc.source.source_id !== 'custom') {
+    // Entity queries: 'get' reads; 'update' / 'insert' / 'delete' (or any
+    // columns being set) write.
+    const writes = (qc.query_type && qc.query_type !== 'get') || (qc.set || []).length > 0;
+    return writes ? 'entity_write' : 'entity_read';
+  }
   if (flow.type === 'Relational Database') return 'sql_sproc';
   return 'rest_get';
 }
@@ -51,27 +56,47 @@ function mapOutputs(ioOutputs = []) {
   return outputs;
 }
 
+// The entity an entity query reads or writes, from its own definition:
+// { id, name, columns } — columns being every column the query selects,
+// filters on or sets (so not necessarily all of the entity's columns).
+function entityOf(qc) {
+  const id = qc.source?.source_id;
+  if (!id || id === 'custom') return null;
+  const fields = qc.fields || [];
+  const name = fields.find(f => f.table_name)?.table_name
+    || (qc.conditions || []).find(c => c.field?.table_name)?.field.table_name
+    || (qc.set || []).find(c => c.table_name)?.table_name
+    || '';
+  const columns = [...new Set([
+    ...fields.map(f => f.column_name),
+    ...(qc.conditions || []).map(c => c.field?.column_name),
+    ...(qc.set || []).map(c => c.column_name),
+  ].filter(Boolean))];
+  return { id, name, columns };
+}
+
 // Only what the result shape depends on, plus an entity query's filter
 // conditions (which input filters which column — Object Types uses them to
-// suggest references). The rest of a flow's settings live in OpHub, which
-// runs it.
+// suggest references) and its entity (Object Types lists objects by
+// entity). The rest of a flow's settings live in OpHub, which runs it.
 function mapConfig(flow, type) {
   const qc = flow.query_contents || {};
   if (type === 'opcua_read' || type === 'opcua_write') {
     return { samplingMode: qc.ext_query?.samplingMode || 'currentvalue' };
   }
-  if (type === 'entity_read') {
+  if (type === 'entity_read' || type === 'entity_write') {
     return {
       conditions: (qc.conditions || [])
         .map(c => ({ fieldName: c.field?.column_name, paramName: c.comparer?.value, operator: c.operator }))
         .filter(c => c.fieldName && c.paramName),
+      entity: entityOf(qc),
     };
   }
   return {};
 }
 
 function mapDirection(type, flow) {
-  if (type === 'opcua_write') return 'write';
+  if (type === 'opcua_write' || type === 'entity_write') return 'write';
   const hasOutputParam = (flow.io?.outputs || []).some(o => o.queryResultType === 'OutputParameter');
   return hasOutputParam ? 'readwrite' : 'read';
 }

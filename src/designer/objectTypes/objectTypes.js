@@ -9,7 +9,11 @@
 //     id, name, description,
 //     listedBy: {
 //       connectionId,
-//       source: 'query' | 'things',
+//       source: 'entity' | 'query' | 'things',
+//       entityId, entityName,         // source 'entity' (OpHub): the entity…
+//       keyColumn, displayColumn,     //   …its ID and display columns, and a read
+//                                     //   query of it (queryId/keyField/displayField
+//                                     //   below are then that query's matching outputs)
 //       queryId, sourceKey,           // source 'query': the saved copy that lists them
 //       keyField, displayField,       //   …which column identifies one, and which to show
 //       inputValues: { name: value }, //   …and what its inputs get (over their defaults)
@@ -80,14 +84,17 @@ export async function listObjects(type, { connections, queries }) {
   }
 
   const query = queries.find(q => q.id === listedBy.queryId);
-  if (!query) throw new Error('The list query is missing — pick it again in Object Types.');
+  if (!query) throw new Error(listedBy.source === 'entity' ? 'Choose the query that lists them (Object Types → List query).' : 'The list query is missing — pick it again in Object Types.');
   if (!listedBy.keyField) throw new Error('Choose the key field in Object Types.');
   const rows = await connector.run({ connection, query, instance: null, inputValues: listInputValues(query, listedBy) });
   const seen = new Map();
+  // OpHub entity outputs are named "<Entity>.<Column>"; accept rows keyed
+  // either way.
+  const read = (row, field) => (row?.[field] !== undefined ? row[field] : row?.[String(field).split('.').pop()]);
   rows.forEach(row => {
-    const key = row?.[listedBy.keyField];
+    const key = read(row, listedBy.keyField);
     if (key === undefined || key === null || key === '' || seen.has(String(key))) return;
-    const label = listedBy.displayField ? row[listedBy.displayField] : null;
+    const label = listedBy.displayField ? read(row, listedBy.displayField) : null;
     seen.set(String(key), { key: String(key), label: label === undefined || label === null || label === '' ? String(key) : String(label) });
   });
   return [...seen.values()].sort((a, b) => a.label.localeCompare(b.label));
@@ -95,39 +102,46 @@ export async function listObjects(type, { connections, queries }) {
 
 // ── Suggesting references ────────────────────────────────────────────────────
 
+// A field's own name, without an OpHub entity prefix ("Amy_Machines.MachineID"
+// → "MachineID"), lower-cased for comparing.
+const bareName = (name) => String(name || '').split('.').pop().trim().toLowerCase();
+
 // From whatever the catalog has loaded (every OpHub flow; ThingWorx services
-// of the Things opened so far): inputs and outputs named like the key field,
-// and OpHub entity filters on a column of that name.
+// of the Things opened so far): inputs and outputs named like the key, and
+// OpHub entity filters on a column of that name. For a type listed from an
+// OpHub entity, filters on that same entity's key column say so.
 // → [{ key, connectionId, side, sourceKey, field, item, why }]
 export function suggestReferences(type, catalogEntries) {
-  const keyField = (type.listedBy?.keyField || '').trim().toLowerCase();
-  if (!keyField) return [];
+  const { listedBy = {} } = type;
+  const key = bareName(listedBy.keyColumn || listedBy.keyField);
+  if (!key) return [];
   const taken = new Set([...(type.references || []).map(referenceKey), ...(type.dismissed || [])]);
   const out = [];
   const offer = (s) => {
-    const key = referenceKey(s);
-    if (taken.has(key)) return;
-    taken.add(key);
-    out.push({ ...s, key });
+    const k = referenceKey(s);
+    if (taken.has(k)) return;
+    taken.add(k);
+    out.push({ ...s, key: k });
   };
+  const sameName = (name) => (bareName(name) === key ? (String(name).split('.').pop() === (listedBy.keyColumn || listedBy.keyField)?.split('.').pop() ? 'Same name as the key' : 'Same name, different case') : null);
   catalogEntries.forEach(({ connection, groups }) => {
     (groups || []).forEach(group => (group.items || []).forEach(item => {
-      if (item.sourceKey === type.listedBy?.sourceKey) return;   // the list query itself
+      if (item.sourceKey === listedBy.sourceKey) return;   // the list query itself
       const d = item.definition;
+      const sameEntity = listedBy.entityId && d.config?.entity?.id === listedBy.entityId;
       (d.config?.conditions || []).forEach(c => {
-        if ((c.fieldName || '').toLowerCase() === keyField) {
-          offer({ connectionId: connection.id, side: 'input', sourceKey: item.sourceKey, field: c.paramName, item, why: `Entity filter: input ${c.paramName} filters column ${c.fieldName}` });
+        if (bareName(c.fieldName) === key) {
+          offer({ connectionId: connection.id, side: 'input', sourceKey: item.sourceKey, field: c.paramName, item,
+            why: `${sameEntity ? `Filters ${listedBy.entityName || 'this entity'} by` : 'Entity filter on'} ${c.fieldName} (input ${c.paramName})` });
         }
       });
       (d.inputs || []).forEach(i => {
-        if (i.name.toLowerCase() === keyField) {
-          offer({ connectionId: connection.id, side: 'input', sourceKey: item.sourceKey, field: i.name, item, why: i.name === type.listedBy.keyField ? 'Same name as the key' : 'Same name, different case' });
-        }
+        const why = sameName(i.name);
+        if (why) offer({ connectionId: connection.id, side: 'input', sourceKey: item.sourceKey, field: i.name, item, why });
       });
       (d.outputs || []).forEach(o => {
-        if (o.name.toLowerCase() === keyField) {
-          offer({ connectionId: connection.id, side: 'output', sourceKey: item.sourceKey, field: o.name, item, why: o.name === type.listedBy.keyField ? 'Same name as the key' : 'Same name, different case' });
-        }
+        const why = sameName(o.name);
+        if (why) offer({ connectionId: connection.id, side: 'output', sourceKey: item.sourceKey, field: o.name, item, why: sameEntity ? `Returns ${listedBy.entityName || 'this entity'}'s ${String(o.name).split('.').pop()}` : why });
       });
     }));
   });

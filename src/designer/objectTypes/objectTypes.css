@@ -81,3 +81,16 @@
 .od-foot { flex-shrink: 0; margin-top: 0; padding: 8px 10px; border-top: 1px solid #e6e6e6; background: #fafafa; }
 .od-foot-note { flex: 1; line-height: 1.4; }
 .od-apply { margin-left: auto; font-size: 11px !important; padding: 3px 10px !important; flex-shrink: 0; }
+
+/* A two-way switch (OpHub: from an entity / from any query). */
+.ot-seg { display: inline-flex; border: 1px solid #c8ccd1; border-radius: 4px; overflow: hidden; justify-self: start; }
+.ot-seg button { border: 0; background: #fff; padding: 3px 12px; font: inherit; font-size: 11px; cursor: pointer; color: #555; }
+.ot-seg button + button { border-left: 1px solid #c8ccd1; }
+.ot-seg button.on { background: #0f6cbd; color: #fff; }
+
+/* OpHub entity types: what the entity's other queries are. */
+.ot-entity-summary { font-size: 11px; color: #444; background: #f6f8fa; border: 1px solid #e6e9ed; border-radius: 4px; padding: 6px 10px; margin-bottom: 8px; max-width: 760px; line-height: 1.5; }
+.ot-link { border: 0; background: none; color: #0f6cbd; cursor: pointer; font: inherit; font-size: 11px; margin-left: 6px; padding: 0; }
+.ot-entity-list { margin: 6px 0 2px; padding-left: 18px; }
+.ot-entity-list li { margin: 2px 0; }
+.ot-ok { color: #2e7d32; }

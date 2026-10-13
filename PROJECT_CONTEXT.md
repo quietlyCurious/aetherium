@@ -630,8 +630,9 @@ once; local (non-OpHub) queries were dropped by decision.
 
 An **object type** (Data → Object Types, `src/designer/objectTypes/`) is a
 kind of thing — Equipment, Car model — defined once and usable across
-sources: where its list comes from (a query + key field + display field, or
-a ThingWorx connection's Things), and its **references**: every place
+sources: where its list comes from (for OpHub, an **entity** with its ID and
+display columns and one of its read queries; or any query + key field +
+display field; or a ThingWorx connection's Things), and its **references**: every place
 another query means its key — an input that takes it, an output that
 returns it, or "each object is a Thing" on a ThingWorx connection. One field
 may reference several types; types stand alone (not owned by a connection).
@@ -648,7 +649,18 @@ the instance with the key in its input and binds the widget's main
 property (`dropTargetOf`, `bindingFor` in `objectTypes.js`). Widgets learn
 about drops through `objectDropContext` (editor only). A list query's
 input values (e.g. the ThingWorx Apps equipment search's TypeJSON and
-Limit) are set on the type (`listedBy.inputValues`). Not built yet:
+Limit) are set on the type (`listedBy.inputValues`). OpHub entities are
+worked out from the flow list (`connections/ophubEntities.js`): each entity
+query names its entity (`query_contents.source.source_id`, plus
+`fields[].table_name/column_name`), so an entity only appears once a query
+uses it, with the columns its queries touch — OpHub's own entity-list
+endpoint isn't known yet. Entity query outputs are named
+`<Entity>.<Column>`; `outputForColumn` maps a chosen column to the list
+query's output. Entity update queries are `entity_write`. For an entity
+type, "Queries that use it" opens with a summary of the entity's other
+queries (`describeEntityQueries`): which take the ID (they filter by its
+column — suggested) and why the rest can't; suggestions have Accept all.
+Not built yet:
 built-in Tag / Thing property / Asset property types (rules instead of
 listed references), a per-reference "set count to 1 on a single-value
 widget" hint, binding an input to "this asset", searching big lists at the
