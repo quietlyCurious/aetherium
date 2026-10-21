@@ -29,8 +29,8 @@ folder and commit/push yourself. Claude doesn't commit or push.
 
 Aetherium is a React + DevExtreme 25.x app with two main halves:
 
-- **A page-builder/designer** (Screens, Widgets, Theme, Connections,
-  Asset Sets) — the original app, now areas on
+- **A page-builder/designer** (Screens, Widgets, Theme, Data Sources,
+  Entities, Queries, Asset Sets, Scripts) — the original app, now areas on
   the Configuration Experience's left rail, alongside Visualization (see
   "The designer half"). The model switcher applies in Visualization,
   Screens and Asset Sets, and is dimmed in the other areas, which don't
@@ -55,7 +55,9 @@ The list of models, and which files each one loads, comes from
 Every model uses the one **generic** pack format (spec §6): any
 hierarchy depth, data keyed directly by asset id, and its own timeline.
 Refinery, water and wastewater were originally built in two older
-layouts and were converted in Sept 2026 (spec §12); the old formats,
+layouts and were converted in Sept 2026 (spec §12), then given
+generators like the rest, so every pack now has a deterministic
+`ModelAndData/industries/<model>/generate.py`; the old formats,
 their id-conversion rules and the refinery-only Issue Map and Line
 Detail are gone. Everything in `src/operator/` reads from whichever
 model's data is currently loaded, never from a specific model by name.
@@ -70,7 +72,7 @@ The app has two workspaces, picked from the title-bar menu: the
 **Operator Experience** and the **Configuration Experience**. The
 Configuration Experience's left rail holds Visualization (below), then the
 page-builder areas (Design: Screens, Widgets, Theme) and the data
-definitions (Data: Connections, Asset Sets) — see "The
+definitions (Data: Data Sources, Entities, Queries, Asset Sets, Scripts) — see "The
 designer half". `OperatorWorkspace.jsx` renders both the Operator
 Experience and Visualization, differently depending on `operatorPersona`:
 
@@ -130,9 +132,9 @@ Whenever a set of related assets needs laying out, there are two
 interchangeable rendering modes sharing the same row data and the same
 box component:
 
-- **Cards** (`AssetCardsView`) — flexbox auto-flow, or a manual sub-mode
-  placed by hand on the coordinate layout (`ManualLayoutEditor` /
-  `ManualLayoutView`, below — no graph edges).
+- **Cards** (`AssetCardsView`) — flexbox auto-flow, or a manual
+  free-positioning sub-mode (`CardsLayoutCanvas`, itself a React Flow
+  canvas used just for drag-positioning, not graph edges).
 - **Diagram** (`AssetDiagramView` / `AssetDiagramViewInner`) —
   a real node-link graph via React Flow + elkjs for auto-layout, edges
   meaningful (asset relationships), with its own manual sub-mode too.
@@ -144,14 +146,14 @@ side calls `AssetCardsView`/`AssetDiagramView` more directly via
 underneath, so the type/asset fallback above applies identically in
 either mode without extra work.
 
-## The designer half (Screens, Widgets, Theme, Connections, Asset Sets)
+## The designer half (Screens, Widgets, Theme, Data Sources, Entities, Queries, Asset Sets)
 
 Not refactored the way the Operator side was — it isn't seven comparable
-areas. Screens is the big one (its own folder, below); Widgets has its
-own folder too (below); Theme is small; Connections and
-Asset Sets are "a list of definitions plus an editor".
+areas. Screens is the big one (its own folder, below); Theme, Widgets and
+Scripts are small; Data Sources, Entities, Queries and Asset Sets are "a
+list of definitions plus an editor".
 
-Those two share `src/designer/DefinitionWorkspace.jsx`: it owns
+Those four share `src/designer/DefinitionWorkspace.jsx`: it owns
 selection, the confirm-before-losing-edits prompt, and publishing the open
 editor's dirty state to `unsavedChangesStore` — the same store the
 Configurator uses, which is what puts the amber dot on the title-bar Save.
@@ -194,245 +196,21 @@ App and is still there when you come back. Every area with something to
 save publishes its unsaved state to `unsavedChangesStore`, which lights the
 Save button's amber dot.
 
-**Widgets** (`src/designer/widgets/`) decides which of each widget's
-DevExtreme options the Screens designer exposes. The shipped lists are
-`src/widgetProperties.js` (split out of `widgetData.js`, which now holds
-only the catalog). **Nothing reads that file directly**: every reader —
-`ContainerDetails`, `MultiSelectionDetails`, `makeWidgetContainer`,
-`widgetBindings`, the binding popover — goes through
-`widgetPropertyDefs.js` (`getWidgetPropertyDefs`,
-`useWidgetPropertyOverrides`), which layers the Widgets area's saved
-edits on top. A widget with saved edits uses its saved list in full
-(not a diff), stored per browser by `widgetPropertyOverridesStorage.js`.
-The area's Export writes every list back out as a complete
-`widgetProperties.js` (`widgetPropertiesSource.js`, in a .zip via
-`zipFile.js`, or to the clipboard); commit it and any saved list that now
-matches is dropped on the next load. The committed file is itself
-exporter output, and a test checks they stay byte-identical — if you
-hand-edit `widgetProperties.js`, keep the exporter's layout or that test
-fails. The option list comes from
-`public/data/widget-options.json` — all 75 widgets, real types and real
-enum choices, generated from DevExtreme's own TypeScript declarations by
-`scripts/generateWidgetOptions.js` (`npm run widget-options`; re-run it
-after upgrading DevExtreme and commit the result, and read its drift
-report). It's fetched by the Widgets area alone
-(`widgetOptionsFile.js`), not bundled, since it's ~700 KB and no other
-area needs it. `widgetConfigs.js` stays for two jobs: the defaults merged
-into the catalog, and the in-browser fallback list if the file can't be
-loaded (40 widgets, types guessed from names and flagged). A widget can
-have several hundred options, so the list pins what's exposed at the top,
-in details-panel order, and keeps the rest under closed group headings.
-Options can also be added by path. A definition is `{ name, label, type,
-options?, default, bindable?, group? }`; `type` gained `color` and `json`
-(a list or object — a grid's `columns`, a gauge's `rangeContainer.ranges`
-— edited as raw JSON in `JsonField`, committed only when it parses), and a
-`group` is a heading in the details panel. Groups are derived, not stored:
-a property with no `group` of its own is grouped by the first part of its
-path (`optionNaming.groupOfDef`), so the details panel's headings match
-the Widgets area's option list — for the shipped lists too — and a group
-appears only when something in it is exposed.
-`WidgetPropertyField` / `WidgetPropertyGrid` draw a widget's properties
-for both the Screens details panel and the area's preview, so the preview
-is the real panel. The area is two panels: the options list
-(`WidgetOptionsEditor`), where a row is ticked to expose it and carries
-the default value a new widget starts with, with label/type/choices/group/
-bindable behind its ⋯ (`OptionAdvancedFields`); and the preview. Every
-row draws the same columns whether or not it's exposed — path, the label
-the details panel will use (read-only; it's changed under ⋯), type, the
-control it's edited with (disabled until ticked, showing what the widget
-defaults to today), and the ⋯ — so everything lines up down the list. Exposing
-appends to the end of the list and nothing else moves — the list's order
-is what the details panel shows, so a different order is a change to the
-committed `widgetProperties.js`, not something the area does. The edits
-themselves are plain functions on the list in `widgetPropertyEdits.js`
-(the same split Screens has between `screenEdits.js` and its components).
-
-**Aetherium's own widgets** (`src/customWidgets/`): widgets DevExtreme
-doesn't have — so far **Text**, one piece of text (usually bound) with
-size/weight/colour/alignment, number rounding, prefix/suffix, and an
-overflow mode: ellipsis, wrap, or shrink (font shrinks to fit the box, down
-to a minimum — for values in a fixed-size tile). `customWidgets.js` is the
-registry: each entry has its `component` and its `options` in
-widget-options.json's `{ n, t, o?, d? }` shape. WidgetPreview draws them
-from there, the Widgets area lists their options from there (the generated
-file only covers DevExtreme), and they sit in `widgetData.js` under
-*Basics* with `custom: true`, which `generateWidgetOptions.js` skips.
-Adding one: component + registry entry + catalog entry + an exposed list
-(export it from the Widgets area). A KPI (value + label) is deliberately
-two Texts in a screen rather than a widget: screens are how things combine.
-
-**What a page builder can actually place** is decided by three lists that
-`src/widgetCoverage.test.js` keeps in step: `widgetData.js` (what the
-Visuals tree offers), `WidgetPreview`'s `WIDGET_COMPONENT_MAP` (what can
-draw itself) and `src/widgetSupport.js` (what we deliberately don't place
-yet, and why). A widget listed in `widgetSupport.js` still appears in the
-tree, greyed with a one-word badge and a tooltip, but can't be dragged or
-double-clicked onto a canvas — the four reasons are *overlay* (needs a
-trigger/action concept screens don't have), *layout* (lays out children,
-which Aetherium's containers already do and a leaf widget can't), *behaviour*
-(adds dragging or resizing to something else rather than drawing) and
-*service* (needs a backend, API key or map data). Everything else must have
-both a component and an exposed list, which the test asserts — so adding a
-widget means component + properties + sample data, or an entry saying why
-not.
-
-Two traps when adding one, both found the hard way: an item-based widget
-(Menu, Tabs, Toolbar…) must NOT give `dataSource` a `[]` default, because
-DevExtreme ignores `items` as soon as `dataSource` is set, empty or not;
-and `widgetSampleData` is only for content with no default — a sample never
-wins over a property default, since defaults are written into the widget
-when it's dropped.
-
 Showing a saved screen is split out of the editor into
 `src/designer/screens/`, so anything can render one — the Launch view
 today, an asset visualization later:
 - `widgetBindings.js` — turns a widget's static props plus its bindings
   into the props it renders with. One resolver per binding type
-  (`expression`, `query`, `asset`) in `BINDING_RESOLVERS`; a new kind of
-  binding is one more entry. `ContainerCard` calls it, so the canvas and
-  the runtime resolve identically. It also gives a Chart with real rows a
-  default series (DevExtreme draws nothing from `commonSeriesSettings`
-  alone) and drops an empty series template.
+  (`expression`, `query`) in `BINDING_RESOLVERS`; a new kind of binding
+  (e.g. a value from the asset being shown) is one more entry.
+  `ContainerCard` calls it, so the canvas and the runtime resolve
+  identically.
 - `usePageQueryResults(pageId)` — runs a page's query instances (plus
   app-scoped ones) on mount and every `POLL_INTERVAL_MS`.
 - `ScreenView` — renders a page's containers read-only through
-  `ContainerCard`, supplying all its editing callbacks as no-ops, and
-  optionally for one asset (`assetId`, its self).
+  `ContainerCard`, supplying all its editing callbacks as no-ops.
 `RuntimeView.jsx` is now just `loadPage` + the hook + `ScreenView` inside
-the title bar (plus loading the model for a screen about a type).
-
-**Screens about a type** (`designer/screens/screenAsset.jsx`,
-`model/assetPaths.js`): a page's root container can carry
-`context: { modelId, typeId }`, set any time from the Page's General
-details ("About"). Such a screen is drawn for one asset of the type at a
-time — its *self*: "Preview as" on the canvas toolbar, `&asset=<id>` on
-the Launch URL. Widgets bind to it with ⚡ → Asset:
-`{ type: 'asset', path, property }`, where the path goes by type
-(`['drivetrain', 'gearbox']`, `'..'` for the parent), so one screen works
-for every asset of the type. A list property (a Chart's data) gets the
-property's history as `{ timestamp, value }` rows. The Data tab's "This
-asset" view shows everything reachable from self with its values.
-Changing the type checks the page's asset bindings first and never
-removes them; ones that don't resolve keep the widget's static value and
-show a red ⚡! badge. Self reaches `ContainerCard` through a React context
-(`ScreenAssetProvider` / `useScreenAsset`), not props.
-
-**Screen sizes** (`designer/screens/screenSizes.js`): every screen is one
-of three fixed sizes — Tile (220×140), Card (360×280) or Page (fills
-whatever room it's given). It's `pageSize` on the root container, set
-from the Page's General details beside About, so it saves and
-dirty-tracks like any other edit; it sits next to the context rather than
-inside it, so clearing what a screen is about doesn't forget how big it
-is. Screens saved before sizes existed are Pages, which is what they
-were. The canvas and the Launch view frame a Tile or a Card at its own
-size (a chosen device preview still wins), and the saved-screens list
-badges anything that isn't a Page, since a type now usually has more than
-one screen. One screen is one size for now: a type's Tile and its Card
-are two saved screens. If that turns out tedious, the breakpoint tiers
-the canvas already has are where a single screen with three layouts would
-go.
-
-**Repeaters** (`designer/screens/screenRepeat.jsx`): a container with
-`repeat: { assetSetId, start, itemScreen, itemSize, max }` draws a screen
-per asset instead of its own children. The assets come from a saved asset
-set; a set that takes a start gets the screen's own asset by default (a
-feeder screen passes its feeder). Each item is wrapped in its own
-`ScreenAssetProvider`, so that asset is *self* inside it. Which screen it
-gets is a lookup by **type and size** — a repeater asks for, say, each
-type's Card — falling back the way Visualization does for a related
-asset's box:
-
-1. the screen about that asset's type at that size;
-2. a card generated from that type's Visualization property config
-   (`designer/screens/generatedCard.jsx`, which wraps the same
-   `operator/relatedAssets/AssetCard.jsx` the Operator's related-asset
-   views draw, titled with the asset's own name);
-3. a placeholder — now only for an id the model doesn't have.
-
-So a mixed set works, and a type nobody has designed for yet shows its
-real values rather than a gap: a screen for a type is an improvement on a
-sensible default, not a prerequisite. Every item gets the box its size
-defines (with one fixed screen for everything, that screen's own size
-decides); a screen smaller than its box is centred, not stretched.
-Nesting stops at `MAX_REPEAT_DEPTH`, and a screen already being drawn
-above can't appear inside itself. The saved screens and asset sets reach
-the repeater through `ScreenDataProvider` (the canvas and RuntimeView
-supply them). Set it up in the Layout tab's Repeat section, which shows
-what the set resolves to and which screen each type gets. `RuntimeView`
-loads the model a screen needs via `modelForScreen` — what it's about,
-or, for a plain screen whose only tie to a model is a repeater, that
-repeater's asset set's model.
-
-A repeater can also go **over the properties of its asset** (step 5c):
-`repeat: { over: 'properties', properties: { include, visual }, max }`.
-Its items are self's properties as Visualization shows them —
-`operator/properties/shownProperties.js` (`shownPropertyEntries`, shared
-with AssetCard): which ones (`include`: 'always' = what the Operator
-shows, 'sometimes', 'all'), in Visualization's order, each with its own
-visual (`visual: 'visualization'`) or one visual for all (a view mode or a
-property screen). Each is drawn by `operator/properties/AssetPropertyTile`
-(also AssetCard's). Needs an asset: a screen about a type, or inside a
-repeated item. `isRepeater(container)` is the check (a properties repeater
-always draws; an asset one once it has a set). `over` missing = assets.
-
-Any repeater can be laid out **by hand**: when its container is Manual
-(coordinate), `RepeaterBody` draws the items on `CoordinateCanvas` (`fill`,
-`showDots={false}` — the body draws them) at `repeat.positions[itemKey]`
-(an asset id or a property key). In the Screens editor
-(`RepeatEditProvider`, from ScreenCanvas, with
-`editor.updateContainerRepeat(id, repeat => next)`) they move like
-coordinate children: snap, guides, box-select, group moves; elsewhere
-(runtime, nested screens) read-only. Items with no position go in the
-first free spot, filling rows across the container (`rowWidth`); the
-editor saves those spots into `positions` (so switching to by hand, or a
-new item, marks the screen unsaved), the runtime works them out the same
-way. The Repeat section has Over (nothing / assets in a set / this asset's
-properties), Which and Visual for properties, At most, Arrange (flowed /
-by hand — the container's layout type) and Clear positions. Not yet:
-align / distribute for repeater items (the designer's arrange bar acts on
-containers), and per-item overrides of the visual.
-
-**Screens about a property** (`designer/screens/screenProperty.jsx`): the
-smallest fragment. A page's About can be *Any property*, stored as
-`context: { kind: 'property' }` (no model or type — one works everywhere,
-and `pageContextOf` ignores it, so repeaters never find one by type).
-Choosing it shrinks a Page-sized screen to a Tile. Self is one property of
-one asset: "Preview as" picks both, and `ScreenPropertyProvider` /
-`useScreenProperty` carry `{ assetId, propertyKey, value? }` the way
-`ScreenAssetProvider` carries an asset (a given `value` wins, so a
-time-scrubbed box moves its custom tiles too). Widgets bind with ⚡ →
-Property: `{ type: 'property', field }`, one of `PROPERTY_FIELDS` — value,
-value with unit, label, unit, min, max, percent of range, asset name, and
-history (list properties only). A Sparkline bound to history rows gets its
-argument/value fields pointed at `timestamp`/`value` automatically
-(`widgetBindings.js`). Changing About checks asset *and* property bindings
-(`checkPageBindingsForAbout`, `screenSelfOf.changeAbout`).
-
-A saved property screen is a **custom tile**: Visualization's per-property
-Visual column lists them under "Your tiles", stored as
-`'screen:<pageId>'` (`propertyDisplay.js` `screenViewMode` /
-`screenIdOfViewMode` / `viewModeLabel` — use `viewModeLabel` anywhere a
-visual is named). `PropertyTile` hands such a mode to
-`operator/properties/PropertyScreenTile.jsx`, which draws the screen at its
-own size through ScreenView, so AssetCard in every view gets custom tiles
-for free; a deleted screen falls back to All. `propertyScreens.js` reads
-the saved pages (cached against the raw stored string). The toolbar default
-stays the built-in modes for now. Anything that draws a screen inside
-something else gets ScreenView from `screenRenderer.js`
-(`registerScreenRenderer` / `getScreenRenderer`) rather than importing it,
-which would be a circle.
-
-**Layout tab quick presets** (`designer/screens/LayoutPresets.jsx`,
-`layoutPresetMapping.js`): the Visualization toolbar's layout choices —
-Arrange (Flex / Manual), Flow (Column / Row), Wrap, Lines (Distribute /
-Cluster) — at the top of the Layout tab, drawn with the toolbar's own item
-lists and icons (`operator/settings/layoutOptions.js`). A preset only sets
-existing Layout fields (`layoutType`, `flexDirection`, `flexWrap`,
-`alignContent`), which are outlined; a field set by hand to something the
-presets don't have shows that preset unselected. `alignContent` ("Align
-lines") is new on flex layouts, emitted only when set. The page itself now
-has a Layout tab too (no Repeat section), since a Tile's layout is its
-root's.
+the title bar.
 
 The Screens *editor* lives in the same folder, split the same way as
 state vs. drawing:
@@ -461,211 +239,6 @@ state vs. drawing:
 `ContainerCard`, `PageVisualsTree`, `ScreensPanel`, `DevicePicker`,
 `GridEditor` and the container model/tree files are still at `src/` root.
 
-**Fitted viewport** (`src/viewport/FitViewport.jsx`, maths in
-`fitViewportMath.js`): for runtime views whose layout may not fit — a
-generated layout nobody tidied. It opens fitted (scaled down only as far as
-needed, never above 100%; content that fits is drawn exactly as without
-it), shows zoom controls (−, %, +, Fit) only when the content didn't fit or
-someone zoomed, zooms with Ctrl + scroll around the cursor (plain scroll
-moves the content once it's bigger than the view), pans once a press moves
-past a few pixels (a tap still clicks; a pan doesn't), pinch-zooms, and
-re-fits on resize or a new `resetKey` until someone takes over. `reflow`
-('row' / 'column') is for content that lays itself out against its space:
-zooming out also gives it more room per line. Content is drawn with a CSS
-transform, so code that measures on screen divides by
-`viewportScale(el)` (RelatedAssetsEditor's switch-to-manual does). Used
-today by Related Assets' Cards (auto) view, in the Operator and
-Visualization alike, by manual Cards and Properties (editor and Operator),
-and by the Screens canvas; React Flow still does its own zoom for Diagram.
-
-The Screens canvas uses it too, in editor mode: `panWith="modifier"` (pan
-with Space + drag, the middle button, or a drag on the grey area around a
-framed screen — a plain drag on the page stays the editor's),
-`controls="always"`, `align="center"` for framed screens, and `sizing="fill"`
-for a Page (laid out at the view's size; zoom just magnifies). A wheel over
-something inside that can scroll scrolls it. Everything in ContainerCard
-that measures on screen — coordinate drag, snapping and its guides, resize —
-divides by `viewportScale`, so editing works at any zoom. Coordinate
-containers also box-select: drag across empty space (Shift + drag on a
-container that can itself be moved), Shift/Ctrl/Cmd to add;
-`editor.selectContainers(ids, { add })`.
-
-Zooming on the canvas: a Tile or Card opens fitted *up* to fill the space
-(`maxFitZoom={2}`; runtime views keep the never-above-100% rule), the %
-button opens a list of zoom levels, and while the pointer is over the
-canvas Ctrl/Cmd + = / − zoom, Ctrl/Cmd + 0 is 100% and Shift + 1 fits.
-
-**Align, distribute, arrange in grid** (`coordinate/coordinateArrange.js`):
-two or more selected items in one coordinate
-layout get a second canvas toolbar row (`.center-subtoolbar`) with
-Visualization's own `CanvasAlignControls`. The maths is
-`operator/canvas/canvasGeometry.js`'s align/distribute plus a
-reading-order grid; positions are measured from the canvas in layout pixels
-(`offsetLeft/Top/Width/Height`) and written back through each item's own
-anchors (`coordUpdateFor`: a right-anchored item gets a new right, a
-stretched one both edges).
-
-**The coordinate layout, shared** (`src/coordinate/`): how items in a
-coordinate layout are moved, snapped, box-selected and arranged lives here,
-used by the designer's ContainerCard and by `CoordinateCanvas` (steps 5a
-and 5b of the layout consolidation: Visualization's manual layouts are
-built on it).
-- `coordinateMove.js`: the maths, no DOM. `moveStartOf(coord, measured)`,
-  `movedCoord(start, dx, dy, { snap, snapSize, targets })` → `{ update,
-  delta, guides }` (writes each axis in its own anchors; snaps a line-up
-  with a target's edge/centre within snapSize, else rounds to the grid),
-  `shiftedCoord` for the rest of a group, `snapTargets`, `bandBetween`,
-  `touchesBand`. Line-ups use where the item is drawn (measured), so
-  right-anchored and stretched items snap correctly, and a group follows a
-  right-anchored item it's dragged by.
-- `coordinateCanvasDom.js`: the mouse side — `beginCoordinateMove`,
-  `beginMarquee`, `arrangedUpdates` / `arrangeControlsFor` (the object
-  CanvasAlignControls drives). Measures in layout pixels at any zoom. A
-  move only starts after 3px, and reports `onEnd(moved)`.
-- `CoordinateCanvas.jsx`: an editable coordinate layout outside the
-  designer — items `[{ id, coord, content }]`, `selectedIds` /
-  `onSelectionChange`, `onUpdateCoord(id, update)`, `snap`, `readOnly`,
-  `trim` (read-only: no empty band before the first item); an item with
-  `coord: null` is placed in the first free spot (`onAutoPlace`). Items
-  without a width are their content's width (`max-content`). Grows to
-  hold its items (re-measured when an item resizes); the click that ends
-  a move is swallowed and selects the moved item; buttons and links in an
-  item work as usual. Ref = align/distribute/arrangeGrid on the
-  selection, plus `arrange(action, ids)`. Put it in a FitViewport for
-  zoom/pan.
-- `coordinatePlacement.js`: `placeUnplaced` — the first-free-spot rule.
-- `coordinateCanvas.css`: `.coord-dots` (the snap grid), `.snap-guide`,
-  `.canvas-marquee`, and CoordinateCanvas's own classes (was App.snap.css).
-
-**Operator fit check** (`operator/configurator/OperatorFitCheck.jsx`): in
-Visualization's Properties and Related Assets (flex/Cards auto layouts), a
-toolbar badge says whether the layout fits that view in the Operator on a
-chosen display ("✓ Fits the Operator view · Full HD 1920×1080") or how far
-operators would be zoomed out ("⚠ Operators will see this at 68% · 10"
-Operator Panel"). It's generic: the caller passes `view` (a key of
-`OPERATOR_VIEWS`, which holds each view's measured surrounding panels —
-Properties 470×268, Related Assets 470×282, constant across display sizes
-at default panel widths; how to re-measure is in the file) and
-`renderProbe(onFitChange)`, the Operator's own component for that view with
-the draft settings. It lays that out invisibly at the Operator area's size
-and reports what its FitViewport decided, so the verdict is the Operator's
-own. The badge's list starts with **Fill pane** (where the preview opens),
-then the displays (device previews ≥ 1024 wide; last one checked is a
-per-browser preference, `operatorFitDisplayStorage.js`); picking a display
-swaps the preview for `OperatorDisplayFrame` — that view at exactly the
-Operator's size, with the Operator's rendering, shrunk to fit the pane and
-captioned, keyed by display so each opens fitted. Checked against the real
-Operator at 1280×800, 1366×768 and 1920×1080, for both views.
-
-The Operator's Properties view is `operator/properties/AssetPropertiesView`
-(AssetCard in its box, inside a FitViewport with `fillWidth`; a wrapping
-row reflows, anything else is shrunk as is) — used by the Operator's Assets
-area and by the Properties check/preview, with a draft template overlaid.
-FitViewport divides pointer maths by any outer scale (`outerScale`), so
-zoom and pan inside the shrunk frame track the cursor.
-
-Every layout can be previewed on a display, and every layout but Diagram
-gets the ✓/% verdict: Properties (Flex and Manual; grouped properties
-aren't checked yet) and Related Assets' Cards (Flex and Manual — both drawn
-in a FitViewport in the Operator). Cards, flex or manual, stay editable in
-the frame. Properties Manual shows the Operator's drawing (the box, title
-and all), captioned "look only — move tiles on Fill pane". Diagram draws on
-React Flow (it fits itself), so it passes no `renderProbe`: the badge is
-neutral ("▭ Preview on a display" / "▭ Operator view · <display>") and the
-frame shows a read-only copy captioned "look only — edit on Fill pane"; it
-gets a verdict when it reports its own fit. The density / tier slider dims
-while a display is showing.
-
-**Manual layouts** (step 5b): Properties Manual and Cards Manual are the
-coordinate layout, not React Flow. `operator/canvas/ManualLayoutEditor` is
-the Configure editor — `CoordinateCanvas` in a FitViewport (zoom/pan like
-the designer), at least as big as its pane; snap to grid and neighbours
-with guides, box-select, group moves, and CanvasAlignControls through its
-ref (align needs 2 selected, distribute 3; Arrange in Grid arranges the
-selection, or everything with fewer than 2 selected). Its own selection
-outline shows only for 2+; a single item's selection is the Details
-panel's. `ManualLayoutView` is the Operator's read-only drawing (AssetCard's
-manual box, read-only manual Cards): trimmed to the items, no margin.
-- Saved positions are `{ key: { left, top } }`, cards also `width` (kept
-  from the flex layout at Switch to Manual, so cards keep their shape; a
-  card with no saved width is capped at 280px, as manual cards always
-  were, unless its type's own properties are manual). `manualLayout.js`
-  `asCoordPositions` reads old `{ x, y }` saves (shifted clear of negative
-  space, as the Operator drew them) — on load, in the Operator, and in
-  `customizations.js`'s comparisons; saving writes the new form.
-- An item with no position (made visible, or appeared, after arranging)
-  goes in the first free spot (`coordinate/coordinatePlacement.js`): same
-  row if there's room within the arrangement's width, else a new row,
-  never overlapping. CoordinateCanvas places it once sizes settle (and
-  nothing nested is still placing); the editor writes it into the draft
-  (not an unsaved change), the Operator computes the same spot.
-- `unsavedChangesStore`'s position comparison reads `left/top` or `x/y`.
-- Open: revisit min/max properties when picking manual instead of flex or
-  diagram layouts.
-
-
-### Queries come from their source (Oct 2026)
-
-Aetherium doesn't define queries. They're defined in Operations Hub or
-ThingWorx and browsed live from the Screens **Data** tab (Queries
-mode, `designer/screens/QueryBrowser.jsx`). A **Connection**
-(`src/connections/`) is just where to reach a source through the local
-proxy. Each kind is a connector with one shape — `browse(connection)` lists
-its queries, `run(...)` executes one — registered in `connectionKinds.js`;
-`ophubConnector.js` + `ophubWire.js` are the OpHub one; `twxConnector.js` is
-ThingWorx, where a query is a service on a Thing, listed in two steps
-(`listGroups` = Things, `listGroup` = a Thing's services, fetched when opened;
-platform built-ins sit behind a toggle). The proxy (`AmyTempStore/ophub-proxy`)
-forwards `/api/ophub/*` with OpHub's cookie and `/api/twx/*` with a ThingWorx
-app key from its `.env`. Adding a query to a
-page saves a copy of its definition (`queriesStorage.js`, keyed by
-`connectionId` + `sourceKey` such as `ophub:<flowUuid>`), which bindings and
-the runtime read, so a screen keeps working if the source is offline.
-`useQueryCatalog` caches each connection's list for the session (⟳ to
-re-fetch). `dataMigration.js` converted the old Data Sources/Queries data
-once; local (non-OpHub) queries were dropped by decision.
-
-
-### Object types: browse things, drop them on widgets (Oct 2026)
-
-An **object type** (Data → Object Types, `src/designer/objectTypes/`) is a
-kind of thing — Equipment, Car model — defined once and usable across
-sources: where its list comes from (for OpHub, an **entity** with its ID and
-display columns and one of its read queries; or any query + key field +
-display field; or a ThingWorx connection's Things), and its **references**: every place
-another query means its key — an input that takes it, an output that
-returns it, or "each object is a Thing" on a ThingWorx connection. One field
-may reference several types; types stand alone (not owned by a connection).
-Suggested references come from the live catalog: same-named inputs/outputs
-and OpHub entity filter conditions (`config.conditions`, kept by
-`ophubConnector`). The Screens Data tab's **Objects** mode lists a type's
-objects (`ObjectBrowser`); dropping one on a widget opens
-`ObjectDropPopover`, which ranks the related queries (`rankDropOptions`:
-fits the widget, reads rather than changes — by the name's leading verb —,
-no required inputs left empty, used before; non-fitting ones stay listed,
-and services that change something sit in a collapsed "Actions" group),
-with search and a scrolling list, then adds
-the instance with the key in its input and binds the widget's main
-property (`dropTargetOf`, `bindingFor` in `objectTypes.js`). Widgets learn
-about drops through `objectDropContext` (editor only). A list query's
-input values (e.g. the ThingWorx Apps equipment search's TypeJSON and
-Limit) are set on the type (`listedBy.inputValues`). OpHub entities are
-worked out from the flow list (`connections/ophubEntities.js`): each entity
-query names its entity (`query_contents.source.source_id`, plus
-`fields[].table_name/column_name`), so an entity only appears once a query
-uses it, with the columns its queries touch — OpHub's own entity-list
-endpoint isn't known yet. Entity query outputs are named
-`<Entity>.<Column>`; `outputForColumn` maps a chosen column to the list
-query's output. Entity update queries are `entity_write`. For an entity
-type, "Queries that use it" opens with a summary of the entity's other
-queries (`describeEntityQueries`): which take the ID (they filter by its
-column — suggested) and why the rest can't; suggestions have Accept all.
-Not built yet:
-built-in Tag / Thing property / Asset property types (rules instead of
-listed references), a per-reference "set count to 1 on a single-value
-widget" hint, binding an input to "this asset", searching big lists at the
-source, and a calmer visual design.
-
 ## Where things live
 
 - `docs/CODE_MAP.html` — the code map: how the Operator/Configurator code
@@ -684,10 +257,8 @@ source, and a calmer visual design.
   assigns them), read-only questions about it (`assetQueries.js`),
   `useLoadedModel.js` (the hook that fetches a model and makes it active,
   used by OperatorWorkspace, ScreensWorkspace and AssetSetsWorkspace),
-  `modelRegistry.js` (reads `models.json`), `assetSets.js` (resolving
-  asset sets) and `assetPaths.js` (paths from an asset by type, for
-  screens about a type), with tests beside them that load a real pack
-  through `loadPackForTests.js`.
+  `modelRegistry.js` (reads `models.json`), and `assetSets.js` (resolving
+  asset sets, with its tests beside it).
 - `src/operator/settings/` — per-property visuals and visibility
   (`propertyDisplay.js`), display order (`displayOrder.js`), and "which
   assets differ from their type" (`customizations.js`), plus the shared
@@ -695,19 +266,16 @@ source, and a calmer visual design.
   (`layoutOptions.js`).
 - `src/operator/properties/` — `PropertyTile` and the sparklines (every
   property tile in the app), the property listing (`PropertyTilesView`)
-  (its manual mode is `ManualLayoutEditor`, below).
+  and `PropertyTileCanvas`, its manual-layout mode.
 - `src/operator/relatedAssets/` — `AssetCard` (the fallback resolution
-  point above), the Cards and Diagram engines, ELK
+  point above), the Cards and Diagram engines, `AssetCardCanvas`, ELK
   auto-layout, the read-only views, and `relatedAssetRows.js` (which
   related assets an entity shows, in what order — one definition, read
   by the Details grid, the editor preview and the read-only view).
-- `src/operator/canvas/` — manual layouts on the coordinate layout:
-  `ManualLayoutEditor` (Configure), `ManualLayoutView` (read-only), and
-  `manualLayout.js` (saved positions, old-save reading, measuring at
-  Switch to Manual); `CanvasAlignControls`, the align/distribute/arrange
-  toolbar groups (manual layouts, the diagrams, the designer); and
-  `canvasGeometry.js`, the node-bounds and floating-edge maths (the
-  diagrams' manual mode is still React Flow, `AssetDiagramView`).
+- `src/operator/canvas/` — `ManualLayoutCanvas`, the single canvas behind
+  every manual layout (property tiles, asset cards, both diagrams);
+  `CanvasAlignControls`, the align/distribute/arrange toolbar groups; and
+  `canvasGeometry.js`, the node-bounds and floating-edge maths.
 - `src/operator/configurator/` — the Configurator's own panels: the tree,
   the centre preview, the three editors (`PropertyTilesView` is the
   Properties one, plus `RelatedAssetsEditor` and `AllAssetsEditor`), the
@@ -746,14 +314,10 @@ class names match, as of phase 5: `op-property-tile-*`,
   now, kept on purpose for future use. Leave it in place.
 - `src/App.js` — the outer shell: title bar (area menu, model switcher,
   Launch, Save), navigation between areas, and the shared data
-  definitions (connections, saved query copies). Every area is its own
+  definitions (data sources, entities, queries). Every area is its own
   workspace component; `src/shell/appAreas.js` lists them.
-- `src/designer/widgets/` — the Widgets area (see "The designer half"):
-  `WidgetsWorkspace`, `WidgetOptionsEditor` (+ `OptionAdvancedFields`,
-  `ChoicesField`, `JsonField`), `WidgetPropertiesPreview`, `WidgetsExport`,
-  `optionNaming` (the label and group a path implies),
-  `widgetPropertyEdits`, the shared `WidgetPropertyField`, and the
-  `widgetPropertyDefs` store every widget property lookup goes through.
+- `src/designer/WidgetsWorkspace.jsx`, `ScriptsWorkspace.jsx` — the two
+  small designer areas (a widget catalog browser; a placeholder).
 - **Explanations and detectors** (`INDUSTRY_PACK_SPEC.md` §14): a pack
   can ship `explanations.json`, written by its own `explain.py` from
   detectors built on the shared toolkit in `ModelAndData/tools/detectors/`.
@@ -793,14 +357,11 @@ class names match, as of phase 5: `op-property-tile-*`,
   `onSelectionChanged` and `onRowClick`, which used to make any handler
   that prompts ask twice.
 - `src/designer/` — pieces shared by the designer areas:
-  `DefinitionWorkspace` (the list + editor shell behind Connections
-  and Asset Sets), `useDefinitionDraft`,
-  `useStoredDefinitions`, and the model pickers `AssetPicker` and
-  `modelOptions` (used by Asset Sets and Screens); `screens/` holds the Screens area — the editor
-  (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`), the read-only
-  renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`), and
-  what a screen is about and how big it is (`screenAsset`, `screenSizes`,
-  `screenRepeat`, `generatedCard`);
+  `DefinitionWorkspace` (the list + editor shell behind Data Sources,
+  Entities, Queries and Asset Sets), `useDefinitionDraft` and
+  `useStoredDefinitions`; `screens/` holds the Screens area — the editor
+  (`ScreensWorkspace`, `useScreenEditor`, `screenEdits`) and the read-only
+  renderer (`ScreenView`, `usePageQueryResults`, `widgetBindings`);
   `assetSets/` holds the Asset Sets area (workspace, editor, rule form,
   preview).
 - `public/data/<model>/*.json` — per-model data, 8 files per pack
