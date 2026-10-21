@@ -32,7 +32,7 @@
 //                  or null
 
 import { evaluateExpression } from '../../expressionEval';
-import { getWidgetPropertyDefs } from '../widgets/widgetPropertyDefs';
+import { getContainerPropertyDefs, orphanedDynamicBindings } from '../widgets/widgetPropertyDefs';
 import { resolveAssetSeries, resolveAssetValue } from '../../model/assetPaths';
 import { resolvePropertyField } from './screenProperty';
 
@@ -135,11 +135,14 @@ export function assetBindingProblem(binding, assetId, isCollectionProp = false) 
   return result.error || null;
 }
 
-// Whether any of a widget's asset or property bindings can't resolve for
-// what the screen is showing — { assetId, property } as in `context` above.
+// Whether any of a widget's bindings can't resolve: an asset or property
+// binding for what the screen is showing — { assetId, property } as in
+// `context` above — or a binding to a property the widget no longer has
+// (an Embedded View whose mashup dropped a parameter; pass `widgetProps`).
 // Drives the canvas's red ⚡! badge.
-export function hasBrokenBinding(bindings, widgetName, { assetId = null, property = null } = {}) {
-  const propDefs = getWidgetPropertyDefs(widgetName);
+export function hasBrokenBinding(bindings, widgetName, { assetId = null, property = null, widgetProps = null } = {}) {
+  if (orphanedDynamicBindings(widgetName, widgetProps, bindings).length) return true;
+  const propDefs = getContainerPropertyDefs(widgetName, widgetProps);
   return Object.entries(bindings || {}).some(([propName, b]) => {
     const isCollection = propDefs.find(p => p.name === propName)?.type === 'data';
     if (b?.type === 'asset') return !!assetBindingProblem(b, assetId, isCollection);
@@ -185,7 +188,7 @@ export function expandDotPaths(flatProps) {
 // with no resolver is ignored.
 export function resolveWidgetProps(widgetProps, bindings, widgetName, context = {}) {
   const resolved = { ...(widgetProps || {}) };
-  const propDefs = getWidgetPropertyDefs(widgetName);
+  const propDefs = getContainerPropertyDefs(widgetName, widgetProps);
   Object.entries(bindings || {}).forEach(([propName, binding]) => {
     // Own keys only, so a stray type like 'constructor' can't reach an
     // inherited Object method.

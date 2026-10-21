@@ -16,7 +16,10 @@
         "label": "Station"
       }
     ],
-    "unitLevel": "line"
+    "unitLevel": "line",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "water",
@@ -39,7 +42,10 @@
         "label": "Equipment"
       }
     ],
-    "unitLevel": "train"
+    "unitLevel": "train",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "wastewater",
@@ -62,7 +68,10 @@
         "label": "Equipment"
       }
     ],
-    "unitLevel": "train"
+    "unitLevel": "train",
+    "files": {
+      "explanations": "explanations.json"
+    }
   },
   {
     "id": "wind",

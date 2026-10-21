@@ -242,6 +242,282 @@ change the noise, not the timing or size of any scenario.
 - `throughput_per_min` range lower bound 0.9 → 0, because a blocked line
   reads 0. No other metadata changed.
 
+## Detectors and explanations (spec §14)
+
+`explain.py` runs thirteen detectors, one per failure mode, on every asset
+each applies to, and writes `public/data/refinery/explanations.json`. Each
+one reads only the runtime files, never this sheet or `generate.py`'s
+constants.
+
+Because a line is a serial chain with one pace and no store except the
+Aurelia Buffer, "expected" here is almost always one of three things:
+
+- **the plan** — `line_target_rate`, for anything about rate (SIT02, SIT03);
+- **the station next door on the `process_flow` layer** — the station it
+  feeds or is fed by, with the fixed counter bias between the pair removed
+  (SIT03, SIT07, SIT08, SIT09, SIT13);
+- **the same station type on the other lines** — for condition and quality
+  tags that have no plan value (SIT05 vibration, SIT07 reject rate, SIT13
+  purity, SIT10 oscillation index).
+
+Two detectors use a second instrument on the same equipment instead of any
+peer at all: SIT06 compares the pressure transmitter with the local
+mechanical gauge on the same vessel, and SIT04 closes a mass balance
+(`level[i] = level[i−1] + (in − out) × 5 min ÷ 10.4 units per %`) on the
+buffer's own flow meters, which agrees with the level transmitter to 0.0 %.
+
+Lines in `changeover` are a normal state, not a fault. Every detector whose
+subject is rate or stoppage skips them (`in_changeover`), and the two that
+are *about* the changeover — SIT02 and SIT14 — require it.
+
+| Item | Detector | Ran on | Fired on | Raised at | Confidence | Across 10 seeds |
+|---|---|---|---|---|---|---|
+| SIT02 | `refinery.busy_shift_confirmed` | 12 lines | F4 | 13:45 | high | 13:45 |
+| SIT03 | `refinery.refinement_regulator_sluggish` | 6 Refinement stations | A3 · Refinement | 09:20 | high | 09:15–09:20 |
+| SIT04 | `refinery.buffer_accumulation` | 6 Buffers | A4 · Buffer (root cause: A4 · Output) | 09:35 | high | 09:30–09:35 |
+| SIT05 | `refinery.charger_bearing_wear` | 6 Power Charge drives | F2 · Power Charge | 11:50 | medium | 10:50–12:40 |
+| SIT06 | `refinery.pressure_transmitter_fault` | 6 Stabilization stations | A5 · Stabilization | 09:45 | high | 09:45–09:55 |
+| SIT07 | `refinery.inspection_rejects_upstream` | 6 Inspection gates | A1 · Inspection (root cause: A1 · Refinement) | 10:35 | high | 10:30–10:35 |
+| SIT08 | `refinery.gross_vs_effective_output` | 6 Power Charge stations | F5 · Power Charge | 10:40 | high | 10:25–11:05 |
+| SIT09 | `refinery.charger_fault_cascade` | 6 Power Charge stations | F3 · Power Charge | 11:45 | high | 11:45 |
+| SIT10 | `refinery.manual_overcorrection` | 6 Power Charge stations | F1 · Power Charge | 12:45 | high | 12:45–12:50 |
+| SIT11 | `refinery.transfer_hard_block` | 6 Transfer gates | F6 · Transfer | 13:25 | high | 13:25 |
+| SIT12 | `refinery.charger_micro_stops` | 6 Power Charge stations | F2 · Power Charge | 13:45 | medium | 13:35–13:55 |
+| SIT13 | `refinery.purity_drift_to_limit` | 6 Refinement stations | A6 · Refinement | 12:50 | high | 12:40–12:50 |
+| SIT14 | `refinery.changeover_schedule_risk` | 12 lines | F4 | 12:00 | n/a | 12:00 |
+
+**No detector fired anywhere else**, on the committed data or on any of the
+ten regenerated copies. With 12 lines and 66 stations this was the main
+tuning problem; what each detector had to be taught not to fire on is noted
+below. Every computed confidence matches the item's `confidenceLevel`
+except SIT14, which is a schedule clash rather than a diagnosis and so has
+no level (`n/a` against the item's `high`) — the same as grid's GSIT12.
+
+### What each detector checks
+
+- **SIT02 `busy_shift_confirmed`** (archetype 02) — the positive case. A
+  line that carried a planned product changeover on top of a full
+  production shift: target rate goes to 0 with the unit state reading
+  `changeover`, the window before it averaged ≥ 98.5 % of target with the
+  30-minute mean never below 97 %, and then an explicit **sweep of all five
+  stations** finds no exception — 30-minute mean rate inside ±4.5 % of
+  target, no sample below 90 % of target, no more than two dips 3.5 % below
+  target, stress under 28, and each station type's own tags in band
+  (charger vibration against the other five chargers and its trend, purity,
+  reject rate, Transfer blocking and starvation, buffer level). Instability,
+  scrap and health are checked across the whole window as a fourth required
+  check. The checks are the content: the sweep is what makes "nothing is
+  wrong" worth reading, and the confidence section lists exactly what would
+  change the verdict. Confidence is `high` because a routine Power Charge
+  inspection (wk-002) closed on this line at 09:36 and raised nothing —
+  somebody was at the machine. One supporting check honestly reads
+  `nomatch`: the Grade B material staging closed 2 minutes past its window.
+  *Does not fire on:* the other eleven lines, because none of them has a
+  changeover; A2 (archetype 01, normal all day) would pass the sweep but has
+  no planned product change to confirm.
+- **SIT03 `refinement_regulator_sluggish`** (03) — station rate more than
+  4 % behind the line target for 15 minutes while control effort is more
+  than 4 points above its own first-hour baseline and climbing faster than
+  3 points/h. Supporting: Inspection's deficit matches this station's to
+  0.1/min (no store between them), the Buffer drained 14 points, upstream
+  paced down with WIP up, and the rate recovered 105 % of the deficit within
+  half an hour of wk-009 closing. *Does not fire on:* A4 · Refinement, which
+  dips 4.3 % for one sample during the SIT04 drain but with control effort
+  *below* baseline; A6 · Refinement (SIT13), whose effort steps up but whose
+  rate never leaves target.
+- **SIT04 `buffer_accumulation`** (04) — inflow minus outflow above
+  +2/min for 20 minutes, level more than 12 points above its working level,
+  the integrated net flow matching the level rise to within 15 % (it closes
+  to 0.0 %), and the inflow median inside ±2.5/min of the hour before, which
+  is what puts the cause downstream. Root cause asset is the buffer's
+  `process_flow` target, A4 · Output. *Does not fire on:* A3 · Buffer, which
+  also has a 20-minute net-inflow run (refilling after SIT03) but never
+  climbs above its own working level.
+- **SIT05 `charger_bearing_wear`** (05) — vibration more than 0.80 mm/s
+  above the other five chargers (peer median plus this drive's own first-hour
+  offset) for 30 minutes, rising faster than 0.25 mm/s/h with no 5-minute
+  step above 0.35 mm/s, and rate, charge demand and motor current all at
+  their own baselines on the median. The load check deliberately tolerates
+  up to a fifth of its samples outside the band and names them: the SIT12
+  micro-stops start at 13:30 on the same station, and the vibration keeps
+  climbing through and between them. Confidence is `medium` — the drive
+  inspection (wk-007) is open, not closed.
+- **SIT06 `pressure_transmitter_fault`** (06) — transmitter minus local
+  gauge more than 3 psi away from the pair's usual offset, with a 5-minute
+  step on the transmitter above 3 psi while the gauge's largest step in the
+  same window stays under 1.2 psi, and the gauge's whole range through the
+  episode under 2.5 psi (it drifts slowly with the vessel, so a fixed
+  morning baseline would not do). Flow, temperature, control effort,
+  deviation and the next station down are all supporting, and the residual
+  settling after wk-011 makes it `high`.
+- **SIT07 `inspection_rejects_upstream`** (07) — reject rate above
+  baseline + 1.5 points *and* above 1.8 × baseline for 15 minutes, with the
+  gate's own calibration, measurement noise and false-reject rate inside
+  band against the hour before, and the feeding Refinement's purity leaving
+  its band 10–60 minutes *earlier* (20 minutes here). Root cause asset is
+  A1 · Refinement. *Does not fire on:* A6 · Inspection, whose rejects rise
+  0.7 points behind SIT13 — well under the 1.5-point alert.
+- **SIT08 `gross_vs_effective_output`** (08) — the integral, not the
+  instantaneous gap: over a rolling hour the station made 86 units more than
+  the line shipped (bias-corrected against Output over the first two hours),
+  the line gained 3.3 lots of WIP, the Output rate was no better than its own
+  baseline *and no worse* than 3.5/min below it, and the cumulative
+  gross-minus-shipped curve tracks the WIP curve at r = 0.98. The
+  "no worse" floor is what separates this from a line that is simply broken.
+  *Does not fire on:* F2 (whose Shaping dips briefly around 10:30, giving a
+  smoothed rate gap as wide as F5's on some seeds, but no WIP build-up to go
+  with it), F3 or F6 (WIP swings, but Output collapses, so the floor check
+  catches them).
+- **SIT09 `charger_fault_cascade`** (09) — rate below 30 % of the station's
+  own hour-before baseline with motor current below 40 % (idle), every
+  station downstream below 60 % of its baseline in the *same* sample, the
+  deficit shrinking with distance (19 % → 47 % → 50 %), and the next sample
+  back above 80 % — an interruption, not a stop. Supporting: Bulk Intake
+  blocked rather than empty with material availability normal, and Transfer
+  starved in the down sample then blocked in the recovery. *Does not fire
+  on:* F6 · Power Charge during the SIT11 hold, because the sample after the
+  collapse is still at zero.
+- **SIT10 `manual_overcorrection`** (10) — oscillation index above 4.5 for
+  10 minutes, at least four turning points alternating about the episode's
+  mid-point with two cycles ≥ 6 % peak-to-peak, the largest cycle at least
+  1.2 × the first (8.3 → 12.8 points), controller output correlated −1.00
+  with the charge rate, and the station never below 90 % of rate. *Does not
+  fire on:* F3 · Power Charge, whose charge rate also swings 11 points around
+  the cascade — it is excluded by the rate floor (17.9/min) and by peaking at
+  3.6 on the oscillation index, under the 4.5 alert.
+- **SIT11 `transfer_hard_block`** (11) — gate rate under 1/min for at least
+  10 minutes, motor current in the stopping sample above 1.3 × its running
+  baseline (144.5 A against 95.2 A), then under 35 % of it for the rest of
+  the stop, and every other station on the line at zero as well. Spike then
+  idle is the obstruction signature; supporting checks are the 112 A restart
+  surge and starvation appearing only at the restart. *Does not fire on:*
+  F4 · Transfer during the changeover, which runs down to 11/min and idles
+  its drive but never reaches zero and never spikes (and is skipped as a
+  changeover anyway).
+- **SIT12 `charger_micro_stops`** (12) — at least three samples more than
+  3.5 % below the station's own two-hour local baseline inside a rolling
+  hour, **in at least two separate runs**, each run no longer than 25
+  minutes, with the samples between the runs averaging ≥ 98 % of baseline,
+  the rate never below 50 % of baseline and the motor current never at idle,
+  and a mean shortfall of at least 2 % (4.5 % here, about 226 units).
+  Supporting: Transfer starvation up at the dips while blocking is not,
+  material availability normal, charge demand and oscillation index higher in
+  the dip samples. Confidence is `medium`: wk-008 is open. *Does not fire
+  on:* F3 · Power Charge, whose deliberately reduced demand after the cascade
+  is a 25-minute block of low rate — one run, not several, which is what the
+  `min_runs` check is for.
+- **SIT13 `purity_drift_to_limit`** (13) — purity 0.25 % below its own
+  baseline and falling faster than 0.20 %/h, less than 0.40 % of margin left
+  to the 98.50 % specification limit (about 44 minutes at the measured
+  slope), the input characteristic index more than 4 above its baseline for
+  30 minutes *and still there*, and the other five Refinements inside
+  ±0.20 % of their own baseline. The persistent input shift is the required
+  check that separates this from SIT07's purity dip on A1, which is a similar
+  size but has no input shift behind it.
+- **SIT14 `changeover_schedule_risk`** (14) — an open planned `CHANGEOVER`
+  item on the line due within 2 hours, at least one of its `MATERIAL_STAGE` /
+  `QUALITY_RELEASE` prerequisites still incomplete, and the request lead time
+  plus the remaining prerequisite durations run back-to-back no longer fitting
+  in the time left (60 + 40 + 20 min against the 2 h left at 12:00 — no slack
+  at all). Supporting checks show what happened next: the two were worked in
+  parallel instead, overlapping by 21 minutes, both closed before the
+  changeover, and the line is now physically running down upstream-first.
+  Conclusion label is "What's needed" and the confidence is `n/a`.
+
+### Where the work list is read
+
+Like pipeline and grid, several detectors confirm with work items rather than
+a second sensor, and the explanations name the item and its closing time:
+wk-002 (SIT02, a clean inspection — this is what makes SIT02 `high`), wk-007
+(SIT05, still open → `medium`), wk-008 (SIT12, still open → `medium`),
+wk-009 (SIT03), wk-010 (SIT04), wk-011 (SIT06), wk-012 (SIT07), wk-013
+(SIT09), wk-014 (SIT11). For twelve of the thirteen detectors these are
+**supporting** checks only, so the work list never decides whether a
+detector fires.
+
+SIT14 is the exception, and deliberately so: a changeover plan has no
+telemetry until the changeover starts, so its required checks read the
+`CHANGEOVER` item's due time and its prerequisites' `estimatedDurationMinutes`
+from the work list — the same shape as grid's `clearance_at_risk`. The
+60-minute cross-team request lead is a planning value in `params`, not a
+measurement, and the explanation says so. No detector reads an attention
+item's own signal, detail text or evidence.
+
+### Two attention items on one asset
+
+Refinery is the only pack where two items share an asset: SIT05 and SIT12 are
+both on `FERRUM_F2_POWER_CHARGE`, and SIT02 and SIT14 are both on
+`FERRUM_F4`. `build.run_pack` attaches the first detector that fired on an
+asset to every item on that asset, so `explain.py` has a small `hand_over`
+helper: when the detector that fired first is asked to explain the *other*
+item on its asset, it delegates to that item's own detector and corrects the
+two fields the runner fills in afterwards (`detectorId` and `detectedAt`).
+The mapping is by attention-item id (`HANDOVER`), which is the same
+attach-the-right-explanation step the runner does by asset id — it never
+decides whether a detector fires. All four detectors run and fire on their
+own, so the run report still shows where each of them found something.
+
+### Robustness and detection floors
+
+`python3 ModelAndData/industries/refinery/robustness.py 10` regenerates the
+pack with ten other seeds and reruns every detector on each copy. **All
+thirteen items were found 10/10, with no extra detections**, and the computed
+confidence was the same every time. Raise times move with the noise (last
+column of the table above); SIT05 moves most, 10:50–12:40, because it raises
+when a slow trend crosses a fixed level.
+
+Other seeds vary the noise only, not the size or timing of a fault, so the
+fault size was also varied for four detectors (5 seeds each, scaling the
+scenario profile in a temporary copy of `generate.py`; no extra detections at
+any size):
+
+- **Charger bearing wear** (`SIT05_VIBRATION`, +1.96 mm/s over the shift):
+  found 5/5 at 70 % of the rise (+1.37 mm/s), 1/5 at 55 % (+1.08 mm/s), never
+  at 45 %. The binding threshold is +0.80 mm/s above the other chargers held
+  for 30 minutes with a ≥ 0.25 mm/s/h slope, so a smaller fault is still too
+  young to raise by 14:05.
+- **Buffer accumulation** (`SIT04_LEVEL`, +28.4 points): found 5/5 at 60 %
+  (+17 points), never at 45 % (+13 points). The floor is the 12-point rise
+  above working level plus 20 minutes of net inflow.
+- **Purity drift** (`SIT13_PURITY`, −0.64 %): found 5/5 at 65 % (−0.42 %),
+  never at 50 % (−0.32 %). Below that the margin to the 98.50 % limit never
+  closes to the 0.40 % the detector asks for.
+- **Micro-stops** (`SIT12_LOSS`, 4.2 % mean loss): found 5/5 at 100 %, 3/5 at
+  80 % (3.4 %), 2/5 at 65 % (2.7 %), never at 50 % (2.1 %). The 2.0 % mean
+  shortfall and the three deep samples are what bind.
+
+These are **reference detectors** (spec §14.8). Their thresholds were set
+against this pack's simulated data and sanity-checked for false positives on
+the eleven other lines and ten regenerated copies; they are a starting point
+to tune on a customer's own history, not validated settings.
+
+### Differences from the item narratives
+
+The detectors raise from the data, so some times differ from the hand-written
+item text. None of these are errors in either place:
+
+- **SIT03** drifts from 08:45 in the text; the detector sees it at 08:50
+  (2 % behind target) and raises at 09:20, once 4 % has held 15 minutes.
+- **SIT05** starts at 09:00 in the text, with evidence from 08:50. The
+  detector raises at 11:50, when the excess vibration has held above
+  +0.80 mm/s for 30 minutes; it marks the divergence from 10:15 (+0.40 mm/s).
+- **SIT07** is flagged at 10:15 in the text; the detector raises at 10:35,
+  after 15 minutes above its alert level.
+- **SIT08** runs 10:00–11:35 in the text. The detector needs a full hour of
+  gross-against-shipped to see 86 units through the counters' own noise, so
+  it raises at 10:40.
+- **SIT11** blocks at 13:20; the detector raises at 13:25, the second sample
+  at zero (one sample at zero could be a counter).
+- **SIT12** starts at 13:10 in the text, where the per-sample losses are
+  0.4–3 %. The detector's first *deep* sample (3.5 % below baseline) is
+  13:30 and it raises at 13:45; its conclusion therefore says "since 13:30"
+  and measures 4.5 % rather than the text's 4.2 %, which is the mean from
+  13:10.
+- **SIT13** is flagged at 12:48 in the text and the detector raises at 12:50,
+  the first sample where the margin to the limit is inside 0.40 %.
+- **SIT02** raises at 13:45, the last production sample before the
+  changeover, because the sweep covers the whole production window.
+
 ## Validator warnings and why they're accepted
 
 `python3 ModelAndData/tools/validate_industry_pack.py refinery` → 0 errors,

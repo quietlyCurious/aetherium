@@ -5,6 +5,7 @@
 const DX_WIDGET_DATA = [
 
 { id: 'basics', parentId: null, name: 'Basics', assetType: 'category', assetLevel: 'category' },
+{ id: 'embedded', parentId: null, name: 'Embedded', assetType: 'category', assetLevel: 'category' },
 { id: 'grids', parentId: null, name: 'Grids & Lists', assetType: 'category', assetLevel: 'category' },
 { id: 'charts', parentId: null, name: 'Charts & Visualization', assetType: 'category', assetLevel: 'category' },
 { id: 'editors', parentId: null, name: 'Editors', assetType: 'category', assetLevel: 'category' },
@@ -17,6 +18,10 @@ const DX_WIDGET_DATA = [
 // Basics — Aetherium's own widgets, not DevExtreme's (custom: true;
 // see customWidgets/customWidgets.js)
 { id: 'ae-text', parentId: 'basics', name: 'Text', assetType: 'widget', assetLevel: 'widget', custom: true },
+
+// Embedded — views that live in another product and are hosted on the page
+// (custom: true; customWidgets/embeddedView/)
+{ id: 'ae-embeddedview', parentId: 'embedded', name: 'EmbeddedView', assetType: 'widget', assetLevel: 'widget', custom: true },
 
 // Grids & Lists
 { id: 'dx-datagrid', parentId: 'grids', name: 'DataGrid', assetType: 'widget', assetLevel: 'widget' },

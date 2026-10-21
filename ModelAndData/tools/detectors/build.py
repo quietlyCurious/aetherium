@@ -212,6 +212,14 @@ class Detector:
     summary = ''
     pipeline = []            # [(title, text)] — the engineer view's steps
     definition = {}
+    # Attention items this detector is the explanation for, when one asset
+    # carries more than one item (refinery's F2 has both a vibration trend and
+    # a micro-stop item). Leave it None and the runner pairs an item with
+    # whichever of its asset's detectors fired first, as it always has.
+    # Firing is never affected: every detector still evaluates every asset on
+    # its own evidence. This only says which already-fired detector writes
+    # which item's explanation.
+    explains_items = None
 
     @property
     def p(self):
@@ -260,12 +268,26 @@ def run_pack(repo, model, detectors, extra=None, pack_dir=None, write=True):
         report['lines'].append(f'{d.id:34} ran on {len(cands):3} {d.applies_to:<22} fired on {len(fired)}: {names}')
 
     covered = set()
+    owners = {}
+    for d in detectors:
+        for iid in (d.explains_items or ()):
+            owners.setdefault(iid, []).append(d)
     for item in pack.attention:
         hits = findings.get(item['assetId'], [])
         if not hits:
             report['errors'].append(f'{item["id"]}: no detector fired on {item["assetId"]}')
             continue
-        d, f = hits[0]
+        own = owners.get(item['id'])
+        if own:
+            # This item names its detector, so only that one may explain it.
+            hit = next((h for h in hits if h[0] in own), None)
+            if hit is None:
+                report['errors'].append(f'{item["id"]}: {own[0].id} did not fire on {item["assetId"]} '
+                                        f'(other detectors did, but this item names its own)')
+                continue
+            d, f = hit
+        else:
+            d, f = hits[0]
         exp = d.explain(pack, f, item)
         exp['detectorId'] = d.id
         exp['detectedAt'] = pack.ts[f.at]

@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mashup Embed Spike</title>
+<!--
+  Step 1 spike: can an Aetherium page host a ThingWorx mashup in an iframe?
+  Open at http://localhost:3000/embed-spike.html (Aetherium dev server running,
+  proxy running with twxEmbed.js hooked up).
+
+  Loads the same mashup two ways, side by side:
+    Direct   — iframe points straight at the ThingWorx server (cross-origin).
+    Proxied  — iframe points at /Thingworx/… on Aetherium's own origin, which
+               the dev server forwards to the proxy, which adds the app key.
+  Not part of the app — a throwaway test page.
+-->
+<style>
+  :root {
+    --bg: #f5f5f5; --panel: #ffffff; --text: #242424; --muted: #616161;
+    --border: #d1d1d1; --accent: #0f6cbd; --accent-text: #ffffff;
+    --ok: #0e7a0d; --ok-bg: #e7f4e4; --warn: #8a5300; --warn-bg: #fdf3e1;
+    --bad: #b10e1c; --bad-bg: #fdecee; --info-bg: #ebf3fc; --mono: Consolas, "Cascadia Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1f1f1f; --panel: #292929; --text: #f0f0f0; --muted: #adadad;
+      --border: #474747; --accent: #479ef5; --accent-text: #0a0a0a;
+      --ok: #7fd17d; --ok-bg: #1b3a1b; --warn: #f2c26b; --warn-bg: #3d2f12;
+      --bad: #f2848c; --bad-bg: #3f1b1f; --info-bg: #1c2d42;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 "Segoe UI", system-ui, sans-serif; }
+  header { display: flex; align-items: baseline; gap: 12px; padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  header h1 { margin: 0; font-size: 15px; font-weight: 600; }
+  header span { color: var(--muted); }
+  main { display: grid; grid-template-columns: 300px 1fr; gap: 12px; padding: 12px 16px; height: calc(100vh - 42px); }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; height: auto; } }
+  .side { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: auto; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .card h2 { margin: 0 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  label { display: block; margin: 6px 0 2px; color: var(--muted); font-size: 12px; }
+  input[type=text] { width: 100%; padding: 5px 7px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); font: inherit; }
+  button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--panel); color: var(--text); font: inherit; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  .row { display: flex; gap: 6px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+  .list { margin-top: 6px; max-height: 200px; overflow: auto; border: 1px solid var(--border); border-radius: 4px; }
+  .list div { padding: 4px 8px; cursor: pointer; border-bottom: 1px solid var(--border); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .list div:last-child { border-bottom: 0; }
+  .list div:hover { background: var(--info-bg); }
+  .list div.sel { background: var(--accent); color: var(--accent-text); }
+  .params .p { display: grid; grid-template-columns: 1fr 1fr 22px; gap: 4px; margin-top: 4px; }
+  .params .p button { padding: 0; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .msg { padding: 6px 8px; border-radius: 4px; margin-top: 6px; font-size: 12px; }
+  .msg.ok { background: var(--ok-bg); color: var(--ok); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .msg.bad { background: var(--bad-bg); color: var(--bad); }
+  .msg.info { background: var(--info-bg); }
+  code, .mono { font-family: var(--mono); font-size: 12px; word-break: break-all; }
+  .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; min-height: 0; }
+  @media (max-width: 1100px) { .panes { grid-template-columns: 1fr; } }
+  .pane { display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; min-height: 420px; overflow: hidden; }
+  .pane-head { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .pane-head b { font-weight: 600; }
+  .pane-head .src { color: var(--muted); }
+  .frame-wrap { position: relative; flex: 1; min-height: 360px; background: var(--bg); }
+  .frame-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  .frame-wrap .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); }
+  .overlay { position: absolute; inset: 0; display: none; border: 2px dashed var(--accent); background: transparent; cursor: move; }
+  .overlay span { position: absolute; top: 6px; left: 6px; background: var(--accent); color: var(--accent-text); padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+  body.design .overlay { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mashup Embed Spike</h1>
+  <span>Same ThingWorx mashup, loaded directly and through Aetherium's origin</span>
+</header>
+<main>
+  <div class="side">
+    <div class="card">
+      <h2>1 · Pick a mashup</h2>
+      <div class="row" style="margin-top:0">
+        <button id="listBtn">List mashups</button>
+        <label style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="showSystem"> include system</label>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <input type="text" id="filter" placeholder="Filter list, or Enter to search the server…" style="flex:1">
+        <button id="searchBtn" title="Search ThingWorx for mashups and Masters by name">Search</button>
+      </div>
+      <div class="list" id="list" hidden></div>
+      <div id="listMsg"></div>
+      <label for="mashup">Mashup name</label>
+      <input type="text" id="mashup" placeholder="e.g. PumpOverview">
+      <label for="master">Wrap in Master (optional)</label>
+      <input type="text" id="master" list="masterList" placeholder="None — Aetherium is the frame">
+      <datalist id="masterList"></datalist>
+      <div id="masterMsg" class="note">Leave empty unless the mashup needs its Master's setup or navigation.</div>
+      <label for="pasteUrl">…or paste a runtime URL</label>
+      <input type="text" id="pasteUrl" placeholder="https://…/Thingworx/Runtime/index.html#master=…&amp;mashup=…">
+    </div>
+
+    <div class="card params">
+      <h2>2 · Parameters (URL)</h2>
+      <div id="paramMsg" class="note">Picking a mashup tries to discover its parameters.</div>
+      <div id="paramRows"></div>
+      <div class="row"><button id="addParam">+ Parameter</button></div>
+    </div>
+
+    <div class="card">
+      <h2>3 · Load</h2>
+      <div class="row" style="margin-top:0">
+        <button class="primary" id="loadBtn">Load both</button>
+        <button id="diagBtn">Check headers</button>
+      </div>
+      <div class="row">
+        <label style="margin:0;display:flex;gap:4px;align-items:center"><input type="checkbox" id="designMode"> designer overlay</label>
+      </div>
+      <div class="note">The overlay is how the designer canvas would keep drag/select working over an iframe — with it on, clicks shouldn't reach the mashup.</div>
+      <div id="diag"></div>
+    </div>
+  </div>
+
+  <div class="panes">
+    <section class="pane">
+      <div class="pane-head"><b>Direct</b> <span class="src">· iframe → ThingWorx server (cross-origin)</span><div id="directStatus"></div></div>
+      <div class="frame-wrap" id="directWrap"><div class="empty">Not loaded</div><div class="overlay"><span>Embedded view (design mode)</span></div></div>
+    </section>
+    <section class="pane">
+      <div class="pane-head"><b>Proxied</b> <span class="src">· iframe → /Thingworx on this origin</span><div id="proxiedStatus"></div></div>
+      <div class="frame-wrap" id="proxiedWrap"><div class="empty">Not loaded</div><div class="overlay"><span>Embedded view (design mode)</span></div></div>
+    </section>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const RUNTIME = '/Thingworx/Runtime/index.html';
+let allMashups = [];
+let diagnosis = null;
+
+function msg(el, kind, html) { el.innerHTML = `<div class="msg ${kind}">${html}</div>`; }
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const rowsOf = (json) => Array.isArray(json?.rows) ? json.rows : Array.isArray(json) ? json : [];
+const asList = (defs) => Array.isArray(defs) ? defs : Object.values(defs || {});
+
+async function getJson(url) {
+  const r = await fetch(url, { headers: { Accept: 'application/json' } });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} — ${text.slice(0, 160)}`);
+  try { return JSON.parse(text); } catch { throw new Error(`not JSON (status ${r.status}): ${text.slice(0, 160)}`); }
+}
+
+// ── Mashup list ─────────────────────────────────────────────────────────────
+// Fetched through the same /Thingworx route the proxied iframe uses, so a
+// working list already proves the same-origin path reaches ThingWorx.
+$('listBtn').onclick = async () => {
+  $('listBtn').disabled = true;
+  msg($('listMsg'), 'info', 'Loading…');
+  try {
+    allMashups = rowsOf(await getJson('/Thingworx/Mashups')).filter(r => r.name);
+    const systemCount = allMashups.filter(m => m.isSystemObject).length;
+    msg($('listMsg'), 'ok', `${allMashups.length} mashups via the same-origin route (${systemCount} flagged system). ThingWorx may cap this list — if one you know exists is missing, use Search.`);
+    renderList();
+    loadMasters();
+  } catch (err) {
+    msg($('listMsg'), 'bad', `Couldn't list mashups: ${esc(err.message)}<br>Is the proxy running with <code>twxEmbed.js</code> hooked up, and was <code>npm start</code> restarted after adding <code>setupProxy.js</code>?`);
+  } finally { $('listBtn').disabled = false; }
+};
+
+// Masters are their own entity collection in Composer. Not sure the REST
+// collection is called "Masters" on every version, so try it, then fall back
+// to mashup rows that say they're masters — and report which one worked.
+async function loadMasters() {
+  let masters = [], source = null;
+  try {
+    masters = rowsOf(await getJson('/Thingworx/Masters')).filter(r => r.name);
+    source = '/Thingworx/Masters';
+  } catch { /* try the fallback */ }
+  if (!masters.length) {
+    masters = allMashups.filter(m => /master/i.test(m.mashupType || m.type || ''));
+    if (masters.length) source = 'mashup rows typed as master';
+  }
+  $('masterList').innerHTML = masters
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(m => `<option value="${esc(m.name)}">`).join('');
+  $('masterMsg').innerHTML = masters.length
+    ? `${masters.length} Masters available (from ${esc(source)}). Leave empty unless the mashup needs its Master.`
+    : 'Couldn\'t list Masters — you can still type or paste one. Leave empty unless the mashup needs its Master.';
+}
+
+// ── Server-side search ──────────────────────────────────────────────────────
+// The plain list can be capped, so search at the source, like Composer's own
+// search box. SpotlightSearch is ThingWorx's entity search service; its exact
+// parameter shapes are from memory, so this tries a couple of forms and
+// reports which one answered. If search finds nothing, an exact-name lookup
+// tells "doesn't exist / no permission" apart from "search missed it".
+async function postJson(url, body) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await r.text();
+  if (!r.ok) throw new Error(`${r.status} — ${text.slice(0, 160)}`);
+  return JSON.parse(text);
+}
+
+const SPOTLIGHT = '/Thingworx/Resources/SearchFunctions/Services/SpotlightSearch';
+const isMasterType = (t) => /master/i.test(t || '');
+const isVisualType = (t) => /mashup|master/i.test(t || '');
+let searchResults = null;   // null → show the plain list
+let searchTerm = '';
+
+async function serverSearch(term) {
+  const attempts = [
+    { label: 'search', expr: term, types: true },
+    { label: 'wildcard search', expr: `*${term}*`, types: true },
+    { label: 'untyped wildcard search', expr: `*${term}*`, types: false },
+  ];
+  const notes = [];
+  for (const a of attempts) {
+    try {
+      const json = await postJson(SPOTLIGHT, {
+        searchExpression: a.expr,
+        ...(a.types ? { types: { items: ['Mashup', 'Master'] } } : {}),
+        maxItems: 500,
+        maxSearchItems: 5000,
+        withPermissions: false,
+      });
+      const rows = rowsOf(json).filter(r => r.name && (!r.type || isVisualType(r.type)));
+      if (rows.length) return { rows, how: a.label };
+      notes.push(`${a.label}: 0`);
+    } catch (err) {
+      notes.push(`${a.label}: ${err.message.slice(0, 60)}`);
+    }
+  }
+  // Exact name: answers "does it exist for this app key's user at all?"
+  const exact = [];
+  for (const [collection, type] of [['Mashups', 'Mashup'], ['Masters', 'Master']]) {
+    try {
+      const json = await getJson(`/Thingworx/${collection}/${encodeURIComponent(term)}`);
+      exact.push({ name: json?.name || term, type, description: json?.description || '' });
+    } catch (err) { notes.push(`exact ${collection}: ${err.message.slice(0, 40)}`); }
+  }
+  return { rows: exact, how: exact.length ? 'exact-name lookup' : null, notes };
+}
+
+async function runSearch() {
+  const term = $('filter').value.trim();
+  if (term.length < 2) { searchResults = null; renderList(); return; }
+  $('searchBtn').disabled = true;
+  msg($('listMsg'), 'info', `Searching ThingWorx for "${esc(term)}"…`);
+  const { rows, how, notes } = await serverSearch(term);
+  $('searchBtn').disabled = false;
+  searchTerm = term;
+  searchResults = rows;
+  rows.filter(r => isMasterType(r.type)).forEach(addMasterOption);
+  msg($('listMsg'), rows.length ? 'ok' : 'warn', rows.length
+    ? `${rows.length} found by ${esc(how)} (Masters marked). Clear the box to go back to the plain list.`
+    : `Nothing found. Tried: ${esc((notes || []).join(' · '))}. Send me this line — it says which part didn't work.`);
+  list.hidden = false;
+  renderList();
+}
+$('searchBtn').onclick = runSearch;
+$('filter').onkeydown = (e) => { if (e.key === 'Enter') runSearch(); };
+
+function addMasterOption(m) {
+  if ([...$('masterList').options].some(o => o.value === m.name)) return;
+  $('masterList').insertAdjacentHTML('beforeend', `<option value="${esc(m.name)}">`);
+}
+
+const list = $('list');
+const LIST_CAP = 500;
+function renderList() {
+  const f = $('filter').value.trim().toLowerCase();
+  if (searchResults && $('filter').value.trim() !== searchTerm) searchResults = null;
+  const sys = $('showSystem').checked;
+  const source = searchResults || allMashups.filter(m => sys || !m.isSystemObject).filter(m => !f || m.name.toLowerCase().includes(f));
+  const matches = [...source].sort((a, b) => a.name.localeCompare(b.name));
+  list.hidden = !allMashups.length && !searchResults;
+  const tag = (m) => [isMasterType(m.type) && 'Master', m.isSystemObject && 'system'].filter(Boolean).join(' · ');
+  list.innerHTML = matches.slice(0, LIST_CAP).map(m => `<div data-name="${esc(m.name)}" data-master="${isMasterType(m.type) ? 1 : ''}" title="${esc(m.description || m.name)}" class="${[$('mashup').value, $('master').value].includes(m.name) ? 'sel' : ''}">${esc(m.name)}${tag(m) ? ` <span style="opacity:.6">· ${tag(m)}</span>` : ''}</div>`).join('')
+    + (matches.length > LIST_CAP ? `<div style="cursor:default;color:var(--muted)">…and ${matches.length - LIST_CAP} more — filter to narrow</div>` : '')
+    || `<div style="cursor:default;color:var(--muted)">No matches${searchResults ? '' : ' in the list — press Enter to search the server'}</div>`;
+}
+$('filter').oninput = renderList;
+$('showSystem').onchange = renderList;
+list.onclick = (e) => {
+  const item = e.target.closest('[data-name]');
+  const name = item?.dataset.name;
+  if (!name) return;
+  // A Master goes in the Master field; anything else is the mashup.
+  if (item.dataset.master) { $('master').value = name; renderList(); return; }
+  $('mashup').value = name;
+  renderList();
+  discoverParams(name);
+};
+
+// ── Parameter discovery ─────────────────────────────────────────────────────
+// Probing where a mashup's parameters live in its entity JSON — this is what
+// the real Embedded View widget will need (step 2), so the spike reports what
+// it found rather than assuming.
+function addParamRow(name = '', value = '') {
+  const row = document.createElement('div');
+  row.className = 'p';
+  row.innerHTML = `<input type="text" placeholder="name" value="${esc(name)}"><input type="text" placeholder="value" value="${esc(value)}"><button title="Remove">×</button>`;
+  row.querySelector('button').onclick = () => row.remove();
+  $('paramRows').appendChild(row);
+}
+$('addParam').onclick = () => addParamRow();
+
+function findParameterDefs(json) {
+  const direct = json?.parameterDefinitions ?? json?.parameters;
+  if (direct) return { where: 'parameterDefinitions', defs: asList(direct) };
+  // Older/other shape: parameters described inside the mashup's own content.
+  try {
+    const content = typeof json?.mashupContent === 'string' ? JSON.parse(json.mashupContent) : json?.mashupContent;
+    const p = content?.Parameters ?? content?.parameters ?? content?.UI?.Properties?.Parameters;
+    if (p) return { where: 'mashupContent', defs: asList(p) };
+  } catch { /* fall through */ }
+  return { where: null, defs: [] };
+}
+
+async function discoverParams(name) {
+  $('paramRows').innerHTML = '';
+  $('paramMsg').innerHTML = 'Looking…';
+  try {
+    const json = await getJson(`/Thingworx/Mashups/${encodeURIComponent(name)}`);
+    const { where, defs } = findParameterDefs(json);
+    const named = defs.filter(d => d && (d.name || d.ParameterName));
+    named.forEach(d => addParamRow(d.name || d.ParameterName, d.aspects?.defaultValue ?? ''));
+    $('paramMsg').innerHTML = named.length
+      ? `<div class="msg ok">Found ${named.length} parameter${named.length > 1 ? 's' : ''} in <code>${where}</code> (${named.map(d => `${esc(d.name || d.ParameterName)}: ${esc(d.baseType || d.BaseType || '?')}`).join(', ')}).</div>`
+      : `<div class="msg warn">No parameters found. Top-level keys: <code>${esc(Object.keys(json || {}).join(', '))}</code> — worth a screenshot if this mashup does have parameters.</div>`;
+  } catch (err) {
+    msg($('paramMsg'), 'bad', `Couldn't read the mashup definition: ${esc(err.message)}`);
+  }
+}
+
+// A runtime URL can carry mashup/master in the query string, the hash, or both
+// (the example from the FSU app had mashup in both). Hash wins.
+const RESERVED = new Set(['mashup', 'master', 'appKey', '__fromLogin']);
+function parseRuntimeUrl(text) {
+  let url;
+  try { url = new URL(text.trim()); } catch { return null; }
+  const values = new Map(url.searchParams);
+  new URLSearchParams(url.hash.replace(/^#/, '')).forEach((v, k) => values.set(k, v));
+  if (!values.get('mashup')) return null;
+  const params = [...values].filter(([k]) => !RESERVED.has(k));
+  return { mashup: values.get('mashup'), master: values.get('master') || '', params };
+}
+
+$('pasteUrl').onchange = async () => {
+  const parsed = parseRuntimeUrl($('pasteUrl').value);
+  if (!parsed) { msg($('masterMsg'), 'warn', 'That doesn\'t look like a runtime URL with a mashup in it.'); return; }
+  $('mashup').value = parsed.mashup;
+  $('master').value = parsed.master;
+  renderList();
+  await discoverParams(parsed.mashup);
+  // Values from the URL fill in discovered parameters, or add rows for ones
+  // discovery didn't find.
+  parsed.params.forEach(([k, v]) => {
+    const existing = [...$('paramRows').querySelectorAll('.p')].find(r => r.querySelector('input').value === k);
+    if (existing) existing.querySelectorAll('input')[1].value = v;
+    else addParamRow(k, v);
+  });
+};
+
+function hashFor(name) {
+  const master = $('master').value.trim();
+  // Master first, matching the order ThingWorx itself writes it in.
+  const parts = [...(master ? [`master=${encodeURIComponent(master)}`] : []), `mashup=${encodeURIComponent(name)}`];
+  $('paramRows').querySelectorAll('.p').forEach(row => {
+    const [k, v] = row.querySelectorAll('input');
+    if (k.value.trim()) parts.push(`${encodeURIComponent(k.value.trim())}=${encodeURIComponent(v.value)}`);
+  });
+  return '#' + parts.join('&');
+}
+
+// ── Header check ────────────────────────────────────────────────────────────
+function framingVerdict(h) {
+  if (!h || h.error) return { kind: 'bad', text: `Couldn't reach the runtime page: ${esc(h?.error || 'no response')}` };
+  const xfo = (h.xFrameOptions || '').toUpperCase();
+  const fa = h.frameAncestors || '';
+  if (xfo === 'DENY' || xfo === 'SAMEORIGIN' || (fa && !/\*|localhost/.test(fa))) {
+    return { kind: 'bad', text: `Server refuses framing by other sites (${[xfo && `X-Frame-Options: ${esc(xfo)}`, fa && esc(fa)].filter(Boolean).join(' · ')}) — the direct pane should come up blank or show an error.` };
+  }
+  if (h.status >= 300 && h.status < 400) return { kind: 'warn', text: `Redirects to <code>${esc(h.location)}</code> — probably a login page.` };
+  return { kind: 'ok', text: `No framing restriction (status ${h.status}).` };
+}
+
+async function runDiagnosis() {
+  const name = $('mashup').value.trim();
+  try {
+    diagnosis = await getJson(`/twx-embed/diagnose?mashup=${encodeURIComponent(name)}`);
+  } catch (err) {
+    msg($('diag'), 'bad', `Header check failed: ${esc(err.message)}`);
+    return null;
+  }
+  const withKey = framingVerdict(diagnosis.withAppKey);
+  const noKey = framingVerdict(diagnosis.withoutAppKey);
+  $('diag').innerHTML =
+    `<div class="msg info">ThingWorx: <code>${esc(diagnosis.twxBaseUrl)}</code></div>` +
+    `<div class="msg ${noKey.kind}"><b>As a browser would ask (no key):</b> ${noKey.text}</div>` +
+    `<div class="msg ${withKey.kind}"><b>With app key:</b> ${withKey.text}</div>`;
+  return diagnosis;
+}
+$('diagBtn').onclick = runDiagnosis;
+
+// ── Loading the two panes ───────────────────────────────────────────────────
+function mountFrame(wrapId, src) {
+  const wrap = $(wrapId);
+  wrap.querySelector('iframe')?.remove();
+  wrap.querySelector('.empty')?.remove();
+  const frame = document.createElement('iframe');
+  frame.src = src;
+  wrap.prepend(frame);
+  return frame;
+}
+
+$('loadBtn').onclick = async () => {
+  const name = $('mashup').value.trim();
+  if (!name) { $('mashup').focus(); return; }
+  const hash = hashFor(name);
+  const d = diagnosis || await runDiagnosis();
+
+  // Direct: cross-origin, so the page can't look inside — judge by eye, plus
+  // the header check above.
+  if (d?.twxBaseUrl) {
+    const directSrc = `${d.twxBaseUrl}${RUNTIME}${hash}`;
+    mountFrame('directWrap', directSrc);
+    const v = framingVerdict(d.withoutAppKey);
+    $('directStatus').innerHTML = `<div class="msg ${v.kind === 'ok' ? 'info' : v.kind}">Can't see inside a cross-origin frame — check the pane. ${v.kind === 'bad' ? 'Expect it to be blocked.' : 'If it shows a login page, the browser has no ThingWorx session for this frame.'}</div><div class="note mono">${esc(directSrc)}</div>`;
+  } else {
+    $('directStatus').innerHTML = `<div class="msg bad">No ThingWorx URL — the header check didn't come back.</div>`;
+  }
+
+  // Proxied: same-origin, so the page can check what actually loaded.
+  const proxiedSrc = `${RUNTIME}${hash}`;
+  const frame = mountFrame('proxiedWrap', proxiedSrc);
+  msg($('proxiedStatus'), 'info', 'Loading…');
+  frame.onload = () => setTimeout(() => inspectProxied(frame, proxiedSrc), 2500);
+};
+
+function inspectProxied(frame, src) {
+  let loc, doc;
+  try { loc = frame.contentWindow.location; doc = frame.contentDocument; }
+  catch { msg($('proxiedStatus'), 'bad', 'Frame is not same-origin — the dev server didn\'t forward /Thingworx (restart <code>npm start</code> after adding setupProxy.js).'); return; }
+  const path = loc.pathname;
+  const elements = doc?.body ? doc.body.querySelectorAll('*').length : 0;
+  const note = `<div class="note mono">${esc(src)}</div>`;
+  if (/FormLogin|login/i.test(path)) {
+    $('proxiedStatus').innerHTML = `<div class="msg bad">Landed on a login page (<code>${esc(path)}</code>) — the app key isn't being accepted for the runtime.</div>${note}`;
+  } else if (elements < 20) {
+    $('proxiedStatus').innerHTML = `<div class="msg warn">Same-origin ✓, but the page looks nearly empty (${elements} elements, title "${esc(doc?.title)}"). Check the browser console for errors from <code>/Thingworx/…</code>.</div>${note}`;
+  } else {
+    $('proxiedStatus').innerHTML = `<div class="msg ok">Same-origin ✓ · rendered (${elements} elements, title "${esc(doc?.title)}") · Aetherium can see inside this frame.</div>${note}`;
+  }
+}
+
+$('designMode').onchange = (e) => document.body.classList.toggle('design', e.target.checked);
+</script>
+</body>
+</html>

@@ -37,6 +37,11 @@ Text: [
   { name: 'suffix', label: 'Suffix', type: 'string', default: '' },
 ],
 
+// ─── EMBEDDED ──────────────────────────────────────────────────────────────
+EmbeddedView: [
+  { name: 'designPreview', label: 'In Designer', type: 'enum', options: ['live','placeholder'], default: 'live', bindable: false },
+],
+
 // ─── GRIDS & LISTS ─────────────────────────────────────────────────────────
 DataGrid: [
   { name: 'dataSource', label: 'Data Source', type: 'data', default: [] },

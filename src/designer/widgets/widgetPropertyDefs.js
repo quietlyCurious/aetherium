@@ -23,6 +23,7 @@ import { WIDGET_PROPERTIES } from '../../widgetProperties';
 import { loadWidgetPropertyOverrides, saveWidgetPropertyOverrides } from '../../widgetPropertyOverridesStorage';
 import { stableStringify } from '../../unsavedChangesStore';
 import { groupOfDef } from './optionNaming';
+import { CUSTOM_WIDGETS } from '../../customWidgets/customWidgets';
 
 export const WIDGET_PROPERTY_TYPES = ['string', 'number', 'bool', 'enum', 'color', 'json', 'data'];
 
@@ -82,6 +83,37 @@ export function getWidgetPropertyDefs(widgetName) {
 
 export function getWidgetPropertyDef(widgetName, propName) {
   return getWidgetPropertyDefs(widgetName).find(p => p.name === propName);
+}
+
+// ── One placed widget's properties ───────────────────────────────────────────
+// Most widgets expose the same list wherever they're placed. A custom widget
+// with dynamicPropertyDefs adds properties that depend on its own setup — an
+// Embedded View gets one per parameter of the mashup it shows. Anything
+// about a PLACED widget (details panel, binding popover, binding resolution)
+// asks here, with that widget's props; the per-type getters above stay for
+// the Widgets area and multi-select, where there's no one widget.
+
+export function getContainerPropertyDefs(widgetName, widgetProps) {
+  const base = getWidgetPropertyDefs(widgetName);
+  const dynamic = CUSTOM_WIDGETS[widgetName]?.dynamicPropertyDefs;
+  if (!dynamic) return base;
+  const extra = sanitizeDefs(dynamic(widgetProps || {})) || NO_DEFS;
+  if (!extra.length) return base;
+  const taken = new Set(base.map(d => d.name));
+  return [...base, ...extra.filter(d => !taken.has(d.name))];
+}
+
+export function getContainerPropertyDef(widgetName, widgetProps, propName) {
+  return getContainerPropertyDefs(widgetName, widgetProps).find(p => p.name === propName);
+}
+
+// Bindings under a widget's dynamic prefix whose property no longer exists
+// (the mashup dropped that parameter). → the property names.
+export function orphanedDynamicBindings(widgetName, widgetProps, bindings) {
+  const prefix = CUSTOM_WIDGETS[widgetName]?.dynamicPropertyPrefix;
+  if (!prefix) return NO_DEFS;
+  const names = new Set(getContainerPropertyDefs(widgetName, widgetProps).map(d => d.name));
+  return Object.keys(bindings || {}).filter(k => k.startsWith(prefix) && !names.has(k));
 }
 
 export function isWidgetCustomized(widgetName) {

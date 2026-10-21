@@ -728,10 +728,10 @@ Still open:
   each pack's SCENARIOS.md instead.
 - `derivations` are validated but not yet used by the UI (for example, to
   explain where a rollup comes from).
-- `explanations.json` (§14) exists for all five generated packs (wind,
-  ccgt, pipeline, pharma, grid). Refinery, water and wastewater keep the
-  plain AI tab until they get detectors; their generators now make
-  `robustness.py` possible for them.
+- `explanations.json` (§14) exists for **every** pack: wind, ccgt,
+  pipeline, pharma, grid, and now water, wastewater and refinery. 79
+  detectors in total, one per attention item, each robustness-tested on
+  10 regenerated datasets.
 
 ---
 
@@ -965,6 +965,18 @@ browser never asks for a file that isn't there). The validator errors if
 the file is listed but missing, and warns if it exists but isn't listed.
 In the app, Investigate's AI tab shows `ExplanationView` for any attention
 item that has an explanation, and the plain interpretation otherwise.
+Every pack lists it today.
+
+**When one asset carries two attention items** (refinery's F2 · Power
+Charge has both a vibration trend and a micro-stop item), each of the two
+detectors names its item in `explains_items`, and the runner pairs each
+item with its own detector instead of with whichever fired first. It
+decides which explanation goes with which item, never whether a detector
+fires: both still evaluate every asset on their own evidence. Leave
+`explains_items` unset — the normal case — and nothing changes. If a
+named detector doesn't fire on a regenerated dataset, the runner reports
+that item as unexplained rather than attaching the other detector's
+reasoning to it.
 
 ### 14.8 Limits to state plainly
 

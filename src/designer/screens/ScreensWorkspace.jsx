@@ -27,7 +27,7 @@ import { unsavedChangesStore } from '../../unsavedChangesStore';
 import WidgetBindingPopover from '../../WidgetBindingPopover';
 import InputBindingPopover from '../../InputBindingPopover';
 import { findContainerById } from '../../containerTree';
-import { getWidgetPropertyDef } from '../widgets/widgetPropertyDefs';
+import { getContainerPropertyDef } from '../widgets/widgetPropertyDefs';
 import { ScreensLeftPanel } from './ScreensLeftPanel';
 import { ScreenCanvas } from './ScreenCanvas';
 import { ObjectDropPopover } from './ObjectDropPopover';
@@ -163,7 +163,7 @@ function WidgetBindingEditor({ editor, queries, self }) {
   const container = findContainerById(editor.containers, target.containerId);
   if (!container) return null;
   const binding = container.bindings?.[target.propName];
-  const propDef = getWidgetPropertyDef(container.widgetName, target.propName);
+  const propDef = getContainerPropertyDef(container.widgetName, container.widgetProps, target.propName);
   return (
     <WidgetBindingPopover
       propLabel={propDef?.label || target.propName}

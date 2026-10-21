@@ -185,7 +185,7 @@ function ContainerCard({
   // the same way — a property tile gives each screen its own.
   const screenProperty = useScreenProperty();
   const bindingBroken = hasBoundProperties
-    && hasBrokenBinding(container.bindings, container.widgetName || container.title, { assetId: screenAssetId, property: screenProperty });
+    && hasBrokenBinding(container.bindings, container.widgetName || container.title, { assetId: screenAssetId, property: screenProperty, widgetProps: container.widgetProps });
 
   const isHiddenAtTier = activeTierId && activeTierId !== BASE_TIER_ID
     && (container.breakpointOverrides?.[activeTierId]?.hidden ?? false);
@@ -520,6 +520,7 @@ function ContainerCard({
               <WidgetPreview
                 widgetName={container.widgetName || container.title}
                 widgetProps={resolveWidgetProps(container.widgetProps, container.bindings, container.widgetName || container.title, { queryResults, queries, assetId: screenAssetId, property: screenProperty })}
+                designMode={interactive}
               />
             )}
           </div>
@@ -603,7 +604,7 @@ function ContainerCard({
       )}
       {hasBoundProperties && interactive && (
         bindingBroken
-          ? <div className="binding-badge binding-badge--broken" title="A property is bound to something this screen isn't showing — see the widget's details">⚡!</div>
+          ? <div className="binding-badge binding-badge--broken" title="A bound property can't resolve — it needs something this screen isn't showing, or the property is gone. See the widget's details.">⚡!</div>
           : <div className="binding-badge" title="Has bound properties">⚡</div>
       )}
     </div>

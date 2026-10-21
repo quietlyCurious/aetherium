@@ -14,9 +14,24 @@
 // the component, add it here, add it to widgetData.js with `custom: true`,
 // and give it an exposed list in widgetProperties.js (via the Widgets
 // area's Export).
+//
+// Optional, for a widget whose properties depend on how it's set up:
+//   dynamicPropertyDefs(widgetProps)  extra properties for one placed widget,
+//                    on top of its exposed list — an Embedded View's mashup
+//                    parameters. Read through getContainerPropertyDefs.
+//   dynamicPropertyPrefix  the names those properties start with; a binding
+//                    under the prefix with no property any more (the mashup
+//                    dropped that parameter) counts as broken.
+//   DetailsEditor    a section drawn at the top of the widget's tab in the
+//                    details panel ({ container, editor }), for settings that
+//                    aren't a single field — the Embedded View's mashup picker.
+// Every custom widget also gets `designMode` (true on the designer canvas).
 
 import { TextWidget } from './TextWidget';
 import { DECIMALS_CHOICES } from './textFormat';
+import { EmbeddedViewWidget } from './embeddedView/EmbeddedViewWidget';
+import { EmbeddedViewDetails } from './embeddedView/EmbeddedViewDetails';
+import { PARAM_PREFIX, parameterPropertyDefs } from './embeddedView/thingworxEmbed';
 
 export const CUSTOM_WIDGETS = {
   Text: {
@@ -33,6 +48,21 @@ export const CUSTOM_WIDGETS = {
       { n: 'decimals', t: 'enum', o: DECIMALS_CHOICES, d: 'auto' },
       { n: 'prefix', t: 'string', d: '' },
       { n: 'suffix', t: 'string', d: '' },
+    ],
+  },
+  // A ThingWorx mashup hosted on the page (embeddedView/). mashupName,
+  // master and mashupParameters are set by its Source section; the
+  // parameters become properties of their own ('params.<name>').
+  EmbeddedView: {
+    component: EmbeddedViewWidget,
+    DetailsEditor: EmbeddedViewDetails,
+    dynamicPropertyDefs: (widgetProps) => parameterPropertyDefs(widgetProps?.mashupParameters),
+    dynamicPropertyPrefix: PARAM_PREFIX,
+    options: [
+      { n: 'designPreview', t: 'enum', o: ['live', 'placeholder'], d: 'live' },
+      { n: 'mashupName', t: 'string', d: '' },
+      { n: 'master', t: 'string', d: '' },
+      { n: 'mashupParameters', t: 'json', d: [] },
     ],
   },
 };

@@ -57,7 +57,7 @@ import ProgressBar from 'devextreme-react/progress-bar';
 import LoadIndicator from 'devextreme-react/load-indicator';
 
 import WIDGET_SAMPLE_DATA from './widgetSampleData';
-import { CUSTOM_WIDGETS } from './customWidgets/customWidgets';
+import { CUSTOM_WIDGETS, isCustomWidget } from './customWidgets/customWidgets';
 
 const WIDGET_COMPONENT_MAP = {
   DataGrid: (props) => <DataGrid {...props} />,
@@ -157,7 +157,9 @@ function hasRealCollectionData(value) {
   return Array.isArray(value) && value.length > 0;
 }
 
-function WidgetPreview({ widgetName, widgetProps, style }) {
+// designMode: true on the designer canvas. Only Aetherium's own widgets are
+// told — DevExtreme's would pass an unknown option through.
+function WidgetPreview({ widgetName, widgetProps, style, designMode = false }) {
   const renderFn = WIDGET_COMPONENT_MAP[widgetName];
 
   if (!renderFn) {
@@ -181,6 +183,7 @@ function WidgetPreview({ widgetName, widgetProps, style }) {
     : sampleData;
 
   const mergedProps = { ...effectiveSampleData, ...widgetProps, width: '100%', height: '100%' };
+  if (isCustomWidget(widgetName)) mergedProps.designMode = designMode;
 
   // Grids and lists key rows by 'id' (their sample data's, and their
   // property default). Real rows often have no 'id' column, and DevExtreme

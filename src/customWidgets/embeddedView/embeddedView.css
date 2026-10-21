@@ -1,0 +1,166 @@
+/* customWidgets/embeddedView/embeddedView.css */
+
+.ae-embed {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.ae-embed-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+
+/* Designer: the frame never sees the mouse — the canvas does. */
+.ae-embed--design .ae-embed-frame { pointer-events: none; }
+
+.ae-embed-overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.ae-embed-chip {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: rgba(15, 108, 189, 0.92);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+.ae-embed-overlay:hover .ae-embed-chip,
+.container-card--selected .ae-embed-chip { opacity: 1; }
+
+.ae-embed-status,
+.ae-embed-error {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+.ae-embed-status { background: rgba(255, 255, 255, 0.9); color: #616161; border: 1px solid #e0e0e0; }
+.ae-embed-error  { background: #fdecee; color: #b10e1c; border: 1px solid #f3c1c6; }
+
+/* Placeholder card */
+.ae-embed-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px;
+  text-align: center;
+  background:
+    repeating-linear-gradient(135deg, rgba(15, 108, 189, 0.035) 0 10px, transparent 10px 20px),
+    #f8fafd;
+  border: 1px dashed #b8cde3;
+  border-radius: 3px;
+  color: #424242;
+  min-width: 0;
+}
+.ae-embed-placeholder-icon { font-size: 26px; color: #8fb3d9; margin-bottom: 2px; }
+.ae-embed-placeholder-kind { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b88a8; font-weight: 600; }
+.ae-embed-placeholder-name {
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ae-embed-placeholder-name--empty { font-weight: 400; color: #888; white-space: normal; }
+.ae-embed-placeholder-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px 10px;
+  max-width: 100%;
+  font-size: 10px;
+  color: #777;
+}
+.ae-embed-placeholder-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.ae-embed-placeholder-note { font-size: 10px; color: #999; font-style: italic; margin-top: 2px; }
+
+/* Details panel: the Source section */
+.ae-embed-src-current {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+}
+.ae-embed-src-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ae-embed-src-name--empty { color: #999; font-weight: 400; font-style: italic; }
+.ae-embed-results {
+  grid-column: 1 / -1;
+  max-height: 180px;
+  overflow: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fff;
+}
+.ae-embed-result {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 7px;
+  font-size: 11px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ae-embed-result:last-child { border-bottom: 0; }
+.ae-embed-result:hover { background: #ebf3fc; }
+.ae-embed-result-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ae-embed-result-kind { font-size: 9px; text-transform: uppercase; color: #888; flex-shrink: 0; }
+.ae-embed-result--master .ae-embed-result-kind { color: #8a5300; }
+.ae-embed-note {
+  grid-column: 1 / -1;
+  font-size: 10px;
+  color: #777;
+  line-height: 1.45;
+}
+.ae-embed-note--warn { color: #8a5300; }
+.ae-embed-note--error { color: #b10e1c; }
+.ae-embed-orphan {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #8a5300;
+  background: #fdf3e1;
+  border: 1px solid #f1d9a8;
+  border-radius: 4px;
+}
+.ae-embed-orphan span { flex: 1; min-width: 0; }

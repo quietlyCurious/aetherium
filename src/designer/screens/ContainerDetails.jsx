@@ -22,7 +22,8 @@ import { Item as TabPanelItem } from 'devextreme-react/tab-panel';
 import { DEFAULT_LAYOUT, DEFAULT_SLOT, DEFAULT_COORD, ROOT_CONTAINER_ID, BASE_TIER_ID, toHtmlId } from '../../containerModel';
 import { flattenContainers, findContainerById } from '../../containerTree';
 import { getTierById } from '../../breakpointConfig';
-import { getWidgetPropertyDefs, useWidgetPropertyOverrides } from '../widgets/widgetPropertyDefs';
+import { getContainerPropertyDefs, useWidgetPropertyOverrides } from '../widgets/widgetPropertyDefs';
+import { CUSTOM_WIDGETS } from '../../customWidgets/customWidgets';
 import { WidgetPropertyField, WidgetPropertyGrid } from '../widgets/WidgetPropertyField';
 import { evaluateExpression } from '../../expressionEval';
 import { buildDefaultCells, migrateGridCells } from '../../GridEditor';
@@ -119,7 +120,10 @@ function describeBinding(binding, editor, queries, self, isCollection) {
 
 function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) {
   const { selectedContainerId, bindingPopoverProp } = editor;
-  const propDefs = getWidgetPropertyDefs(container.widgetName);
+  const propDefs = getContainerPropertyDefs(container.widgetName, container.widgetProps);
+  // A custom widget's own settings section (customWidgets.js), above its
+  // properties — the Embedded View's mashup picker.
+  const DetailsEditor = CUSTOM_WIDGETS[container.widgetName]?.DetailsEditor;
   const props = container.widgetProps || {};
   const bindings = container.bindings || {};
   const setProp = (name, value) => editor.updateWidgetProps(selectedContainerId, { [name]: value });
@@ -160,6 +164,7 @@ function WidgetPropertiesTab({ editor, queries, self, container, lockedClass }) 
   };
   return (
     <div className={`details-tab-content${lockedClass}`}>
+      {DetailsEditor && <DetailsEditor container={container} editor={editor} />}
       <div className="details-section">
         <WidgetPropertyGrid title={container.widgetName} defs={propDefs} renderControl={renderControl} />
       </div>
@@ -728,7 +733,7 @@ export function ContainerDetails({ editor, queries, self, assetSets }) {
     ? findContainerById(containers, container.parentId)
     : null;
   const lockedClass = editor.isSelectedLocked ? ' details-locked' : '';
-  const widgetPropDefs = container.isWidget && container.widgetName ? getWidgetPropertyDefs(container.widgetName) : null;
+  const widgetPropDefs = container.isWidget && container.widgetName ? getContainerPropertyDefs(container.widgetName, container.widgetProps) : null;
 
   return (
     <div key={selectedContainerId} style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -739,7 +744,7 @@ export function ContainerDetails({ editor, queries, self, assetSets }) {
         selectedIndex={editor.detailsTabIndex}
         onSelectedIndexChange={editor.setDetailsTabIndex}
       >
-        {widgetPropDefs && widgetPropDefs.length > 0 && (
+        {widgetPropDefs && (widgetPropDefs.length > 0 || CUSTOM_WIDGETS[container.widgetName]?.DetailsEditor) && (
           <TabPanelItem title={container.widgetName}>
             <WidgetPropertiesTab editor={editor} queries={queries} self={self} container={container} lockedClass={lockedClass} />
           </TabPanelItem>
