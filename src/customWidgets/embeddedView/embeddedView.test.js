@@ -95,6 +95,9 @@ describe('the widget draws', () => {
   const { render } = require('@testing-library/react');
   const { EmbeddedViewWidget } = require('./EmbeddedViewWidget');
   const props = { mashupName: 'PumpOverview', mashupParameters: [{ name: 'Site', baseType: 'STRING' }], params: { Site: 'P1' } };
+  // The widget watches its mashup for changes; no ThingWorx here.
+  beforeEach(() => { global.fetch = jest.fn(() => new Promise(() => {})); });
+  afterEach(() => { delete global.fetch; });
 
   test('a prompt until a mashup is chosen', () => {
     const { container, getByText } = render(<EmbeddedViewWidget designMode />);
@@ -115,5 +118,54 @@ describe('the widget draws', () => {
     const runtime = render(<EmbeddedViewWidget {...props} designPreview="placeholder" />);
     expect(runtime.container.querySelector('iframe')).not.toBeNull();
     expect(runtime.container.querySelector('.ae-embed-overlay')).toBeNull();
+  });
+});
+
+describe('editing in ThingWorx', () => {
+  const { composerUrl } = require('./thingworxEmbed');
+
+  test('Composer links match the real ones', () => {
+    expect(composerUrl('https://pp-2605181716jy.portal.ptc.io', 'PTC.FSU.CWC.Execution.LogSheet_MU'))
+      .toBe('https://pp-2605181716jy.portal.ptc.io/Thingworx/Composer/index.html#/modeler/details/Mashup~PTC.FSU.CWC.Execution.LogSheet_MU/design');
+    expect(composerUrl('https://twx.example/', 'Pump Overview'))
+      .toBe('https://twx.example/Thingworx/Composer/index.html#/modeler/details/Mashup~Pump%20Overview/design');
+    expect(composerUrl(null, 'M')).toBeNull();
+  });
+
+  describe('a mashup changed in Composer', () => {
+    let definitions;
+    let revisions;
+    beforeEach(() => {
+      jest.resetModules();
+      definitions = { A: { lastModifiedDate: 1 }, B: { lastModifiedDate: 1 } };
+      global.fetch = jest.fn(async (url) => {
+        const name = decodeURIComponent(url.split('/').pop());
+        return { ok: true, status: 200, text: async () => JSON.stringify(definitions[name]) };
+      });
+      revisions = require('./mashupRevisions');
+    });
+    afterEach(() => { delete global.fetch; });
+    const settle = () => new Promise(r => setTimeout(r, 0));
+
+    test('only the changed one gets a new revision', async () => {
+      const stopA = revisions.watchMashup('A');
+      revisions.watchMashup('B');
+      await settle();                         // baselines captured
+      expect(await revisions.checkWatchedMashups({ force: true })).toBe(false);
+      definitions.A = { lastModifiedDate: 2 };  // saved in Composer
+      expect(await revisions.checkWatchedMashups({ force: true })).toBe(true);
+      expect(await revisions.checkWatchedMashups({ force: true })).toBe(false);  // and only once
+      stopA();
+    });
+
+    test('coming back to the tab is what checks', async () => {
+      revisions.watchMashup('A');
+      await settle();
+      definitions.A = { lastModifiedDate: 3 };
+      const before = global.fetch.mock.calls.length;
+      window.dispatchEvent(new Event('focus'));
+      await settle(); await settle();
+      expect(global.fetch.mock.calls.length).toBeGreaterThan(before);
+    });
   });
 });

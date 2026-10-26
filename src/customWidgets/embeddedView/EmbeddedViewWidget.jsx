@@ -16,9 +16,13 @@
 //   placeholder  a card naming the mashup — for heavy mashups, or a canvas
 //                with many of them
 // The runtime view is always live and fully interactive.
+//
+// It also reloads by itself when the mashup is changed in ThingWorx — see
+// mashupRevisions.js — on the canvas and in Runtime alike.
 
 import { useEffect, useRef, useState } from 'react';
 import { runtimeUrl } from './thingworxEmbed';
+import { useMashupRevision, watchMashup } from './mashupRevisions';
 import './embeddedView.css';
 
 // Typing a parameter value in the details panel changes it per keystroke;
@@ -76,7 +80,9 @@ export function EmbeddedViewWidget({
   const declared = Array.isArray(mashupParameters) ? mashupParameters : [];
   const src = runtimeUrl({ mashupName, master, params, declared });
   const settledSrc = useSettledValue(src, designMode ? RELOAD_DELAY_MS : 0);
-  const [state, setState] = useState({ src: null, status: 'loading', problem: null });
+  const [state, setState] = useState({ loadKey: null, status: 'loading', problem: null });
+  const revision = useMashupRevision(mashupName);
+  useEffect(() => watchMashup(mashupName), [mashupName]);
 
   const showPlaceholder = !src || (designMode && designPreview === 'placeholder');
   if (showPlaceholder) {
@@ -92,19 +98,20 @@ export function EmbeddedViewWidget({
     );
   }
 
-  const status = state.src === settledSrc ? state.status : 'loading';
+  // A new key per URL, per Refresh and per change in ThingWorx, so the
+  // mashup really reloads — a hash-only change on the same frame wouldn't.
+  const loadKey = `${settledSrc}|${refreshedAt || ''}|${revision}`;
+  const status = state.loadKey === loadKey ? state.status : 'loading';
   return (
     <div className={`ae-embed${designMode ? ' ae-embed--design' : ''}`}>
       <iframe
-        // A new key per URL and per Refresh, so the mashup really reloads — a
-        // hash-only change on the same frame wouldn't.
-        key={`${settledSrc}|${refreshedAt || ''}`}
+        key={loadKey}
         className="ae-embed-frame"
         src={settledSrc}
         title={mashupName}
         onLoad={(e) => {
           const problem = loadProblem(e.currentTarget);
-          setState({ src: settledSrc, status: problem ? 'error' : 'ready', problem });
+          setState({ loadKey, status: problem ? 'error' : 'ready', problem });
         }}
       />
       {status === 'loading' && <div className="ae-embed-status">Loading {mashupName}…</div>}

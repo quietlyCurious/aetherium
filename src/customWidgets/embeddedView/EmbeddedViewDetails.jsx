@@ -11,14 +11,35 @@
 //   - opening the widget's details re-reads them, since the mashup may have
 //     been edited in Composer since (no cached shape is trusted)
 //   - Refresh re-reads them and reloads the frame
+//   - Edit opens the mashup in Composer, on the ThingWorx server itself;
+//     coming back to this tab checks it for changes (mashupRevisions.js),
+//     and a changed mashup reloads and has its parameters re-read
 // A bound parameter that's no longer on the mashup is listed with an Unbind,
 // rather than its binding quietly doing nothing.
 
 import { useEffect, useRef, useState } from 'react';
 import {
-  PARAM_PREFIX, fetchMashupParameters, isUrlPassable, paramPropName, parseRuntimeUrl,
-  sameParameters, searchMashupsAndMasters,
+  PARAM_PREFIX, composerUrl, fetchMashupParameters, fetchTwxBaseUrl, isUrlPassable, paramPropName,
+  parseRuntimeUrl, sameParameters, searchMashupsAndMasters,
 } from './thingworxEmbed';
+import { checkWatchedMashups, useMashupChangedAt, useMashupRevision } from './mashupRevisions';
+
+const timeOf = (date) => date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+// The ThingWorx server's address, for links to Composer. Known before the
+// button is pressed, because a new tab opened after an await is blocked as
+// a popup.
+function useTwxBaseUrl() {
+  const [state, setState] = useState({ url: null, error: null });
+  useEffect(() => {
+    let live = true;
+    fetchTwxBaseUrl()
+      .then(url => live && setState({ url, error: null }))
+      .catch(err => live && setState({ url: null, error: err.message }));
+    return () => { live = false; };
+  }, []);
+  return state;
+}
 
 // Masters found by any search this session, offered in the Master field.
 const knownMasters = new Set();
@@ -38,6 +59,10 @@ export function EmbeddedViewDetails({ container, editor }) {
   const [searchBusy, setSearchBusy] = useState(false);
   const [paramStatus, setParamStatus] = useState({ busy: false, error: null, checkedAt: null });
   const [pasteNote, setPasteNote] = useState(null);
+  const twx = useTwxBaseUrl();
+  const revision = useMashupRevision(mashupName);
+  const changedAt = useMashupChangedAt(mashupName);
+  const editUrl = composerUrl(twx.url, mashupName);
 
   // Re-read parameters for `name`; write them only when they changed, so
   // opening a widget doesn't mark the page as edited for nothing.
@@ -60,12 +85,13 @@ export function EmbeddedViewDetails({ container, editor }) {
     }
   };
 
-  // Opening this widget's details: check ThingWorx for changes.
+  // Opening this widget's details, and the mashup changing in ThingWorx:
+  // re-read its parameters.
   useEffect(() => {
     if (mashupName) readParameters(mashupName);
-    // Once per widget and mashup, not on every edit.
+    // Once per widget, mashup and change — not on every edit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, mashupName]);
+  }, [id, mashupName, revision]);
 
   const runSearch = async () => {
     setSearchBusy(true);
@@ -127,6 +153,21 @@ export function EmbeddedViewDetails({ container, editor }) {
             <button type="button" className="focus-mode-btn" style={{ flexShrink: 0 }} onClick={() => setSearching(s => !s)}>
               {searching ? 'Cancel' : 'Change'}
             </button>
+          )}
+          {mashupName && (
+            <button
+              type="button"
+              className="focus-mode-btn"
+              style={{ flexShrink: 0 }}
+              disabled={!editUrl}
+              title={editUrl
+                ? `Open ${mashupName} in ThingWorx Composer, in a new tab. Save there, then come back — it reloads here.`
+                : `Can't link to Composer: ${twx.error || 'asking the proxy which server it uses…'}`}
+              onClick={() => {
+                // One tab per mashup: pressing Edit again goes back to it.
+                window.open(editUrl, `twx-composer-${mashupName}`);
+              }}
+            >Edit ↗</button>
           )}
         </div>
       </div>
@@ -202,6 +243,9 @@ export function EmbeddedViewDetails({ container, editor }) {
             {paramStatus.busy ? 'Checking ThingWorx…'
               : paramStatus.error ? 'Couldn’t check'
               : `${passable} below${paramStatus.checkedAt ? ' · up to date' : ''}`}
+            {changedAt && !paramStatus.busy && (
+              <span style={{ display: 'block', color: '#0e7a0d' }}>Changed in ThingWorx at {timeOf(changedAt)} · reloaded</span>
+            )}
           </span>
           <button
             type="button"
@@ -209,7 +253,13 @@ export function EmbeddedViewDetails({ container, editor }) {
             style={{ flexShrink: 0 }}
             disabled={paramStatus.busy}
             title="Re-read the mashup's parameters from ThingWorx and reload it"
-            onClick={() => { set({ refreshedAt: Date.now() }); readParameters(mashupName); }}
+            onClick={async () => {
+              // A change found here reloads it through its revision (and
+              // re-reads parameters); otherwise reload it anyway — that's
+              // what Refresh is for.
+              const changed = await checkWatchedMashups({ force: true });
+              if (!changed) { set({ refreshedAt: Date.now() }); readParameters(mashupName); }
+            }}
           >⟳ Refresh</button>
         </div>
         {paramStatus.error && <div className="ae-embed-note ae-embed-note--error">{paramStatus.error}</div>}
@@ -225,7 +275,7 @@ export function EmbeddedViewDetails({ container, editor }) {
           </div>
         ))}
         <div className="ae-embed-note">
-          Edit the mashup itself in ThingWorx Composer, then Refresh. Parameter changes reload it.
+          Edit ↗ opens the mashup in ThingWorx Composer. Save there and come back: Aetherium notices the change and reloads it. Parameter changes here reload it too.
         </div>
       </>)}
     </div></div>

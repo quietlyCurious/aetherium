@@ -144,6 +144,40 @@ export async function fetchMashupParameters(mashupName) {
   return parametersFromDefinition(await request(`/Thingworx/Mashups/${encodeURIComponent(mashupName)}`));
 }
 
+// Something that changes whenever the mashup is edited and saved: its
+// last-modified time when the definition has one, else the whole definition.
+// Compared, never shown (mashupRevisions.js).
+export async function fetchMashupSignature(mashupName) {
+  const json = await request(`/Thingworx/Mashups/${encodeURIComponent(mashupName)}`);
+  return String(json?.lastModifiedDate ?? JSON.stringify(json));
+}
+
+// ── Composer ─────────────────────────────────────────────────────────────────
+// Composer opens on the ThingWorx server itself, not through Aetherium: the
+// person edits as themselves, signed in the usual way, and nothing they do is
+// done as the proxy's app key. The link format is from real Composer URLs:
+//   <server>/Thingworx/Composer/index.html#/modeler/details/Mashup~<name>/design
+
+export function composerUrl(twxBaseUrl, mashupName) {
+  if (!twxBaseUrl || !mashupName) return null;
+  return `${twxBaseUrl.replace(/\/$/, '')}/Thingworx/Composer/index.html#/modeler/details/Mashup~${encodeURIComponent(mashupName)}/design`;
+}
+
+// The ThingWorx server's own address, which only the proxy knows (its .env).
+// Its /twx-embed/diagnose route reports it; asked once per session.
+let baseUrlPromise = null;
+export function fetchTwxBaseUrl() {
+  if (!baseUrlPromise) {
+    baseUrlPromise = request('/twx-embed/diagnose')
+      .then(json => {
+        if (!json?.twxBaseUrl) throw new Error('The proxy didn’t say which ThingWorx server it uses (TWX_BASE_URL).');
+        return json.twxBaseUrl;
+      })
+      .catch(err => { baseUrlPromise = null; throw err; });
+  }
+  return baseUrlPromise;
+}
+
 // Search at the source: the plain /Thingworx/Mashups list stops at 500, so
 // it can't be trusted to hold a given mashup (the spike's FSU example wasn't
 // in it). SpotlightSearch is ThingWorx's entity search; a couple of forms are
