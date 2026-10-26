@@ -9,7 +9,8 @@
 // A widget's props say which: `source` ('thingworx' when unset, so widgets
 // placed before OpHub existed keep working), then that source's own fields:
 //   thingworx   mashupName, master, mashupParameters
-//   ophub       connectionId, appName, pageName, pagePath, pageParameters
+//   ophub       connectionId, appName, pageName, appId, pageId, pagePath,
+//               pageParameters
 // Switching source keeps the other one's fields, so switching back restores
 // it. Both use the params.* properties (viewParameters.js).
 

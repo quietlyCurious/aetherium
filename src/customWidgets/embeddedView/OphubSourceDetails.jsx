@@ -3,25 +3,40 @@
 // which page, and the page's parameters. Parallel to
 // ThingworxSourceDetails.jsx; drawn inside EmbeddedViewDetails.
 //
-// Choosing a page: paste its runtime URL (the reliable way — the URL's own
-// path is kept), or type the app and page names. There's no page browser yet:
-// listing an OpHub server's apps and pages needs its API call, which hasn't
-// been captured.
+// Choosing a page: browse the connection's apps and their pages (OpHub's
+// AppMgr service), or paste a page's run-mode URL, or type app and page
+// names. However it was chosen, the page is then looked up in OpHub, so it
+// has its ids (for Edit) and its URL Globals.
 //
-// Parameters are named here by hand, since OpHub doesn't tell Aetherium which
-// values a page reads from its URL; a pasted URL's query values are added.
-// Each named parameter becomes a property further down, bindable like any
-// other, and its value goes in the page URL's query string.
+// Parameters are the page's URL Globals — read from OpHub each time the
+// details open, like a ThingWorx mashup's — plus any named here by hand
+// (a pasted URL's ?name=value pairs are added that way). Each becomes a
+// property further down, bindable like any other, and its value goes in the
+// page URL's query string.
+//
+// Edit ↗ opens the page in OpHub's classic designer. New-designer apps have
+// no page URLs, so for those it can't land on the page.
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SelectBox } from 'devextreme-react';
-import { ophubConnections, parsePageUrl } from './ophubEmbed';
+import {
+  fetchOphubAppDetails, listOphubApps, ophubConnections, ophubEditUrl, parsePageUrl, readOphubPage,
+  urlGlobalsForPage,
+} from './ophubEmbed';
 import { useOphubEmbedInfo } from './useOphubEmbedInfo';
 import { declaredParametersOf, paramPropName } from './viewParameters';
 import { ParameterSummary } from './ParameterSummary';
 import { connectionLabel } from '../../connections/connectionKinds';
 
 const NAME_OK = /^[A-Za-z_][\w.-]*$/;
+
+// URL Globals from OpHub, then the hand-named ones it doesn't have.
+function mergeParameters(fromOphub, current) {
+  const names = new Set(fromOphub.map(p => p.name));
+  const byHand = current.filter(p => !p.fromOphub && !names.has(p.name)).map(p => ({ ...p, byHand: true }));
+  return [...fromOphub, ...byHand];
+}
+const parameterKey = (list) => JSON.stringify(list.map(p => [p.name, p.baseType, !!p.fromOphub]));
 
 export function OphubSourceDetails({ container, editor }) {
   const id = container.id;
@@ -34,14 +49,89 @@ export function OphubSourceDetails({ container, editor }) {
   const connections = ophubConnections();
   const { connection, info, error: proxyError, loading } = useOphubEmbedInfo(props.connectionId);
   const [changing, setChanging] = useState(!chosen);
+  const [apps, setApps] = useState({ list: null, error: null });
+  const [browseAppId, setBrowseAppId] = useState(props.appId || null);
+  const [pages, setPages] = useState({ appId: null, list: null, globals: [], error: null });
   const [appDraft, setAppDraft] = useState(props.appName || '');
   const [pageDraft, setPageDraft] = useState(props.pageName || '');
   const [pasteNote, setPasteNote] = useState(null);
   const [newParam, setNewParam] = useState('');
+  const [lookup, setLookup] = useState({ busy: false, error: null, notFound: false, globalTypes: null, checkedAt: null });
 
+  const latest = useRef({ declared, id });
+  latest.current = { declared, id };
+
+  // ── Looking the chosen page up in OpHub ────────────────────────────────────
+  const checkPage = async ({ refresh = false } = {}) => {
+    if (!connection || (!props.pageId && !props.pageName)) return;
+    setLookup(l => ({ ...l, busy: true, error: null }));
+    try {
+      if (refresh) await listOphubApps(connection, { refresh: true });
+      const found = await readOphubPage(connection, {
+        appId: props.appId, appName: props.appName, pageId: props.pageId, pageName: props.pageName,
+      });
+      if (latest.current.id !== id) return;
+      if (!found.page) {
+        setLookup({ busy: false, error: null, notFound: true, globalTypes: null, checkedAt: new Date() });
+        return;
+      }
+      const merged = mergeParameters(found.parameters, latest.current.declared);
+      const changes = {};
+      if (props.appId !== found.app.id) changes.appId = found.app.id;
+      if (props.pageId !== found.page.id) changes.pageId = found.page.id;
+      if (parameterKey(merged) !== parameterKey(latest.current.declared)) changes.pageParameters = merged;
+      if (Object.keys(changes).length) set(changes);
+      setLookup({ busy: false, error: null, notFound: false, globalTypes: found.globalTypes, checkedAt: new Date() });
+    } catch (err) {
+      setLookup({ busy: false, error: err.message, notFound: false, globalTypes: null, checkedAt: null });
+    }
+  };
+
+  useEffect(() => {
+    checkPage();
+    // Once per widget and page — not on every edit. The ids are left out:
+    // the lookup fills them in, and that shouldn't set off a second lookup.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, connection?.id, props.appName, props.pageName]);
+
+  // ── Browsing ───────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!changing || !connection || apps.list) return undefined;
+    let live = true;
+    listOphubApps(connection)
+      .then(list => live && setApps({ list, error: null }))
+      .catch(err => live && setApps({ list: null, error: err.message }));
+    return () => { live = false; };
+  }, [changing, connection, apps.list]);
+
+  useEffect(() => {
+    if (!browseAppId || !connection || pages.appId === browseAppId) return undefined;
+    let live = true;
+    setPages({ appId: browseAppId, list: null, globals: [], error: null });
+    fetchOphubAppDetails(connection, browseAppId)
+      .then(d => live && setPages({ appId: browseAppId, list: d.pages, globals: d.globals, error: null }))
+      .catch(err => live && setPages({ appId: browseAppId, list: [], globals: [], error: err.message }));
+    return () => { live = false; };
+  }, [browseAppId, connection, pages.appId]);
+
+  const choosePage = (page) => {
+    const app = (apps.list || []).find(a => a.id === browseAppId);
+    if (!app) return;
+    set({
+      appId: app.id, appName: app.name, pageId: page.id, pageName: page.name, pagePath: undefined,
+      pageParameters: mergeParameters(urlGlobalsForPage(pages.globals, page.id), declared),
+    });
+    setAppDraft(app.name);
+    setPageDraft(page.name);
+    setPasteNote(null);
+    setChanging(false);
+  };
+
+  // ── Pasting and typing ─────────────────────────────────────────────────────
+  // Both give names only; the lookup above then finds the ids and URL Globals.
   const addParameters = (names, extra = {}) => {
     const have = new Set(declared.map(p => p.name));
-    const added = names.filter(n => n && !have.has(n)).map(name => ({ name, baseType: 'STRING' }));
+    const added = names.filter(n => n && !have.has(n)).map(name => ({ name, baseType: 'STRING', byHand: true }));
     set({ ...extra, ...(added.length ? { pageParameters: [...declared, ...added] } : {}) });
     return added.length;
   };
@@ -53,7 +143,7 @@ export function OphubSourceDetails({ container, editor }) {
     const values = {};
     Object.entries(parsed.params).forEach(([k, v]) => { if (!bindings[paramPropName(k)]) values[paramPropName(k)] = v; });
     const added = addParameters(Object.keys(parsed.params), {
-      appName: parsed.appName, pageName: parsed.pageName, pagePath: parsed.pagePath, ...values,
+      appName: parsed.appName, pageName: parsed.pageName, pagePath: parsed.pagePath, appId: undefined, pageId: undefined, ...values,
     });
     setAppDraft(parsed.appName);
     setPageDraft(parsed.pageName);
@@ -64,7 +154,7 @@ export function OphubSourceDetails({ container, editor }) {
   const applyTyped = () => {
     if (!appDraft.trim() || !pageDraft.trim()) return;
     // Typed names build the usual path; a pasted URL's own path is dropped.
-    set({ appName: appDraft.trim(), pageName: pageDraft.trim(), pagePath: undefined });
+    set({ appName: appDraft.trim(), pageName: pageDraft.trim(), pagePath: undefined, appId: undefined, pageId: undefined });
     setPasteNote(null);
     setChanging(false);
   };
@@ -77,6 +167,13 @@ export function OphubSourceDetails({ container, editor }) {
   };
 
   const removeParameter = (name) => set({ pageParameters: declared.filter(p => p.name !== name) });
+
+  const editUrl = ophubEditUrl(info?.ophubBaseUrl, props.appId, props.pageId);
+  const fromOphub = declared.filter(p => p.fromOphub);
+  const status = lookup.busy ? 'checking OpHub…'
+    : lookup.error ? 'couldn’t check'
+    : lookup.notFound ? 'page not found in OpHub'
+    : lookup.checkedAt ? 'up to date' : loading ? 'asking the proxy…' : null;
 
   return (
     <>
@@ -112,15 +209,60 @@ export function OphubSourceDetails({ container, editor }) {
               {changing ? 'Cancel' : 'Change'}
             </button>
           )}
+          {chosen && (
+            <button
+              type="button"
+              className="focus-mode-btn"
+              style={{ flexShrink: 0 }}
+              disabled={!editUrl}
+              title={editUrl
+                ? `Open ${props.pageName} in OpHub's classic designer, in a new tab. (New-designer apps can't be opened on a page by URL.) Save there, come back, and Refresh.`
+                : lookup.busy || loading ? 'Looking the page up in OpHub…' : 'Can’t link to the designer: the page wasn’t found in OpHub.'}
+              onClick={() => window.open(editUrl, `ophub-designer-${props.pageId}`)}
+            >Edit ↗</button>
+          )}
         </div>
       </div>
       {chosen && props.appName && (<>
         <span className="details-grid-label">App</span>
         <div className="details-grid-control"><span className="ae-embed-src-name" style={{ fontWeight: 400 }} title={props.appName}>{props.appName}</span></div>
       </>)}
+      {lookup.notFound && (
+        <div className="ae-embed-note ae-embed-note--warn">
+          OpHub has no page “{props.pageName}” in an app called “{props.appName}” — it still loads if the URL is right, but there’s no Edit or URL Globals.
+        </div>
+      )}
+      {lookup.error && <div className="ae-embed-note ae-embed-note--error">Couldn’t look the page up: {lookup.error}</div>}
 
       {changing && (<>
-        <span className="details-grid-label">Paste</span>
+        <span className="details-grid-label">Browse</span>
+        <div className="details-grid-control">
+          <SelectBox
+            dataSource={apps.list || []}
+            valueExpr="id" displayExpr="name"
+            value={browseAppId}
+            searchEnabled
+            placeholder={apps.error ? 'Couldn’t list apps' : apps.list ? `${apps.list.length} apps — choose one…` : 'Loading apps…'}
+            onValueChanged={e => e.value && setBrowseAppId(e.value)}
+            stylingMode="outlined" width="100%" height={24}
+          />
+        </div>
+        {apps.error && <div className="ae-embed-note ae-embed-note--error">{apps.error}</div>}
+        {browseAppId && pages.appId === browseAppId && (pages.list === null ? (
+          <div className="ae-embed-note">Loading pages…</div>
+        ) : pages.list.length ? (
+          <div className="ae-embed-results">
+            {pages.list.map(p => (
+              <div key={p.id} className="ae-embed-result" title={p.name} onClick={() => choosePage(p)}>
+                <span className="ae-embed-result-name">{p.displayName}</span>
+                <span className="ae-embed-result-kind">Page</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="ae-embed-note ae-embed-note--warn">{pages.error || 'No pages found in this app.'}</div>
+        ))}
+        <span className="details-grid-label">or paste</span>
         <div className="details-grid-control">
           <input
             className="details-input"
@@ -128,7 +270,6 @@ export function OphubSourceDetails({ container, editor }) {
             placeholder="The page’s URL from OpHub (run mode)"
             onPaste={e => { const text = e.clipboardData.getData('text'); e.preventDefault(); paste(text); }}
             onKeyDown={e => { if (e.key === 'Enter') paste(e.currentTarget.value); }}
-            autoFocus
           />
         </div>
         <span className="details-grid-label">or type</span>
@@ -150,19 +291,31 @@ export function OphubSourceDetails({ container, editor }) {
           bindings={bindings}
           viewNoun="page"
           onUnbind={(k) => editor.clearWidgetBinding(id, k)}
-          status={loading ? 'asking the proxy…' : null}
+          status={status}
+          statusError={!!lookup.error}
           extra={(<>
             <span className="details-grid-label" />
             <div className="details-grid-control" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4 }}>
               {declared.length > 0 && (
                 <div className="ae-embed-param-chips">
                   {declared.map(p => (
-                    <span key={p.name} className="ae-embed-param-chip" title={p.name}>
+                    <span
+                      key={p.name}
+                      className={`ae-embed-param-chip${p.fromOphub ? ' ae-embed-param-chip--ophub' : ''}`}
+                      title={p.fromOphub ? `${p.name} · a URL Global on this page in OpHub` : `${p.name} · named here`}
+                    >
                       <span>{p.name}</span>
-                      <button type="button" title={`Stop passing ${p.name}`} onClick={() => removeParameter(p.name)}>×</button>
+                      {!p.fromOphub && (
+                        <button type="button" title={`Stop passing ${p.name}`} onClick={() => removeParameter(p.name)}>×</button>
+                      )}
                     </span>
                   ))}
                 </div>
+              )}
+              {lookup.checkedAt && !lookup.notFound && fromOphub.length === 0 && (
+                <span className="ae-embed-note" style={{ gridColumn: 'auto' }}>
+                  No URL Globals found on this page{lookup.globalTypes?.length ? ` (globals seen: ${lookup.globalTypes.join(', ')})` : ''}.
+                </span>
               )}
               <div style={{ display: 'flex', gap: 3 }}>
                 <input
@@ -176,11 +329,11 @@ export function OphubSourceDetails({ container, editor }) {
             </div>
           </>)}
           refresh={{
-            busy: false,
-            title: 'Reload the page',
-            onClick: () => set({ refreshedAt: Date.now() }),
+            busy: lookup.busy,
+            title: 'Re-read the page’s URL Globals from OpHub and reload it',
+            onClick: () => { set({ refreshedAt: Date.now() }); checkPage({ refresh: true }); },
           }}
-          note="OpHub doesn’t tell Aetherium which values a page reads from its URL, so name them here. Each goes in the page URL as ?Name=value. Edit the page itself in OpHub, then Refresh."
+          note="Parameters are the page’s URL Globals, read from OpHub (blue), plus any you name here. Each goes in the page URL as ?Name=value. Edit ↗ opens classic-designer pages; save there, then Refresh."
         />
       )}
     </>

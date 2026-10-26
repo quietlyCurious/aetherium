@@ -69,6 +69,8 @@ export const CUSTOM_WIDGETS = {
       { n: 'appName', t: 'string', d: '' },
       { n: 'pageName', t: 'string', d: '' },
       { n: 'pagePath', t: 'string', d: '' },
+      { n: 'appId', t: 'string', d: '' },
+      { n: 'pageId', t: 'string', d: '' },
       { n: 'pageParameters', t: 'json', d: [] },
     ],
   },

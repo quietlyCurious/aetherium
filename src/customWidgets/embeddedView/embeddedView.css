@@ -230,3 +230,4 @@
   cursor: pointer;
 }
 .ae-embed-param-chip button:hover { background: #dbe8f6; color: #b10e1c; }
+.ae-embed-param-chip--ophub { border-color: #8fbbe6; background: #dcebfa; padding-right: 7px; }

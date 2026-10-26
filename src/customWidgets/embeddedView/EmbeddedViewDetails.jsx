@@ -3,7 +3,7 @@
 // details panel: which product the view comes from (viewSources.js), then
 // that product's own rows —
 //   ThingworxSourceDetails  mashup, Master, parameters read from ThingWorx
-//   OphubSourceDetails      connection, page, parameters named by hand
+//   OphubSourceDetails      connection, page, URL Globals from OpHub
 // Switching product keeps the other one's choices, so switching back
 // restores them.
 

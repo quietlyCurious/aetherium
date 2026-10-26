@@ -232,3 +232,75 @@ describe('Operations Hub pages', () => {
     });
   });
 });
+
+describe('browsing OpHub apps and pages', () => {
+  const { parseApps, parseAppDetails, urlGlobalsForPage, ophubEditUrl } = require('./ophubEmbed');
+  const { render, waitFor } = require('@testing-library/react');
+  const { OphubSourceDetails } = require('./OphubSourceDetails');
+  const PAGE_ID = '5b561545-585d-4059-aef9-d94e1feff4e6';
+  const APP_ID = '71882868-f7d0-4b4a-befb-3374fe87cf09';
+  // Shaped like the app package export: items as a JSON string, pages and
+  // globals mixed in it.
+  const DETAILS = {
+    app: {
+      UUID: APP_ID, appName: 'Plant',
+      items: JSON.stringify([
+        { globals: [
+          { name: 'Unit', type: 'url', dataType: 'String', pageId: PAGE_ID, appGlobal: false },
+          { name: 'Limit', type: 'url', dataType: 'Number', pageId: 'other-page', appGlobal: false },
+          { name: 'Shift', type: 'url', dataType: 'String', appGlobal: true },
+          { name: 'picked', type: 'floating', dataType: 'String', pageId: PAGE_ID,
+            dependencies: [{ pageId: PAGE_ID, name: 'not a page' }] },
+        ] },
+        { page_id: PAGE_ID, name: 'Overview', displayName: 'Plant Overview' },
+        { page_id: 'other-page', name: 'Detail', displayName: 'Detail' },
+      ]),
+    },
+  };
+
+  test('apps, by their UUID', () => {
+    expect(parseApps({ apps: [{ appId: 1108, UUID: APP_ID, appName: 'Plant' }, { UUID: 'b', appName: 'Alpha' }] }))
+      .toEqual([{ id: 'b', name: 'Alpha', numericId: null }, { id: APP_ID, name: 'Plant', numericId: 1108 }]);
+  });
+
+  test('pages and globals, from inside a JSON-string items list', () => {
+    const { pages, globals } = parseAppDetails(DETAILS);
+    expect(pages.map(p => p.displayName)).toEqual(['Detail', 'Plant Overview']);
+    expect(globals.map(g => g.name).sort()).toEqual(['Limit', 'Shift', 'Unit', 'picked']);
+  });
+
+  test('a page’s URL Globals: its own and the app-wide ones, not custom globals', () => {
+    const { globals } = parseAppDetails(DETAILS);
+    expect(urlGlobalsForPage(globals, PAGE_ID)).toEqual([
+      { name: 'Shift', baseType: 'STRING', fromOphub: true },
+      { name: 'Unit', baseType: 'STRING', fromOphub: true },
+    ]);
+    expect(urlGlobalsForPage(globals, 'other-page').map(p => [p.name, p.baseType])).toEqual([['Limit', 'NUMBER'], ['Shift', 'STRING']]);
+  });
+
+  test('Edit opens the classic designer on the page', () => {
+    expect(ophubEditUrl('https://mes.gedemo.io', APP_ID, PAGE_ID))
+      .toBe(`https://mes.gedemo.io/iqp/#/app/${APP_ID}/pages/${PAGE_ID}`);
+    expect(ophubEditUrl('https://mes.gedemo.io', APP_ID, null)).toBeNull();
+  });
+
+  test('a pasted page is looked up, getting its ids and URL Globals', async () => {
+    // A proxy no other test uses, so nothing is cached for it yet.
+    window.localStorage.setItem('aetherium_connections', JSON.stringify([{ id: 'c1', kind: 'ophub', proxyUrl: 'http://localhost:4002' }]));
+    global.fetch = jest.fn(async (url, init) => {
+      if (String(url).endsWith('/ophub-embed/info')) return { ok: true, status: 200, json: async () => ({ embedUrl: 'http://localhost:4100', ophubBaseUrl: 'https://mes.gedemo.io', cookieConfigured: true }) };
+      const command = JSON.parse(decodeURIComponent(String(init.body).replace(/^data=/, '').replace(/\+/g, ' '))).command;
+      const body = command === 'get_apps' ? { apps: [{ UUID: APP_ID, appName: 'Plant' }] } : DETAILS;
+      return { ok: true, status: 200, text: async () => JSON.stringify(body) };
+    });
+    const updates = [];
+    const editor = { updateWidgetProps: (_id, changes) => updates.push(changes), clearWidgetBinding: () => {} };
+    const container = { id: 'w1', widgetProps: { source: 'ophub', appName: 'Plant', pageName: 'Overview', pageParameters: [{ name: 'Mine', baseType: 'STRING', byHand: true }] } };
+    render(<OphubSourceDetails container={container} editor={editor} />);
+    await waitFor(() => expect(updates.length).toBeGreaterThan(0));
+    expect(updates[0]).toMatchObject({ appId: APP_ID, pageId: PAGE_ID });
+    expect(updates[0].pageParameters.map(p => p.name)).toEqual(['Shift', 'Unit', 'Mine']);
+    window.localStorage.removeItem('aetherium_connections');
+    delete global.fetch;
+  });
+});

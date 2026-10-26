@@ -19,7 +19,8 @@ export const paramPropName = (name) => `${PARAM_PREFIX}${name}`;
 // The parameters a widget's view declares. Each source keeps its own list,
 // so switching between them loses nothing:
 //   mashupParameters  a ThingWorx mashup's, read from its definition
-//   pageParameters    an OpHub page's, named by hand (OpHub doesn't say)
+//   pageParameters    an OpHub page's: its URL Globals (fromOphub) and any
+//                     named by hand (byHand)
 export function declaredParametersOf(widgetProps) {
   const list = sourceIdOf(widgetProps) === 'ophub' ? widgetProps?.pageParameters : widgetProps?.mashupParameters;
   return Array.isArray(list) ? list : [];

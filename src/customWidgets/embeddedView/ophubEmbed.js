@@ -13,12 +13,15 @@
 // A pasted URL keeps its own path exactly, so if some pages are addressed
 // differently, pasting one still works.
 //
-// Parameters: OpHub doesn't yet tell Aetherium which values a page reads
-// from its URL, so they're named by hand (or come from a pasted URL), and
-// passed in the query string. Whether a page picks them up depends on how it
-// was built — that's the thing to check first.
+// Parameters are the page's URL Globals — OpHub's globals that are filled
+// from the URL — passed in the query string. They're read from the app's
+// definition (get_app_details); more can be named by hand.
+//
+// Apps and pages come from OpHub's own AppMgr service (the calls its site UI
+// makes), through the proxy's /api/ophub/apps route.
 
 import { loadConnections } from '../../connectionsStorage';
+import { postToOphub } from '../../connections/ophubWire';
 import { encodeParams } from './viewParameters';
 
 export const OPHUB_CONNECTION_KIND = 'ophub';
@@ -98,4 +101,124 @@ export function fetchOphubEmbedInfo(connection) {
     infoCache.set(proxyUrl, promise);
   }
   return infoCache.get(proxyUrl);
+}
+
+// ── Apps, pages and URL Globals ──────────────────────────────────────────────
+// Read from AppMgr's answers. Their exact shape hasn't been seen yet — only
+// the app package export, which stores an app's pages and globals in an
+// `items` list (sometimes as a JSON string) — so these readers look through
+// whatever comes back for things shaped like apps, pages and globals.
+
+const pick = (o, keys) => keys.map(k => o?.[k]).find(v => v !== undefined && v !== null && v !== '');
+
+// Every object anywhere in `value`, including inside JSON-string fields.
+function* objectsIn(value, depth = 0) {
+  if (depth > 8 || value === null || value === undefined) return;
+  if (typeof value === 'string') {
+    const t = value.trim();
+    if ((t.startsWith('[') || t.startsWith('{')) && t.length < 5e6) {
+      try { yield* objectsIn(JSON.parse(t), depth + 1); } catch { /* not JSON */ }
+    }
+    return;
+  }
+  if (Array.isArray(value)) { for (const v of value) yield* objectsIn(v, depth + 1); return; }
+  if (typeof value === 'object') {
+    yield value;
+    for (const v of Object.values(value)) yield* objectsIn(v, depth + 1);
+  }
+}
+
+// get_apps → [{ id, name }]. The id is the app's UUID — what get_app_details
+// and the designer's URLs take.
+export function parseApps(json) {
+  const seen = new Map();
+  for (const o of objectsIn(json)) {
+    const name = pick(o, ['appName', 'app_name']);
+    const id = pick(o, ['UUID', 'uuid', 'app_uuid', 'appUuid', 'app_id']);
+    if (name && id && !seen.has(String(id))) seen.set(String(id), { id: String(id), name: String(name), numericId: o.appId ?? null });
+  }
+  return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const BASE_TYPE_FROM_OPHUB = { string: 'STRING', number: 'NUMBER', integer: 'INTEGER', int: 'INTEGER', float: 'NUMBER', double: 'NUMBER', boolean: 'BOOLEAN', bool: 'BOOLEAN', date: 'DATETIME', datetime: 'DATETIME' };
+const isUrlGlobal = (g) => /url/i.test(String(g.type || g.globalType || g.kind || ''));
+
+// get_app_details → { pages: [{ id, name, displayName }], globals: [...] }
+export function parseAppDetails(json) {
+  const pages = new Map();
+  const globals = new Map();
+  for (const o of objectsIn(json)) {
+    const pageId = pick(o, ['page_id', 'pageUuid', 'page_uuid']);
+    if (pageId && pick(o, ['name', 'displayName']) && !Array.isArray(o.globals)) {
+      if (!pages.has(String(pageId))) {
+        pages.set(String(pageId), { id: String(pageId), name: String(pick(o, ['name', 'displayName'])), displayName: String(pick(o, ['displayName', 'name'])) });
+      }
+    }
+    if (Array.isArray(o.globals)) {
+      o.globals.filter(g => g && g.name).forEach(g => {
+        const key = `${g.pageId || ''}|${g.id || g.name}`;
+        if (!globals.has(key)) globals.set(key, g);
+      });
+    }
+  }
+  return { pages: [...pages.values()].sort((a, b) => a.displayName.localeCompare(b.displayName)), globals: [...globals.values()] };
+}
+
+// A page's URL Globals, as parameters: its own, and the app-wide ones.
+export function urlGlobalsForPage(globals, pageId) {
+  const byName = new Map();
+  (globals || [])
+    .filter(isUrlGlobal)
+    .filter(g => g.appGlobal || !g.pageId || g.pageId === pageId)
+    .forEach(g => byName.set(g.name, {
+      name: g.name,
+      baseType: BASE_TYPE_FROM_OPHUB[String(g.dataType || '').toLowerCase()] || 'STRING',
+      fromOphub: true,
+    }));
+  return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// What kinds of global an app has, for saying why none were found.
+export const globalTypesOf = (globals) => [...new Set((globals || []).map(g => String(g.type || '?')))].sort();
+
+const appsCache = new Map();
+export function listOphubApps(connection, { refresh = false } = {}) {
+  const key = connection?.proxyUrl || '';
+  if (refresh || !appsCache.has(key)) {
+    const promise = postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_apps' }).then(parseApps);
+    promise.catch(() => appsCache.delete(key));
+    appsCache.set(key, promise);
+  }
+  return appsCache.get(key);
+}
+
+export async function fetchOphubAppDetails(connection, appId) {
+  const json = await postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_app_details', app_id: appId });
+  return parseAppDetails(json);
+}
+
+// Finds a page by id, or by app and page name (a pasted URL has only
+// names). → { app, page, parameters, globalTypes } — app or page null when
+// not found.
+export async function readOphubPage(connection, { appId, appName, pageId, pageName }) {
+  const apps = await listOphubApps(connection);
+  const app = apps.find(a => a.id === appId) || apps.find(a => a.name === appName) || null;
+  if (!app) return { app: null, page: null, parameters: [], globalTypes: [] };
+  const details = await fetchOphubAppDetails(connection, app.id);
+  const page = details.pages.find(p => p.id === pageId)
+    || details.pages.find(p => p.name === pageName || p.displayName === pageName) || null;
+  return {
+    app,
+    page,
+    pages: details.pages,
+    parameters: page ? urlGlobalsForPage(details.globals, page.id) : [],
+    globalTypes: globalTypesOf(details.globals),
+  };
+}
+
+// The classic designer, open on one page. New-designer apps have no URL of
+// their own, so this only lands on the page for classic apps.
+export function ophubEditUrl(ophubBaseUrl, appId, pageId) {
+  if (!ophubBaseUrl || !appId || !pageId) return null;
+  return `${ophubBaseUrl.replace(/\/$/, '')}/iqp/#/app/${encodeURIComponent(appId)}/pages/${encodeURIComponent(pageId)}`;
 }
