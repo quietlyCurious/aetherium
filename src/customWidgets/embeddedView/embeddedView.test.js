@@ -1,9 +1,9 @@
 // customWidgets/embeddedView/embeddedView.test.js
 //   npx react-scripts test --watchAll=false src/customWidgets/embeddedView
 
-import {
-  runtimeUrl, parseRuntimeUrl, parametersFromDefinition, parameterPropertyDefs, paramValueToText, sameParameters,
-} from './thingworxEmbed';
+import { runtimeUrl, parseRuntimeUrl, parametersFromDefinition } from './thingworxEmbed';
+import { parameterPropertyDefs, paramValueToText, sameParameters, declaredParametersOf } from './viewParameters';
+import { parsePageUrl, pageUrl, pagePathFor } from './ophubEmbed';
 import { getContainerPropertyDefs, getContainerPropertyDef, orphanedDynamicBindings } from '../../designer/widgets/widgetPropertyDefs';
 import { resolveWidgetProps, hasBrokenBinding } from '../../designer/screens/widgetBindings';
 
@@ -166,6 +166,69 @@ describe('editing in ThingWorx', () => {
       window.dispatchEvent(new Event('focus'));
       await settle(); await settle();
       expect(global.fetch.mock.calls.length).toBeGreaterThan(before);
+    });
+  });
+});
+
+describe('Operations Hub pages', () => {
+  const REAL = 'https://mes.gedemo.io/run/v2/app-name/_HMI%20Screens/page-name/NuclearPartial';
+
+  test('a pasted page URL keeps its own path', () => {
+    expect(parsePageUrl(REAL)).toEqual({
+      appName: '_HMI Screens', pageName: 'NuclearPartial',
+      pagePath: '/run/v2/app-name/_HMI%20Screens/page-name/NuclearPartial', params: {},
+    });
+    expect(parsePageUrl(`${REAL}?Unit=U2&Mode=live`).params).toEqual({ Unit: 'U2', Mode: 'live' });
+    expect(parsePageUrl('https://mes.gedemo.io/run/v2/Plant/Overview')).toMatchObject({ appName: 'Plant', pageName: 'Overview' });
+    expect(parsePageUrl('https://mes.gedemo.io/iqp/')).toBeNull();
+  });
+
+  test('typed names build the same path', () => {
+    expect(pagePathFor('_HMI Screens', 'NuclearPartial')).toBe('/run/v2/app-name/_HMI%20Screens/page-name/NuclearPartial');
+  });
+
+  test('served from the proxy’s embed port, parameters in the query string', () => {
+    const declared = [{ name: 'Unit', baseType: 'STRING' }];
+    expect(pageUrl({ embedUrl: 'http://localhost:4100', appName: 'A', pageName: 'P', params: { Unit: 'U 2', Other: 'x' }, declared }))
+      .toBe('http://localhost:4100/run/v2/app-name/A/page-name/P?Unit=U%202');
+    expect(pageUrl({ embedUrl: 'http://localhost:4100/', pagePath: '/run/v2/odd/path' })).toBe('http://localhost:4100/run/v2/odd/path');
+    expect(pageUrl({ embedUrl: null, appName: 'A', pageName: 'P' })).toBeNull();
+  });
+
+  test('each source keeps its own parameters', () => {
+    const props = { mashupParameters: [{ name: 'Site' }], pageParameters: [{ name: 'Unit' }] };
+    expect(declaredParametersOf(props).map(p => p.name)).toEqual(['Site']);
+    expect(declaredParametersOf({ ...props, source: 'ophub' }).map(p => p.name)).toEqual(['Unit']);
+    expect(getContainerPropertyDefs('EmbeddedView', { ...props, source: 'ophub' }).map(d => d.name)).toEqual(['designPreview', 'params.Unit']);
+  });
+
+  describe('the widget', () => {
+    const { render, findByText } = require('@testing-library/react');
+    const { EmbeddedViewWidget } = require('./EmbeddedViewWidget');
+    const CONNECTION = { id: 'c1', kind: 'ophub', name: 'Demo', proxyUrl: 'http://localhost:4000' };
+    beforeEach(() => {
+      window.localStorage.setItem('aetherium_connections', JSON.stringify([CONNECTION]));
+    });
+    afterEach(() => {
+      window.localStorage.removeItem('aetherium_connections');
+      delete global.fetch;
+    });
+
+    test('shows the page from the proxy’s embed port', async () => {
+      global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ embedUrl: 'http://localhost:4100', cookieConfigured: true }) }));
+      const { container } = render(<EmbeddedViewWidget source="ophub" appName="Plant" pageName="Overview" pageParameters={[{ name: 'Unit' }]} params={{ Unit: 'U2' }} />);
+      await findByText(container, /Loading Overview/);
+      expect(container.querySelector('iframe').getAttribute('src')).toBe('http://localhost:4100/run/v2/app-name/Plant/page-name/Overview?Unit=U2');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/ophub-embed/info', expect.anything());
+    });
+
+    test('says when the proxy can’t serve OpHub pages', async () => {
+      // Another proxy: the info is cached per proxy for the session.
+      window.localStorage.setItem('aetherium_connections', JSON.stringify([{ ...CONNECTION, proxyUrl: 'http://localhost:4001' }]));
+      global.fetch = jest.fn(async () => ({ ok: false, status: 404 }));
+      const { container } = render(<EmbeddedViewWidget source="ophub" connectionId="c1" appName="Plant2" pageName="Overview" designMode />);
+      await findByText(container, /hook up ophubEmbed.js/);
+      expect(container.querySelector('iframe')).toBeNull();
     });
   });
 });

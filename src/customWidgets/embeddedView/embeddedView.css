@@ -101,6 +101,16 @@
 }
 .ae-embed-placeholder-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .ae-embed-placeholder-note { font-size: 10px; color: #999; font-style: italic; margin-top: 2px; }
+.ae-embed-placeholder-problem {
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: #fdecee;
+  color: #b10e1c;
+  font-size: 10px;
+  line-height: 1.4;
+}
 
 /* Details panel: the Source section */
 .ae-embed-src-current {
@@ -164,3 +174,59 @@
   border-radius: 4px;
 }
 .ae-embed-orphan span { flex: 1; min-width: 0; }
+
+/* Details panel: which product */
+.ae-embed-source-switch {
+  grid-column: 1 / -1;
+  display: flex;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ae-embed-source-switch button {
+  flex: 1;
+  height: 24px;
+  border: 0;
+  border-right: 1px solid #c8c8c8;
+  background: #fafafa;
+  color: #555;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.ae-embed-source-switch button:last-child { border-right: 0; }
+.ae-embed-source-switch button.is-on { background: #0f6cbd; color: #fff; font-weight: 600; }
+
+/* Details panel: hand-named parameters (OpHub) */
+.ae-embed-param-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+.ae-embed-param-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  padding: 1px 2px 1px 7px;
+  border: 1px solid #c9dcf0;
+  border-radius: 10px;
+  background: #f1f7fd;
+  font-size: 11px;
+}
+.ae-embed-param-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ae-embed-param-chip button {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #777;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.ae-embed-param-chip button:hover { background: #dbe8f6; color: #b10e1c; }

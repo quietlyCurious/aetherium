@@ -9,41 +9,21 @@
 // app key and strips ThingWorx's "don't frame me" headers (twxEmbed.js).
 // Being same-origin is what lets the mashup load in an iframe at all — the
 // step 1 spike showed a direct iframe is refused.
+//
+// Parameters work the same for every kind of embedded view (viewParameters.js).
+
+import { encodeParams } from './viewParameters';
 
 export const RUNTIME_PATH = '/Thingworx/Runtime/index.html';
 
-// A parameter becomes a widget property under this prefix — 'params.Site' —
-// so the normal binding machinery handles it, and expandDotPaths hands the
-// widget one `params` object.
-export const PARAM_PREFIX = 'params.';
-export const paramPropName = (name) => `${PARAM_PREFIX}${name}`;
-
-// ── Runtime URL ──────────────────────────────────────────────────────────────
-
-// How a value reaches the mashup: everything is text in a URL. Blank values
-// are left out so the mashup's own default applies.
-export function paramValueToText(value) {
-  if (value === undefined || value === null || value === '') return null;
-  if (value instanceof Date) return value.toISOString();
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
-}
-
 // Master first, then mashup, then parameters — the order ThingWorx itself
-// writes them in. Only parameters the mashup actually declares are passed,
-// so a stale value left behind by a renamed parameter doesn't leak through.
+// writes them in.
 export function runtimeUrl({ mashupName, master, params, declared }) {
   if (!mashupName) return null;
-  const allowed = declared ? new Set(declared.map(p => p.name)) : null;
   const parts = [];
   if (master) parts.push(`master=${encodeURIComponent(master)}`);
   parts.push(`mashup=${encodeURIComponent(mashupName)}`);
-  Object.entries(params || {}).forEach(([name, value]) => {
-    if (allowed && !allowed.has(name)) return;
-    const text = paramValueToText(value);
-    if (text !== null) parts.push(`${encodeURIComponent(name)}=${encodeURIComponent(text)}`);
-  });
-  return `${RUNTIME_PATH}#${parts.join('&')}`;
+  return `${RUNTIME_PATH}#${[...parts, ...encodeParams(params, declared)].join('&')}`;
 }
 
 // A pasted runtime URL can carry mashup/master in the query string, the
@@ -60,31 +40,6 @@ export function parseRuntimeUrl(text) {
     master: values.get('master') || '',
     params: Object.fromEntries([...values].filter(([k]) => !RESERVED.has(k))),
   };
-}
-
-// ── Parameters → widget properties ───────────────────────────────────────────
-
-const NUMBER_TYPES = new Set(['NUMBER', 'INTEGER', 'LONG']);
-// A table can't travel in a URL; these need the live bridge (step 3).
-export const URL_UNSAFE_TYPES = new Set(['INFOTABLE']);
-
-export function isUrlPassable(param) {
-  return !URL_UNSAFE_TYPES.has(String(param.baseType || '').toUpperCase());
-}
-
-// One widget property per parameter, grouped under "Parameters" in the
-// details panel, each bindable like any other property.
-export function parameterPropertyDefs(declared) {
-  return (declared || []).filter(isUrlPassable).map(p => {
-    const base = String(p.baseType || '').toUpperCase();
-    return {
-      name: paramPropName(p.name),
-      label: p.name,
-      type: NUMBER_TYPES.has(base) ? 'number' : base === 'BOOLEAN' ? 'bool' : 'string',
-      group: 'Parameters',
-      ...(p.description ? { description: p.description } : {}),
-    };
-  });
 }
 
 // ── A mashup's declared parameters ──────────────────────────────────────────
@@ -110,11 +65,6 @@ export function parametersFromDefinition(json) {
       defaultValue: d.aspects?.defaultValue ?? null,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
-}
-
-export function sameParameters(a, b) {
-  const key = (list) => JSON.stringify((list || []).map(p => [p.name, p.baseType]));
-  return key(a) === key(b);
 }
 
 // ── Talking to ThingWorx (same-origin) ───────────────────────────────────────

@@ -31,7 +31,7 @@ import { TextWidget } from './TextWidget';
 import { DECIMALS_CHOICES } from './textFormat';
 import { EmbeddedViewWidget } from './embeddedView/EmbeddedViewWidget';
 import { EmbeddedViewDetails } from './embeddedView/EmbeddedViewDetails';
-import { PARAM_PREFIX, parameterPropertyDefs } from './embeddedView/thingworxEmbed';
+import { PARAM_PREFIX, declaredParametersOf, parameterPropertyDefs } from './embeddedView/viewParameters';
 
 export const CUSTOM_WIDGETS = {
   Text: {
@@ -50,19 +50,26 @@ export const CUSTOM_WIDGETS = {
       { n: 'suffix', t: 'string', d: '' },
     ],
   },
-  // A ThingWorx mashup hosted on the page (embeddedView/). mashupName,
-  // master and mashupParameters are set by its Source section; the
-  // parameters become properties of their own ('params.<name>').
+  // A ThingWorx mashup or an OpHub page hosted on the page (embeddedView/,
+  // viewSources.js). Its Source section sets which, and the view's own
+  // fields; the view's parameters become properties of their own
+  // ('params.<name>').
   EmbeddedView: {
     component: EmbeddedViewWidget,
     DetailsEditor: EmbeddedViewDetails,
-    dynamicPropertyDefs: (widgetProps) => parameterPropertyDefs(widgetProps?.mashupParameters),
+    dynamicPropertyDefs: (widgetProps) => parameterPropertyDefs(declaredParametersOf(widgetProps)),
     dynamicPropertyPrefix: PARAM_PREFIX,
     options: [
       { n: 'designPreview', t: 'enum', o: ['live', 'placeholder'], d: 'live' },
+      { n: 'source', t: 'enum', o: ['thingworx', 'ophub'], d: 'thingworx' },
       { n: 'mashupName', t: 'string', d: '' },
       { n: 'master', t: 'string', d: '' },
       { n: 'mashupParameters', t: 'json', d: [] },
+      { n: 'connectionId', t: 'string', d: '' },
+      { n: 'appName', t: 'string', d: '' },
+      { n: 'pageName', t: 'string', d: '' },
+      { n: 'pagePath', t: 'string', d: '' },
+      { n: 'pageParameters', t: 'json', d: [] },
     ],
   },
 };
