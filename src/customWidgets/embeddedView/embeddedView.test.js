@@ -258,9 +258,17 @@ describe('browsing OpHub apps and pages', () => {
     },
   };
 
-  test('apps, by their UUID', () => {
-    expect(parseApps({ apps: [{ appId: 1108, UUID: APP_ID, appName: 'Plant' }, { UUID: 'b', appName: 'Alpha' }] }))
-      .toEqual([{ id: 'b', name: 'Alpha', numericId: null }, { id: APP_ID, name: 'Plant', numericId: 1108 }]);
+  test('apps, from a real get_apps answer', () => {
+    const real = {
+      status: { success: true, code: 0, reason: 'Ok' },
+      app_headers: [
+        { app_id: APP_ID, version: 119, name: 'RMC MES_Copy_Classic', items: [{ globals: [{ type: 'component', pageId: 'p', name: 'x' }] }] },
+        { app_id: 'b', name: 'Alpha', items: [] },
+      ],
+    };
+    expect(parseApps(real)).toEqual([{ id: 'b', name: 'Alpha' }, { id: APP_ID, name: 'RMC MES_Copy_Classic' }]);
+    // The package export's names too.
+    expect(parseApps({ apps: [{ appId: 1108, UUID: 'c', appName: 'Plant' }] })).toEqual([{ id: 'c', name: 'Plant' }]);
   });
 
   test('pages and globals, from inside a JSON-string items list', () => {
@@ -290,7 +298,11 @@ describe('browsing OpHub apps and pages', () => {
     global.fetch = jest.fn(async (url, init) => {
       if (String(url).endsWith('/ophub-embed/info')) return { ok: true, status: 200, json: async () => ({ embedUrl: 'http://localhost:4100', ophubBaseUrl: 'https://mes.gedemo.io', cookieConfigured: true }) };
       const command = JSON.parse(decodeURIComponent(String(init.body).replace(/^data=/, '').replace(/\+/g, ' '))).command;
-      const body = command === 'get_apps' ? { apps: [{ UUID: APP_ID, appName: 'Plant' }] } : DETAILS;
+      // get_apps as OpHub really answers; get_app_details with nothing usable,
+      // so the pages and globals have to come from the app's header.
+      const body = command === 'get_apps'
+        ? { status: { success: true }, app_headers: [{ app_id: APP_ID, name: 'Plant', items: DETAILS.app.items }] }
+        : { status: { success: true } };
       return { ok: true, status: 200, text: async () => JSON.stringify(body) };
     });
     const updates = [];

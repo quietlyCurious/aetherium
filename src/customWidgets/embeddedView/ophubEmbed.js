@@ -128,14 +128,24 @@ function* objectsIn(value, depth = 0) {
   }
 }
 
-// get_apps → [{ id, name }]. The id is the app's UUID — what get_app_details
-// and the designer's URLs take.
+// get_apps → [{ id, name }]. A real answer:
+//   { status, app_headers: [{ app_id: '<uuid>', name, version, items: [...], … }] }
+// The id is the UUID — what get_app_details and the designer's URLs take.
+// Each header's own items (globals, pages) are kept aside, for when
+// get_app_details doesn't give them (appItems below).
+const appItems = new Map();   // app id → that app's header
+
 export function parseApps(json) {
+  const headers = Array.isArray(json?.app_headers) ? json.app_headers : null;
   const seen = new Map();
-  for (const o of objectsIn(json)) {
-    const name = pick(o, ['appName', 'app_name']);
-    const id = pick(o, ['UUID', 'uuid', 'app_uuid', 'appUuid', 'app_id']);
-    if (name && id && !seen.has(String(id))) seen.set(String(id), { id: String(id), name: String(name), numericId: o.appId ?? null });
+  for (const o of headers || objectsIn(json)) {
+    const id = pick(o, ['app_id', 'UUID', 'uuid', 'app_uuid', 'appUuid']);
+    // `name` alone is too common to trust deep in an answer; on an app
+    // header, or next to an app id and items, it's the app's.
+    const name = pick(o, ['appName', 'app_name']) ?? (id && (headers || 'items' in o) ? o.name : undefined);
+    if (!name || !id || seen.has(String(id))) continue;
+    seen.set(String(id), { id: String(id), name: String(name) });
+    appItems.set(String(id), o);
   }
   return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -181,20 +191,37 @@ export function urlGlobalsForPage(globals, pageId) {
 // What kinds of global an app has, for saying why none were found.
 export const globalTypesOf = (globals) => [...new Set((globals || []).map(g => String(g.type || '?')))].sort();
 
+// Asked once per proxy per session. Nothing recognized is an error, not an
+// empty list, so it isn't kept and the next look asks again.
 const appsCache = new Map();
 export function listOphubApps(connection, { refresh = false } = {}) {
   const key = connection?.proxyUrl || '';
   if (refresh || !appsCache.has(key)) {
-    const promise = postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_apps' }).then(parseApps);
+    const promise = postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_apps' }).then(json => {
+      const apps = parseApps(json);
+      if (!apps.length) {
+        const keys = json && typeof json === 'object' ? Object.keys(json).join(', ') : typeof json;
+        throw new Error(`OpHub answered, but no apps were recognized in it (it has: ${keys}).`);
+      }
+      return apps;
+    });
     promise.catch(() => appsCache.delete(key));
     appsCache.set(key, promise);
   }
   return appsCache.get(key);
 }
 
+// get_app_details, falling back to the app's header from get_apps (which
+// carries the same items) when it fails or has no pages in it.
 export async function fetchOphubAppDetails(connection, appId) {
-  const json = await postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_app_details', app_id: appId });
-  return parseAppDetails(json);
+  let details = { pages: [], globals: [] };
+  try {
+    details = parseAppDetails(await postToOphub(connection?.proxyUrl, '/api/ophub/apps', { command: 'get_app_details', app_id: appId }));
+  } catch (err) {
+    if (!appItems.has(appId)) throw err;
+  }
+  if (!details.pages.length && appItems.has(appId)) details = parseAppDetails(appItems.get(appId));
+  return details;
 }
 
 // Finds a page by id, or by app and page name (a pasted URL has only
