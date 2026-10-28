@@ -1,0 +1,1100 @@
+ Download the React DevTools for a better development experience: https://react.dev/link/react-devtools
+ You are running production build of Inferno in development mode. Use dev:module entry point.
+./node_modules/inferno/index.esm.js @ bundle.js:520046
+ W0019 - DevExtreme: You are using a trial (evaluation) version of DevExtreme. Please register an existing license (https://devexpress.com/DX1000) or purchase a new license (https://devexpress.com/Buy/) to continue use of the following DevExpress product libraries: DevExtreme - Included in Subscriptions: Universal, DXperience, ASP.NET and Blazor, DevExtreme Complete.
+A devextreme-license generated key has not been specified in the GlobalConfig.
+(anonymous) @ bundle.js:151952
+ W0021 - DevExtreme: License Key Verification Has Failed. If you own a licensed/registered version or if you are using a 30-day trial version of DevExpress product libraries on a development machine, download your personal license key and verify it with the devextreme-license tool (https://devexpress.com/DX1001).
+(anonymous) @ bundle.js:151952
+ JQMIGRATE: Migrate is installed, version 3.5.2
+ LegacyDataMixin will be applied to all legacy elements.
+Set `_legacyUndefinedCheck: true` on element class to enable.
+ load styleAggregator, using Constructable Stylesheets
+ Assign unknown property: e-grid-header-divider-color
+r._setProp @ :3000/Thingworx/Runtime/mashup-common-general-runtime.js?_v=10.0.0-1748434552:16
+ Assign unknown property: e-menu-divider-color
+r._setProp @ :3000/Thingworx/Runtime/mashup-common-general-runtime.js?_v=10.0.0-1748434552:16
+ authopt is set to null
+ Possibly unhandled rejection: {"data":"<!doctype html><html lang=\"en\"><head><script src=\"/__aetherium/same-scheme.js\"></script><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class=\"line\" /><p><b>Type</b> Status Report</p><p><b>Message</b> The requested resource [&#47;app&#47;login&#47;run&#47;] is not available</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class=\"line\" /><h3>Apache Tomcat/9.0.115</h3></body></html>","status":404,"config":{"method":"GET","transformRequest":[null],"transformResponse":[null],"jsonpCallbackParam":"callback","url":"http://localhost:4100/app/token","type":"POST","contentType":"application/json","headers":{"Accept":"application/json, text/plain, */*"}},"statusText":"Not Found","xhrStatus":"complete"}
+(anonymous) @ angular.min.js:129
+ Error: [$compile:tplrt] http://errors.angularjs.org/1.8.2/$compile/tplrt?p0=messageBanner&p1=partials%2Fmessage_banner.html
+(anonymous) @ angular.min.js:129
+ [LicenseService] Api request failed: Could not retrieve data source details. Some data sources may be blocked.
+(anonymous) @ app.js:1
+ JQMIGRATE: Migrate is installed, version 3.5.2
+ LegacyDataMixin will be applied to all legacy elements.
+Set `_legacyUndefinedCheck: true` on element class to enable.
+ load styleAggregator, using Constructable Stylesheets
+ Assign unknown property: e-grid-header-divider-color
+r._setProp @ :3000/Thingworx/Runtime/mashup-common-general-runtime.js?_v=10.0.0-1748434552:16
+ Assign unknown property: e-menu-divider-color
+r._setProp @ :3000/Thingworx/Runtime/mashup-common-general-runtime.js?_v=10.0.0-1748434552:16
+ authopt is set to null
+ Error: [$compile:tplrt] http://errors.angularjs.org/1.8.2/$compile/tplrt?p0=messageBanner&p1=partials%2Fmessage_banner.html
+(anonymous) @ angular.min.js:129
+ Possibly unhandled rejection: {"data":"<!doctype html><html lang=\"en\"><head><script src=\"/__aetherium/same-scheme.js\"></script><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class=\"line\" /><p><b>Type</b> Status Report</p><p><b>Message</b> The requested resource [&#47;app&#47;login&#47;run&#47;] is not available</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class=\"line\" /><h3>Apache Tomcat/9.0.115</h3></body></html>","status":404,"config":{"method":"GET","transformRequest":[null],"transformResponse":[null],"jsonpCallbackParam":"callback","url":"http://localhost:4100/app/token","type":"POST","contentType":"application/json","headers":{"Accept":"application/json, text/plain, */*"}},"statusText":"Not Found","xhrStatus":"complete"}
+(anonymous) @ angular.min.js:129
+ [LicenseService] Api request failed: Could not retrieve data source details. Some data sources may be blocked.
+(anonymous) @ app.js:1
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ window resize event
+ authopt is set to null
+ Error: [$compile:tplrt] http://errors.angularjs.org/1.8.2/$compile/tplrt?p0=messageBanner&p1=partials%2Fmessage_banner.html
+    at angular.min.js:7:168
+    at angular.min.js:84:101
+    at angular.min.js:141:454
+    at m.$digest (angular.min.js:153:67)
+    at m.$apply (angular.min.js:156:484)
+    at k (angular.min.js:107:445)
+    at v (angular.min.js:113:40)
+    at y.onload [as __zone_symbol__ON_PROPERTYload] (angular.min.js:113:464)
+    at XMLHttpRequest.z (dxa-opcua-browser-elem.js:1:19979)
+    at e.invokeTask (dxa-opcua-browser-elem.js:1:9283)
+(anonymous) @ angular.min.js:129
+ Event
+o.onerror @ app.js:1
+ Error: [$compile:tplrt] http://errors.angularjs.org/1.8.2/$compile/tplrt?p0=traceModal&p1=partials%2Ftrace_modal.html
+    at angular.min.js:7:168
+    at angular.min.js:84:101
+    at angular.min.js:141:454
+    at m.$digest (angular.min.js:153:67)
+    at m.$apply (angular.min.js:156:484)
+    at k (angular.min.js:107:445)
+    at v (angular.min.js:113:40)
+    at y.onload [as __zone_symbol__ON_PROPERTYload] (angular.min.js:113:464)
+    at XMLHttpRequest.z (dxa-opcua-browser-elem.js:1:19979)
+    at e.invokeTask (dxa-opcua-browser-elem.js:1:9283)
+(anonymous) @ angular.min.js:129
+:4100/app/ajax/Query?_=1793116848824:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116849836:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116849836:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116849837:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116849835:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116849841:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116850828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116850828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116850828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116850829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116850831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116851832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116852822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116852823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116852823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116852823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116853833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116853834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116853834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116853833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116854832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116854832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116854832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116855831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116855832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116855831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116855834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116856824:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116857823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116857823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116858833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116859833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116859832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860823:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116860829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116861833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116861833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116861832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116862834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116862834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116862835:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116874830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116876826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116876831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116879820:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116879820:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116880828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116880829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116880829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116880830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116880834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116881830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116881830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116881831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116881829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116881835:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116882832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116882832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116882833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116882833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116882838:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116882840:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116883828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116883828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116883828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116883829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116884826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116884827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116884825:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116884827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116885831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116885831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116885832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116886834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116886834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116886833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116886834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116887834:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116888830:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116888829:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116889827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116889828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116889828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116889828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116889832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116890824:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116890825:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116890824:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116891832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892731:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892732:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116892732:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116893050:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116893165:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793116893165:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793117448822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117448822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117448822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793117449832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117449832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117449833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450825:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117450825:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117451831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117451832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117451832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117451832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793117452832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117452832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117452832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117452833:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117452835:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453821:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453822:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117453826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117454831:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793117456827:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117456828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117456826:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117456828:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117456832:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117458447:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117458447:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117458447:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793117458447:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+properties:1 WebSocket connection to 'ws://localhost:3000/ws' failed: Page entered Back-Forward Cache.
+ window resize event
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+VM1556:1 Value Display
+properties:1 WebSocket connection to 'ws://localhost:3000/ws' failed: Page entered Back-Forward Cache.
+ window resize event
+ window resize event
+properties:1 WebSocket connection to 'ws://localhost:3000/ws' failed: Page entered Back-Forward Cache.
+:4100/app/sse:1  Failed to load resource: net::ERR_NETWORK_IO_SUSPENDED
+ window resize event
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199026577:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026579:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026581:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026581:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026580:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026581:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026581:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026584:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026585:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026586:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+ Possibly unhandled rejection: null
+(anonymous) @ angular.min.js:129
+:4100/app/logout?_=1793199026612:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026613:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026614:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199026615:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199041917:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199041917:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199041917:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199041920:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199041921:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199041917:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199042236:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199042236:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199042237:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199057236:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057236:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057235:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057245:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057247:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057248:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199057248:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057249:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057250:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057543:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057543:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057543:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057543:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057546:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057546:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057561:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057563:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057563:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057853:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057854:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057854:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057854:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057857:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199057857:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058173:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058173:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058174:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058174:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058177:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058177:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058473:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058486:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058487:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058487:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058487:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058489:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058788:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058789:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058794:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058794:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199058794:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059105:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059105:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059106:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059106:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059109:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059110:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199059732:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059732:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059733:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059733:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059736:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199059736:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199073411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199073420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199088402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088401:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199088409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089422:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089422:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089422:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089424:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199089424:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199090403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199090415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199091399:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199091399:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199091399:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199091400:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199091404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199105411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105676:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105676:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199105676:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199119409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199119417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120401:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199120410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199121398:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121399:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121399:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121400:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199121417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199122419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199137410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199137415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199150405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150405:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199150410:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199151409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199151414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152417:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199152420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153411:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153412:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153419:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199153421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199154404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199154404:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199169408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199169407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199169408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199169408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199169415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199169415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199170406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199170406:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199170407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199181402:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181403:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181407:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199181408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182408:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182409:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199182418:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183416:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199183421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183738:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183739:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183740:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183740:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183741:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199183742:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184366:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184366:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184367:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184368:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184369:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184370:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793199184680:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184680:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184682:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184738:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184741:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184741:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184742:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184743:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184744:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184988:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184995:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184995:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184996:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199184997:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199185739:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199185740:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793199185740:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/sse:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/sse:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200413:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200413:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200413:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200412:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199200419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199201416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199201416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199201416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199212426:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213430:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199213430:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214414:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+ window resize event
+:4100/app/ajax/Query?_=1793199214421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199214421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215417:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4000/api/ophub/apps?=1793199278634:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4000/api/ophub/apps?=1793199278629:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4000/api/ophub/apps?=1793199278634:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4000/api/ophub/apps?=1793199278632:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215417:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215418:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:3000/Thingworx/Mashups/PTC.FSU.COREUI.AdvancedFiltering.EquipmentSelectionPanel_MU:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199216414:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199215423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199216415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199216415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199226418:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199226419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199226419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199226419:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199231415:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199226424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199237416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199237416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199237416:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199253409:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199253409:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199256409:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199262412:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199262412:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199262411:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199263422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199263421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199266979:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199273074:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199273074:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199273068:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199274084:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199274084:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199277640:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199283747:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199283747:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199283746:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199284758:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199284757:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199288324:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199294423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199294422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199294422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199295423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199295423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199299422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199305424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199305423:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199305422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199306424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199306424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199310425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199326417:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199326418:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199326418:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199327426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199327426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199327426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199331432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199333425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199333426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199333426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199334424:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199334424:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199337419:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199337420:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199337420:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199337421:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199338434:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199338434:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199343430:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199343431:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199359422:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199359422:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199363426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199369432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199369432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199369433:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199370424:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199370425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199374423:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199380432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199380432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199380432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199381422:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199381422:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199384429:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199316421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199317420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199320418:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199316422:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199317420:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199316421:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501438:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199500434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501438:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501438:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501438:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199501435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199505424:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199505425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199505425:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199510429:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199510430:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199510430:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199512432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199512432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199512432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199512433:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199512435:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199513431:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199513431:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199513431:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199513431:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199513434:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514436:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514437:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514437:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514437:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199514440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515428:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515428:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515428:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515429:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515429:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199515429:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199516425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199516425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517423:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517423:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517423:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517423:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199517426:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199518857:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199525437:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199525437:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199525438:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199526427:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199526428:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199530422:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911447:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912447:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911447:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912448:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912444:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912460:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912460:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912459:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199912459:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911447:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911439:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199911440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199910452:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199917432:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917439:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917433:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917440:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917441:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917441:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199917440:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199931428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199930431:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935427:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199934435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935427:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935434:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199935435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199936435:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199936436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199936440:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199936436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199936436:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199937444:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199937444:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199937444:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199937444:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199938450:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943428:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943427:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943429:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943438:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943437:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199943437:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944441:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944440:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944441:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944441:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944447:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944446:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944446:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944446:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944455:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199944455:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199944455:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199944455:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199954440:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199954441:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199954441:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199954447:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199990434:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200001381:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200001382:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200001382:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200001382:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200001387:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200011380:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200011381:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200011381:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200011382:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200011387:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200022386:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200022386:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200022386:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200022387:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200022394:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200033384:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200033384:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200033384:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200033384:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200033390:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200043379:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200043380:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200043381:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200043381:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200043387:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200065396:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200065397:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200065398:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200065398:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200086399:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200124356:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200124356:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200124357:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200135432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200135432:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200150424:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793200150425:1  Failed to load resource: net::ERR_NETWORK_CHANGED
+:4100/app/ajax/Query?_=1793199944447:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944454:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944453:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944454:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793199944448:1  Failed to load resource: the server responded with a status of 502 (Bad Gateway)
+:4100/app/ajax/Query?_=1793200161451:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793200161450:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793200161449:1  Failed to load resource: net::ERR_EMPTY_RESPONSE
+:4100/app/ajax/Query?_=1793200171424:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200171425:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200171425:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200171425:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200171430:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172413:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172414:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172415:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172420:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172421:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172422:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172422:1  Failed to load resource: net::ERR_CONNECTION_RESET
+:4100/app/ajax/Query?_=1793200172423:1  Failed to load resource: net::ERR_CONNECTION_RESET
+ window resize event
+ window resize event
+[NEW] Explain Console errors by using Copilot in Edge: click  to explain an error. Learn moreDon’t show again
+40 log entries are not shown.
