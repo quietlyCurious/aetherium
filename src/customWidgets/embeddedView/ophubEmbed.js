@@ -8,10 +8,11 @@
 // proxy is found through an OpHub connection's Proxy URL, so an embedded
 // page belongs to a connection, the same as an OpHub query does.
 //
-// A page's runtime URL, from a real one:
-//   /run/v2/app-name/<app>/page-name/<page>
-// A pasted URL keeps its own path exactly, so if some pages are addressed
-// differently, pasting one still works.
+// A page's run-mode URL, as OpHub's classic designer opens it:
+//   /run/?app_name=<app>&page_name=<page>
+// with the page's URL Globals added as more query values. A pasted URL in
+// another form (e.g. /run/v2/app-name/<app>/page-name/<page>) keeps its own
+// path exactly, so pasting one still works.
 //
 // Parameters are the page's URL Globals — OpHub's globals that are filled
 // from the URL — passed in the query string. They're read from the app's
@@ -40,15 +41,26 @@ export function ophubConnectionFor(connectionId, connections = ophubConnections(
 
 export function pagePathFor(appName, pageName) {
   if (!appName || !pageName) return null;
-  return `/run/v2/app-name/${encodeURIComponent(appName)}/page-name/${encodeURIComponent(pageName)}`;
+  return `/run/?app_name=${encodeURIComponent(appName)}&page_name=${encodeURIComponent(pageName)}`;
 }
+
+const PAGE_QUERY_KEYS = new Set(['app_name', 'page_name']);
 
 const decode = (segment) => { try { return decodeURIComponent(segment); } catch { return segment; } };
 
-// → { appName, pageName, pagePath, params } | null
+// → { appName, pageName, pagePath, params } | null — pagePath null when the
+// URL is the usual form, which pagePathFor builds again from the names.
 export function parsePageUrl(text) {
   let url;
   try { url = new URL(String(text || '').trim()); } catch { return null; }
+  if (url.searchParams.get('app_name') && url.searchParams.get('page_name')) {
+    return {
+      appName: url.searchParams.get('app_name'),
+      pageName: url.searchParams.get('page_name'),
+      pagePath: null,
+      params: Object.fromEntries([...url.searchParams].filter(([k]) => !PAGE_QUERY_KEYS.has(k))),
+    };
+  }
   const segments = url.pathname.split('/').filter(Boolean);
   if (!segments.length) return null;
   const after = (marker) => {
@@ -72,7 +84,8 @@ export function pageUrl({ embedUrl, pagePath, appName, pageName, params, declare
   const path = pagePath || pagePathFor(appName, pageName);
   if (!embedUrl || !path) return null;
   const query = encodeParams(params, declared);
-  return `${embedUrl.replace(/\/$/, '')}${path}${query.length ? `?${query.join('&')}` : ''}`;
+  const joiner = path.includes('?') ? '&' : '?';
+  return `${embedUrl.replace(/\/$/, '')}${path}${query.length ? `${joiner}${query.join('&')}` : ''}`;
 }
 
 // ── The proxy ────────────────────────────────────────────────────────────────

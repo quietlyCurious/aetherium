@@ -183,14 +183,20 @@ describe('Operations Hub pages', () => {
     expect(parsePageUrl('https://mes.gedemo.io/iqp/')).toBeNull();
   });
 
-  test('typed names build the same path', () => {
-    expect(pagePathFor('_HMI Screens', 'NuclearPartial')).toBe('/run/v2/app-name/_HMI%20Screens/page-name/NuclearPartial');
+  test('a classic run-mode URL, as OpHub opens it', () => {
+    const CLASSIC = 'https://mes.gedemo.io/run/?app_name=_Injection%20Molding&page_name=OEE%20Dashboard';
+    expect(parsePageUrl(CLASSIC)).toEqual({ appName: '_Injection Molding', pageName: 'OEE Dashboard', pagePath: null, params: {} });
+    expect(parsePageUrl(`${CLASSIC}&Line=L2`).params).toEqual({ Line: 'L2' });
+    // Names build that same URL again.
+    expect(`https://mes.gedemo.io${pagePathFor('_Injection Molding', 'OEE Dashboard')}`).toBe(CLASSIC);
   });
 
   test('served from the proxy’s embed port, parameters in the query string', () => {
     const declared = [{ name: 'Unit', baseType: 'STRING' }];
     expect(pageUrl({ embedUrl: 'http://localhost:4100', appName: 'A', pageName: 'P', params: { Unit: 'U 2', Other: 'x' }, declared }))
-      .toBe('http://localhost:4100/run/v2/app-name/A/page-name/P?Unit=U%202');
+      .toBe('http://localhost:4100/run/?app_name=A&page_name=P&Unit=U%202');
+    expect(pageUrl({ embedUrl: 'http://localhost:4100', pagePath: '/run/v2/app-name/A/page-name/P', params: { Unit: 'U2' }, declared }))
+      .toBe('http://localhost:4100/run/v2/app-name/A/page-name/P?Unit=U2');
     expect(pageUrl({ embedUrl: 'http://localhost:4100/', pagePath: '/run/v2/odd/path' })).toBe('http://localhost:4100/run/v2/odd/path');
     expect(pageUrl({ embedUrl: null, appName: 'A', pageName: 'P' })).toBeNull();
   });
@@ -218,7 +224,7 @@ describe('Operations Hub pages', () => {
       global.fetch = jest.fn(async () => ({ ok: true, status: 200, json: async () => ({ embedUrl: 'http://localhost:4100', cookieConfigured: true }) }));
       const { container } = render(<EmbeddedViewWidget source="ophub" appName="Plant" pageName="Overview" pageParameters={[{ name: 'Unit' }]} params={{ Unit: 'U2' }} />);
       await findByText(container, /Loading Overview/);
-      expect(container.querySelector('iframe').getAttribute('src')).toBe('http://localhost:4100/run/v2/app-name/Plant/page-name/Overview?Unit=U2');
+      expect(container.querySelector('iframe').getAttribute('src')).toBe('http://localhost:4100/run/?app_name=Plant&page_name=Overview&Unit=U2');
       expect(global.fetch).toHaveBeenCalledWith('http://localhost:4000/ophub-embed/info', expect.anything());
     });
 
@@ -312,6 +318,39 @@ describe('browsing OpHub apps and pages', () => {
     await waitFor(() => expect(updates.length).toBeGreaterThan(0));
     expect(updates[0]).toMatchObject({ appId: APP_ID, pageId: PAGE_ID });
     expect(updates[0].pageParameters.map(p => p.name)).toEqual(['Shift', 'Unit', 'Mine']);
+    window.localStorage.removeItem('aetherium_connections');
+    delete global.fetch;
+  });
+});
+
+describe('browsing: app first, then its pages', () => {
+  const { render, waitFor } = require('@testing-library/react');
+  const { OphubSourceDetails } = require('./OphubSourceDetails');
+  const APP = 'app-1';
+  const ITEMS = JSON.stringify([
+    { globals: [{ name: 'Unit', type: 'url', dataType: 'String', appGlobal: true }] },
+    { page_id: 'p1', name: 'Overview', displayName: 'Plant Overview' },
+    { page_id: 'p2', name: 'Detail', displayName: 'Detail' },
+  ]);
+
+  test('the page list arrives, even though the panel redraws while it loads', async () => {
+    window.localStorage.setItem('aetherium_connections', JSON.stringify([{ id: 'c9', kind: 'ophub', proxyUrl: 'http://localhost:4009' }]));
+    global.fetch = jest.fn(async (url, init) => {
+      if (String(url).endsWith('/ophub-embed/info')) return { ok: true, status: 200, json: async () => ({ embedUrl: 'http://localhost:4100', ophubBaseUrl: 'https://x', cookieConfigured: true }) };
+      const command = JSON.parse(decodeURIComponent(String(init.body).replace(/^data=/, '').replace(/\+/g, ' '))).command;
+      const body = command === 'get_apps'
+        ? { status: { success: true }, app_headers: [{ app_id: APP, name: 'Plant', items: ITEMS }] }
+        : { status: { success: true } };
+      return { ok: true, status: 200, text: async () => JSON.stringify(body) };
+    });
+    const editor = { updateWidgetProps: () => {}, clearWidgetBinding: () => {} };
+    // An app but no page yet: the browser is open on that app.
+    const container = { id: 'w9', widgetProps: { source: 'ophub', appId: APP } };
+    const { container: dom } = render(<OphubSourceDetails container={container} editor={editor} />);
+    await waitFor(() => expect(dom.querySelector('[data-dx_placeholder="2 pages — choose one…"]')).not.toBeNull());
+    // App comes before Page.
+    const labels = [...dom.querySelectorAll('.details-grid-label')].map(l => l.textContent);
+    expect(labels.indexOf('App')).toBeLessThan(labels.indexOf('Page'));
     window.localStorage.removeItem('aetherium_connections');
     delete global.fetch;
   });

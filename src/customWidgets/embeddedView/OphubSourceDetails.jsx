@@ -95,24 +95,31 @@ export function OphubSourceDetails({ container, editor }) {
   }, [id, connection?.id, props.appName, props.pageName]);
 
   // ── Browsing ───────────────────────────────────────────────────────────────
+  // The connection is read from storage on every render, so it's a new
+  // object each time; the effects key on what identifies it instead, or each
+  // render would cancel the request in flight.
+  const connectionRef = useRef(connection);
+  connectionRef.current = connection;
+  const connectionKey = connection ? `${connection.id}|${connection.proxyUrl}` : '';
+
   useEffect(() => {
-    if (!changing || !connection || apps.list) return undefined;
+    if (!changing || !connectionKey || apps.list) return undefined;
     let live = true;
-    listOphubApps(connection)
+    listOphubApps(connectionRef.current)
       .then(list => live && setApps({ list, error: null }))
       .catch(err => live && setApps({ list: null, error: err.message }));
     return () => { live = false; };
-  }, [changing, connection, apps.list]);
+  }, [changing, connectionKey, apps.list]);
 
   useEffect(() => {
-    if (!browseAppId || !connection || pages.appId === browseAppId) return undefined;
+    if (!browseAppId || !connectionKey) return undefined;
     let live = true;
     setPages({ appId: browseAppId, list: null, globals: [], error: null });
-    fetchOphubAppDetails(connection, browseAppId)
+    fetchOphubAppDetails(connectionRef.current, browseAppId)
       .then(d => live && setPages({ appId: browseAppId, list: d.pages, globals: d.globals, error: null }))
       .catch(err => live && setPages({ appId: browseAppId, list: [], globals: [], error: err.message }));
     return () => { live = false; };
-  }, [browseAppId, connection, pages.appId]);
+  }, [browseAppId, connectionKey]);
 
   const choosePage = (page) => {
     const app = (apps.list || []).find(a => a.id === browseAppId);
@@ -139,7 +146,7 @@ export function OphubSourceDetails({ container, editor }) {
   const paste = (text) => {
     if (!text.trim()) return;
     const parsed = parsePageUrl(text);
-    if (!parsed) { setPasteNote('That doesn’t look like an OpHub page URL (…/run/v2/app-name/<app>/page-name/<page>).'); return; }
+    if (!parsed) { setPasteNote('That doesn’t look like an OpHub page URL (…/run/?app_name=<app>&page_name=<page>).'); return; }
     const values = {};
     Object.entries(parsed.params).forEach(([k, v]) => { if (!bindings[paramPropName(k)]) values[paramPropName(k)] = v; });
     const added = addParameters(Object.keys(parsed.params), {
@@ -169,6 +176,11 @@ export function OphubSourceDetails({ container, editor }) {
   const removeParameter = (name) => set({ pageParameters: declared.filter(p => p.name !== name) });
 
   const editUrl = ophubEditUrl(info?.ophubBaseUrl, props.appId, props.pageId);
+  // The browsed app's pages: null while loading (or before an app is chosen).
+  const pagesForApp = browseAppId && pages.appId === browseAppId ? pages.list : null;
+  const pagesPlaceholder = !browseAppId ? 'Choose an app first'
+    : pagesForApp === null ? 'Loading pages…'
+    : pagesForApp.length ? `${pagesForApp.length} pages — choose one…` : 'No pages';
   const fromOphub = declared.filter(p => p.fromOphub);
   const status = lookup.busy ? 'checking OpHub…'
     : lookup.error ? 'couldn’t check'
@@ -198,18 +210,16 @@ export function OphubSourceDetails({ container, editor }) {
         <div className="ae-embed-note ae-embed-note--warn">The proxy has no OPHUB_COOKIE, so OpHub will probably ask for a login.</div>
       )}
 
-      <span className="details-grid-label">Page</span>
-      <div className="details-grid-control">
-        <div className="ae-embed-src-current">
-          <span className={`ae-embed-src-name${chosen ? '' : ' ae-embed-src-name--empty'}`} title={props.pagePath || props.pageName}>
-            {chosen ? props.pageName : 'none chosen'}
-          </span>
-          {chosen && (
-            <button type="button" className="focus-mode-btn" style={{ flexShrink: 0 }} onClick={() => setChanging(c => !c)}>
-              {changing ? 'Cancel' : 'Change'}
-            </button>
-          )}
-          {chosen && (
+      {!changing && (<>
+        <span className="details-grid-label">App</span>
+        <div className="details-grid-control">
+          <span className="ae-embed-src-name" style={{ fontWeight: 400 }} title={props.appName}>{props.appName || '—'}</span>
+        </div>
+        <span className="details-grid-label">Page</span>
+        <div className="details-grid-control">
+          <div className="ae-embed-src-current">
+            <span className="ae-embed-src-name" title={props.pagePath || props.pageName}>{props.pageName}</span>
+            <button type="button" className="focus-mode-btn" style={{ flexShrink: 0 }} onClick={() => setChanging(true)}>Change</button>
             <button
               type="button"
               className="focus-mode-btn"
@@ -220,22 +230,19 @@ export function OphubSourceDetails({ container, editor }) {
                 : lookup.busy || loading ? 'Looking the page up in OpHub…' : 'Can’t link to the designer: the page wasn’t found in OpHub.'}
               onClick={() => window.open(editUrl, `ophub-designer-${props.pageId}`)}
             >Edit ↗</button>
-          )}
+          </div>
         </div>
-      </div>
-      {chosen && props.appName && (<>
-        <span className="details-grid-label">App</span>
-        <div className="details-grid-control"><span className="ae-embed-src-name" style={{ fontWeight: 400 }} title={props.appName}>{props.appName}</span></div>
+        {lookup.notFound && (
+          <div className="ae-embed-note ae-embed-note--warn">
+            OpHub has no page “{props.pageName}” in an app called “{props.appName}” — it still loads if the URL is right, but there’s no Edit or URL Globals.
+          </div>
+        )}
+        {lookup.error && <div className="ae-embed-note ae-embed-note--error">Couldn’t look the page up: {lookup.error}</div>}
       </>)}
-      {lookup.notFound && (
-        <div className="ae-embed-note ae-embed-note--warn">
-          OpHub has no page “{props.pageName}” in an app called “{props.appName}” — it still loads if the URL is right, but there’s no Edit or URL Globals.
-        </div>
-      )}
-      {lookup.error && <div className="ae-embed-note ae-embed-note--error">Couldn’t look the page up: {lookup.error}</div>}
 
       {changing && (<>
-        <span className="details-grid-label">Browse</span>
+        {/* App first, then its pages — both searchable. */}
+        <span className="details-grid-label">App</span>
         <div className="details-grid-control">
           <SelectBox
             dataSource={apps.list || []}
@@ -243,25 +250,37 @@ export function OphubSourceDetails({ container, editor }) {
             value={browseAppId}
             searchEnabled
             placeholder={apps.error ? 'Couldn’t list apps' : apps.list ? `${apps.list.length} apps — choose one…` : 'Loading apps…'}
-            onValueChanged={e => e.value && setBrowseAppId(e.value)}
+            onValueChanged={e => e.value && e.value !== browseAppId && setBrowseAppId(e.value)}
             stylingMode="outlined" width="100%" height={24}
           />
         </div>
         {apps.error && <div className="ae-embed-note ae-embed-note--error">{apps.error}</div>}
-        {browseAppId && pages.appId === browseAppId && (pages.list === null ? (
-          <div className="ae-embed-note">Loading pages…</div>
-        ) : pages.list.length ? (
-          <div className="ae-embed-results">
-            {pages.list.map(p => (
-              <div key={p.id} className="ae-embed-result" title={p.name} onClick={() => choosePage(p)}>
-                <span className="ae-embed-result-name">{p.displayName}</span>
-                <span className="ae-embed-result-kind">Page</span>
-              </div>
-            ))}
+        <span className="details-grid-label">Page</span>
+        <div className="details-grid-control" style={{ gap: 3 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <SelectBox
+              key={browseAppId || 'none'}
+              dataSource={pagesForApp || []}
+              valueExpr="id" displayExpr="displayName"
+              value={browseAppId === props.appId ? props.pageId || null : null}
+              searchEnabled
+              disabled={!pagesForApp || pagesForApp.length === 0}
+              placeholder={pagesPlaceholder}
+              itemRender={p => <span title={p.name}>{p.displayName}{p.displayName !== p.name && <span style={{ color: '#999' }}> · {p.name}</span>}</span>}
+              onValueChanged={e => {
+                const page = (pagesForApp || []).find(p => p.id === e.value);
+                if (page && e.value !== props.pageId) choosePage(page);
+              }}
+              stylingMode="outlined" width="100%" height={24}
+            />
           </div>
-        ) : (
+          {chosen && (
+            <button type="button" className="focus-mode-btn" style={{ flexShrink: 0 }} onClick={() => setChanging(false)}>Cancel</button>
+          )}
+        </div>
+        {pagesForApp && pagesForApp.length === 0 && (
           <div className="ae-embed-note ae-embed-note--warn">{pages.error || 'No pages found in this app.'}</div>
-        ))}
+        )}
         <span className="details-grid-label">or paste</span>
         <div className="details-grid-control">
           <input
