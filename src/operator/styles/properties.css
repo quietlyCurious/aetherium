@@ -147,7 +147,7 @@
 .op-property-tile-label {
   font-size: 8.5px;
   font-weight: 600;
-  color: #9096a3;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #9096a3));
   text-transform: uppercase;
   letter-spacing: 0.02em;
   text-align: center;
@@ -222,15 +222,15 @@
 }
 
 .op-property-tiles-card {
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
   padding: 8px 10px;
 }
 
 .op-property-tiles-singlebox {
   position: relative;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--aeth-surface, #fff);
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
   padding: 10px 12px;
   margin-top: 14px;
@@ -268,7 +268,7 @@
 }
 
 .op-property-tiles-card--noborder:not(:first-child) {
-  border-left: 1px solid #e5e5e5;
+  border-left: 1px solid var(--aeth-border, #e5e5e5);
   padding-left: 14px;
 }
 
@@ -347,7 +347,7 @@
    light-themed. */
 .op-property-tiles .op-property-tile-value,
 .op-property-tiles-singlebox .op-property-tile-value {
-  color: #222;
+  color: var(--aeth-text, #222);
 }
 
 .op-property-tiles .op-property-tile-track,
@@ -442,7 +442,7 @@
   flex: 1;
   height: 0;
   min-height: 0;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
 }
 
@@ -474,7 +474,7 @@
    color prop only tints the dot pattern, not the canvas itself, so this
    needs to be set separately. */
 .op-related-assets-diagram .react-flow {
-  background: #e8e8e8;
+  background: var(--aeth-surface-strong, #e8e8e8);
 }
 
 /* The Operator Assets area specifically (op-operator-asset-detail is
@@ -487,7 +487,7 @@
    covers Visualization's own Related Assets/All Assets diagrams, which
    weren't part of this request. */
 .op-operator-asset-detail .op-related-assets-diagram .react-flow {
-  background: #f9f9f9;
+  background: var(--aeth-surface-subtle, #f9f9f9);
 }
 
 /* Default edges are a light #b1b1b7 — barely visible against a grey
@@ -495,13 +495,13 @@
    controllable via the diagram toolbar (applied through defaultEdgeOptions
    in AssetDiagramViewInner), not hardcoded here. */
 .op-related-assets-diagram .react-flow__edge-path {
-  stroke: #5a5a5a;
+  stroke: var(--aeth-text-secondary, #5a5a5a);
 }
 
 .op-asset-card {
   position: relative;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--aeth-surface, #fff);
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
   padding: 10px 12px;
   flex-shrink: 0;
@@ -512,7 +512,7 @@
    related assets themselves — shows its own properties identically to
    the others, so this border is the only remaining way to tell it apart. */
 .op-asset-card--center {
-  border-color: #0078d4;
+  border-color: var(--aeth-accent, #0078d4);
   border-width: 2px;
 }
 
@@ -560,7 +560,7 @@
 }
 
 .op-asset-card .op-property-tile-value {
-  color: #222;
+  color: var(--aeth-text, #222);
 }
 
 .op-asset-card .op-property-tile-vtrack {
@@ -664,7 +664,7 @@
 }
 
 .op-property-tile-select:hover {
-  outline-color: #c7e0f4;
+  outline-color: var(--aeth-accent-border-soft, #c7e0f4);
 }
 
 /* Related Assets preview: boxes are clickable to select their row in the

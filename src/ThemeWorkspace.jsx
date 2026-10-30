@@ -92,7 +92,7 @@ function DataPalettesMode({ mode, setMode }) {
     <div style={{ display: 'flex', height: '100%' }}>
 
       {/* ── Left: palette list ──────────────────────────────────────────────── */}
-      <div style={{ width: 260, flexShrink: 0, borderRight: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 260, flexShrink: 0, borderRight: '1px solid var(--aeth-border, #e5e5e5)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <DataListGrid
             items={items}

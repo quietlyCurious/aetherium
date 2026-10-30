@@ -24,7 +24,7 @@ function makeColumns(selectedId, selectedIsDirty) {
   );
   const sizeCellRender = ({ data: set }) => (
     needsStart(set)
-      ? <span style={{ color: '#888' }} title="Depends on the start asset it's given">per start</span>
+      ? <span style={{ color: 'var(--aeth-text-muted, #888)' }} title="Depends on the start asset it's given">per start</span>
       : resolveAssetSet(set).assetIds.length
   );
   return [

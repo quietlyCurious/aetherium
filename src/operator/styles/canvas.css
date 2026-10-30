@@ -11,9 +11,9 @@
   flex: 1;
   width: 100%;
   min-height: 300px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
-  background: #e8e8e8;
+  background: var(--aeth-surface-strong, #e8e8e8);
   position: relative;
   overflow: hidden;
 }
@@ -22,7 +22,7 @@
   inset: 0;
 }
 .op-manual-layout .coord-canvas {
-  background-color: #fff;
+  background-color: var(--aeth-surface, #fff);
 }
 
 /* A single selected item is the Details panel's selection, highlighted in
@@ -34,13 +34,13 @@
 /* A property tile on the canvas: the same white card the flex layout's
    tiles sit on. */
 .op-manual-layout-item {
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--aeth-surface, #fff);
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
 }
 .op-manual-layout-item.op-property-tile-select--selected {
-  border-color: #0078d4;
-  box-shadow: 0 0 0 1px #0078d4;
+  border-color: var(--aeth-accent, #0078d4);
+  box-shadow: 0 0 0 1px var(--aeth-accent, #0078d4);
 }
 .op-manual-layout-item.op-property-tile-select {
   cursor: move;

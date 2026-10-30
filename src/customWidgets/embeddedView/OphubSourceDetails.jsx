@@ -266,7 +266,7 @@ export function OphubSourceDetails({ container, editor }) {
               searchEnabled
               disabled={!pagesForApp || pagesForApp.length === 0}
               placeholder={pagesPlaceholder}
-              itemRender={p => <span title={p.name}>{p.displayName}{p.displayName !== p.name && <span style={{ color: '#999' }}> · {p.name}</span>}</span>}
+              itemRender={p => <span title={p.name}>{p.displayName}{p.displayName !== p.name && <span style={{ color: 'var(--aeth-text-muted, #999)' }}> · {p.name}</span>}</span>}
               onValueChanged={e => {
                 const page = (pagesForApp || []).find(p => p.id === e.value);
                 if (page && e.value !== props.pageId) choosePage(page);

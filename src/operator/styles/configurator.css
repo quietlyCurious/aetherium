@@ -13,11 +13,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  color: var(--aeth-text-secondary, #666);
 }
 
 .op-visibility-cycle-btn:hover {
-  color: #0078d4;
+  color: var(--aeth-accent-text, #0078d4);
 }
 
 /* All Assets' visibility tree — each row renders via HierarchyTree's own
@@ -42,7 +42,7 @@
 .op-now-asset-detail-title {
   font-size: 20px;
   font-weight: 700;
-  color: #222;
+  color: var(--aeth-text, #222);
   margin-bottom: 12px;
   flex-shrink: 0;
 }
@@ -63,13 +63,13 @@
   border: none;
   border-radius: 3px;
   background: transparent;
-  color: #888;
+  color: var(--aeth-text-muted, #888);
   cursor: pointer;
   flex-shrink: 0;
 }
 .op-now-asset-detail-caret:hover {
-  background: #f0f0f0;
-  color: #444;
+  background: var(--aeth-surface-muted, #f0f0f0);
+  color: var(--aeth-text-secondary, #444);
 }
 
 .op-now-asset-kpi-card {
@@ -98,7 +98,7 @@
 .op-property-visual-select.dx-editor-underlined .dx-texteditor-input {
   font-size: 12px;
   padding-left: 8px;
-  color: #8a8f99;
+  color: var(--aeth-text-muted, #8a8f99);
 }
 
 .op-property-visual-select.dx-editor-underlined::after {
@@ -107,11 +107,11 @@
 
 .op-property-visual-select.dx-editor-underlined:hover::after,
 .op-property-visual-select.dx-editor-underlined.dx-state-focused::after {
-  border-bottom-color: #c8c8c8;
+  border-bottom-color: var(--aeth-border-strong, #c8c8c8);
 }
 
 .op-property-visual-select--override.dx-editor-underlined .dx-texteditor-input {
-  color: #222;
+  color: var(--aeth-text, #222);
   font-weight: 600;
 }
 
@@ -126,7 +126,7 @@
   height: 5px;
   margin-top: -2.5px;
   border-radius: 50%;
-  background: #0078d4;
+  background: var(--aeth-accent, #0078d4);
 }
 
 .op-property-visual-select .dx-texteditor-input {
@@ -138,7 +138,7 @@
    between the muted "follows the toolbar" and the bold filled-dot "set
    on this asset" states. */
 .op-property-visual-select--inherited.dx-editor-underlined .dx-texteditor-input {
-  color: #222;
+  color: var(--aeth-text, #222);
 }
 
 .op-property-visual-select--inherited .dx-texteditor-input-container {
@@ -154,7 +154,7 @@
   height: 5px;
   margin-top: -3.5px;
   border-radius: 50%;
-  border: 1px solid #0078d4;
+  border: 1px solid var(--aeth-accent, #0078d4);
   background: transparent;
 }
 
@@ -167,7 +167,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #0078d4;
+  background: var(--aeth-accent, #0078d4);
   flex-shrink: 0;
 }
 
@@ -189,8 +189,8 @@
   padding: 0 4px;
   box-sizing: border-box;
   border-radius: 8px;
-  background: #e8f4fd;
-  color: #0078d4;
+  background: var(--aeth-accent-tint, #e8f4fd);
+  color: var(--aeth-accent-text, #0078d4);
   font-size: 10px;
   font-weight: 600;
   text-align: center;
@@ -204,8 +204,8 @@
 }
 
 .op-customized-count--button:hover {
-  background: #0078d4;
-  color: #fff;
+  background: var(--aeth-accent, #0078d4);
+  color: var(--aeth-accent-fg, #fff);
 }
 
 .op-type-name-cell,
@@ -240,8 +240,8 @@
   gap: 6px;
   padding: 2px 10px;
   border-radius: 12px;
-  background: #e8f4fd;
-  color: #0078d4;
+  background: var(--aeth-accent-tint, #e8f4fd);
+  color: var(--aeth-accent-text, #0078d4);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
@@ -254,14 +254,14 @@
 }
 
 .op-customized-chip--button:hover {
-  background: #d4e9fa;
+  background: var(--aeth-accent-tint-strong, #d4e9fa);
 }
 
 .op-title-link-btn {
   border: none;
   background: none;
   padding: 0;
-  color: #0078d4;
+  color: var(--aeth-accent-text, #0078d4);
   font-size: 12px;
   font-family: inherit;
   cursor: pointer;
@@ -305,18 +305,18 @@
 }
 
 .op-revert-row-text:hover .op-revert-row-label {
-  color: #0078d4;
+  color: var(--aeth-accent-text, #0078d4);
   text-decoration: underline;
 }
 
 .op-revert-row-label {
   font-size: 12px;
-  color: #222;
+  color: var(--aeth-text, #222);
 }
 
 .op-revert-row-detail {
   font-size: 11px;
-  color: #8a8f99;
+  color: var(--aeth-text-muted, #8a8f99);
 }
 
 .op-revert-footer {
@@ -324,15 +324,15 @@
   justify-content: flex-end;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--aeth-border-subtle, #eee);
 }
 
 .op-customized-dot--contains {
-  background: #a9cff0;
+  background: var(--aeth-accent-tint-strong, #a9cff0);
 }
 
 .op-title-link-sep {
-  color: #b0b5bd;
+  color: var(--aeth-text-faint, #b0b5bd);
   margin: 0 -4px;
 }
 
@@ -340,13 +340,13 @@
    actions (accent color) and sit above the plain visual choices,
    separated by a rule. */
 .op-visual-item--type-action {
-  color: #0078d4;
+  color: var(--aeth-accent-text, #0078d4);
 }
 
 /* The rule goes on DevExtreme's own list item (the span inside it is
    padded away from the item's edges). */
 .dx-list-item:has(.op-visual-item--divider) {
-  border-bottom: 1px solid #e3e5e8;
+  border-bottom: 1px solid var(--aeth-border, #e3e5e8);
 }
 
 /* Custom tiles (saved property screens) follow the built-in visuals under
@@ -354,7 +354,7 @@
    DevExtreme's plain list has no group rows here — with the same rule
    above it that the type actions get below them. */
 .dx-list-item:has(.op-visual-item-heading) {
-  border-top: 1px solid #e3e5e8;
+  border-top: 1px solid var(--aeth-border, #e3e5e8);
 }
 .op-visual-item-heading {
   display: block;
@@ -362,12 +362,12 @@
   font-size: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #8a8f98;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #8a8f98));
 }
 .op-visual-item--custom::before {
   content: '▣';
   margin-right: 5px;
-  color: #c05e00;
+  color: var(--aeth-warning-text, #c05e00);
 }
 
 /* Details panel tables that can be reordered by dragging: the grid takes
@@ -391,9 +391,9 @@
   gap: 8px;
   flex-shrink: 0;
   padding: 8px 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--aeth-border-subtle, #eee);
   font-size: 11px;
-  color: #8a8f99;
+  color: var(--aeth-text-muted, #8a8f99);
 }
 
 /* "Will this fit for the operator?" (OperatorFitCheck.jsx): a badge in the
@@ -415,10 +415,10 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.op-fit-check-badge--ok { background: #eaf6ea; color: #1e6b1e; }
-.op-fit-check-badge--warn { background: #fff4e5; color: #8a5a00; border-color: #f3c58d; }
-.op-fit-check-badge--pending { background: #f1f2f4; color: #666; }
-.op-fit-check-badge--neutral { background: #eef3f9; color: #355a80; border-color: #cfdcec; }
+.op-fit-check-badge--ok { background: var(--aeth-success-tint, #eaf6ea); color: #1e6b1e; }
+.op-fit-check-badge--warn { background: var(--aeth-warning-tint, #fff4e5); color: var(--aeth-warning-text, #8a5a00); border-color: var(--aeth-warning-border, #f3c58d); }
+.op-fit-check-badge--pending { background: var(--aeth-surface-muted, #f1f2f4); color: var(--aeth-text-secondary, #666); }
+.op-fit-check-badge--neutral { background: var(--aeth-accent-tint, #eef3f9); color: #355a80; border-color: var(--aeth-accent-border-soft, #cfdcec); }
 .op-fit-check-probe {
   position: fixed;
   left: -100000px;
@@ -445,20 +445,20 @@
   justify-content: flex-start;
   gap: 6px;
   padding: 10px 16px 16px;
-  background: #e8e8e8;
+  background: var(--aeth-surface-strong, #e8e8e8);
   border-radius: 3px;
   overflow: hidden;
 }
 .op-display-frame-caption {
   flex-shrink: 0;
   font-size: 11px;
-  color: #555;
+  color: var(--aeth-text-secondary, #555);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
 }
-.op-display-frame-caption span { color: #888; }
+.op-display-frame-caption span { color: var(--aeth-text-muted, #888); }
 .op-display-frame-slot {
   flex-shrink: 0;
   position: relative;
@@ -470,7 +470,7 @@
   transform-origin: 0 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--aeth-surface, #fff);
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
 }
 /* Inside the frame the view fills it exactly, as in the Operator. */

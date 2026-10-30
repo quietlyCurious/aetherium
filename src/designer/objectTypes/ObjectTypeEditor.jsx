@@ -516,7 +516,7 @@ export const ObjectTypeEditor = forwardRef(function ObjectTypeEditor({ type: com
     <div className="ot-editor">
       <div className="ot-head">
         <span className="ot-title">{draft.name || '(unnamed object type)'}</span>
-        <button className="focus-mode-btn" style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }} onClick={handleDelete}>Delete</button>
+        <button className="focus-mode-btn" style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', fontSize: 11 }} onClick={handleDelete}>Delete</button>
       </div>
       <div className="ot-body">
         <Section n="1" title="What it is">

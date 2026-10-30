@@ -21,7 +21,7 @@ export default function QueryInstanceDetailsPanel({
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
           {instance.alias || '(unnamed instance)'}
         </div>
-        <div style={{ fontSize: 11, color: '#c0392b', background: '#fdf0ee', border: '1px solid #e8b4ae', borderRadius: 4, padding: '8px 10px' }}>
+        <div style={{ fontSize: 11, color: 'var(--aeth-danger-text, #c0392b)', background: 'var(--aeth-danger-tint, #fdf0ee)', border: '1px solid var(--aeth-danger-border, #e8b4ae)', borderRadius: 4, padding: '8px 10px' }}>
           The query this instance points to no longer exists.
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function QueryInstanceDetailsPanel({
           </div>
           <span className="details-grid-label">Query</span>
           <div className="details-grid-control">
-            <span style={{ fontSize: 12, color: '#555' }}>{query.name || '(unnamed)'}</span>
+            <span style={{ fontSize: 12, color: 'var(--aeth-text-secondary, #555)' }}>{query.name || '(unnamed)'}</span>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@ export default function QueryInstanceDetailsPanel({
         <div className="details-grid">
           <span className="details-section-title">Inputs</span>
           {(query.inputs || []).length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: '#aaa', fontStyle: 'italic', padding: '4px 0' }}>
+            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', fontStyle: 'italic', padding: '4px 0' }}>
               This query has no inputs.
             </div>
           ) : query.inputs.map(inputDef => {
@@ -75,7 +75,7 @@ export default function QueryInstanceDetailsPanel({
                 <span className="details-grid-label">{inputDef.name}</span>
                 <div className="details-grid-control" style={{ minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', minWidth: 0 }}>
-                    <span style={{ fontSize: 9, color: '#999', flexShrink: 0 }}>{inputDef.type}</span>
+                    <span style={{ fontSize: 9, color: 'var(--aeth-text-muted, #999)', flexShrink: 0 }}>{inputDef.type}</span>
                     {isBound ? (
                       <div
                         className={`binding-value-display${isError ? ' binding-value-display--error' : ''}`}
@@ -91,7 +91,7 @@ export default function QueryInstanceDetailsPanel({
                       }}>
                         {String(value ?? '') || '—'}
                         {source === 'override' && (
-                          <span title="Overridden on this instance" style={{ fontSize: 9, color: '#0055aa', marginLeft: 4 }}>●</span>
+                          <span title="Overridden on this instance" style={{ fontSize: 9, color: 'var(--aeth-accent-text, #0055aa)', marginLeft: 4 }}>●</span>
                         )}
                       </span>
                     )}
@@ -117,14 +117,14 @@ export default function QueryInstanceDetailsPanel({
         <div className="details-grid">
           <span className="details-section-title">Outputs</span>
           {(query.outputs || []).length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: '#aaa', fontStyle: 'italic', padding: '4px 0' }}>
+            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', fontStyle: 'italic', padding: '4px 0' }}>
               This query has no outputs.
             </div>
           ) : query.outputs.map((outputDef, i) => (
             <React.Fragment key={`${outputDef.name}-${i}`}>
               <span className="details-grid-label">{outputDef.name}</span>
               <div className="details-grid-control">
-                <span style={{ fontSize: 11, color: '#999' }}>
+                <span style={{ fontSize: 11, color: 'var(--aeth-text-muted, #999)' }}>
                   {outputDef.type}
                   {outputDef.outputGroup && outputDef.outputGroup !== 'default' ? ` · ${outputDef.outputGroup}` : ''}
                 </span>

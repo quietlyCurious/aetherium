@@ -9,7 +9,7 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  border: 1px solid #d1d1d1;
+  border: 1px solid var(--aeth-border-strong, #d1d1d1);
   border-radius: 3px;
   background: transparent;
   cursor: pointer;
@@ -17,22 +17,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ccc;
+  color: var(--aeth-text-faint, #ccc);
   padding: 0;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
   line-height: 1;
 }
 
 .binding-icon-btn:hover {
-  border-color: #0078d4;
-  color: #0078d4;
-  background: #f0f7ff;
+  border-color: var(--aeth-accent, #0078d4);
+  color: var(--aeth-accent-text, #0078d4);
+  background: var(--aeth-accent-tint, #f0f7ff);
 }
 
 .binding-icon-btn--active {
-  border-color: #0078d4;
-  background: #e8f2ff;
-  color: #0055aa;
+  border-color: var(--aeth-accent, #0078d4);
+  background: var(--aeth-accent-tint, #e8f2ff);
+  color: var(--aeth-accent-text, #0055aa);
 }
 
 /* ── Bound value display ──────────────────────────────────────────────────── */
@@ -42,9 +42,9 @@
   min-width: 0; /* prevents the field from growing past its allotted width to fit long resolved values — lets overflow/ellipsis below actually do its job */
   font-size: 11px;
   font-family: 'Consolas', 'Monaco', monospace;
-  color: #0055aa;
-  background: #e8f2ff;
-  border: 1px solid #b3d0ff;
+  color: var(--aeth-accent-text, #0055aa);
+  background: var(--aeth-accent-tint, #e8f2ff);
+  border: 1px solid var(--aeth-accent-border-soft, #b3d0ff);
   border-radius: 4px;
   padding: 2px 6px;
   height: 24px;
@@ -59,17 +59,17 @@
 }
 
 .binding-value-display--error {
-  color: #c0392b;
-  background: #fdf0ee;
-  border-color: #e8b4ae;
+  color: var(--aeth-danger-text, #c0392b);
+  background: var(--aeth-danger-tint, #fdf0ee);
+  border-color: var(--aeth-danger-border, #e8b4ae);
 }
 
 /* ── Floating popover ─────────────────────────────────────────────────────── */
 /* Rendered at App level with position:fixed so it escapes overflow clipping. */
 .binding-popover {
   width: 244px;
-  background: #fff;
-  border: 1px solid #c8c8c8;
+  background: var(--aeth-surface, #fff);
+  border: 1px solid var(--aeth-border-strong, #c8c8c8);
   border-radius: 6px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
   overflow: hidden;
@@ -81,8 +81,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
+  background: var(--aeth-surface-muted, #f5f5f5);
+  border-bottom: 1px solid var(--aeth-border, #e0e0e0);
   font-size: 12px;
 }
 
@@ -91,7 +91,7 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
-  color: #888;
+  color: var(--aeth-text-muted, #888);
   padding: 0 2px;
   line-height: 1;
   display: flex;
@@ -99,7 +99,7 @@
 }
 
 .binding-popover-header button:hover {
-  color: #333;
+  color: var(--aeth-text, #333);
 }
 
 .binding-popover-body {
@@ -114,15 +114,15 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #888;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #888));
 }
 
 .binding-preview {
   font-size: 11px;
   padding: 5px 8px;
-  background: #f9f9f9;
+  background: var(--aeth-surface-subtle, #f9f9f9);
   border-radius: 4px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--aeth-border, #e8e8e8);
   min-height: 26px;
   display: flex;
   align-items: center;
@@ -131,16 +131,16 @@
 }
 
 .binding-preview-error {
-  color: #c0392b;
+  color: var(--aeth-danger-text, #c0392b);
 }
 
 .binding-popover-footer {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--aeth-border, #e8e8e8);
   gap: 6px;
-  background: #fafafa;
+  background: var(--aeth-surface-subtle, #fafafa);
 }
 
 /* ── Canvas binding badge ─────────────────────────────────────────────────── */
@@ -153,25 +153,25 @@
   line-height: 1;
   z-index: 10;
   pointer-events: none;
-  background: #e8f2ff;
-  border: 1px solid #b3d0ff;
+  background: var(--aeth-accent-tint, #e8f2ff);
+  border: 1px solid var(--aeth-accent-border-soft, #b3d0ff);
   border-radius: 3px;
   padding: 1px 4px;
-  color: #0055aa;
+  color: var(--aeth-accent-text, #0055aa);
   font-weight: 600;
 }
 
 /* An asset binding that can't resolve for the asset being shown. */
 .binding-badge--broken {
-  background: #fdf0ee;
-  border-color: #e8b4ae;
-  color: #c0392b;
+  background: var(--aeth-danger-tint, #fdf0ee);
+  border-color: var(--aeth-danger-border, #e8b4ae);
+  color: var(--aeth-danger-text, #c0392b);
 }
 
 /* Explanatory line inside the binding popover (Asset mode). */
 .binding-hint {
   font-size: 10.5px;
-  color: #777;
+  color: var(--aeth-text-muted, #777);
   line-height: 1.45;
 }
 
@@ -193,41 +193,41 @@
   background: none;
   font: inherit;
   font-size: 11.5px;
-  color: #333;
+  color: var(--aeth-text, #333);
   text-align: left;
   cursor: pointer;
 }
-.binding-property-field:hover { background: #f3f7fc; }
+.binding-property-field:hover { background: var(--aeth-accent-tint, #f3f7fc); }
 .binding-property-field--selected,
 .binding-property-field--selected:hover {
-  background: #e8f2ff;
-  border-color: #9cc7f0;
-  color: #0055aa;
+  background: var(--aeth-accent-tint, #e8f2ff);
+  border-color: var(--aeth-accent-border-soft, #9cc7f0);
+  color: var(--aeth-accent-text, #0055aa);
   font-weight: 600;
 }
 .binding-property-field-value {
-  color: #777;
+  color: var(--aeth-text-muted, #777);
   font-weight: 400;
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.binding-property-field-err { color: #b7791f; font-weight: 400; font-style: italic; }
+.binding-property-field-err { color: var(--aeth-warning-text, #b7791f); font-weight: 400; font-style: italic; }
 
 /* Screens: what a screen is about, on the canvas toolbar. */
 .screen-self-controls { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.screen-self-label { font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; margin-right: 4px; }
-.screen-self-kicker { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #888; white-space: nowrap; }
-.screen-self-warning { font-size: 11px; color: #9a5b00; background: #fff6e5; border: 1px solid #f3d19b; border-radius: 4px; padding: 2px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
+.screen-self-label { font-size: 12px; font-weight: 600; color: var(--aeth-text, #333); white-space: nowrap; margin-right: 4px; }
+.screen-self-kicker { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--aeth-text-muted, #888); white-space: nowrap; }
+.screen-self-warning { font-size: 11px; color: var(--aeth-warning-text, #9a5b00); background: var(--aeth-warning-tint, #fff6e5); border: 1px solid var(--aeth-warning-border, #f3d19b); border-radius: 4px; padding: 2px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 420px; }
 
 /* Screens Data tab: This asset. */
-.self-tree-hint { font-size: 10.5px; color: #888; margin: 0 12px 6px; line-height: 1.4; }
+.self-tree-hint { font-size: 10.5px; color: var(--aeth-text-muted, #888); margin: 0 12px 6px; line-height: 1.4; }
 .self-tree-property { display: flex; gap: 6px; width: 100%; min-width: 0; }
-.self-tree-property .tree-item-name { font-size: 12px; color: #444; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.self-tree-value { font-size: 11px; color: #0055aa; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.self-tree-value--missing { color: #b7791f; font-style: italic; }
-.self-tree-partial { background: #fff6e5 !important; color: #9a5b00 !important; }
+.self-tree-property .tree-item-name { font-size: 12px; color: var(--aeth-text-secondary, #444); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.self-tree-value { font-size: 11px; color: var(--aeth-accent-text, #0055aa); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.self-tree-value--missing { color: var(--aeth-warning-text, #b7791f); font-style: italic; }
+.self-tree-partial { background: var(--aeth-warning-tint, #fff6e5) !important; color: var(--aeth-warning-text, #9a5b00) !important; }
 
 /* ── Repeaters ────────────────────────────────────────────────────────────── */
 /* A container that draws a screen per asset (designer/screens/screenRepeat). */
@@ -243,9 +243,9 @@
      than being silently cut off. */
   overflow: auto;
   position: relative;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--aeth-border, #e6e6e6);
   border-radius: 4px;
-  background: #fff;
+  background: var(--aeth-surface, #fff);
 }
 
 .screen-repeat-item-inner {
@@ -276,7 +276,7 @@
   border: 0;
   background: none;
   padding: 0;
-  color: #0078d4;
+  color: var(--aeth-accent-text, #0078d4);
   font-size: inherit;
   cursor: pointer;
   text-decoration: underline;
@@ -298,9 +298,9 @@
 
 .screen-repeat-note {
   font-size: 11px;
-  color: #7a6000;
-  background: #fffbe6;
-  border: 1px solid #ffe08a;
+  color: var(--aeth-warning-text, #7a6000);
+  background: var(--aeth-warning-tint, #fffbe6);
+  border: 1px solid var(--aeth-warning-border, #ffe08a);
   border-radius: 4px;
   padding: 6px 9px;
   margin: 4px;
@@ -314,22 +314,22 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  background: #fafafa;
-  color: #888;
+  background: var(--aeth-surface-subtle, #fafafa);
+  color: var(--aeth-text-muted, #888);
   text-align: center;
   padding: 8px;
 }
 
-.screen-repeat-placeholder-name { font-size: 12px; font-weight: 600; color: #555; }
+.screen-repeat-placeholder-name { font-size: 12px; font-weight: 600; color: var(--aeth-text-secondary, #555); }
 .screen-repeat-placeholder-note { font-size: 10.5px; }
 
 /* The Repeat section's live summary in the details panel. */
 .details-grid-note {
   grid-column: 1 / -1;
   font-size: 10.5px;
-  color: #777;
+  color: var(--aeth-text-muted, #777);
   line-height: 1.5;
   padding: 5px 0 2px;
 }
 
-.details-grid-warn { color: #9a5b00; }
+.details-grid-warn { color: var(--aeth-warning-text, #9a5b00); }

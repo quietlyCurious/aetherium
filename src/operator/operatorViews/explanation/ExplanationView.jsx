@@ -148,7 +148,7 @@ export function ExplanationView({ item, explanation, detector, workItems, onCrea
           <Section step={next()} title="What this looks like" subtitle="Reference examples, with this case drawn over each from its onset.">
             <div className="op-explanation-legend">
               <span><i className="op-explanation-swatch" style={{ borderColor: '#4b5563' }} />Reference example</span>
-              <span><i className="op-explanation-swatch" style={{ borderColor: '#0078d4' }} />This case</span>
+              <span><i className="op-explanation-swatch" style={{ borderColor: 'var(--aeth-accent, #0078d4)' }} />This case</span>
             </div>
             <div className="op-explanation-refs">
               {x.references.map(r => <ReferenceCard key={r.id} reference={r} timestamps={ts} />)}

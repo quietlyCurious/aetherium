@@ -34,7 +34,7 @@ export function InfoNote({ children }) {
     <div style={{
       gridColumn: '1 / -1',
       fontSize: 10,
-      color: '#888',
+      color: 'var(--aeth-text-muted, #888)',
       fontStyle: 'italic',
       padding: '2px 0 2px 2px',
       lineHeight: 1.5,
@@ -59,12 +59,12 @@ export function SubSectionLabel({ children }) {
       gridColumn: '1 / -1',
       fontSize: 10,
       fontWeight: 700,
-      color: '#555',
+      color: 'var(--aeth-text-secondary, #555)',
       textTransform: 'uppercase',
       letterSpacing: '0.07em',
       paddingTop: 10,
       paddingBottom: 4,
-      borderBottom: '1px solid #ebebeb',
+      borderBottom: '1px solid var(--aeth-border, #ebebeb)',
     }}>
       {children}
     </div>

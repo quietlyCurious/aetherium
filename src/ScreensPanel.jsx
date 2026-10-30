@@ -36,7 +36,7 @@ function FolderRow({ folder, isExpanded, onToggle, onRename, onDelete, isDropTar
         userSelect: 'none',
       }}
     >
-      <span onClick={onToggle} style={{ fontSize: 10, color: '#888', width: 12, flexShrink: 0 }}>
+      <span onClick={onToggle} style={{ fontSize: 10, color: 'var(--aeth-text-muted, #888)', width: 12, flexShrink: 0 }}>
         {isExpanded ? '▾' : '▸'}
       </span>
       <span onClick={onToggle} style={{ fontSize: 13, flexShrink: 0 }}>📁</span>
@@ -46,12 +46,12 @@ function FolderRow({ folder, isExpanded, onToggle, onRename, onDelete, isDropTar
       <button
         onClick={(e) => { e.stopPropagation(); onRename(folder); }}
         title="Rename folder"
-        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid #ddd', borderRadius: 4, background: '#fafafa', color: '#666', cursor: 'pointer', fontSize: 10, lineHeight: 1, padding: 0 }}
+        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid var(--aeth-border, #ddd)', borderRadius: 4, background: 'var(--aeth-surface-subtle, #fafafa)', color: 'var(--aeth-text-secondary, #666)', cursor: 'pointer', fontSize: 10, lineHeight: 1, padding: 0 }}
       >✎</button>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(folder); }}
         title="Delete folder"
-        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid #e0b0b0', borderRadius: 4, background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: 0 }}
+        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid #e0b0b0', borderRadius: 4, background: 'var(--aeth-danger-tint, #fff5f5)', color: 'var(--aeth-danger-text, #c0392b)', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: 0 }}
       >×</button>
     </div>
   );
@@ -91,7 +91,7 @@ function ScreenRow({ page, isActive, isActiveDirty, indent, onOpen, onDelete, on
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(page.id); }}
         title="Delete screen"
-        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid #e0b0b0', borderRadius: 4, background: '#fff5f5', color: '#c0392b', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: 0 }}
+        style={{ flexShrink: 0, width: 18, height: 18, border: '1px solid #e0b0b0', borderRadius: 4, background: 'var(--aeth-danger-tint, #fff5f5)', color: 'var(--aeth-danger-text, #c0392b)', cursor: 'pointer', fontSize: 11, lineHeight: 1, padding: 0 }}
       >×</button>
     </div>
   );
@@ -164,7 +164,7 @@ export default function ScreensPanel({
 
       <div style={{ flex: 1, overflow: 'auto', paddingTop: 6 }}>
         {pages.length === 0 && folders.length === 0 ? (
-          <p style={{ padding: '12px 16px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 }}>
+          <p style={{ padding: '12px 16px', fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', margin: 0, lineHeight: 1.5 }}>
             No screens yet. Click + to add one.
           </p>
         ) : (

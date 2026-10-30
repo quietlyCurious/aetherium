@@ -1,3 +1,6 @@
+// First: applies the stored app style and declares the DevExtreme theme
+// links before anything imports DevExtreme (see styles/appStyle.js).
+import './styles/appStyleBoot';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';

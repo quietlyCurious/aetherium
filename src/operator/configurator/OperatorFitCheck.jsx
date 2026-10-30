@@ -138,8 +138,8 @@ export function OperatorFitCheck({ view, renderProbe, showingId = null, onShow }
           valueExpr="id"
           displayExpr={d => (d ? (d.id === FILL_PANE ? 'Fill pane' : `${d.label} · ${d.width}×${d.height}`) : '')}
           itemRender={d => (d.id === FILL_PANE
-            ? <span>Fill pane <span style={{ color: '#999' }}>· Configure's own space</span></span>
-            : <span>{d.label} <span style={{ color: '#999' }}>· {d.width}×{d.height}</span></span>)}
+            ? <span>Fill pane <span style={{ color: 'var(--aeth-text-muted, #999)' }}>· Configure's own space</span></span>
+            : <span>{d.label} <span style={{ color: 'var(--aeth-text-muted, #999)' }}>· {d.width}×{d.height}</span></span>)}
           value={showingId || FILL_PANE}
           onValueChanged={e => e.value && choose(e.value)}
           stylingMode="outlined"

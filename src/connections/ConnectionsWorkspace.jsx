@@ -78,12 +78,12 @@ const ConnectionEditor = forwardRef(function ConnectionEditor({ connection: comm
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <div style={{ padding: '8px 14px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', gap: 8, background: '#fafafa', flexShrink: 0 }}>
+      <div style={{ padding: '8px 14px', borderBottom: '1px solid var(--aeth-border, #e0e0e0)', display: 'flex', alignItems: 'center', gap: 8, background: 'var(--aeth-surface-subtle, #fafafa)', flexShrink: 0 }}>
         <span style={{ width: 9, height: 9, borderRadius: '50%', background: connector?.dot || '#bbb', flexShrink: 0 }} />
         <span style={{ fontSize: 13, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {connectionLabel(draft)}
         </span>
-        <button className="focus-mode-btn" style={{ color: '#d00', borderColor: '#d00', fontSize: 11, flexShrink: 0 }} onClick={handleDelete}>
+        <button className="focus-mode-btn" style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', fontSize: 11, flexShrink: 0 }} onClick={handleDelete}>
           Delete
         </button>
       </div>
@@ -170,7 +170,7 @@ const ConnectionsWorkspace = forwardRef(function ConnectionsWorkspace({ connecti
       addTitle="Add connection"
       noDataText="No connections yet. Click + to add one."
       columns={makeColumns}
-      placeholder={{ icon: <span style={{ display: 'inline-flex', width: 28, height: 28, color: '#999' }}><ConnectionsRailIcon /></span>, title: 'No connection selected', what: 'a connection' }}
+      placeholder={{ icon: <span style={{ display: 'inline-flex', width: 28, height: 28, color: 'var(--aeth-text-muted, #999)' }}><ConnectionsRailIcon /></span>, title: 'No connection selected', what: 'a connection' }}
       onAdd={onAdd}
       onDelete={onDelete}
       renderEditor={({ item, editorRef, onDelete: handleDelete, onDirtyChange }) => {

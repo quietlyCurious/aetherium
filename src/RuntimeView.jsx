@@ -39,7 +39,7 @@ function runtimeAssetId(context) {
 function Frame({ box, children }) {
   if (!box) return children;
   return (
-    <div style={{ ...box, flexShrink: 0, background: '#fff', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', overflow: 'auto', position: 'relative' }}>
+    <div style={{ ...box, flexShrink: 0, background: 'var(--aeth-surface, #fff)', boxShadow: '0 2px 16px rgba(0,0,0,0.15)', overflow: 'auto', position: 'relative' }}>
       {children}
     </div>
   );
@@ -64,7 +64,7 @@ export default function RuntimeView({ pageId }) {
     return (
       <div style={{
         width: '100vw', height: '100vh', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', fontFamily: 'sans-serif', color: '#888', fontSize: 14,
+        justifyContent: 'center', fontFamily: 'sans-serif', color: 'var(--aeth-text-muted, #888)', fontSize: 14,
       }}>
         Screen not found. It may have been deleted, or this link is out of date.
       </div>
@@ -83,11 +83,11 @@ export default function RuntimeView({ pageId }) {
         className="aetherium-canvas-scroll canvas-no-gap"
         style={{
           flex: 1, minHeight: 0, overflow: 'auto', position: 'relative',
-          ...(box ? { display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 24, background: '#e8e8e8' } : null),
+          ...(box ? { display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 24, background: 'var(--aeth-surface-strong, #e8e8e8)' } : null),
         }}
       >
         {modelId && !model.loaded ? (
-          <div style={{ padding: 24, color: '#888', fontSize: 13 }}>
+          <div style={{ padding: 24, color: 'var(--aeth-text-muted, #888)', fontSize: 13 }}>
             {model.error ? `Couldn't load the model this screen needs (${model.error}).` : 'Loading…'}
           </div>
         ) : (

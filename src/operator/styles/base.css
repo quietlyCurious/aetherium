@@ -18,7 +18,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f9f9f9;
+  background: var(--aeth-surface-subtle, #f9f9f9);
   overflow: hidden;
 }
 
@@ -28,12 +28,12 @@
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: #999;
-  background: #f9f9f9;
+  color: var(--aeth-text-muted, #999);
+  background: var(--aeth-surface-subtle, #f9f9f9);
 }
 
 .op-workspace-loading--error {
-  color: #b91c3c;
+  color: var(--aeth-danger-text, #b91c3c);
   padding: 0 24px;
   text-align: center;
 }
@@ -44,21 +44,21 @@
   gap: 10px;
   padding: 10px 16px;
   flex-shrink: 0;
-  border-bottom: 1px solid #ebebeb;
-  background: #fff;
+  border-bottom: 1px solid var(--aeth-border, #ebebeb);
+  background: var(--aeth-surface, #fff);
 }
 
 .op-workspace-title {
   font-size: 15px;
   font-weight: 600;
-  color: #222;
+  color: var(--aeth-text, #222);
 }
 
 .op-workspace-badge {
   font-size: 11px;
-  color: #0055aa;
-  background: #e8f2ff;
-  border: 1px solid #b3d0ff;
+  color: var(--aeth-accent-text, #0055aa);
+  background: var(--aeth-accent-tint, #e8f2ff);
+  border: 1px solid var(--aeth-accent-border-soft, #b3d0ff);
   padding: 2px 9px;
   border-radius: 12px;
   font-weight: 500;
@@ -68,7 +68,7 @@
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  color: #999;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #999));
   letter-spacing: 0.05em;
   margin: 0 0 8px 0;
   flex-shrink: 0;
@@ -84,9 +84,9 @@
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: #6a3fd6;
-  background: #f0ebfd;
-  border: 1px solid #d9c9fb;
+  color: var(--aeth-binding-text, #6a3fd6);
+  background: var(--aeth-binding-tint, #f0ebfd);
+  border: 1px solid var(--aeth-binding-border, #d9c9fb);
   border-radius: 8px;
   padding: 1px 5px;
   margin-right: 5px;
@@ -127,7 +127,7 @@
 .op-property-tiles-card-title {
   font-size: 10.5px;
   font-weight: 700;
-  color: #999;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #999));
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 8px;
@@ -138,7 +138,7 @@
   pointer-events: auto;
 }
 .op-property-tiles-card-title--clickable:hover {
-  color: #4a90d9;
+  color: var(--aeth-accent-text, #4a90d9);
   text-decoration: underline;
 }
 
@@ -155,7 +155,7 @@
 }
 
 .op-now-tree-panel {
-  background: #fff;
+  background: var(--aeth-surface, #fff);
 }
 
 /* Matches the Configurator's own type table's selected-row blue
@@ -180,9 +180,9 @@
      on the left edge. The Configurator's Now tree was missing from this
      rule entirely (only the Operator tree had it), so a selected asset
      there showed no highlight at all. */
-  background-color: #e3eaf6 !important;
-  box-shadow: inset 3px 0 0 #0078d4;
-  color: #242424;
+  background-color: var(--aeth-accent-tint, #e3eaf6) !important;
+  box-shadow: inset 3px 0 0 var(--aeth-accent, #0078d4);
+  color: var(--aeth-text, #242424);
 }
 
 .op-now-tree-wrap {
@@ -207,7 +207,7 @@
 
 .op-now-detail-placeholder-note {
   font-size: 12px;
-  color: #aaa;
+  color: var(--aeth-text-faint, #aaa);
 }
 
 /* The dot-pattern background's own <rect> spans the entire canvas, and
@@ -229,7 +229,7 @@
 }
 
 .op-investigate-panel {
-  background: #f9f9f9;
+  background: var(--aeth-surface-subtle, #f9f9f9);
 }
 
 /* ── Nav rail (Gmail-style collapsible) ──────────────────────────────────── */
@@ -245,8 +245,8 @@
   flex-direction: column;
   min-height: 0;
   min-width: 0;
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: var(--aeth-surface, #fff);
+  border: 1px solid var(--aeth-border, #e5e5e5);
   border-radius: 3px;
   padding: 10px 12px;
   overflow: hidden;
@@ -312,12 +312,12 @@
 
 .op-dash-text {
   font-size: 12px;
-  color: #444;
+  color: var(--aeth-text-secondary, #444);
   line-height: 1.4;
 }
 
 .op-dash-text--muted {
-  color: #999;
+  color: var(--aeth-text-muted, #999);
   font-style: italic;
 }
 
@@ -333,7 +333,7 @@
   gap: 4px;
   font-size: 9.5px;
   font-weight: 700;
-  color: #999;
+  color: var(--aeth-section-fg, var(--aeth-text-muted, #999));
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -348,29 +348,29 @@
 }
 
 .op-btn--primary {
-  background: #0078d4;
-  color: #fff;
-  border-color: #0078d4;
+  background: var(--aeth-accent, #0078d4);
+  color: var(--aeth-accent-fg, #fff);
+  border-color: var(--aeth-accent, #0078d4);
 }
 
 .op-btn--primary:hover {
-  background: #0063b1;
+  background: var(--aeth-accent-hover, #0063b1);
 }
 
 .op-btn--secondary {
-  background: #fff;
-  color: #444;
-  border-color: #d5d5d5;
+  background: var(--aeth-surface, #fff);
+  color: var(--aeth-text-secondary, #444);
+  border-color: var(--aeth-border-strong, #d5d5d5);
 }
 
 .op-btn--secondary:hover {
-  border-color: #0078d4;
-  color: #0078d4;
+  border-color: var(--aeth-accent, #0078d4);
+  color: var(--aeth-accent-text, #0078d4);
 }
 
 .op-property-tile-select--selected,
 .op-property-tile-select--selected:hover {
-  outline-color: #0078d4;
+  outline-color: var(--aeth-accent, #0078d4);
 }
 
 /* Revert's Undo toast — bottom-center, dark so it reads as transient

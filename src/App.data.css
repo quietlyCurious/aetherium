@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f9f9f9;
+  background: var(--aeth-surface-subtle, #f9f9f9);
 }
 
 /* ── Placeholder panel ────────────────────────────────────────────────────── */
@@ -42,13 +42,13 @@
 .data-workspace-placeholder-title {
   font-size: 20px;
   font-weight: 600;
-  color: #333;
+  color: var(--aeth-text, #333);
   letter-spacing: -0.01em;
 }
 
 .data-workspace-placeholder-desc {
   font-size: 13px;
-  color: #777;
+  color: var(--aeth-text-muted, #777);
   line-height: 1.6;
 }
 
@@ -56,7 +56,7 @@
 /* Tightens DevExtreme's default grid chrome to match Aetherium's compact density. */
 .data-list-grid .dx-datagrid-headers {
   font-size: 10px;
-  color: #999;
+  color: var(--aeth-text-muted, #999);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -76,16 +76,16 @@
 }
 
 .data-list-grid .dx-datagrid-rowsview .dx-row {
-  border-bottom: 1px solid #f1f1f1;
+  border-bottom: 1px solid var(--aeth-border-subtle, #f1f1f1);
 }
 
 .data-list-grid .dx-selection.dx-row > td,
 .data-list-grid .dx-selection.dx-row:hover > td {
-  background-color: #e3eaf6 !important;
+  background-color: var(--aeth-accent-tint, #e3eaf6) !important;
 }
 
 .data-list-grid .dx-selection.dx-row > td:first-child {
-  box-shadow: inset 3px 0 0 #0078d4;
+  box-shadow: inset 3px 0 0 var(--aeth-accent, #0078d4);
 }
 
 .data-list-grid .dx-datagrid-search-panel {
@@ -95,5 +95,5 @@
 
 .data-list-grid .dx-datagrid-header-panel {
   padding: 0 !important;
-  border-bottom: 1px solid #ebebeb;
+  border-bottom: 1px solid var(--aeth-border, #ebebeb);
 }

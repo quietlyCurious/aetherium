@@ -270,7 +270,7 @@ function RepeatSection({ editor, self, assetSets, container }) {
               onValueChanged={e => e.value && update({ itemSize: e.value })}
               stylingMode="outlined" width="100%" height={24}
             />
-            <span style={{ fontSize: 10, color: '#888' }}>
+            <span style={{ fontSize: 10, color: 'var(--aeth-text-muted, #888)' }}>
               Each type's {sizeLabel(repeat.itemSize || DEFAULT_REPEAT.itemSize)} screen · {sizeBox(repeat.itemSize || DEFAULT_REPEAT.itemSize).width}×{sizeBox(repeat.itemSize || DEFAULT_REPEAT.itemSize).height}
             </span>
           </div>
@@ -308,7 +308,7 @@ function RepeatSection({ editor, self, assetSets, container }) {
                 {row.count} × {row.typeLabel} → {row.screenName
                   ? <span>{row.screenName}</span>
                   : row.source === 'generated'
-                    ? <span style={{ color: '#888' }}>a generated card</span>
+                    ? <span style={{ color: 'var(--aeth-text-muted, #888)' }}>a generated card</span>
                     : <span className="details-grid-warn">nothing to draw</span>}
               </div>
             ))}
@@ -426,7 +426,7 @@ function AspectRatioRow({ editor, container, parentContainer, slot }) {
   );
 }
 
-const derivedStyle = { fontSize: 11, color: '#888', padding: '2px 6px', background: '#f5f5f5', borderRadius: 4, border: '1px solid #e0e0e0', height: 24, display: 'flex', alignItems: 'center', fontStyle: 'italic' };
+const derivedStyle = { fontSize: 11, color: 'var(--aeth-text-muted, #888)', padding: '2px 6px', background: 'var(--aeth-surface-muted, #f5f5f5)', borderRadius: 4, border: '1px solid var(--aeth-border, #e0e0e0)', height: 24, display: 'flex', alignItems: 'center', fontStyle: 'italic' };
 
 function SlotTab({ editor, container, parentContainer, slot, isBase, tier, overrides, lockedClass }) {
   const id = editor.selectedContainerId;
@@ -474,7 +474,7 @@ function SlotTab({ editor, container, parentContainer, slot, isBase, tier, overr
             )}
           </div>
           {(isStretchX || isStretchY) && (
-            <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#0055aa', background: '#e8f2ff', border: '1px solid #b3d0ff', padding: '5px 8px', borderRadius: 4, margin: '2px 0', lineHeight: 1.5 }}>
+            <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--aeth-accent-text, #0055aa)', background: 'var(--aeth-accent-tint, #e8f2ff)', border: '1px solid var(--aeth-accent-border-soft, #b3d0ff)', padding: '5px 8px', borderRadius: 4, margin: '2px 0', lineHeight: 1.5 }}>
               {isStretchX && isStretchY
                 ? '↔↕ Width and height are derived from offset pairs.'
                 : isStretchX
@@ -577,10 +577,10 @@ function PageSizeField({ editor, container }) {
         dataSource={sizeOptions()} valueExpr="id" displayExpr="name"
         value={size}
         onValueChanged={e => e.value && editor.setPageSizeId(e.value)}
-        itemRender={s => <span>{s.name}<span style={{ color: '#999' }}> · {s.note}</span></span>}
+        itemRender={s => <span>{s.name}<span style={{ color: 'var(--aeth-text-muted, #999)' }}> · {s.note}</span></span>}
         stylingMode="outlined" width="100%" height={24}
       />
-      <span style={{ fontSize: 10, color: '#888' }}>{describeSize(size)}</span>
+      <span style={{ fontSize: 10, color: 'var(--aeth-text-muted, #888)' }}>{describeSize(size)}</span>
     </div>
   </>);
 }
@@ -617,7 +617,7 @@ function PageAboutField({ self, containers }) {
         value={known ? (self.about || NONE) : null}
         placeholder={known ? '' : (self.status === 'otherModel' ? `A type in “${self.context?.modelId}”` : 'A type this model doesn’t have')}
         searchEnabled
-        itemRender={t => <span>{t.name}{t.level && <span style={{ color: '#999' }}> · {t.level}</span>}</span>}
+        itemRender={t => <span>{t.name}{t.level && <span style={{ color: 'var(--aeth-text-muted, #999)' }}> · {t.level}</span>}</span>}
         onValueChanged={e => {
           if (!e.value) return;
           if (!self.changeAbout(e.value === NONE ? null : e.value)) setRevision(n => n + 1);
@@ -626,7 +626,7 @@ function PageAboutField({ self, containers }) {
         width="100%"
         height={24}
       />
-      <span style={{ fontSize: 10, color: '#888', lineHeight: 1.4 }}>{note}</span>
+      <span style={{ fontSize: 10, color: 'var(--aeth-text-muted, #888)', lineHeight: 1.4 }}>{note}</span>
     </div>
   </>);
 }
@@ -656,7 +656,7 @@ function GeneralTab({ editor, self, container, title, parentContainer, isBase, t
               <>
                 <span className="details-grid-label">Overrides</span>
                 <div className="details-grid-control">
-                  <button className="focus-mode-btn" style={{ color: '#d00', borderColor: '#d00', width: '100%', fontSize: 10 }}
+                  <button className="focus-mode-btn" style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', width: '100%', fontSize: 10 }}
                     onClick={() => editor.clearBreakpointOverrides(id, editor.activeTierId)}>
                     Clear {tier?.label} overrides
                   </button>
@@ -687,7 +687,7 @@ function GeneralTab({ editor, self, container, title, parentContainer, isBase, t
           </>)}
           {parentContainer && (<>
             <span className="details-grid-label">Parent</span>
-            <div className="details-grid-control"><span style={{ fontSize: 11, color: '#555' }}>{parentContainer.title}</span></div>
+            <div className="details-grid-control"><span style={{ fontSize: 11, color: 'var(--aeth-text-secondary, #555)' }}>{parentContainer.title}</span></div>
             <span className="details-grid-label">Parent Layout</span>
             <div className="details-grid-control"><span style={{ fontSize: 11, color: parentContainer.layout?.layoutType === 'coordinate' ? '#0078d4' : '#555', fontWeight: 600 }}>{parentContainer.layout?.layoutType || 'flex'}</span></div>
           </>)}

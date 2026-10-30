@@ -107,7 +107,7 @@ export const AssetSetEditor = forwardRef(function AssetSetEditor({ set: committe
     <div className="asset-set-editor">
       <div className="asset-set-editor-head">
         <span className="asset-set-editor-title">{draft.name || '(unnamed asset set)'}</span>
-        <button className="focus-mode-btn" style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }} onClick={handleDelete}>Delete</button>
+        <button className="focus-mode-btn" style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', fontSize: 11 }} onClick={handleDelete}>Delete</button>
       </div>
 
       <div className="asset-set-body">

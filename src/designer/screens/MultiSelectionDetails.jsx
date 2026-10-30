@@ -93,7 +93,7 @@ export function MultiSelectionDetails({ editor }) {
             {coordRow('Height', 'height', true)}
             {coordRow('Min H', 'minHeight')}
             {coordRow('Max H', 'maxHeight')}
-            <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#aaa', fontStyle: 'italic', paddingTop: 2 }}>
+            <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--aeth-text-faint, #aaa)', fontStyle: 'italic', paddingTop: 2 }}>
               Aspect ratio lock isn't available for multi-select yet.
             </div>
           </div>
@@ -104,7 +104,7 @@ export function MultiSelectionDetails({ editor }) {
         <div className="details-section">
           <div className="details-grid">
             <span className="details-section-title">Slot</span>
-            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: '#7a6000', background: '#fffbe6', border: '1px solid #ffe08a', borderRadius: 4, padding: '6px 8px', lineHeight: 1.5 }}>
+            <div style={{ gridColumn: '1 / -1', fontSize: 11, color: 'var(--aeth-warning-text, #7a6000)', background: 'var(--aeth-warning-tint, #fffbe6)', border: '1px solid var(--aeth-warning-border, #ffe08a)', borderRadius: 4, padding: '6px 8px', lineHeight: 1.5 }}>
               This selection mixes coordinate-layout and flex-layout items — position/size editing isn't available together. Select only coordinate items or only flex items to edit dimensions in bulk.
             </div>
           </div>

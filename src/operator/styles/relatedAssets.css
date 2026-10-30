@@ -26,13 +26,13 @@
   border: none;
   border-radius: 3px;
   background: transparent;
-  color: #bbb;
+  color: var(--aeth-text-faint, #bbb);
   cursor: pointer;
   pointer-events: auto;
 }
 .op-asset-card-gear:hover {
-  background: #f0f0f0;
-  color: #777;
+  background: var(--aeth-surface-muted, #f0f0f0);
+  color: var(--aeth-text-muted, #777);
 }
 
 .op-asset-card-kpis {

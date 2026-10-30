@@ -17,7 +17,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useState } from 'react';
-import 'devextreme/dist/css/dx.fluent.blue.light.compact.css';
+// The DevExtreme theme is loaded at runtime with the app style — see
+// styles/appStyle.js.
 import './App.css';
 import './App.locked.css'; // Pass 2 — locked-selection styling
 import './App.bindings.css'; // Phase 1 binding system
@@ -57,6 +58,7 @@ import { WidgetsWorkspace } from './designer/widgets/WidgetsWorkspace';
 import { APP_AREAS, WORKSPACES, findArea, railGroupsFor } from './shell/appAreas';
 import { AreaRail } from './shell/AreaRail';
 import './shell/appRail.css';
+import { AppStyleSwitcher } from './styles/AppStyleSwitcher';
 import { generateDataId } from './dataModel';
 import { makeConnection } from './connections/connectionKinds';
 import { useHasUnsavedChanges } from './unsavedChangesStore';
@@ -268,7 +270,7 @@ function AetheriumEditor() {
           }
         }}>
           <span
-            className="app-titlebar-title"
+            className="app-titlebar-title app-titlebar-brand"
             onClick={() => setMenuOpen(o => !o)}
             style={{ cursor: 'pointer', userSelect: 'none' }}
           >
@@ -349,18 +351,8 @@ function AetheriumEditor() {
               window.open(url, '_blank');
             }}
             title={screens.activePageId ? 'Open a chrome-free runtime view of this screen in a new tab' : 'Save this screen first'}
-            style={{
-              marginLeft: 'auto',
-              marginRight: 8,
-              fontSize: 12,
-              fontWeight: 600,
-              padding: '5px 14px',
-              borderRadius: 6,
-              border: '1px solid rgba(255,255,255,0.35)',
-              background: 'rgba(255,255,255,0.08)',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
+            className="app-titlebar-button"
+            style={{ marginLeft: 'auto', marginRight: 8 }}
           >
             ▶ Launch
           </button>
@@ -382,18 +374,8 @@ function AetheriumEditor() {
               }}
               disabled={!enabled}
               title={title}
-              style={{
-                marginRight: 14,
-                fontSize: 12,
-                fontWeight: 600,
-                padding: '5px 14px',
-                borderRadius: 6,
-                border: '1px solid rgba(255,255,255,0.35)',
-                background: 'rgba(255,255,255,0.08)',
-                color: '#fff',
-                cursor: enabled ? 'pointer' : 'not-allowed',
-                opacity: enabled ? 1 : 0.4,
-              }}
+              className="app-titlebar-button"
+              style={{ marginRight: 14 }}
             >
               💾 Save
               {/* Unsaved marker — same amber dot convention as a modified
@@ -404,10 +386,11 @@ function AetheriumEditor() {
             </button>
           );
         })()}
+        <AppStyleSwitcher />
         <div className="app-titlebar-profile" title="Profile">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="14" cy="10" r="5" stroke="white" strokeWidth="1.5" fill="none"/>
-            <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <circle cx="14" cy="10" r="5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
           </svg>
         </div>
         </div>

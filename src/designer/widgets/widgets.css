@@ -9,17 +9,17 @@
 .widgets-empty { padding: 16px; }
 .widgets-panel-head {
   display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-  padding: 8px 12px; border-bottom: 1px solid #e0e0e0; background: #fafafa;
+  padding: 8px 12px; border-bottom: 1px solid var(--aeth-border, #e0e0e0); background: var(--aeth-surface-subtle, #fafafa);
 }
-.widgets-panel-title { font-size: 12px; font-weight: 600; color: #333; }
-.widgets-panel-sub { font-size: 11px; color: #888; margin-right: auto; }
-.widgets-note { font-size: 11px; color: #888; padding: 8px 12px; line-height: 1.45; }
-.widgets-footnote { font-size: 10.5px; color: #999; padding: 6px 12px; border-top: 1px solid #eee; flex-shrink: 0; line-height: 1.4; }
+.widgets-panel-title { font-size: 12px; font-weight: 600; color: var(--aeth-text, #333); }
+.widgets-panel-sub { font-size: 11px; color: var(--aeth-text-muted, #888); margin-right: auto; }
+.widgets-note { font-size: 11px; color: var(--aeth-text-muted, #888); padding: 8px 12px; line-height: 1.45; }
+.widgets-footnote { font-size: 10.5px; color: var(--aeth-text-muted, #999); padding: 6px 12px; border-top: 1px solid var(--aeth-border-subtle, #eee); flex-shrink: 0; line-height: 1.4; }
 
 /* ── Widget list ── */
 .widgets-list-panel { display: flex; flex-direction: column; overflow: hidden; }
 .widgets-list-panel .panel-label { padding: 8px 12px 0; }
-.widgets-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 12px 6px; font-size: 10.5px; color: #888; }
+.widgets-legend { display: flex; gap: 10px; flex-wrap: wrap; padding: 0 12px 6px; font-size: 10.5px; color: var(--aeth-text-muted, #888); }
 .widgets-legend > span { display: inline-flex; align-items: center; gap: 4px; }
 .widgets-list-tree { flex: 1; min-height: 0; overflow: hidden; }
 /* App.css forces every tree row's background transparent; the widget list
@@ -28,22 +28,22 @@
 .widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item,
 .widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item.dx-state-hover,
 .widgets-list-tree .dx-treeview-node.dx-state-selected > .dx-treeview-item.dx-state-focused {
-  background-color: #e6f1fb !important;
-  box-shadow: inset 2px 0 0 #0078d4;
+  background-color: var(--aeth-accent-tint, #e6f1fb) !important;
+  box-shadow: inset 2px 0 0 var(--aeth-accent, #0078d4);
 }
-.widgets-list-tree .dx-treeview-node.dx-state-selected .tree-item-name { color: #0078d4; font-weight: 600; }
-.widgets-list-tree .dx-treeview-item.dx-state-hover { background-color: #f5f9fd !important; }
+.widgets-list-tree .dx-treeview-node.dx-state-selected .tree-item-name { color: var(--aeth-accent-text, #0078d4); font-weight: 600; }
+.widgets-list-tree .dx-treeview-item.dx-state-hover { background-color: var(--aeth-accent-tint, #f5f9fd) !important; }
 .widgets-list-item { display: flex; align-items: center; gap: 6px; width: 100%; }
 .widgets-list-item .tree-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .widgets-flag { width: 7px; height: 7px; border-radius: 50%; background: #c25b00; flex-shrink: 0; display: inline-block; }
-.widgets-flag--none { background: transparent; border: 1px dashed #aaa; box-sizing: border-box; }
-.widgets-edited { color: #0078d4; font-size: 11px; }
-.widgets-count { font-size: 10.5px; color: #999; min-width: 14px; text-align: right; }
-.widgets-export { border-top: 1px solid #e0e0e0; padding: 8px 12px; flex-shrink: 0; background: #fafafa; }
-.widgets-export-summary { font-size: 11px; color: #777; margin-bottom: 6px; }
+.widgets-flag--none { background: transparent; border: 1px dashed var(--aeth-border-strong, #aaa); box-sizing: border-box; }
+.widgets-edited { color: var(--aeth-accent-text, #0078d4); font-size: 11px; }
+.widgets-count { font-size: 10.5px; color: var(--aeth-text-muted, #999); min-width: 14px; text-align: right; }
+.widgets-export { border-top: 1px solid var(--aeth-border, #e0e0e0); padding: 8px 12px; flex-shrink: 0; background: var(--aeth-surface-subtle, #fafafa); }
+.widgets-export-summary { font-size: 11px; color: var(--aeth-text-muted, #777); margin-bottom: 6px; }
 .widgets-export-buttons { display: flex; gap: 6px; }
 .widgets-export-buttons .focus-mode-btn:disabled,
-.widgets-panel .focus-mode-btn:disabled { opacity: .45; cursor: default; border-color: #d1d1d1; color: #555; }
+.widgets-panel .focus-mode-btn:disabled { opacity: .45; cursor: default; border-color: var(--aeth-border-strong, #d1d1d1); color: var(--aeth-text-secondary, #555); }
 
 /* ── Options (the main panel) ── */
 .widgets-options { display: flex; flex-direction: column; height: 100%; }
@@ -54,22 +54,22 @@
    is exposed. */
 .widgets-options-group {
   display: flex; align-items: center; gap: 6px; width: 100%;
-  font: inherit; font-size: 11px; font-weight: 600; color: #555; text-align: left;
-  padding: 5px 12px; border: 0; border-top: 1px solid #f0f0f0; background: #fafafa; cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 600; color: var(--aeth-text-secondary, #555); text-align: left;
+  padding: 5px 12px; border: 0; border-top: 1px solid var(--aeth-border-subtle, #f0f0f0); background: var(--aeth-surface-subtle, #fafafa); cursor: pointer;
 }
-.widgets-options-group:hover { background: #f1f6fb; color: #0078d4; }
+.widgets-options-group:hover { background: var(--aeth-accent-tint, #f1f6fb); color: var(--aeth-accent-text, #0078d4); }
 .widgets-options-group--open { position: sticky; top: 0; z-index: 1; }
-.widgets-group-caret { color: #999; font-size: 9px; width: 8px; }
-.widgets-options-group--open .widgets-group-caret { color: #0078d4; }
+.widgets-group-caret { color: var(--aeth-text-muted, #999); font-size: 9px; width: 8px; }
+.widgets-options-group--open .widgets-group-caret { color: var(--aeth-accent-text, #0078d4); }
 .widgets-group-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.widgets-group-count { display: flex; align-items: center; gap: 8px; font-weight: 400; color: #aaa; }
-.widgets-group-exposed { color: #0078d4; background: #e6f1fb; border-radius: 8px; padding: 0 6px; line-height: 15px; }
-.widgets-note--warn { color: #6b3a00; background: #fff4e5; border-bottom: 1px solid #f3dcbd; }
+.widgets-group-count { display: flex; align-items: center; gap: 8px; font-weight: 400; color: var(--aeth-text-faint, #aaa); }
+.widgets-group-exposed { color: var(--aeth-accent-text, #0078d4); background: var(--aeth-accent-tint, #e6f1fb); border-radius: 8px; padding: 0 6px; line-height: 15px; }
+.widgets-note--warn { color: var(--aeth-warning-text, #6b3a00); background: var(--aeth-warning-tint, #fff4e5); border-bottom: 1px solid var(--aeth-warning-border, #f3dcbd); }
 .widgets-note--warn code { font-family: Consolas, 'Courier New', monospace; }
 /* The pinned "Exposed" section reads as the widget's own list, so it gets
    the accent rather than the plain group look. */
-.widgets-group--pinned .widgets-options-group { background: #eef5fc; color: #0f5a9e; border-top: 0; }
-.widgets-group--pinned { border-bottom: 1px solid #e3eef8; margin-bottom: 2px; }
+.widgets-group--pinned .widgets-options-group { background: var(--aeth-accent-tint, #eef5fc); color: var(--aeth-accent-text, #0f5a9e); border-top: 0; }
+.widgets-group--pinned { border-bottom: 1px solid var(--aeth-accent-border-soft, #e3eef8); margin-bottom: 2px; }
 
 /* One option per row, in columns that line up down the list: the tick and
    its path, the type, the control it's edited with, and the ⋯. A row that
@@ -79,48 +79,48 @@
   display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) 54px 180px 24px;
   align-items: center; gap: 8px; padding: 2px 10px 2px 0;
 }
-.widgets-option-row--exposed { background: #fbfdff; }
-.widgets-option-row--open { background: #f2f8fd; }
-.widgets-option-row:hover { background: #f5f9fd; }
+.widgets-option-row--exposed { background: var(--aeth-surface-subtle, #fbfdff); }
+.widgets-option-row--open { background: var(--aeth-accent-tint, #f2f8fd); }
+.widgets-option-row:hover { background: var(--aeth-accent-tint, #f5f9fd); }
 .widgets-option { display: flex; align-items: center; gap: 6px; padding: 3px 0 3px 18px; font-size: 11.5px; cursor: pointer; min-width: 0; }
-.widgets-option code { font-family: Consolas, 'Courier New', monospace; font-size: 11px; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.widgets-option-label { font-size: 11px; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option-label { color: #aaa; }
+.widgets-option code { font-family: Consolas, 'Courier New', monospace; font-size: 11px; color: var(--aeth-text, #333); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.widgets-option-label { font-size: 11px; color: var(--aeth-text-secondary, #555); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option-label { color: var(--aeth-text-faint, #aaa); }
 .widgets-option-default { min-width: 0; }
 .widgets-option-default .details-input { padding: 2px 5px; font-size: 11px; }
 .widgets-option-default .dx-texteditor-input { font-size: 11px !important; padding: 2px 6px !important; min-height: unset !important; }
 .widgets-option-default .widget-prop-bind-only { font-size: 10px; }
-.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option code { color: #777; }
+.widgets-option-row:not(.widgets-option-row--exposed) .widgets-option code { color: var(--aeth-text-muted, #777); }
 /* A disabled control should read as "this isn't yours to set yet" rather
    than as an empty field. */
 .widgets-option-default input:disabled,
-.widgets-option-default textarea:disabled { background: #f6f6f6; color: #9a9a9a; cursor: default; }
+.widgets-option-default textarea:disabled { background: var(--aeth-surface-muted, #f6f6f6); color: var(--aeth-text-faint, #9a9a9a); cursor: default; }
 .widgets-option-default input[type="color"]:disabled { opacity: .5; }
-.widgets-more { border: 1px solid transparent; background: none; color: #999; cursor: pointer; border-radius: 3px; padding: 0 4px; line-height: 18px; }
-.widgets-more:hover { border-color: #d1d1d1; color: #0078d4; }
-.widgets-more--open { border-color: #0078d4; color: #0078d4; }
+.widgets-more { border: 1px solid transparent; background: none; color: var(--aeth-text-muted, #999); cursor: pointer; border-radius: 3px; padding: 0 4px; line-height: 18px; }
+.widgets-more:hover { border-color: var(--aeth-border-strong, #d1d1d1); color: var(--aeth-accent-text, #0078d4); }
+.widgets-more--open { border-color: var(--aeth-accent, #0078d4); color: var(--aeth-accent-text, #0078d4); }
 .widgets-more-spacer { display: block; }
 
 .widgets-type-badge {
-  justify-self: start; font-size: 10px; color: #888;
-  border: 1px solid #e0e0e0; border-radius: 8px; padding: 0 6px; line-height: 15px;
+  justify-self: start; font-size: 10px; color: var(--aeth-text-muted, #888);
+  border: 1px solid var(--aeth-border, #e0e0e0); border-radius: 8px; padding: 0 6px; line-height: 15px;
   max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .widgets-type-badge--guessed,
-.widgets-type-badge--unknown { color: #a14d00; border-color: #f3c99a; background: #fff4e5; }
+.widgets-type-badge--unknown { color: #a14d00; border-color: var(--aeth-warning-border, #f3c99a); background: var(--aeth-warning-tint, #fff4e5); }
 .widgets-type-badge--data { color: #6b46a8; border-color: #ddd0ef; background: #f6f1fc; }
 .widgets-type-badge--json { color: #1c6b52; border-color: #c6e4d9; background: #eff9f5; }
 
 /* JSON values: monospace, and marked while the text doesn't parse. */
 .widgets-json { font-family: Consolas, 'Courier New', monospace; font-size: 10.5px; width: 100%; box-sizing: border-box; resize: vertical; }
-.widgets-json--error { border-color: #c50f1f !important; background: #fff5f5; }
+.widgets-json--error { border-color: #c50f1f !important; background: var(--aeth-danger-tint, #fff5f5); }
 
 /* The ⋯ block, under its row. */
 .widgets-advanced {
   display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center;
-  padding: 8px 12px 10px 36px; background: #f2f8fd; border-bottom: 1px solid #e3eef8;
+  padding: 8px 12px 10px 36px; background: var(--aeth-accent-tint, #f2f8fd); border-bottom: 1px solid var(--aeth-accent-border-soft, #e3eef8);
 }
-.widgets-advanced-field { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: #777; }
+.widgets-advanced-field { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--aeth-text-muted, #777); }
 .widgets-advanced-field > span { white-space: nowrap; }
 .widgets-advanced-field .details-input { width: 130px; padding: 2px 5px; font-size: 11px; }
 .widgets-advanced-field--wide .details-input { width: 210px; }
@@ -128,19 +128,19 @@
 .widgets-advanced-field--json .widgets-json { width: 100%; }
 .widgets-advanced-field--check { gap: 4px; }
 .widgets-advanced-hide { margin-left: auto; font-size: 11px !important; padding: 2px 8px !important; }
-.widgets-advanced-hide:hover { border-color: #c50f1f; color: #c50f1f; }
+.widgets-advanced-hide:hover { border-color: #c50f1f; color: var(--aeth-danger-text, #c50f1f); }
 
-.widgets-add-path { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid #eee; flex-shrink: 0; }
+.widgets-add-path { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--aeth-border-subtle, #eee); flex-shrink: 0; }
 .widgets-add-path .details-input { flex: 1; min-width: 0; }
-.widgets-path-problem { font-size: 10.5px; color: #c50f1f; padding: 0 12px 8px; }
+.widgets-path-problem { font-size: 10.5px; color: var(--aeth-danger-text, #c50f1f); padding: 0 12px 8px; }
 
 /* ── Preview ── */
 .widgets-preview { display: flex; flex-direction: column; height: 100%; overflow: auto; }
 .widgets-preview .widgets-panel-head .widgets-panel-title { margin-right: auto; }
 .widgets-preview-widget {
   height: 200px; flex-shrink: 0; margin: 10px 12px 4px; padding: 6px;
-  border: 1px solid #e0e0e0; border-radius: 4px; display: flex; overflow: hidden;
+  border: 1px solid var(--aeth-border, #e0e0e0); border-radius: 4px; display: flex; overflow: hidden;
 }
 .widgets-preview-details { padding: 0 12px 12px; }
-.widgets-preview-caption { font-size: 10.5px; color: #999; font-style: italic; margin: 8px 0 0; }
+.widgets-preview-caption { font-size: 10.5px; color: var(--aeth-text-muted, #999); font-style: italic; margin: 8px 0 0; }
 .widgets-preview-details .binding-icon-btn:disabled { cursor: default; }

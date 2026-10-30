@@ -4,9 +4,9 @@
 
 .widget-prop-color-swatch {
   width: 24px; height: 22px; padding: 0 1px; flex-shrink: 0;
-  border: 1px solid #d1d1d1; border-radius: 3px; background: #fff; cursor: pointer;
+  border: 1px solid var(--aeth-border-strong, #d1d1d1); border-radius: 3px; background: var(--aeth-surface, #fff); cursor: pointer;
 }
-.details-section-title.widget-prop-group-title { margin-top: 10px; color: #777; }
+.details-section-title.widget-prop-group-title { margin-top: 10px; color: var(--aeth-text-muted, #777); }
 
 
-.widget-prop-bind-only { font-size: 10px; color: #aaa; font-style: italic; }
+.widget-prop-bind-only { font-size: 10px; color: var(--aeth-text-faint, #aaa); font-style: italic; }

@@ -205,7 +205,7 @@ function AssetTreeItemTemplate(item) {
   );
 }
 
-const emptyNote = { padding: '12px 14px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 };
+const emptyNote = { padding: '12px 14px', fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', margin: 0, lineHeight: 1.5 };
 
 function PageQueryInstanceList({ editor, queries }) {
   const { pageQueryInstances, selectedQueryInstanceId } = editor;
@@ -225,23 +225,23 @@ function PageQueryInstanceList({ editor, queries }) {
         onClick={() => editor.selectQueryInstance(qi.id)}
         style={{
           display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px',
-          borderBottom: '1px solid #f1f1f1', cursor: 'pointer',
+          borderBottom: '1px solid var(--aeth-border-subtle, #f1f1f1)', cursor: 'pointer',
           background: isSelected ? '#e3eaf6' : 'transparent',
           borderLeft: isSelected ? '3px solid #0078d4' : '3px solid transparent',
         }}
       >
         <span style={{ fontSize: 13, flexShrink: 0 }}>⚡</span>
         <div style={{ flex: 1, overflow: 'hidden' }}>
-          <div style={{ fontSize: 12, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: 12, color: 'var(--aeth-text, #222)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {qi.alias || q?.name || '(unnamed instance)'}
           </div>
           {q?.name && qi.alias !== q.name && (
-            <div style={{ fontSize: 9, color: '#aaa' }}>{q.name}</div>
+            <div style={{ fontSize: 9, color: 'var(--aeth-text-faint, #aaa)' }}>{q.name}</div>
           )}
         </div>
         <button
           className="focus-mode-btn"
-          style={{ fontSize: 11, color: '#d00', borderColor: '#d00', padding: '2px 6px', flexShrink: 0 }}
+          style={{ fontSize: 11, color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', padding: '2px 6px', flexShrink: 0 }}
           title="Remove from page"
           onClick={(e) => {
             e.stopPropagation();

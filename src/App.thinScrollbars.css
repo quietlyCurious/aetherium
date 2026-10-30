@@ -26,7 +26,7 @@
   scrollbar-color: transparent transparent !important;
 }
 .aetherium-canvas-scroll:hover {
-  scrollbar-color: #b0b0b0 transparent !important;
+  scrollbar-color: var(--aeth-scrollbar-thumb, #b0b0b0) transparent !important;
 }
 
 .aetherium-canvas-scroll::-webkit-scrollbar {
@@ -43,10 +43,10 @@
   transition: background-color .2s linear .15s !important;
 }
 .aetherium-canvas-scroll:hover::-webkit-scrollbar-thumb {
-  background: #b0b0b0 !important;
+  background: var(--aeth-scrollbar-thumb, #b0b0b0) !important;
 }
 .aetherium-canvas-scroll::-webkit-scrollbar-thumb:hover {
-  background: #909090 !important;
+  background: var(--aeth-scrollbar-thumb-hover, #909090) !important;
 }
 
 /* The actual element responsible for the visible canvas scrollbar turned out
@@ -60,7 +60,7 @@
   scrollbar-color: transparent transparent !important;
 }
 .container-card-body:hover {
-  scrollbar-color: #b0b0b0 transparent !important;
+  scrollbar-color: var(--aeth-scrollbar-thumb, #b0b0b0) transparent !important;
 }
 .container-card-body::-webkit-scrollbar {
   width: 6px !important;
@@ -76,8 +76,8 @@
   transition: background-color .2s linear .15s !important;
 }
 .container-card-body:hover::-webkit-scrollbar-thumb {
-  background: #b0b0b0 !important;
+  background: var(--aeth-scrollbar-thumb, #b0b0b0) !important;
 }
 .container-card-body::-webkit-scrollbar-thumb:hover {
-  background: #909090 !important;
+  background: var(--aeth-scrollbar-thumb-hover, #909090) !important;
 }

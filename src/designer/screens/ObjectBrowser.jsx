@@ -35,7 +35,7 @@ async function fetchObjects(type, context) {
   notifyAll();
 }
 
-const note = { padding: '8px 12px', fontSize: 11, color: '#999', margin: 0, lineHeight: 1.5 };
+const note = { padding: '8px 12px', fontSize: 11, color: 'var(--aeth-text-muted, #999)', margin: 0, lineHeight: 1.5 };
 
 export function ObjectBrowser({ editor, objectTypes, connections, queries }) {
   const [, rerender] = useReducer(n => n + 1, 0);
@@ -87,7 +87,7 @@ export function ObjectBrowser({ editor, objectTypes, connections, queries }) {
       {type?.description && <p style={{ ...note, paddingTop: 0 }}>{type.description}</p>}
 
       {current.status === 'loading' && <p style={{ ...note, fontStyle: 'italic' }}>Fetching…</p>}
-      {current.status === 'error' && <p style={{ ...note, color: '#c62828' }}>{current.error}</p>}
+      {current.status === 'error' && <p style={{ ...note, color: 'var(--aeth-danger-text, #c62828)' }}>{current.error}</p>}
       {current.status === 'ok' && (
         <>
           <p style={{ ...note, paddingTop: 0, paddingBottom: 4 }}>

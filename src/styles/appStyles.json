@@ -1,0 +1,29 @@
+{
+  "defaultStyle": "aetherium",
+  "styles": [
+    {
+      "id": "aetherium",
+      "label": "Aetherium",
+      "dxTheme": "fluent.blue.light.compact",
+      "dxFile": "dx.fluent.blue.light.compact.css"
+    },
+    {
+      "id": "thingworx-light",
+      "label": "ThingWorx Light",
+      "dxTheme": "generic.light.compact",
+      "dxFile": "dx.light.compact.css"
+    },
+    {
+      "id": "axio-light",
+      "label": "Axio Light",
+      "dxTheme": "material.blue.light.compact",
+      "dxFile": "dx.material.blue.light.compact.css"
+    },
+    {
+      "id": "axio-dark",
+      "label": "Axio Dark",
+      "dxTheme": "material.blue.dark.compact",
+      "dxFile": "dx.material.blue.dark.compact.css"
+    }
+  ]
+}

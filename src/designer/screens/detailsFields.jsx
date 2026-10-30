@@ -63,7 +63,7 @@ export const overflowField = (val, onChange) => (
 );
 
 export const OverflowWarning = ({ plural }) => (
-  <div style={{ gridColumn: '1 / -1', fontSize: 10, color: '#8a5a00', background: '#fff8e6', border: '1px solid #f0c987', padding: '4px 8px', borderRadius: 4, margin: '2px 0' }}>
+  <div style={{ gridColumn: '1 / -1', fontSize: 10, color: 'var(--aeth-warning-text, #8a5a00)', background: '#fff8e6', border: '1px solid var(--aeth-warning-border, #f0c987)', padding: '4px 8px', borderRadius: 4, margin: '2px 0' }}>
     ⚠ Visible overflow: content may render outside {plural ? "these containers'" : "this container's"} bounds.
   </div>
 );

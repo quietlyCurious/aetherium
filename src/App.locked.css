@@ -25,9 +25,9 @@
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  background: #fff4e5;
-  border-bottom: 1px solid #f0c987;
-  color: #8a5a00;
+  background: var(--aeth-warning-tint, #fff4e5);
+  border-bottom: 1px solid var(--aeth-warning-border, #f0c987);
+  color: var(--aeth-warning-text, #8a5a00);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.01em;

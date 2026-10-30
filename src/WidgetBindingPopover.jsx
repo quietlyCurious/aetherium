@@ -135,7 +135,7 @@ function AssetBindingFields({ binding, self, wantsCollection, onSave }) {
         valueExpr="value"
         displayExpr="label"
         value={node?.key}
-        itemRender={o => <span style={{ whiteSpace: 'pre' }}>{o.label}{o.partial && <span style={{ color: '#b7791f' }}>{`  (only ${o.partial})`}</span>}</span>}
+        itemRender={o => <span style={{ whiteSpace: 'pre' }}>{o.label}{o.partial && <span style={{ color: 'var(--aeth-warning-text, #b7791f)' }}>{`  (only ${o.partial})`}</span>}</span>}
         onValueChanged={e => setFromKey(e.value)}
         stylingMode="outlined"
         width="100%"
@@ -157,7 +157,7 @@ function AssetBindingFields({ binding, self, wantsCollection, onSave }) {
       {wantsCollection && <div className="binding-hint">A list property gets the property's history: one row per timestamp, with <b>timestamp</b> and <b>value</b>.</div>}
       {preview && (
         <div className={`binding-preview${preview.err ? ' binding-preview-error' : ''}`}>
-          <span style={{ color: '#aaa', marginRight: 4 }}>→</span>
+          <span style={{ color: 'var(--aeth-text-faint, #aaa)', marginRight: 4 }}>→</span>
           <strong>{preview.err || preview.text}</strong>
         </div>
       )}
@@ -340,8 +340,8 @@ export default function WidgetBindingPopover({
             />
             <div className={`binding-preview${isErr ? ' binding-preview-error' : ''}`}>
               {rawText
-                ? <><span style={{ color: '#aaa', marginRight: 4 }}>→</span><strong>{String(previewVal ?? '')}</strong></>
-                : <span style={{ color: '#bbb' }}>Type a value above to preview</span>
+                ? <><span style={{ color: 'var(--aeth-text-faint, #aaa)', marginRight: 4 }}>→</span><strong>{String(previewVal ?? '')}</strong></>
+                : <span style={{ color: 'var(--aeth-text-faint, #bbb)' }}>Type a value above to preview</span>
               }
             </div>
           </div>
@@ -349,7 +349,7 @@ export default function WidgetBindingPopover({
           <div className="binding-popover-body">
             <div className="binding-type-label">Query on this page</div>
             {pageQueryInstances.length === 0 ? (
-              <div style={{ fontSize: 11, color: '#aaa', fontStyle: 'italic', padding: '4px 0' }}>
+              <div style={{ fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', fontStyle: 'italic', padding: '4px 0' }}>
                 No queries added to this page yet — add one from the Data tab first.
               </div>
             ) : (
@@ -369,7 +369,7 @@ export default function WidgetBindingPopover({
                   <>
                     <div className="binding-type-label" style={{ marginTop: 8 }}>Output</div>
                     {outputOptions.length === 0 ? (
-                      <div style={{ fontSize: 11, color: '#aaa', fontStyle: 'italic', padding: '4px 0' }}>
+                      <div style={{ fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', fontStyle: 'italic', padding: '4px 0' }}>
                         This query has no outputs.
                       </div>
                     ) : (
@@ -399,7 +399,7 @@ export default function WidgetBindingPopover({
                           <span style={{ fontSize: 11, flex: 1, minWidth: 0 }}>{fieldName}</span>
                           <button
                             onClick={() => handleRemoveField(fieldName)}
-                            style={{ fontSize: 11, color: '#d00', border: 'none', background: 'none', cursor: 'pointer', padding: '0 4px', flexShrink: 0 }}
+                            style={{ fontSize: 11, color: 'var(--aeth-danger-text, #d00)', border: 'none', background: 'none', cursor: 'pointer', padding: '0 4px', flexShrink: 0 }}
                             title="Remove this field"
                           >×</button>
                         </div>
@@ -447,7 +447,7 @@ export default function WidgetBindingPopover({
           {!!binding && (
             <button
               className="focus-mode-btn"
-              style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }}
+              style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', fontSize: 11 }}
               onClick={() => { onClear(); onClose(); }}
             >× Clear</button>
           )}

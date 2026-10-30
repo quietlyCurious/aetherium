@@ -160,7 +160,7 @@ function GridEditor({ layout, onUpdateLayout, onMergeCellContainers }) {
       )}
       {layout.gridCells && (
         <div title="Reset all merges" onClick={(e) => { e.stopPropagation(); resetCells(); }}
-          style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: '#0078d4', cursor: 'pointer', background: 'rgba(255,255,255,0.85)', padding: '1px 5px', borderRadius: 3, border: '1px solid #0078d4', zIndex: 3, pointerEvents: 'all' }}>
+          style={{ position: 'absolute', top: 4, right: 4, fontSize: 10, color: 'var(--aeth-accent-text, #0078d4)', cursor: 'pointer', background: 'rgba(255,255,255,0.85)', padding: '1px 5px', borderRadius: 3, border: '1px solid var(--aeth-accent, #0078d4)', zIndex: 3, pointerEvents: 'all' }}>
           reset
         </div>
       )}

@@ -131,7 +131,7 @@ function ScreenCanvasToolbar({ editor, self }) {
         open={editor.devicePickerOpen}
         onToggle={() => editor.setDevicePickerOpen(o => !o)}
       />
-      <div style={{ width: 1, height: 20, background: '#e0e0e0', margin: '0 4px', flexShrink: 0 }} />
+      <div style={{ width: 1, height: 20, background: 'var(--aeth-surface-strong, #e0e0e0)', margin: '0 4px', flexShrink: 0 }} />
       <ScreenSelfControls self={self} />
       {/* Snap toggle + threshold input — always visible, canvas-level settings */}
       <button
@@ -149,10 +149,10 @@ function ScreenCanvasToolbar({ editor, self }) {
             max={64}
             value={snapSize}
             onChange={(e) => editor.setSnapSize(Math.max(1, Math.min(64, parseInt(e.target.value) || 8)))}
-            style={{ width: 40, fontSize: 11, padding: '2px 4px', border: '1px solid #d1d1d1', borderRadius: 4, textAlign: 'center' }}
+            style={{ width: 40, fontSize: 11, padding: '2px 4px', border: '1px solid var(--aeth-border-strong, #d1d1d1)', borderRadius: 4, textAlign: 'center' }}
             title="Snap threshold — controls grid interval and element-snap proximity"
           />
-          <span style={{ fontSize: 11, color: '#666', whiteSpace: 'nowrap' }}>px</span>
+          <span style={{ fontSize: 11, color: 'var(--aeth-text-secondary, #666)', whiteSpace: 'nowrap' }}>px</span>
         </div>
       )}
       {selectedContainerId && (
@@ -238,7 +238,7 @@ function ScreenCanvasToolbar({ editor, self }) {
                 {sel && sel.id !== ROOT_CONTAINER_ID && (
                   <button
                     className="focus-mode-btn"
-                    style={{ color: '#d00', borderColor: '#d00' }}
+                    style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00' }}
                     title="Delete selected container"
                     disabled={isSelectedLocked}
                     onClick={() => editor.deleteContainer(selectedContainerId)}
@@ -323,7 +323,7 @@ export function ScreenCanvas({ editor, self }) {
               width: frameWidth ? frameWidth : '100%',
               height: frameHeight ? frameHeight : '100%',
               flexShrink: 0,
-              background: '#fff',
+              background: 'var(--aeth-surface, #fff)',
               boxShadow: framed ? '0 2px 16px rgba(0,0,0,0.15)' : 'none',
               overflow: 'hidden',
               position: 'relative',

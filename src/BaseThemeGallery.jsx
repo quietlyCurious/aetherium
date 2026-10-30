@@ -89,7 +89,7 @@ export default function BaseThemeGallery({ mode, setMode }) {
     <div style={{ display: 'flex', height: '100%' }}>
 
       {/* ── Left: theme list ─────────────────────────────────────────────────── */}
-      <div style={{ width: 240, flexShrink: 0, borderRight: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 240, flexShrink: 0, borderRight: '1px solid var(--aeth-border, #e5e5e5)', display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, overflow: 'hidden' }}>
           <DataListGrid
             items={BASE_THEMES}

@@ -36,7 +36,7 @@ const shapeOf = (d) => JSON.stringify([
   (d.outputs || []).map(o => [o.name, o.type || 'String', o.outputGroup || 'default']),
 ]);
 
-const note = { padding: '8px 12px', fontSize: 11, color: '#aaa', margin: 0, lineHeight: 1.5 };
+const note = { padding: '8px 12px', fontSize: 11, color: 'var(--aeth-text-faint, #aaa)', margin: 0, lineHeight: 1.5 };
 const rowStyle = { display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px 4px 26px', borderBottom: '1px solid #f4f4f4' };
 const metaStyle = { display: 'flex', alignItems: 'center', gap: 4, marginTop: 2, flexWrap: 'wrap' };
 const badge = (bg = '#eef1f4', color = '#555') => ({ fontSize: 9, borderRadius: 3, padding: '1px 5px', background: bg, color, flexShrink: 0 });
@@ -46,12 +46,12 @@ function Signature({ definition }) {
   const inputs = definition.inputs || [];
   const outputs = definition.outputs || [];
   return (
-    <div style={{ margin: '0 10px 6px 26px', padding: '6px 8px', border: '1px solid #e6eef7', borderRadius: 4, fontSize: 11, color: '#444', lineHeight: 1.5 }}>
-      {definition.description && <div style={{ color: '#777', marginBottom: 2 }}>{definition.description}</div>}
-      <div><b style={{ fontWeight: 600, color: '#555' }}>Inputs</b>{' '}
+    <div style={{ margin: '0 10px 6px 26px', padding: '6px 8px', border: '1px solid #e6eef7', borderRadius: 4, fontSize: 11, color: 'var(--aeth-text-secondary, #444)', lineHeight: 1.5 }}>
+      {definition.description && <div style={{ color: 'var(--aeth-text-muted, #777)', marginBottom: 2 }}>{definition.description}</div>}
+      <div><b style={{ fontWeight: 600, color: 'var(--aeth-text-secondary, #555)' }}>Inputs</b>{' '}
         {inputs.length ? inputs.map(i => `${i.name}${i.optional ? '?' : ''} (${i.type})`).join(', ') : 'none'}
       </div>
-      <div><b style={{ fontWeight: 600, color: '#555' }}>Returns</b>{' '}
+      <div><b style={{ fontWeight: 600, color: 'var(--aeth-text-secondary, #555)' }}>Returns</b>{' '}
         {definition.resultCardinality}{outputs.length ? ` · ${outputs.map(o => o.name).join(', ')}` : ''}
       </div>
     </div>
@@ -67,12 +67,12 @@ function QueryRow({ item, saved, countOnPage, canAdd, missing, onAdd, onUpdate }
       {/* Name on its own line, so badges and buttons never squeeze it out in a narrow panel. */}
       <div style={{ ...rowStyle, background: open ? '#f7fafd' : undefined }}>
         <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }} title="Show inputs and outputs" onClick={() => setOpen(o => !o)}>
-          <div style={{ fontSize: 12, color: '#222', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{definition.name}</div>
+          <div style={{ fontSize: 12, color: 'var(--aeth-text, #222)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{definition.name}</div>
           <div style={metaStyle}>
             <span style={badge()}>{TYPE_BADGES[definition.type] || definition.type}</span>
             {changed && <span style={badge('#fff4e5', '#b26a00')} title="The source's definition differs from the copy your screens use">changed</span>}
             {missing && <span style={badge('#fdecea', '#c62828')} title="No longer offered by this connection. Screens keep using the saved copy.">missing</span>}
-            {countOnPage > 0 && <span style={{ fontSize: 9, color: '#888' }} title="Instances already on this page">{countOnPage} on page</span>}
+            {countOnPage > 0 && <span style={{ fontSize: 9, color: 'var(--aeth-text-muted, #888)' }} title="Instances already on this page">{countOnPage} on page</span>}
           </div>
         </div>
         {changed && (
@@ -103,11 +103,11 @@ function Group({ title, countText, hint, startCollapsed = false, forceOpen = fal
   return (
     <>
       <div
-        style={{ padding: '5px 10px 5px 12px', fontSize: 11, fontWeight: 600, color: '#555', cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+        style={{ padding: '5px 10px 5px 12px', fontSize: 11, fontWeight: 600, color: 'var(--aeth-text-secondary, #555)', cursor: 'pointer', userSelect: 'none', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
         title={hint || title}
         onClick={toggle}
       >
-        {open ? '▾' : '▸'} {title} {countText && <span style={{ color: '#aaa', fontWeight: 400 }}>({countText})</span>}
+        {open ? '▾' : '▸'} {title} {countText && <span style={{ color: 'var(--aeth-text-faint, #aaa)', fontWeight: 400 }}>({countText})</span>}
       </div>
       {open && children}
     </>
@@ -125,7 +125,7 @@ function GroupItems({ items, renderItem, showMinor }) {
       {main.map(renderItem)}
       {minor.length > 0 && !minorShown && (
         <div
-          style={{ padding: '3px 10px 5px 26px', fontSize: 10, color: '#0f6cbd', cursor: 'pointer' }}
+          style={{ padding: '3px 10px 5px 26px', fontSize: 10, color: 'var(--aeth-accent-text, #0f6cbd)', cursor: 'pointer' }}
           onClick={() => setMinorOpen(true)}
         >
           + {minor.length} built-in service{minor.length === 1 ? '' : 's'}
@@ -206,7 +206,7 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', background: '#fafafa', borderTop: '1px solid #eee', borderBottom: '1px solid #eee' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', background: 'var(--aeth-surface-subtle, #fafafa)', borderTop: '1px solid var(--aeth-border-subtle, #eee)', borderBottom: '1px solid var(--aeth-border-subtle, #eee)' }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: connector?.dot || '#bbb', flexShrink: 0 }} />
         <span style={{ fontSize: 12, fontWeight: 600, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={connector?.label}>
           {connectionLabel(connection)}
@@ -225,7 +225,7 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
 
       {status === 'error' && (
         <>
-          <p style={{ ...note, color: '#c62828' }}>{error}</p>
+          <p style={{ ...note, color: 'var(--aeth-danger-text, #c62828)' }}>{error}</p>
           {offline.length > 0 && (
             <Group title="Saved copies" countText={offline.length}>
               {offline.map(q => (
@@ -251,7 +251,7 @@ function ConnectionSection({ entry, savedCopies, search, editor, onSaveQuery, on
           onOpen={() => { if (lazy && (group.status === 'idle' || group.status === 'error')) onLoadGroup(group.key); }}
         >
           {group.status === 'loading' && <p style={{ ...note, padding: '4px 10px 6px 26px', fontStyle: 'italic' }}>Fetching {itemNoun}…</p>}
-          {group.status === 'error' && <p style={{ ...note, padding: '4px 10px 6px 26px', color: '#c62828' }}>{group.error}</p>}
+          {group.status === 'error' && <p style={{ ...note, padding: '4px 10px 6px 26px', color: 'var(--aeth-danger-text, #c62828)' }}>{group.error}</p>}
           {group.status === 'ok' && group.items.length === 0 && <p style={{ ...note, padding: '4px 10px 6px 26px' }}>No {itemNoun}.</p>}
           {group.status === 'ok' && <GroupItems items={group.items} renderItem={renderItem} showMinor={!!search} />}
         </Group>
@@ -276,7 +276,7 @@ export function QueryBrowser({ editor, connections, queries, onSaveQuery }) {
   return (
     <div>
       {!editor.activePageId && (
-        <div style={{ padding: '8px 12px', fontSize: 11, color: '#7a6000', background: '#fffbe6', borderBottom: '1px solid #ffe08a' }}>
+        <div style={{ padding: '8px 12px', fontSize: 11, color: 'var(--aeth-warning-text, #7a6000)', background: 'var(--aeth-warning-tint, #fffbe6)', borderBottom: '1px solid var(--aeth-warning-border, #ffe08a)' }}>
           Save this screen first — query instances need a real page to belong to.
         </div>
       )}

@@ -484,7 +484,7 @@ const AssetDiagramViewInner = forwardRef(function AssetDiagramViewInner({ curren
               <Button text="Copy Layout" onClick={handleCopyLayout} stylingMode="outlined" />
             </Panel>
             <Panel position="top-right">
-              <div style={{ display: 'flex', gap: 6, background: '#fff', padding: 6, borderRadius: 4, border: '1px solid #e5e5e5' }}>
+              <div style={{ display: 'flex', gap: 6, background: 'var(--aeth-surface, #fff)', padding: 6, borderRadius: 4, border: '1px solid var(--aeth-border, #e5e5e5)' }}>
                 <ButtonGroup keyExpr="value" selectedItemKeys={[diagramConnectionPointMode]} onItemClick={e => setDiagramConnectionPointMode(e.itemData.value)} stylingMode="outlined">
                   {RELATED_ASSETS_CONNECTION_POINT_ITEMS.map(item => (
                     <ButtonGroupItem key={item.value} text={item.text} value={item.value} hint={item.text} render={() => <IconButtonGroupItem {...item} />} />

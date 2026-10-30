@@ -77,8 +77,8 @@ export default function InputBindingPopover({ fieldName, binding, x, y, onSave, 
           />
           <div className={`binding-preview${isErr ? ' binding-preview-error' : ''}`}>
             {rawText
-              ? <><span style={{ color: '#aaa', marginRight: 4 }}>→</span><strong>{String(previewVal ?? '')}</strong></>
-              : <span style={{ color: '#bbb' }}>Type a value above to preview</span>
+              ? <><span style={{ color: 'var(--aeth-text-faint, #aaa)', marginRight: 4 }}>→</span><strong>{String(previewVal ?? '')}</strong></>
+              : <span style={{ color: 'var(--aeth-text-faint, #bbb)' }}>Type a value above to preview</span>
             }
           </div>
         </div>
@@ -86,7 +86,7 @@ export default function InputBindingPopover({ fieldName, binding, x, y, onSave, 
           {!!binding && (
             <button
               className="focus-mode-btn"
-              style={{ color: '#d00', borderColor: '#d00', fontSize: 11 }}
+              style={{ color: 'var(--aeth-danger-text, #d00)', borderColor: '#d00', fontSize: 11 }}
               onClick={() => { onClear(); onClose(); }}
             >× Clear</button>
           )}

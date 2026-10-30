@@ -21,7 +21,7 @@ function DevicePicker({ activeDeviceId, activeTierId, customWidth, customHeight,
         style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 120 }}
       >
         <span>{activeDevice?.label || 'Select Device'}</span>
-        <span style={{ fontSize: 10, color: '#999' }}>
+        <span style={{ fontSize: 10, color: 'var(--aeth-text-muted, #999)' }}>
           {activeDeviceId === 'custom'
             ? `${customWidth}×${customHeight}`
             : activeDevice?.width ? `${activeDevice.width}×${activeDevice.height}` : ''}
@@ -33,10 +33,10 @@ function DevicePicker({ activeDeviceId, activeTierId, customWidth, customHeight,
       {activeDeviceId === 'custom' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <input type="number" value={customWidth} onChange={e => onCustomChange(parseInt(e.target.value)||800, customHeight)}
-            style={{ width: 56, fontSize: 11, padding: '2px 4px', border: '1px solid #ccc', borderRadius: 3 }} />
-          <span style={{ fontSize: 11, color: '#999' }}>×</span>
+            style={{ width: 56, fontSize: 11, padding: '2px 4px', border: '1px solid var(--aeth-border-strong, #ccc)', borderRadius: 3 }} />
+          <span style={{ fontSize: 11, color: 'var(--aeth-text-muted, #999)' }}>×</span>
           <input type="number" value={customHeight} onChange={e => onCustomChange(customWidth, parseInt(e.target.value)||600)}
-            style={{ width: 56, fontSize: 11, padding: '2px 4px', border: '1px solid #ccc', borderRadius: 3 }} />
+            style={{ width: 56, fontSize: 11, padding: '2px 4px', border: '1px solid var(--aeth-border-strong, #ccc)', borderRadius: 3 }} />
         </div>
       )}
 
@@ -44,12 +44,12 @@ function DevicePicker({ activeDeviceId, activeTierId, customWidth, customHeight,
       {open && (
         <div style={{
           position: 'absolute', top: '100%', left: 0, zIndex: 1000,
-          background: '#fff', border: '1px solid #e0e0e0', borderRadius: 6,
+          background: 'var(--aeth-surface, #fff)', border: '1px solid var(--aeth-border, #e0e0e0)', borderRadius: 6,
           boxShadow: '0 4px 16px rgba(0,0,0,0.12)', minWidth: 240, maxHeight: 400, overflowY: 'auto',
           marginTop: 4,
         }}>
           {/* Special presets */}
-          <div style={{ padding: '4px 0', borderBottom: '1px solid #f0f0f0' }}>
+          <div style={{ padding: '4px 0', borderBottom: '1px solid var(--aeth-border-subtle, #f0f0f0)' }}>
             {SPECIAL_PRESETS.map(preset => (
               <div key={preset.id}
                 onClick={() => onDeviceSelect(preset)}
@@ -65,7 +65,7 @@ function DevicePicker({ activeDeviceId, activeTierId, customWidth, customHeight,
           {/* Device categories */}
           {DEVICE_CATEGORIES.map(cat => (
             <div key={cat.id}>
-              <div style={{ padding: '6px 12px 2px', fontSize: 10, fontWeight: 700, color: '#999', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <div style={{ padding: '6px 12px 2px', fontSize: 10, fontWeight: 700, color: 'var(--aeth-text-muted, #999)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                 {cat.label}
               </div>
               {cat.devices.map(device => {
@@ -79,7 +79,7 @@ function DevicePicker({ activeDeviceId, activeTierId, customWidth, customHeight,
                   >
                     <span style={{ fontWeight: activeDeviceId === device.id ? 600 : 400 }}>{device.label}</span>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 10, color: '#999' }}>{device.width}×{device.height}</span>
+                      <span style={{ fontSize: 10, color: 'var(--aeth-text-muted, #999)' }}>{device.width}×{device.height}</span>
                       {tier && <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 8, background: tier.color, color: '#fff', fontWeight: 600 }}>{tier.label}</span>}
                     </span>
                   </div>

@@ -1,0 +1,222 @@
+/* styles/appStyleTokens.css
+   One block of token values per app style (see appStyle.js).
+
+   Every chrome color in the app is written var(--aeth-<token>, <original>).
+   The Aetherium style deliberately defines NOTHING here, so every var()
+   falls back to its original value and the app is unchanged. Each other
+   style only has to set the tokens; a token a style leaves out keeps the
+   original value too (the light styles leave the status tints alone, for
+   example, since the originals already work on a light background).
+
+   Token families
+     surface*        backgrounds: panels/cards, subtle bands, wells & chips,
+                     pressed/strong fills, and the center workspace canvas
+     text*           foregrounds, darkest to faintest
+     border*         dividers and outlines, faintest to strongest
+     accent*         the interactive color: fills, hover, the text on an
+                     accent fill, accent-colored text/links, selection
+                     tints, soft accent outlines, focus rings
+     titlebar*       the top bar, its buttons and its drop-down menus
+     rail*           the area rails down the sides
+     panel-header*   the title strip on the Details panel
+     section-fg      small uppercase group labels inside panels
+     scrollbar*      thumbs
+     warning/danger/success/binding*   status tints — only dark styles
+                     need these, so a light tint doesn't glare */
+
+/* ── ThingWorx Light ──────────────────────────────────────────────────── */
+:root[data-aeth-style="thingworx-light"] {
+  --aeth-font: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --aeth-surface: #ffffff;
+  --aeth-surface-subtle: #f7f8f9;
+  --aeth-surface-muted: #eef0f2;
+  --aeth-surface-strong: #e2e5e8;
+  --aeth-surface-canvas: #f2f4f6;
+
+  --aeth-text: #262626;
+  --aeth-text-secondary: #474747;
+  --aeth-text-muted: #6b6b6b;
+  --aeth-text-faint: #a3a3a3;
+
+  --aeth-border-subtle: #ebebeb;
+  --aeth-border: #d6d6d6;
+  --aeth-border-strong: #bdbdbd;
+
+  --aeth-accent: #1a85c8;
+  --aeth-accent-hover: #136ca4;
+  --aeth-accent-fg: #ffffff;
+  --aeth-accent-text: #1a75b0;
+  --aeth-accent-tint: #ecf6e6;
+  --aeth-accent-tint-strong: #d5ebc8;
+  --aeth-accent-border-soft: #a9d48f;
+  --aeth-accent-ring: rgba(90, 168, 50, 0.22);
+
+  --aeth-brand-fg: #5aa832;
+  --aeth-titlebar-bg: #ffffff;
+  --aeth-titlebar-fg: #333333;
+  --aeth-titlebar-border: #d9d9d9;
+  --aeth-titlebar-control-bg: #f4f5f6;
+  --aeth-titlebar-control-border: #c9cdd1;
+  --aeth-titlebar-control-hover-bg: #ecf6e6;
+  --aeth-titlebar-menu-bg: #ffffff;
+  --aeth-titlebar-menu-border: #d6d6d6;
+  --aeth-titlebar-menu-fg: #333333;
+  --aeth-titlebar-menu-hover-bg: #ecf6e6;
+  --aeth-titlebar-menu-hover-fg: #1f1f1f;
+  --aeth-titlebar-menu-active-fg: #4a8f28;
+  --aeth-titlebar-menu-note-fg: #8a8a8a;
+
+  --aeth-rail-bg: #3d4043;
+  --aeth-rail-border: #2f3133;
+  --aeth-rail-fg: #c9cccf;
+  --aeth-rail-hover-bg: #4a4d51;
+  --aeth-rail-hover-fg: #ffffff;
+  --aeth-rail-active-bg: #5aa832;
+  --aeth-rail-active-fg: #ffffff;
+  --aeth-rail-toggle-bg: #4a4d51;
+
+  --aeth-panel-header-bg: #3d4043;
+  --aeth-panel-header-fg: #ffffff;
+  --aeth-panel-header-border: #3d4043;
+  --aeth-section-fg: #3d4043;
+
+  --aeth-scrollbar-thumb: #b8bcc0;
+  --aeth-scrollbar-thumb-hover: #969a9e;
+}
+
+/* ── Axio Light ───────────────────────────────────────────────────────── */
+:root[data-aeth-style="axio-light"] {
+  --aeth-font: "Roboto", "Segoe UI", sans-serif;
+
+  --aeth-surface: #ffffff;
+  --aeth-surface-subtle: #f6f8fa;
+  --aeth-surface-muted: #edf1f5;
+  --aeth-surface-strong: #dfe5eb;
+  --aeth-surface-canvas: #f3f5f7;
+
+  --aeth-text: #1d2733;
+  --aeth-text-secondary: #3c4856;
+  --aeth-text-muted: #6d7a88;
+  --aeth-text-faint: #a3adb8;
+
+  --aeth-border-subtle: #e8ecf0;
+  --aeth-border: #dbe1e7;
+  --aeth-border-strong: #c3ccd5;
+
+  --aeth-accent: #2f7fd6;
+  --aeth-accent-hover: #2369b5;
+  --aeth-accent-fg: #ffffff;
+  --aeth-accent-text: #2a72c0;
+  --aeth-accent-tint: #e6f0fa;
+  --aeth-accent-tint-strong: #c9dcf2;
+  --aeth-accent-border-soft: #9fc3ea;
+  --aeth-accent-ring: rgba(47, 127, 214, 0.18);
+
+  --aeth-brand-fg: #1d2733;
+  --aeth-titlebar-bg: #e4e9ee;
+  --aeth-titlebar-fg: #1d2733;
+  --aeth-titlebar-border: #c9d2db;
+  --aeth-titlebar-control-bg: #f5f7f9;
+  --aeth-titlebar-control-border: #b8c4d0;
+  --aeth-titlebar-control-hover-bg: #ffffff;
+  --aeth-titlebar-menu-bg: #ffffff;
+  --aeth-titlebar-menu-border: #c9d2db;
+  --aeth-titlebar-menu-fg: #1d2733;
+  --aeth-titlebar-menu-hover-bg: #e6f0fa;
+  --aeth-titlebar-menu-hover-fg: #1d2733;
+  --aeth-titlebar-menu-active-fg: #2a72c0;
+  --aeth-titlebar-menu-note-fg: #6d7a88;
+
+  --aeth-rail-bg: #dde3e9;
+  --aeth-rail-border: #c9d2db;
+  --aeth-rail-fg: #1d2733;
+  --aeth-rail-hover-bg: #ffffff;
+  --aeth-rail-hover-fg: #1d2733;
+  --aeth-rail-active-bg: #4a90d9;
+  --aeth-rail-active-fg: #ffffff;
+  --aeth-rail-toggle-bg: #ffffff;
+
+  --aeth-panel-header-bg: #ffffff;
+  --aeth-panel-header-fg: #1d2733;
+  --aeth-panel-header-border: #dbe1e7;
+  --aeth-section-fg: #1d2733;
+
+  --aeth-scrollbar-thumb: #b4c0cc;
+  --aeth-scrollbar-thumb-hover: #93a1af;
+}
+
+/* ── Axio Dark ────────────────────────────────────────────────────────── */
+:root[data-aeth-style="axio-dark"] {
+  color-scheme: dark;
+  --aeth-font: "Roboto", "Segoe UI", sans-serif;
+
+  --aeth-surface: #131a28;
+  --aeth-surface-subtle: #161e2e;
+  --aeth-surface-muted: #1b2436;
+  --aeth-surface-strong: #243046;
+  --aeth-surface-canvas: #0e1116;
+
+  --aeth-text: #e3e7ed;
+  --aeth-text-secondary: #c1c8d3;
+  --aeth-text-muted: #8b95a5;
+  --aeth-text-faint: #5e6878;
+
+  --aeth-border-subtle: #1f2838;
+  --aeth-border: #283244;
+  --aeth-border-strong: #364257;
+
+  --aeth-accent: #4a90d9;
+  --aeth-accent-hover: #3b7cc2;
+  --aeth-accent-fg: #ffffff;
+  --aeth-accent-text: #6cb0f2;
+  --aeth-accent-tint: #1a2e4a;
+  --aeth-accent-tint-strong: #234069;
+  --aeth-accent-border-soft: #2f5582;
+  --aeth-accent-ring: rgba(74, 144, 217, 0.3);
+
+  --aeth-brand-fg: #e8ecf1;
+  --aeth-titlebar-bg: #0b0d10;
+  --aeth-titlebar-fg: #e8ecf1;
+  --aeth-titlebar-border: #222833;
+  --aeth-titlebar-control-bg: rgba(255, 255, 255, 0.06);
+  --aeth-titlebar-control-border: rgba(255, 255, 255, 0.25);
+  --aeth-titlebar-control-hover-bg: rgba(255, 255, 255, 0.12);
+  --aeth-titlebar-menu-bg: #161c27;
+  --aeth-titlebar-menu-border: #2a3344;
+  --aeth-titlebar-menu-fg: #d5dbe3;
+  --aeth-titlebar-menu-hover-bg: #222b3b;
+  --aeth-titlebar-menu-hover-fg: #ffffff;
+  --aeth-titlebar-menu-active-fg: #6cb0f2;
+  --aeth-titlebar-menu-note-fg: #8b95a5;
+
+  --aeth-rail-bg: #101318;
+  --aeth-rail-border: #222833;
+  --aeth-rail-fg: #c9d1dc;
+  --aeth-rail-hover-bg: #1a202a;
+  --aeth-rail-hover-fg: #ffffff;
+  --aeth-rail-active-bg: #4a90d9;
+  --aeth-rail-active-fg: #ffffff;
+  --aeth-rail-toggle-bg: #1a202a;
+
+  --aeth-panel-header-bg: #131a28;
+  --aeth-panel-header-fg: #ffffff;
+  --aeth-panel-header-border: #283244;
+  --aeth-section-fg: #c9d1dc;
+
+  --aeth-scrollbar-thumb: #3a4458;
+  --aeth-scrollbar-thumb-hover: #4d5970;
+
+  --aeth-warning-tint: #3a2f17;
+  --aeth-warning-border: #6b5424;
+  --aeth-warning-text: #f0c46a;
+  --aeth-danger-tint: #3a1c1f;
+  --aeth-danger-border: #6e3036;
+  --aeth-danger-text: #f08a8f;
+  --aeth-success-tint: #18301f;
+  --aeth-success-text: #8fd19e;
+  --aeth-binding-tint: #2a2142;
+  --aeth-binding-tint-strong: #372b5a;
+  --aeth-binding-border: #4f3f80;
+  --aeth-binding-text: #b9a3f5;
+}
